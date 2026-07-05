@@ -1,1 +1,351 @@
-[]
+[
+    {
+        "id": "q1",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 1. Tell me about yourself",
+        "answer": "I'm a backend developer with several years of hands-on experience building and running Node.js services in production.\n\nI've worked with Express, NestJS, and Fastify, and spent a lot of time on the runtime side too — event loop behavior, streams, memory usage, and debugging performance issues under real traffic.\n\nBeyond just writing routes and business logic, I care about how Node.js actually behaves under load — where it blocks, where it queues work, and how to keep a single-threaded runtime fast and predictable."
+    },
+    {
+        "id": "q2",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 2. What is Node.js and how does it differ from a browser JavaScript runtime?",
+        "answer": "Node.js is a JavaScript runtime built on Chrome's V8 engine, but it runs outside the browser — on a server, without a DOM, window, or browser APIs.\n\nInstead of browser APIs, Node.js gives you APIs for the things a server needs — file system access, networking, process management, and streams.\n\nBoth share the same JavaScript engine and the same single-threaded event loop model, but Node.js adds libuv underneath to handle async I/O like file access and networking, which browsers don't need in the same way.",
+        "bonus": "Node.js also has a module system (CommonJS, and now ES Modules) and a package ecosystem (npm) that browsers don't have built in."
+    },
+    {
+        "id": "q3",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 3. Walk me through the phases of the Node.js Event Loop",
+        "answer": "The Event Loop runs in phases, and each phase has its own queue of callbacks.\n\nFirst is the timers phase — this runs callbacks scheduled by setTimeout and setInterval whose time has passed.\n\nThen pending callbacks, which handle some system-level callbacks left over from the previous cycle. After that comes the poll phase — this is where most I/O callbacks execute, like reading a file or getting a network response.\n\nThen the check phase runs setImmediate callbacks, and finally close callbacks run things like socket.on('close').\n\nBetween every phase, Node.js drains the microtask queue — so all pending Promises and process.nextTick callbacks run before moving to the next phase.",
+        "bonus": "This is why process.nextTick callbacks always run before setImmediate ones, even though people often expect them to behave the same way."
+    },
+    {
+        "id": "q4",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 4. What is libuv and what role does it play in Node.js?",
+        "answer": "libuv is a C library that Node.js uses under the hood to handle asynchronous I/O.\n\nJavaScript itself doesn't know how to talk to the operating system for things like file access or networking — libuv is the layer that does that. It gives Node.js the Event Loop implementation, and it manages a thread pool for operations that can't be done asynchronously at the OS level, like some file system calls and DNS lookups.\n\nSo when people say Node.js is single-threaded, that's true for JavaScript execution — but libuv itself uses multiple threads behind the scenes to keep that single thread from blocking.",
+        "bonus": "Networking I/O on most platforms doesn't need the thread pool — the OS itself supports non-blocking sockets. File system operations usually do need it, which is why heavy file I/O can exhaust the thread pool."
+    },
+    {
+        "id": "q5",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 5. What's the difference between blocking and non-blocking code in Node.js?",
+        "answer": "Blocking code stops the entire process until it finishes — nothing else can run on the main thread while it's happening. A classic example is fs.readFileSync — the whole app waits until that file is read.\n\nNon-blocking code hands the work off — to libuv, the thread pool, or the OS — and keeps the main thread free to handle other requests. fs.readFile is the non-blocking version of the same operation.\n\nIn a server handling many requests at once, blocking code is dangerous because it freezes every other request too, not just the one that triggered it. That's why we avoid synchronous APIs in request handlers and stick to their async equivalents.",
+        "bonus": "CPU-heavy synchronous code — like a big loop or heavy JSON parsing — blocks the event loop just as much as a blocking I/O call, even though it's not doing any I/O at all."
+    },
+    {
+        "id": "q6",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 6. What is the Node.js thread pool and when does it get used?",
+        "answer": "The thread pool is a set of worker threads that libuv maintains — by default 4 threads — to run operations that can't be done asynchronously by the operating system itself.\n\nThis includes most file system operations, some crypto functions like pbkdf2 and scrypt, DNS lookups via dns.lookup, and a few zlib compression operations.\n\nIf you have more concurrent thread-pool operations than available threads, the extra ones queue up and wait — which can show up as unexplained latency spikes under load.",
+        "bonus": "You can increase the pool size with the UV_THREADPOOL_SIZE environment variable, up to a maximum of 1024. It's a common fix when an app does heavy file I/O or crypto work."
+    },
+    {
+        "id": "q7",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 7. Explain the difference between process.nextTick, setImmediate, and setTimeout",
+        "answer": "process.nextTick schedules a callback to run immediately after the current operation completes, before the Event Loop continues to the next phase. It runs before any I/O or timers.\n\nsetImmediate schedules a callback to run in the check phase of the Event Loop, after the poll phase — so typically after I/O callbacks in the same cycle.\n\nsetTimeout(fn, 0) schedules a callback in the timers phase, which runs at the start of the next Event Loop iteration.\n\nIn practice, if you're inside an I/O callback, setImmediate usually runs before setTimeout with the same delay of 0, because the poll phase leads directly into the check phase.",
+        "bonus": "Overusing process.nextTick can starve the Event Loop — since it runs before I/O, recursively calling it can block I/O from ever happening."
+    },
+    {
+        "id": "q8",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 8. What are some important Node.js global objects, like process and __dirname?",
+        "answer": "process gives information and control over the current Node.js process — environment variables through process.env, command-line arguments, exit codes, and events like process.on('exit').\n\n__dirname and __filename give the directory and file path of the current module — though these only exist in CommonJS, not in ES Modules, where you'd use import.meta.url instead.\n\nglobal is the global object in Node.js, similar to window in the browser — though we avoid attaching things to it directly since it leads to hidden dependencies between modules.\n\nBuffer is also globally available and used constantly when working with binary data or streams.",
+        "bonus": "In ES Modules, to get the equivalent of __dirname, you typically do: const __dirname = path.dirname(fileURLToPath(import.meta.url))."
+    },
+    {
+        "id": "q9",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 9. How does Node.js handle uncaught exceptions and unhandled promise rejections?",
+        "answer": "By default, an uncaught exception crashes the process — Node.js prints the error and exits, because the app is considered to be in an unknown, potentially unsafe state.\n\nWe can listen for process.on('uncaughtException') to log the error before exiting, but it's not meant to keep the app running — the recommended pattern is to log it and then let the process exit, letting something like a process manager or orchestrator restart it.\n\nUnhandled promise rejections work similarly — process.on('unhandledRejection') lets you catch and log rejected promises that had no .catch(). In recent Node.js versions, an unhandled rejection also terminates the process by default, which matches how uncaught exceptions behave.",
+        "bonus": "The safest approach is to never rely on these handlers as your main error handling — they're a last line of defense for logging, not a substitute for try/catch and proper .catch() handlers."
+    },
+    {
+        "id": "q10",
+        "module": "Module 1 — Node.js Fundamentals",
+        "question": "Question 10. What Node.js version and LTS strategy do you follow in production?",
+        "answer": "We always run production on an LTS (Long Term Support) version, not the latest current release — LTS versions get bug fixes and security patches for a long time and are considered stable for production use.\n\nWe pin the Node.js version explicitly — in the Dockerfile, in package.json's engines field, and in CI — so every environment runs the same version and we don't get 'works on my machine' issues caused by version drift.\n\nWhen a new LTS comes out, we test the upgrade in a branch, run the full test suite and a staging deployment, and check the changelog for breaking changes before rolling it out to production.",
+        "bonus": "Node.js LTS versions follow a predictable release cycle — a new even-numbered version becomes LTS every October, and each LTS gets about 30 months of support."
+    },
+    {
+        "id": "q11",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 11. How do Streams work in Node.js?",
+        "answer": "Streams let you process data piece by piece, instead of loading everything into memory at once.\n\nInstead of reading a whole file into memory and then processing it, a stream reads it in small chunks, processes each chunk, and moves on — which keeps memory usage low even for very large files.\n\nNode.js streams are built on EventEmitter — they emit events like 'data', 'end', and 'error' as data flows through them. Most core APIs that deal with large amounts of data — file system, HTTP requests and responses, process stdin/stdout — are stream-based.",
+        "bonus": "Streams are one of the reasons Node.js is well suited for I/O-heavy workloads like proxying HTTP requests or processing uploads without buffering the whole payload."
+    },
+    {
+        "id": "q12",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 12. What's the difference between Readable, Writable, Duplex, and Transform streams?",
+        "answer": "A Readable stream is a source of data — you read from it. fs.createReadStream is a common example.\n\nA Writable stream is a destination for data — you write to it. fs.createWriteStream or the HTTP response object are examples.\n\nA Duplex stream is both readable and writable at the same time, but the two sides are independent — a TCP socket is a good example, since you can read and write to it separately.\n\nA Transform stream is a special kind of Duplex stream where the output is computed from the input — like a gzip compression stream, where what you write in gets transformed into what comes out.",
+        "bonus": "When building custom processing logic — like parsing, filtering, or compressing data as it flows through — a Transform stream is usually the right building block."
+    },
+    {
+        "id": "q13",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 13. What is backpressure in streams and how do you handle it?",
+        "answer": "Backpressure happens when a Readable stream produces data faster than a Writable stream can consume it.\n\nIf you ignore it, data piles up in memory waiting to be written, which can cause high memory usage or crashes on large transfers.\n\nNode.js streams handle this automatically when you use .pipe() or pipeline() — the Writable stream signals when its internal buffer is full by having write() return false, and the Readable stream pauses until the Writable stream emits 'drain' and is ready for more.\n\nIf you're manually reading and writing without pipe(), you have to check the return value of write() yourself and pause the source if needed.",
+        "bonus": "This is one of the strongest reasons to use pipeline() or pipe() instead of manually wiring streams together — backpressure handling is easy to get wrong by hand."
+    },
+    {
+        "id": "q14",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 14. How do you handle errors in streams and pipelines?",
+        "answer": "With plain .pipe(), errors on one stream don't automatically propagate or close the other streams in the chain — you have to attach 'error' listeners to every stream individually, and manually clean up open file descriptors or sockets.\n\nThat's why we use the pipeline() function from the stream module instead. It connects multiple streams together and, if any of them errors, it automatically destroys all the streams in the chain and calls a single callback with the error.\n\nThis avoids resource leaks — like a file staying open forever because an error happened downstream and nothing closed it.",
+        "bonus": "pipeline() also has a promise-based version, stream/promises, which fits naturally into async/await code."
+    },
+    {
+        "id": "q15",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 15. What are Buffers in Node.js and when do you use them?",
+        "answer": "A Buffer is a fixed-size chunk of raw binary data, outside the normal V8 memory heap used for JavaScript objects.\n\nJavaScript strings are great for text, but not for binary data like images, file contents, or network packets — Buffers exist to handle that kind of data efficiently.\n\nWe run into Buffers most often when working with streams — file reads, HTTP request bodies, or TCP sockets all deal in Buffers by default before you decide how to interpret them, for example converting them to a UTF-8 string or parsing them as JSON.",
+        "bonus": "Buffers are allocated outside the V8 heap, which is part of why Node.js can handle large binary payloads without blowing up JavaScript's memory limits as fast as you'd expect."
+    },
+    {
+        "id": "q16",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 16. What's the difference between pipe() and pipeline()?",
+        "answer": "pipe() connects a Readable stream to a Writable stream, forwarding data and handling backpressure automatically — but it doesn't handle errors well. If one stream errors, the others aren't automatically destroyed, which can leak file handles or sockets.\n\npipeline() does the same job of connecting streams, but adds proper error handling and cleanup — if any stream in the chain fails, all of them get destroyed, and you get a single callback (or a rejected promise) with the error.\n\nIn any real production code, we use pipeline() instead of raw pipe() calls for exactly that reason.",
+        "bonus": "pipeline() also supports chaining Transform streams in the middle, so you can build something like: read file -> gzip -> write file, all in one call."
+    },
+    {
+        "id": "q17",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 17. How do you process a large file without loading it fully into memory?",
+        "answer": "We use streams instead of reading the whole file with something like fs.readFile.\n\nfs.createReadStream reads the file in chunks, and we process each chunk as it comes in — for example parsing CSV rows, or piping it directly into a Transform stream that filters or reformats the data.\n\nFor something like importing a huge CSV into a database, we'd stream the file, parse it line by line, and insert records in batches, instead of ever holding the entire file's contents in memory at once.",
+        "bonus": "This same pattern applies to file uploads and downloads in an API — stream the request body directly to storage (like S3) instead of buffering the whole file in memory first."
+    },
+    {
+        "id": "q18",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 18. Explain EventEmitter and how you've used it",
+        "answer": "EventEmitter is a core Node.js class that implements the publish-subscribe pattern — you emit named events, and any number of listeners can subscribe to react to them.\n\nMost of Node.js's own async APIs are built on top of it — streams, HTTP servers, child processes — they all emit events like 'data', 'error', or 'close'.\n\nWe've used custom EventEmitters to decouple parts of an app — for example, emitting a 'user.created' event after a signup, and having separate listeners handle sending a welcome email, updating analytics, and syncing to a CRM, without the core signup logic knowing about any of them.",
+        "bonus": "By default, EventEmitter warns if you attach more than 10 listeners for the same event — it's a safeguard against accidental memory leaks from listeners that never get removed."
+    },
+    {
+        "id": "q19",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 19. What's the difference between Promise.all, Promise.race, and Promise.any?",
+        "answer": "Promise.all runs promises in parallel and waits for all of them to resolve — if any one of them rejects, the whole thing rejects immediately with that error.\n\nPromise.race resolves or rejects as soon as the first promise settles — whether it succeeds or fails.\n\nPromise.any resolves as soon as the first promise succeeds, and only rejects if every single promise fails.\n\nWe use Promise.all for things like loading a user and their orders together. Promise.race is useful for timeouts — race a request against a timeout promise. Promise.any is less common, but useful when you're trying multiple redundant sources and just need one to succeed.",
+        "bonus": "There's also Promise.allSettled, which waits for every promise to finish, successful or not, and gives you the result of each — useful when partial failures are acceptable."
+    },
+    {
+        "id": "q20",
+        "module": "Module 2 — Async Patterns & Streams",
+        "question": "Question 20. How do you handle concurrency limits when running many async tasks?",
+        "answer": "Running everything with Promise.all at once can overwhelm a database, an API rate limit, or memory, if there are thousands of tasks.\n\nWe use a concurrency limit — process tasks in small batches, or use a library like p-limit, which lets a fixed number of promises run at once and queues the rest.\n\nFor example, if we need to call an external API for 10,000 records, we might limit it to 10 concurrent requests instead of firing all 10,000 at once — this respects rate limits and avoids spiking memory with too many in-flight requests.",
+        "bonus": "This is the same underlying problem that queues and worker pools solve at a bigger scale — controlling how much work runs at once instead of letting it run unbounded."
+    },
+    {
+        "id": "q21",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 21. What's the difference between CommonJS and ES Modules in Node.js?",
+        "answer": "CommonJS is Node.js's original module system — it uses require() to import and module.exports to export, and it's synchronous, resolving and loading modules at the time require() is called.\n\nES Modules is the standard JavaScript module system — it uses import and export syntax, and is resolved statically, before the code actually runs, which is what allows tools to do tree-shaking.\n\nNode.js supports both today. You tell Node.js to treat files as ES Modules either by naming them .mjs, or by setting \"type\": \"module\" in package.json — CommonJS files use .cjs or the default type.",
+        "bonus": "You can import CommonJS modules from ES Modules, but you can't require() an ES Module directly — that mismatch causes a lot of real-world friction when migrating older packages."
+    },
+    {
+        "id": "q22",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 22. How does Node.js resolve modules when you call require or import?",
+        "answer": "For a relative or absolute path, Node.js resolves it directly, checking for the exact file, then common extensions like .js, .json, and .node.\n\nFor a bare package name, Node.js looks in the node_modules folder in the current directory, and if not found, walks up the directory tree checking parent node_modules folders, all the way to the root.\n\nFor a folder, it looks at the \"main\" field in that folder's package.json (or \"exports\" in modern packages) to figure out which file to load.",
+        "bonus": "This upward-walking resolution is exactly why installing a package one level up in a monorepo can still make it resolvable from a nested package, without duplicating it."
+    },
+    {
+        "id": "q23",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 23. What is the package.json \"exports\" field and why does it matter?",
+        "answer": "The \"exports\" field explicitly defines which files inside a package are allowed to be imported from the outside, and under what conditions.\n\nBefore \"exports\" existed, anyone could import any internal file of a package directly, even ones that were meant to be private implementation details. \"exports\" lets a package author lock that down and only expose a clean public API.\n\nIt also lets a package define different entry points for different environments — for example, a different file for CommonJS versus ES Modules, or for Node.js versus browser bundlers — using conditional exports.",
+        "bonus": "If you've ever seen an error like 'Package path ./internal is not exported from package', that's the \"exports\" field doing its job and blocking access to a file that isn't part of the public API."
+    },
+    {
+        "id": "q24",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 24. How do you decide between npm, yarn, and pnpm?",
+        "answer": "npm comes bundled with Node.js, so it's the default choice when there's no strong reason to use something else — it's improved a lot over the years and has a lockfile, workspaces, and good performance.\n\nyarn was originally created to fix npm's early performance and determinism issues — those gaps have mostly closed, but some teams still prefer its workspace features or Plug'n'Play mode.\n\npnpm stores packages in a single global content-addressable store and uses symlinks in node_modules, which saves a lot of disk space and speeds up installs, especially in monorepos with many packages sharing dependencies.\n\nIn practice, the choice usually comes down to team preference and existing tooling — the important thing is that everyone on the project uses the same one, since lockfiles aren't interchangeable between them.",
+        "bonus": "pnpm's stricter node_modules structure also catches a common bug — code that works only because it accidentally imported a dependency's dependency, which npm and yarn's flatter structure allowed by accident."
+    },
+    {
+        "id": "q25",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 25. How does semantic versioning work in package.json?",
+        "answer": "Semantic versioning is major.minor.patch — for example 2.4.1.\n\nA patch bump means a backward-compatible bug fix. A minor bump means a backward-compatible new feature. A major bump means a breaking change.\n\nIn package.json, a caret like ^2.4.1 allows updates that don't change the major version — so up to but not including 3.0.0. A tilde like ~2.4.1 is more restrictive, allowing only patch updates within 2.4.x.\n\nWe pin dependencies carefully for anything critical, and rely on the lockfile to guarantee the exact same versions are installed everywhere, regardless of what the semver range in package.json technically allows.",
+        "bonus": "Semver is a convention, not something enforced by npm — a package can technically make a breaking change in a minor release if the maintainer isn't careful, which is why the lockfile matters so much for reproducibility."
+    },
+    {
+        "id": "q26",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 26. How do you handle monorepos in Node.js projects?",
+        "answer": "We use workspaces — supported natively by npm, yarn, and pnpm — to manage multiple packages inside one repository, sharing a single lockfile and hoisting common dependencies.\n\nThis lets us have, for example, a shared types package, an API package, and a frontend package all in one repo, referencing each other locally without needing to publish to npm first.\n\nFor build orchestration across packages — running builds and tests only for what changed — we've used tools like Turborepo or Nx on top of workspaces, since plain workspaces don't handle task caching or dependency-aware build ordering on their own.",
+        "bonus": "The main benefit of a monorepo for us has been atomic changes — updating a shared package and its consumers in the same pull request, instead of coordinating version bumps and releases across separate repos."
+    },
+    {
+        "id": "q27",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 27. How do you handle vulnerable or outdated dependencies?",
+        "answer": "We run npm audit (or the equivalent for yarn/pnpm) regularly, and also have it wired into CI so a pull request fails if it introduces a known high-severity vulnerability.\n\nFor outdated packages, we use tools like npm outdated or Dependabot/Renovate to get automated pull requests when new versions are available, rather than manually checking.\n\nWe don't blindly auto-merge every dependency update though — for major version bumps we read the changelog and run the test suite, since a transitive dependency update can still break something unexpected.",
+        "bonus": "Automated dependency update bots are most valuable for patch and minor bumps — those are usually safe to merge quickly, while major bumps still deserve a closer look."
+    },
+    {
+        "id": "q28",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 28. What's the difference between dependencies, devDependencies, and peerDependencies?",
+        "answer": "dependencies are packages the app needs at runtime — things like express or a database driver, which get installed wherever the app runs, including in production.\n\ndevDependencies are only needed during development or build — testing frameworks, linters, TypeScript, build tools. In production we typically install with --omit=dev, or the Docker image just never includes them.\n\npeerDependencies are used mainly by libraries — they declare that the package expects the consuming project to provide a certain dependency itself, usually to avoid having two conflicting versions of something like React installed at once.",
+        "bonus": "Getting devDependencies out of the production image matters for both image size and security — fewer packages installed means a smaller attack surface."
+    },
+    {
+        "id": "q29",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 29. How do private npm packages or private registries work?",
+        "answer": "For sharing internal code between projects without making it public, we publish to a private npm registry — either npm's own private packages, or a self-hosted one like Verdaccio, or a managed one like GitHub Packages or AWS CodeArtifact.\n\nProjects authenticate to the private registry using an access token, usually set through an .npmrc file, and CI pipelines get that token through a secret rather than a hardcoded value.\n\nWe've used this pattern for shared internal libraries — like a common types package or an internal SDK — versioned and published just like any public package, but only accessible to our organization.",
+        "bonus": "You can scope a private package under your org, like @your-org/shared-types, and configure npm to fetch anything under that scope from the private registry while everything else still comes from the public npm registry."
+    },
+    {
+        "id": "q30",
+        "module": "Module 3 — Modules & Package Management",
+        "question": "Question 30. What is a lockfile and why does it matter?",
+        "answer": "A lockfile — package-lock.json, yarn.lock, or pnpm-lock.yaml — records the exact version of every installed package, including transitive dependencies, not just the top-level ones listed in package.json.\n\nWithout it, two installs at different times could resolve slightly different versions within the same semver ranges, leading to subtle differences between environments — the classic 'works on my machine' problem.\n\nWe always commit the lockfile to the repo, and use commands like npm ci in CI and Docker builds, which install exactly what's in the lockfile instead of resolving fresh versions.",
+        "bonus": "npm ci also deletes node_modules first and fails if package.json and the lockfile are out of sync, which makes it stricter and more reproducible than a regular npm install."
+    },
+    {
+        "id": "q31",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 31. How do you profile a Node.js application for performance issues?",
+        "answer": "We start with Node.js's built-in profiler — running the app with --prof generates a V8 log we can process into a readable report showing where time is spent.\n\nFor a more visual and interactive view, we use the Chrome DevTools inspector — running with --inspect and connecting Chrome's DevTools lets us record a CPU profile and see a flame graph of function calls.\n\nWe also use clinic.js, which wraps several of these tools together and gives a more approachable report, especially useful for spotting Event Loop delays or excessive garbage collection.\n\nThe key is to profile under realistic load, not just locally with a single request — a lot of performance issues only show up once there's real concurrency.",
+        "bonus": "Application performance monitoring tools like Datadog or New Relic are also useful here — they give continuous production-level visibility instead of a one-time profiling session."
+    },
+    {
+        "id": "q32",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 32. How do you detect and fix memory leaks in Node.js?",
+        "answer": "The first sign is usually memory usage that keeps climbing over time and never goes back down, even under steady traffic — visible in monitoring dashboards or just process.memoryUsage() logged periodically.\n\nTo dig in, we take heap snapshots — using the Chrome DevTools memory tab connected via --inspect, or a library like heapdump — and compare snapshots taken minutes apart to see what's growing.\n\nCommon causes we've run into: event listeners that are added but never removed, caches with no size limit or expiration, and closures that unintentionally hold references to large objects longer than needed.\n\nOnce we find the growing object type, we trace back through the retainer chain in the snapshot to see what's holding onto it and preventing garbage collection.",
+        "bonus": "A steadily growing number of listeners on an EventEmitter, visible via emitter.listenerCount(), is one of the most common and easiest-to-spot leak patterns."
+    },
+    {
+        "id": "q33",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 33. What is Node.js clustering and when do you use it?",
+        "answer": "The cluster module lets you run multiple instances of your Node.js app across multiple CPU cores, since a single Node.js process only uses one core for JavaScript execution.\n\nA primary process forks worker processes — usually one per CPU core — and incoming connections get distributed across them, either by the OS or by the primary process itself.\n\nWe use clustering when a single instance is CPU-bound and can't use the other cores on the machine — it multiplies throughput without needing separate physical machines.\n\nIn container-based deployments, though, it's common to just run one process per container and let the orchestrator (Kubernetes, ECS) run multiple container replicas instead — which achieves a similar effect with better isolation and easier scaling per replica.",
+        "bonus": "Clustering doesn't share memory between workers — each one has its own heap — so any in-memory cache or session store needs to be centralized (like Redis) if it needs to be shared across workers."
+    },
+    {
+        "id": "q34",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 34. What's the difference between the cluster module and worker_threads?",
+        "answer": "cluster creates multiple separate processes, each with its own memory and its own Event Loop — good for scaling out request handling across CPU cores, since each process can handle its own set of connections independently.\n\nworker_threads creates threads within the same process, and they can share memory directly through SharedArrayBuffer — better suited for CPU-intensive tasks like image processing, encryption, or heavy computation that would otherwise block the main Event Loop.\n\nIn short: use cluster to scale I/O-bound request handling across cores, and use worker_threads to offload CPU-bound work without blocking the main thread.",
+        "bonus": "worker_threads communicate by passing messages (or shared memory) rather than sharing the whole JS heap, so you still need to design carefully around what data crosses that boundary."
+    },
+    {
+        "id": "q35",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 35. How do you debug a Node.js app running in production?",
+        "answer": "We rely heavily on structured logging first — every request tagged with a request ID, so we can trace a single request's path through the system in the logs.\n\nFor deeper investigation, Node.js supports attaching the inspector to a running process with a signal (SIGUSR1) or the --inspect flag, though in production we're careful about doing this live, since it can pause the process.\n\nWe also take heap snapshots or CPU profiles on demand in more controlled environments, like a staging replica under similar load, rather than experimenting directly on production traffic.\n\nMonitoring and alerting — response times, error rates, memory, CPU — usually tells us where to look before we ever need to attach a debugger.",
+        "bonus": "Enabling --inspect in production requires care around network exposure — the inspector protocol should never be reachable from outside a trusted network, since it gives full code execution access to the process."
+    },
+    {
+        "id": "q36",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 36. What's the difference between CPU-bound and I/O-bound tasks in Node.js?",
+        "answer": "I/O-bound tasks spend most of their time waiting — for a database response, a file read, or a network call. Node.js handles these very well, because while waiting, the Event Loop is free to handle other requests.\n\nCPU-bound tasks spend their time actually computing — parsing a huge JSON file, running complex calculations, image resizing. These block the Event Loop while they run, since JavaScript execution itself is single-threaded.\n\nNode.js is a great fit for I/O-bound workloads like typical APIs, but for CPU-bound work, we either offload it to worker_threads, a separate service, or a queue processed by dedicated workers, so it doesn't block request handling.",
+        "bonus": "A useful mental model: if the task mostly waits, Node.js scales it well by default. If the task mostly computes, you need to explicitly move it off the main thread."
+    },
+    {
+        "id": "q37",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 37. How do you handle backpressure and high load at the API level?",
+        "answer": "We set concurrency and rate limits — either at the load balancer, an API gateway, or in-app with middleware — so a single client or a traffic spike can't overwhelm the service.\n\nFor requests that trigger heavier work, we move that work to a queue instead of processing it synchronously in the request — the API responds quickly with an acknowledgment, and a worker processes the actual job at a sustainable pace.\n\nWe also watch for signs of an overloaded Event Loop — rising response times across all endpoints, not just one — which usually means something is blocking the loop rather than a downstream dependency being slow.",
+        "bonus": "Setting sensible request timeouts matters too — without them, slow or stuck requests can pile up and hold resources (like database connections) far longer than they should."
+    },
+    {
+        "id": "q38",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 38. What tools do you use for load testing Node.js APIs?",
+        "answer": "We've used k6 and autocannon most often — both let us define a target request rate or number of virtual users and see response times, error rates, and throughput under that load.\n\nFor more complex scenarios — realistic user flows instead of hitting a single endpoint repeatedly — we've used k6 scripts that simulate a sequence of requests, like login, then browse, then checkout.\n\nWe run load tests against a staging environment that's as close to production scale as practical, and compare results after changes to catch regressions before they reach real users.",
+        "bonus": "Load testing against production directly is risky — we prefer a dedicated staging environment, or very carefully controlled canary testing, to avoid impacting real traffic."
+    },
+    {
+        "id": "q39",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 39. How does garbage collection work in V8, and why does it matter for Node.js apps?",
+        "answer": "V8 splits the heap into generations — a small young generation for newly created objects, and a larger old generation for objects that survive multiple collection cycles.\n\nMinor garbage collections happen frequently on the young generation and are fast. Major garbage collections on the old generation are less frequent but more expensive, and can briefly pause the Event Loop while they run.\n\nFor Node.js apps, this matters because a large old-generation collection can cause a noticeable latency spike — if we see periodic latency blips that correlate with memory usage dropping, that's usually garbage collection pauses, and it often points to too many long-lived objects, like an unbounded cache.",
+        "bonus": "You can inspect GC activity with the --trace-gc flag, which logs each collection with its duration and type — useful for correlating latency spikes with GC pauses."
+    },
+    {
+        "id": "q40",
+        "module": "Module 4 — Performance & Debugging",
+        "question": "Question 40. What is Event Loop lag and how do you monitor it?",
+        "answer": "Event Loop lag is the delay between when a callback is scheduled to run and when it actually runs — it grows when the Event Loop is busy doing other work, usually CPU-bound synchronous code.\n\nA simple way to measure it: schedule a callback with setImmediate or setTimeout, note the time before and after, and the difference tells you how backed up the loop is.\n\nIn production, we monitor this using a library or built-in metric (some APM tools track it automatically) and alert if lag consistently rises — high lag means requests are queuing up even though the server 'looks' fine at a glance.",
+        "bonus": "Consistently high Event Loop lag under normal traffic is one of the clearest signs that something CPU-bound needs to be moved off the main thread."
+    },
+    {
+        "id": "q41",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 41. How do you structure error handling in a large Node.js app?",
+        "answer": "We use custom error classes that extend the built-in Error — things like NotFoundError or ValidationError — so different parts of the code can throw meaningful, typed errors instead of generic ones.\n\nAt the API boundary, a centralized error-handling middleware catches everything, maps known error types to the right HTTP status codes, and formats a consistent error response — instead of every route handling errors individually.\n\nFor unexpected errors that aren't one of our known types, we log the full error with context (request ID, user, route) and return a generic message to the client, so internal details never leak out.",
+        "bonus": "Keeping error handling centralized also makes it much easier to add things later, like reporting unexpected errors to an error tracking service, without touching every route."
+    },
+    {
+        "id": "q42",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 42. How do you write tests for Node.js applications?",
+        "answer": "We write unit tests for pure logic — a function that calculates pricing, or validates input — using something like Jest or Vitest, mocking out any external dependencies.\n\nFor integration tests, we test the actual API endpoints against a real (or realistic test) database, verifying the full request-to-response flow works, not just individual functions in isolation.\n\nWe try to keep the test pyramid balanced — lots of fast unit tests, a smaller number of integration tests covering critical flows, and very few end-to-end tests, since those are the slowest and most brittle.",
+        "bonus": "For testing code that depends on time or randomness, we use fake timers and seeded random generators — otherwise those tests become flaky and hard to reproduce."
+    },
+    {
+        "id": "q43",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 43. How do you choose between Express, NestJS, and Fastify?",
+        "answer": "Express is minimal and unopinionated — great for small services or when you want full control over structure, but you end up building a lot of conventions yourself as the project grows.\n\nNestJS is a full framework with built-in structure — modules, dependency injection, decorators — closer to something like Angular or Spring. It's a strong fit for larger teams and larger codebases where consistency matters more than raw flexibility.\n\nFastify focuses heavily on performance and has a solid plugin architecture with schema-based validation built in — a good middle ground when you want speed and structure without NestJS's full opinionated framework.\n\nFor a small service or prototype, I'd lean Express or Fastify. For a large, long-lived system with many contributors, NestJS's structure tends to pay off.",
+        "bonus": "Framework choice usually matters less than having consistent patterns within a codebase — a well-structured Express app can be just as maintainable as a NestJS one if the team is disciplined about conventions."
+    },
+    {
+        "id": "q44",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 44. How do you secure a Node.js API?",
+        "answer": "We validate every incoming input — body, query params, headers — since anything from the client is untrusted, and we never assume the frontend already checked it.\n\nWe use security-focused middleware like helmet to set safe HTTP headers, keep dependencies updated to avoid known vulnerabilities, and run npm audit as part of CI.\n\nWe rate-limit sensitive endpoints like login, use parameterized queries or an ORM to avoid SQL injection, and never log sensitive data like passwords or tokens.\n\nSecrets — API keys, database credentials — always come from a secret manager or environment variables, never committed to the code.",
+        "bonus": "We also set explicit CORS rules instead of allowing all origins — it's a small thing that's easy to overlook but matters a lot for APIs that shouldn't be callable from just any website."
+    },
+    {
+        "id": "q45",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 45. How do you handle configuration and secrets in Node.js apps?",
+        "answer": "Configuration that varies by environment — API URLs, feature flags, log levels — comes from environment variables, loaded through something like dotenv locally and through the platform's environment configuration in production.\n\nSecrets — database passwords, API keys — never go into environment files that get committed. In production, they come from a secret manager like AWS Secrets Manager, injected into the environment at runtime.\n\nWe validate configuration at startup, not lazily when it's first used — if a required environment variable is missing, the app should fail immediately with a clear error, rather than crashing unpredictably later during a request.",
+        "bonus": "Validating environment variables against a schema at startup (with something like zod or envalid) catches misconfiguration issues before the app even starts accepting traffic."
+    },
+    {
+        "id": "q46",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 46. How do you containerize a Node.js app with Docker?",
+        "answer": "We use a multi-stage Dockerfile — one stage installs dependencies and builds the app, and a second, smaller stage copies only the built output and production dependencies into the final image.\n\nWe use a slim base image (like node:20-alpine) to keep the image small, and run npm ci --omit=dev in the final stage so devDependencies never end up in production.\n\nWe run the app as a non-root user inside the container, and set NODE_ENV=production, which some libraries use internally to skip development-only checks and improve performance.",
+        "bonus": "Multi-stage builds also mean build tools and source maps used only during the build never bloat the final production image."
+    },
+    {
+        "id": "q47",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 47. How do you handle graceful shutdown in Node.js?",
+        "answer": "When a process receives a termination signal — SIGTERM, typically sent by an orchestrator during a deploy or scale-down — we don't want to just die immediately and drop in-flight requests.\n\nWe listen for that signal, stop accepting new connections, wait for in-flight requests to finish (with a reasonable timeout), close database connections and any other open resources, and only then exit the process.\n\nThis matters most in containerized environments — Kubernetes sends SIGTERM before killing a pod, and if the app doesn't handle it, requests in progress during a deploy get cut off mid-response.",
+        "bonus": "It's important to also set a maximum shutdown timeout — if something hangs and never finishes, the process should still exit eventually rather than blocking a deploy indefinitely."
+    },
+    {
+        "id": "q48",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 48. What's the difference between Node.js and newer runtimes like Deno or Bun?",
+        "answer": "Node.js is the most established runtime, with by far the largest ecosystem and the most production track record — that stability is a big reason it's still the default choice for most teams.\n\nDeno was built partly as a response to some of Node.js's early design issues — it has built-in TypeScript support, secure-by-default permissions (no file or network access unless explicitly granted), and native ES Modules support from the start.\n\nBun focuses heavily on speed — it has its own JavaScript engine (JavaScriptCore instead of V8) and bundles a package manager, bundler, and test runner together, aiming to be a faster, all-in-one alternative.\n\nIn practice, we still default to Node.js for production because of its maturity and ecosystem, but we keep an eye on Bun especially for its performance gains in areas like package installation and startup time.",
+        "bonus": "Both Deno and Bun aim for better compatibility with Node.js APIs over time, which lowers the risk of trying them for smaller projects without a full rewrite."
+    },
+    {
+        "id": "q49",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 49. How do you keep a Node.js application up to date over time?",
+        "answer": "We treat dependency and Node.js version upgrades as regular, planned work — not something we only do when forced to by a security alert.\n\nAutomated tools like Dependabot or Renovate open pull requests for outdated dependencies, and our CI runs the full test suite against them before we merge, catching most regressions automatically.\n\nFor Node.js version upgrades specifically, we wait for the new version to become LTS, test it in a branch against our full test suite and a staging deployment, and check the official Node.js changelog for breaking changes before rolling it out.\n\nWe avoid letting upgrades pile up for years, since jumping multiple major versions at once is far riskier than doing smaller, regular upgrades.",
+        "bonus": "Keeping a changelog of what changed and why for major upgrades has saved us more than once when trying to understand a regression that only showed up weeks later."
+    },
+    {
+        "id": "q50",
+        "module": "Module 5 — Node.js in Production",
+        "question": "Question 50. Where do you see Node.js going, and how do you keep learning about it?",
+        "answer": "Node.js keeps closing gaps with newer runtimes — better native ES Modules support, built-in test runner, native fetch, and permission models are all recent additions that came directly from that competition.\n\nI expect it to keep leaning into web-standard APIs, so code is more portable between Node.js, browsers, and other runtimes, rather than relying on Node-specific APIs everywhere.\n\nTo stay current, I read the Node.js release notes for each new version, follow changes in the frameworks I use day to day, and try new tools like Bun or Deno on small side projects to understand their tradeoffs firsthand rather than just reading about them.",
+        "bonus": "I've also started using AI tools like Claude Code day to day for exploring unfamiliar parts of the runtime and getting quick, accurate explanations of edge cases in the docs."
+    }
+]
