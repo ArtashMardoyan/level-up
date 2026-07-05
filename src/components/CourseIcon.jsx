@@ -101,7 +101,7 @@ function NextJsIcon() {
 }
 
 const LOGO_ICONS = {
-  'backend-senior': BackendIcon,
+  backend: BackendIcon,
   frontend: FrontendIcon,
   devops: DevOpsIcon,
   qa: QaIcon,

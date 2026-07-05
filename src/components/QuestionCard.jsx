@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, forceOpen, onToggleFavorite, onOpen, speak, speakingId, speechLocked, autoOpen }) {
-  const [open, setOpen] = useState(() => !!autoOpen)
+  const [open, setOpen] = useState(false)
   const [answerVisible, setAnswerVisible] = useState(false)
   const [bonusVisible, setBonusVisible] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -10,10 +10,11 @@ export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, f
 
   useEffect(() => {
     if (!autoOpen) return
+    setOpen(true)
     if (!isReviewed) onOpen(item.id)
     cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [autoOpen])
 
   useEffect(() => {
     if (forceOpen !== prevForceOpen.current) {

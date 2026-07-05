@@ -9,7 +9,7 @@ import nextjsQuestions from './courses/nextjs.json'
 
 export const COURSES = [
   {
-    id: 'backend-senior',
+    id: 'backend',
     title: 'Backend Developer',
     subtitle: 'Node.js, APIs, databases, AWS & infrastructure',
     emoji: '🛠️',

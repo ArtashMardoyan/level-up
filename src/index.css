@@ -322,22 +322,30 @@ select.plain-btn {
   margin-top: 6px;
 }
 .star-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
   background: transparent;
   border: none;
   font-size: 18px;
   cursor: pointer;
   color: var(--text-muted);
-  padding: 0 6px;
   flex-shrink: 0;
 }
 .star-btn.active { color: #e0a72e; }
 .speak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
   background: transparent;
   border: none;
   font-size: 16px;
   cursor: pointer;
   color: var(--text-muted);
-  padding: 0 6px;
   flex-shrink: 0;
 }
 .speak-btn.active { color: var(--accent); }

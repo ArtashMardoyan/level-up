@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { COURSES, getCourse } from './data/courses'
 import { useTheme } from './hooks/useTheme'
 import { useSpeech } from './hooks/useSpeech'
+import { useHashRoute } from './hooks/useHashRoute'
 import CourseSelect from './components/CourseSelect'
 import GlobalSearch from './components/GlobalSearch'
 import PrepView from './components/PrepView'
@@ -21,23 +22,30 @@ function loadSelectedCourseId() {
 export default function App() {
   const { theme, toggleTheme } = useTheme()
   const { speak, speakingId, voices, voiceName, setVoiceName } = useSpeech()
-  const [courseId, setCourseId] = useState(loadSelectedCourseId)
-  const [jumpToId, setJumpToId] = useState(null)
+  const { courseId, jumpToId, navigate } = useHashRoute()
   const [searchTerm, setSearchTerm] = useState('')
 
-  const selectCourse = (id, questionId = null) => {
-    setCourseId(id)
-    setJumpToId(questionId)
-    try { localStorage.setItem(COURSE_STORAGE_KEY, id) } catch { /* ignore */ }
-  }
+  // No course in the URL yet (fresh visit with no shared link) - resume the last one.
+  useEffect(() => {
+    if (!courseId) {
+      const saved = loadSelectedCourseId()
+      if (saved) navigate(saved)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const backToCourses = () => {
-    setCourseId(null)
-    setJumpToId(null)
-    try { localStorage.removeItem(COURSE_STORAGE_KEY) } catch { /* ignore */ }
-  }
+  useEffect(() => {
+    try {
+      if (courseId) localStorage.setItem(COURSE_STORAGE_KEY, courseId)
+      else localStorage.removeItem(COURSE_STORAGE_KEY)
+    } catch { /* ignore */ }
+  }, [courseId])
+
+  const selectCourse = (id, questionId = null) => navigate(id, questionId)
+  const backToCourses = () => navigate(null)
 
   const course = courseId ? getCourse(courseId) : null
+  const validCourse = course?.questions?.length > 0 ? course : null
 
   const settings = (
     <SettingsPanel
@@ -49,7 +57,7 @@ export default function App() {
     />
   )
 
-  if (!course) {
+  if (!validCourse) {
     return (
       <div className="wrap">
         {settings}
@@ -71,7 +79,7 @@ export default function App() {
     <>
       {settings}
       <PrepView
-        course={course}
+        course={validCourse}
         onBack={backToCourses}
         speak={speak}
         speakingId={speakingId}
