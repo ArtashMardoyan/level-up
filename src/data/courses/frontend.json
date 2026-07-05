@@ -1,0 +1,352 @@
+[
+    {
+        "id": "q1",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 1. Tell me about yourself",
+        "answer": "I'm a frontend developer with experience building web applications using React and modern JavaScript.\n\nI've worked on different kinds of projects — e-commerce, dashboards, admin panels, and AI-powered interfaces. I've integrated APIs, worked with state management, and focused a lot on performance and user experience.\n\nI also have experience working with backend teams, which helps me understand the full picture — not just the UI but also how data flows through the system.\n\nRecently I've started using AI tools like Claude Code and Cursor in my daily work, which helps me build faster and write better code.",
+        "bonus": "I'm comfortable working with both small teams and larger projects where frontend and backend are separate."
+    },
+    {
+        "id": "q2",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 2. What is the Virtual DOM?",
+        "answer": "The Virtual DOM is a copy of the real DOM that React keeps in memory.\n\nWhen something changes in the app, React first updates the Virtual DOM. Then it compares the new Virtual DOM with the previous one — this process is called diffing. Only the parts that changed are updated in the real DOM.\n\nThis makes updates much faster because working with the real DOM is slow. React minimizes the number of real DOM operations.",
+        "bonus": "This process is called reconciliation — React figures out the minimum number of changes needed and applies them."
+    },
+    {
+        "id": "q3",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 3. What is the difference between let, const, and var?",
+        "answer": "var is the old way to declare variables. It has function scope and is hoisted, which can cause bugs.\n\nlet is block-scoped and can be reassigned. It's the standard for variables that change.\n\nconst is also block-scoped but cannot be reassigned. We use it for values that shouldn't change.\n\nIn modern JavaScript we mostly use const by default and let when we need to reassign.",
+        "bonus": "const doesn't mean the value is immutable — for objects and arrays you can still change their contents. It just means you can't reassign the variable itself."
+    },
+    {
+        "id": "q4",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 4. Explain closures in JavaScript",
+        "answer": "A closure is a function that remembers the variables from the scope where it was created, even after that scope is gone.\n\nFor example, if you create a function inside another function, the inner function can still access the outer function's variables.\n\nClosures are used a lot in JavaScript — for example in event handlers, timers, and when creating private variables.",
+        "bonus": "Closures are also the foundation of many patterns like module pattern and factory functions."
+    },
+    {
+        "id": "q5",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 5. What is the Event Loop in JavaScript?",
+        "answer": "JavaScript runs in one thread, but it can handle async tasks using the Event Loop.\n\nWhen an async task is done — like a fetch or setTimeout — the callback goes into a queue. The Event Loop checks if the call stack is empty and then runs the callback.\n\nThis is why JavaScript can handle things like API calls and timers without blocking the UI.",
+        "bonus": "There are two queues — the microtask queue (Promises) and the macrotask queue (setTimeout). Microtasks always run first."
+    },
+    {
+        "id": "q6",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 6. Explain promises and async/await",
+        "answer": "A Promise is an object that represents a value that will be available in the future. It can be pending, resolved, or rejected.\n\nAsync/await is built on top of Promises. It makes async code look like normal code and is much easier to read.\n\nInstead of chaining .then() calls, we use await to wait for a result. For error handling we use try/catch.\n\nWe use async/await in all our projects because it's cleaner and easier to maintain.",
+        "bonus": "Promise.all runs multiple promises in parallel. If one fails, it stops. Promise.allSettled collects all results even if some fail."
+    },
+    {
+        "id": "q7",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 7. What is hoisting?",
+        "answer": "Hoisting means JavaScript moves variable and function declarations to the top of their scope before running the code.\n\nFunction declarations are fully hoisted — you can call them before they are defined.\n\nvar is hoisted but not initialized — it's undefined until the line where you assign it.\n\nlet and const are also hoisted but not initialized — accessing them before declaration throws an error.",
+        "bonus": "This is why we prefer let and const — they make hoisting behavior more predictable and reduce bugs."
+    },
+    {
+        "id": "q8",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 8. What is the difference between == and ===?",
+        "answer": "== compares values but does type conversion first. So '5' == 5 is true because JavaScript converts the string to a number.\n\n=== compares both value and type. So '5' === 5 is false.\n\nWe always use === in our projects because it's more predictable and avoids unexpected bugs caused by type coercion.",
+        "bonus": "Type coercion with == can lead to very confusing results. For example null == undefined is true, but null === undefined is false."
+    },
+    {
+        "id": "q9",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 9. How does 'this' work in JavaScript?",
+        "answer": "this refers to the object that is calling the function.\n\nIn a regular function, this depends on how the function is called. In the global scope it's the window object. Inside an object method it's the object itself.\n\nIn arrow functions, this is inherited from the surrounding scope — it doesn't have its own this.\n\nIn class methods, this refers to the class instance.",
+        "bonus": "Arrow functions are very useful in React event handlers and callbacks because they don't create their own this."
+    },
+    {
+        "id": "q10",
+        "module": "Module 1 — Frontend Fundamentals",
+        "question": "Question 10. What are ES Modules?",
+        "answer": "ES Modules are the standard way to split JavaScript code into separate files and share code between them.\n\nWe use export to make a function or variable available to other files, and import to use it.\n\nES Modules are static — imports are resolved at build time, which allows tools like webpack and Vite to tree-shake unused code.\n\nIn modern projects we use ES Modules everywhere.",
+        "bonus": "Tree-shaking means the bundler removes unused exports from the final bundle, making the app smaller and faster."
+    },
+    {
+        "id": "q11",
+        "module": "Module 2 — React",
+        "question": "Question 11. Explain the React rendering process",
+        "answer": "When state or props change, React re-renders the component.\n\nFirst React runs the component function and gets a new Virtual DOM. Then it compares it with the previous Virtual DOM using diffing. Only the parts that changed are updated in the real DOM.\n\nThis process is called reconciliation. React tries to do the minimum amount of work to update the UI.",
+        "bonus": "React 18 introduced concurrent rendering, which allows React to pause and resume rendering — making the UI more responsive."
+    },
+    {
+        "id": "q12",
+        "module": "Module 2 — React",
+        "question": "Question 12. What are hooks?",
+        "answer": "Hooks are functions that let you use React features like state and lifecycle in functional components.\n\nBefore hooks, you needed class components for state. Now we can do everything with functions.\n\nThe most common hooks are useState for state, useEffect for side effects, useContext for context, and useRef for DOM references.\n\nHooks can only be called at the top level of a component — not inside loops or conditions.",
+        "bonus": "You can create custom hooks to share logic between components — for example useFetch or useLocalStorage."
+    },
+    {
+        "id": "q13",
+        "module": "Module 2 — React",
+        "question": "Question 13. useEffect vs useLayoutEffect",
+        "answer": "useEffect runs after the browser paints the screen. It's used for most side effects — data fetching, subscriptions, timers.\n\nuseLayoutEffect runs before the browser paints. It's used when you need to read or change the DOM before the user sees it — for example measuring element size.\n\nWe use useEffect by default. useLayoutEffect is only needed for specific cases where timing matters.",
+        "bonus": "Using useLayoutEffect when you don't need it can cause performance problems because it blocks the browser from painting."
+    },
+    {
+        "id": "q14",
+        "module": "Module 2 — React",
+        "question": "Question 14. useMemo vs useCallback",
+        "answer": "useMemo caches the result of a calculation. It only recalculates when its dependencies change. Useful for expensive computations.\n\nuseCallback caches a function reference. It returns the same function instance between renders. Useful when passing functions to child components that use React.memo.\n\nBoth are optimization tools — we only use them when there's a real performance problem.",
+        "bonus": "Don't overuse them — every hook has a cost. Add useMemo and useCallback only when you can measure a real performance improvement."
+    },
+    {
+        "id": "q15",
+        "module": "Module 2 — React",
+        "question": "Question 15. Controlled vs uncontrolled components",
+        "answer": "A controlled component gets its value from React state. Every change goes through onChange and updates the state. React is the source of truth.\n\nAn uncontrolled component stores its value in the DOM. We use useRef to read the value when needed.\n\nWe use controlled components by default because they give more control and are easier to validate and test.",
+        "bonus": "Uncontrolled components are useful for file inputs or when integrating with non-React libraries."
+    },
+    {
+        "id": "q16",
+        "module": "Module 2 — React",
+        "question": "Question 16. What is lifting state up?",
+        "answer": "Lifting state up means moving state to the closest common parent when multiple components need to share the same data.\n\nFor example, if two sibling components need the same value, we move the state to their parent and pass it down as props.\n\nThis is the standard React pattern for sharing state between components.",
+        "bonus": "When lifting state up becomes too complex, it's a sign to consider using Context API or a state management library."
+    },
+    {
+        "id": "q17",
+        "module": "Module 2 — React",
+        "question": "Question 17. Context API vs Redux",
+        "answer": "Context API is built into React. It's great for sharing data that doesn't change often — like theme, language, or user info.\n\nRedux is a separate library for more complex state management. It works well for large apps with a lot of shared state and complex update logic.\n\nWe use Context for simple global state. For complex apps with many state updates we prefer Redux or Zustand.",
+        "bonus": "Redux Toolkit makes Redux much simpler to use — it reduces boilerplate and is now the recommended way to use Redux."
+    },
+    {
+        "id": "q18",
+        "module": "Module 2 — React",
+        "question": "Question 18. What is React.memo?",
+        "answer": "React.memo is a higher-order component that prevents a component from re-rendering if its props haven't changed.\n\nBy default React re-renders a child component every time the parent renders. React.memo skips the re-render if the props are the same.\n\nWe use it for components that are expensive to render and receive the same props often.",
+        "bonus": "React.memo uses shallow comparison for props. For complex objects, combine it with useMemo or useCallback to get the full benefit."
+    },
+    {
+        "id": "q19",
+        "module": "Module 2 — React",
+        "question": "Question 19. What is code splitting?",
+        "answer": "Code splitting means breaking the JavaScript bundle into smaller pieces that are loaded only when needed.\n\nInstead of loading all the code at once, we load only what's needed for the current page. Other parts are loaded on demand.\n\nIn React we use React.lazy and Suspense for this. We also use dynamic imports for loading heavy libraries only when needed.\n\nThis makes the initial load faster, which improves the user experience.",
+        "bonus": "Route-based code splitting is the most common approach — each page gets its own chunk that loads when the user navigates to it."
+    },
+    {
+        "id": "q20",
+        "module": "Module 2 — React",
+        "question": "Question 20. What are Error Boundaries?",
+        "answer": "Error Boundaries are React components that catch JavaScript errors in their child components and show a fallback UI instead of crashing the whole app.\n\nWithout Error Boundaries, one error can break the entire page. With them, only the part that failed shows an error message.\n\nError Boundaries are usually implemented with class components. We usually create one ErrorBoundary component and wrap important parts of the app with it.",
+        "bonus": "Error Boundaries don't catch errors in event handlers or async code — only errors during rendering."
+    },
+    {
+        "id": "q21",
+        "module": "Module 3 — Performance",
+        "question": "Question 21. How do you optimize React performance?",
+        "answer": "First I find the actual problem — I use React DevTools Profiler to see which components re-render too often.\n\nThen I apply fixes based on the problem. Common ones are React.memo to prevent unnecessary re-renders, useMemo for expensive calculations, and useCallback for stable function references.\n\nI also use code splitting to reduce the initial bundle size, and lazy loading for images and heavy components.\n\nThe most important thing is to measure first and optimize only what's actually slow.",
+        "bonus": "Premature optimization is a common mistake. Always profile first, then fix."
+    },
+    {
+        "id": "q22",
+        "module": "Module 3 — Performance",
+        "question": "Question 22. What is lazy loading?",
+        "answer": "Lazy loading means loading resources only when they are needed instead of loading everything at once.\n\nFor images, we load them only when they enter the viewport. For JavaScript, we split the bundle and load each part when the user navigates to that page.\n\nIn React we use React.lazy for components and dynamic imports for libraries.\n\nThis makes the initial load faster, which is very important for performance.",
+        "bonus": "The native loading='lazy' attribute on img tags is now supported in all modern browsers — no JavaScript needed."
+    },
+    {
+        "id": "q23",
+        "module": "Module 3 — Performance",
+        "question": "Question 23. What is virtualization?",
+        "answer": "Virtualization means rendering only the items that are visible on the screen instead of rendering all of them.\n\nFor example if you have a list of 10,000 items, rendering all of them would be very slow. With virtualization only the items in the viewport are in the DOM — maybe 20-30 items.\n\nAs the user scrolls, items are added and removed dynamically.\n\nWe use libraries like react-window or react-virtual for this.",
+        "bonus": "Virtualization is essential for large lists, tables, or grids — without it the browser struggles with too many DOM nodes."
+    },
+    {
+        "id": "q24",
+        "module": "Module 3 — Performance",
+        "question": "Question 24. Debounce vs Throttle",
+        "answer": "Both are techniques to limit how often a function runs.\n\nDebounce waits until the user stops doing something for a set time, then runs the function. For example a search input that only calls the API after the user stops typing for 300ms.\n\nThrottle runs the function at most once every set time period. For example scroll events that fire at most 10 times per second.\n\nWe use debounce for search inputs and API calls. We use throttle for scroll, resize, and mouse move events.",
+        "bonus": "Both can be implemented with setTimeout or using lodash's debounce and throttle utilities."
+    },
+    {
+        "id": "q25",
+        "module": "Module 3 — Performance",
+        "question": "Question 25. How do you prevent unnecessary re-renders?",
+        "answer": "The main causes of unnecessary re-renders are parent components re-rendering, unstable object or function references in props, and context changes.\n\nWe use React.memo to skip re-renders when props don't change. We use useCallback and useMemo to keep references stable.\n\nWe also split context into smaller pieces so components only subscribe to what they need.\n\nAnd we avoid creating objects or arrays inline in JSX because they create new references on every render.",
+        "bonus": "Moving state closer to where it's used is often the best optimization — it prevents parent re-renders from affecting unrelated children."
+    },
+    {
+        "id": "q26",
+        "module": "Module 3 — Performance",
+        "question": "Question 26. What is browser caching?",
+        "answer": "Browser caching means the browser stores resources like JavaScript, CSS, and images locally so it doesn't have to download them again on the next visit.\n\nWe control caching with HTTP headers like Cache-Control and ETag.\n\nFor static assets we use long cache times — for example one year. When the file changes, we update the filename or add a hash so the browser fetches the new version.\n\nFor API responses we set shorter cache times or no cache at all.",
+        "bonus": "Content hashing in filenames — like main.abc123.js — is the standard approach for cache busting in modern bundlers."
+    },
+    {
+        "id": "q27",
+        "module": "Module 3 — Performance",
+        "question": "Question 27. How do you optimize images?",
+        "answer": "Images are often the biggest performance problem on a webpage.\n\nWe use modern formats like WebP or AVIF which are smaller than JPEG or PNG.\n\nWe always set width and height on images to prevent layout shift.\n\nWe use lazy loading so images load only when they enter the viewport.\n\nFor responsive images we use srcset so the browser picks the right size for the device.",
+        "bonus": "Next.js has a built-in Image component that handles all of this automatically — format conversion, lazy loading, and responsive sizes."
+    },
+    {
+        "id": "q28",
+        "module": "Module 3 — Performance",
+        "question": "Question 28. How do you use Lighthouse?",
+        "answer": "Lighthouse is a tool in Chrome DevTools that measures page performance, accessibility, SEO, and best practices.\n\nIt gives scores from 0 to 100 for each category and shows exactly what needs to be improved.\n\nThe most important metrics are LCP (Largest Contentful Paint), FID (First Input Delay), and CLS (Cumulative Layout Shift) — these are Core Web Vitals.\n\nWe run Lighthouse before and after optimization to measure real improvement.",
+        "bonus": "Core Web Vitals directly affect Google search ranking — good scores are important for SEO as well as performance."
+    },
+    {
+        "id": "q29",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 29. What happens when you type a URL in the browser?",
+        "answer": "First the browser checks its cache for the IP address. If not found, it does a DNS lookup to find the server's IP.\n\nThen it opens a TCP connection to the server. For HTTPS it also does a TLS handshake to set up encryption.\n\nThen it sends an HTTP request. The server responds with HTML.\n\nThe browser parses the HTML and builds the DOM. It also loads CSS, JavaScript, and images, then renders the page.",
+        "bonus": "This is a very common interview question — knowing the full flow shows you understand how the web works end to end."
+    },
+    {
+        "id": "q30",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 30. Cookies vs LocalStorage vs SessionStorage",
+        "answer": "Cookies are sent with every HTTP request automatically. They can be set to expire and can be shared with the server. HTTP-only cookies are commonly used for authentication.\n\nLocalStorage stays in the browser until manually cleared. Not sent to the server. Good for user preferences.\n\nSessionStorage is cleared when the tab is closed. Good for temporary data that should not persist.\n\nFor sensitive data like auth tokens we prefer HTTP-only cookies because JavaScript can't access them.",
+        "bonus": "HTTP-only cookies protect against XSS attacks because JavaScript cannot read them."
+    },
+    {
+        "id": "q31",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 31. What is CORS?",
+        "answer": "CORS stands for Cross-Origin Resource Sharing. It's a browser security rule that blocks requests from one origin to a different origin by default.\n\nFor example, a frontend on example.com cannot call an API on api.other.com unless the server explicitly allows it.\n\nThe server allows it by adding Access-Control-Allow-Origin headers to the response.\n\nCORS is only enforced by browsers — server-to-server requests are not affected.",
+        "bonus": "During development we often use a proxy to avoid CORS issues. In production the backend should always configure CORS properly."
+    },
+    {
+        "id": "q32",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 32. HTTP vs HTTPS",
+        "answer": "HTTP sends data in plain text — anyone between the client and server can read it.\n\nHTTPS encrypts the data using TLS. This protects against man-in-the-middle attacks and ensures the data isn't changed in transit.\n\nHTTPS is required for modern web features like service workers and geolocation. It also affects search ranking.\n\nToday all production sites should use HTTPS.",
+        "bonus": "TLS certificates are now free thanks to Let's Encrypt — there's no excuse not to use HTTPS."
+    },
+    {
+        "id": "q33",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 33. CSR vs SSR vs SSG",
+        "answer": "CSR — Client Side Rendering. The server sends a blank HTML file and JavaScript renders the page in the browser. Good for dashboards and apps behind a login. Bad for SEO.\n\nSSR — Server Side Rendering. The server renders HTML for each request and sends it to the browser. Good for SEO and fast first load. Used for public pages.\n\nSSG — Static Site Generation. Pages are generated at build time and served as static files. Very fast and cheap to host. Good for blogs and documentation.\n\nWe pick the approach based on the needs of each page.",
+        "bonus": "Next.js supports all three approaches — you can mix them in the same project."
+    },
+    {
+        "id": "q34",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 34. What are WebSockets?",
+        "answer": "WebSockets provide a persistent two-way connection between the browser and server.\n\nUnlike HTTP where the client always initiates the request, WebSockets allow the server to push data to the client at any time.\n\nThis makes them perfect for real-time features like chat, live notifications, collaborative editing, and live data updates.\n\nThe connection stays open until one side closes it.",
+        "bonus": "For simpler use cases where you only need server-to-client updates, Server-Sent Events (SSE) is a simpler alternative."
+    },
+    {
+        "id": "q35",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 35. What are Service Workers?",
+        "answer": "A Service Worker is a JavaScript file that runs in the background, separate from the web page.\n\nIt acts as a proxy between the browser and the network. It can intercept requests and serve cached responses — this makes the app work offline.\n\nService Workers are the foundation of Progressive Web Apps (PWA). They also handle push notifications.\n\nOnce installed, a service worker stays active even when the page is closed.",
+        "bonus": "Service Workers only work on HTTPS — this is a security requirement."
+    },
+    {
+        "id": "q36",
+        "module": "Module 4 — Browser & Networking",
+        "question": "Question 36. What is a CDN?",
+        "answer": "A CDN — Content Delivery Network — is a network of servers around the world that delivers content from the server closest to the user.\n\nInstead of every user downloading files from one server, they get the files from a nearby location. This reduces latency and speeds up loading.\n\nWe use CDNs for static assets like JavaScript, CSS, images, and fonts.\n\nPopular CDNs include CloudFront, Cloudflare, and Fastly.",
+        "bonus": "CDNs also protect against DDoS attacks by distributing traffic across many servers."
+    },
+    {
+        "id": "q37",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 37. How do you structure a React project?",
+        "answer": "We organize files by feature rather than by type. Each feature has its own folder with components, hooks, and utilities related to that feature.\n\nShared components, hooks, and utilities go into common folders.\n\nWe keep components small and focused — each component should do one thing well.\n\nWe also separate business logic from UI — custom hooks handle data and logic, components handle rendering.\n\nThis makes the project easy to navigate and maintain as it grows.",
+        "bonus": "There's no one right structure — what matters most is consistency. Pick a structure and stick to it across the team."
+    },
+    {
+        "id": "q38",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 38. How do you review frontend code?",
+        "answer": "We keep pull requests small so they are easier to review.\n\nI check that the component does what it's supposed to do, that state management is correct, and that there are no performance issues like unnecessary re-renders.\n\nI also check accessibility — proper HTML elements, aria attributes, and keyboard navigation.\n\nFor style I rely on ESLint and Prettier — I don't spend review time on formatting.\n\nGood communication is the most important part — I explain my comments clearly and always suggest a better way, not just point out the problem.",
+        "bonus": "I try to leave at least one positive comment — code review should be a learning experience, not just a list of problems."
+    },
+    {
+        "id": "q39",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 39. How do you mentor junior frontend developers?",
+        "answer": "I create an environment where juniors feel comfortable asking questions.\n\nI show them how I think through problems — not just the solution, but the process of getting there.\n\nBefore they start a task, I ask them to explain their plan. This helps them learn to think independently.\n\nI review their code carefully and explain the reason behind each comment — not just what's wrong but why.\n\nThe goal is to help them grow, not just fix the code.",
+        "bonus": "Pair programming is very effective for juniors — they learn a lot by watching how a senior developer works in real time."
+    },
+    {
+        "id": "q40",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 40. Component composition vs inheritance",
+        "answer": "React recommends composition over inheritance.\n\nInstead of extending components through class inheritance, we build complex components by combining simpler ones.\n\nWe pass components as props or as children — this is much more flexible than inheritance.\n\nFor example instead of creating a BaseModal class that other modals extend, we create a Modal component that accepts children and renders whatever you put inside it.",
+        "bonus": "The React team says they haven't found cases where inheritance is better than composition for building UI components."
+    },
+    {
+        "id": "q41",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 41. How do you estimate frontend tasks?",
+        "answer": "First I make sure I understand the requirements. If something is unclear I ask before giving an estimate.\n\nThen I break the task into smaller parts — component structure, state management, API integration, styling, and testing.\n\nI think about edge cases, responsiveness, accessibility, and browser compatibility — these often take more time than expected.\n\nI give a realistic estimate with a small buffer. I'd rather deliver early than promise something I can't meet.",
+        "bonus": "Design handoff and API readiness can block frontend work — always clarify these dependencies before starting."
+    },
+    {
+        "id": "q42",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 42. How do you debug production issues?",
+        "answer": "First I try to reproduce the issue. I check if it happens in a specific browser, device, or user scenario.\n\nI look at error monitoring tools like Sentry to find the exact error and stack trace.\n\nI check the browser console, network requests, and application state.\n\nIf it's a performance issue I use Lighthouse or the Performance tab in DevTools.\n\nI fix the root cause, not just the symptom, and add a test to prevent the same issue in the future.",
+        "bonus": "Source maps are essential for debugging production issues — without them minified code is very hard to read."
+    },
+    {
+        "id": "q43",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 43. Why should we hire you?",
+        "answer": "I have solid frontend experience with React, modern JavaScript, and a strong focus on performance and user experience.\n\nI've worked on different kinds of projects — e-commerce, dashboards, and AI-powered interfaces — so I'm comfortable solving different kinds of problems.\n\nI care about code quality — clean components, good state management, and accessible UI.\n\nI also work well with backend teams and I'm comfortable discussing API design and data flow.\n\nI think I can contribute both as a developer and as someone who helps the team improve.",
+        "bonus": "I'm also actively learning — I use AI tools like Claude Code in my daily work, which helps me build faster and stay up to date."
+    },
+    {
+        "id": "q44",
+        "module": "Module 5 — Architecture & Frontend Leadership",
+        "question": "Question 44. What are your career goals?",
+        "answer": "In the short term I want to keep growing as a frontend developer — working on larger and more complex projects and learning from experienced engineers.\n\nI'm also interested in performance optimization and accessibility — areas where good frontend work has a real impact on users.\n\nIn the long term I'd like to take on more technical leadership — helping other developers grow and making architectural decisions.\n\nMy goal is to keep improving and work on products that actually matter to users.",
+        "bonus": "I'm also interested in the intersection of frontend and AI — building interfaces for AI-powered products is something I find exciting."
+    },
+    {
+        "id": "q45",
+        "module": "Module 6 — AI for Frontend Engineers",
+        "question": "Question 45. How do you use AI in frontend development?",
+        "answer": "I use AI every day — mainly Claude Code and Cursor.\n\nFor new components I describe what I need and AI generates a first version. I review it, adjust the logic, and clean up the code.\n\nAI is also very helpful for writing tests, generating mock data, and converting designs to components.\n\nFor debugging I paste the error and the relevant code and ask AI to help find the issue.\n\nAI saves me a lot of time on repetitive tasks, so I can focus on the parts that actually require thinking.",
+        "bonus": "AI is especially useful for CSS and styling — describing what you want visually and getting working code is much faster than writing it from scratch."
+    },
+    {
+        "id": "q46",
+        "module": "Module 6 — AI for Frontend Engineers",
+        "question": "Question 46. Which AI coding assistants have you used?",
+        "answer": "I mainly use Claude Code and Cursor.\n\nCursor is great for editing inside the IDE — it knows your codebase and can suggest changes in context.\n\nClaude Code works better for larger tasks — planning, reviewing code, and working through complex problems step by step.\n\nThe key for both is to give good context. I always tell the AI what framework we use, what the component should do, and what patterns we follow in the project.",
+        "bonus": "Different tools work better for different tasks — Cursor for quick edits, Claude Code for planning and complex features."
+    },
+    {
+        "id": "q47",
+        "module": "Module 6 — AI for Frontend Engineers",
+        "question": "Question 47. How do you write good prompts for frontend work?",
+        "answer": "Context is the most important thing. I tell the AI which framework we use, what the component should look like, what props it needs, and what behavior is expected.\n\nI also show an example from our codebase when I want the AI to follow our patterns.\n\nFor complex components I break it into steps — first the structure, then the logic, then the styling.\n\nIf the result isn't right I don't start over — I give specific feedback about what needs to change.",
+        "bonus": "The more specific the prompt, the better the result. Vague prompts like 'make a form' give generic code. Specific prompts give code that fits your project."
+    },
+    {
+        "id": "q48",
+        "module": "Module 6 — AI for Frontend Engineers",
+        "question": "Question 48. How do you review AI-generated frontend code?",
+        "answer": "I always review AI-generated code before using it.\n\nI check that the component logic is correct, that state management makes sense, and that there are no unnecessary re-renders.\n\nI also check accessibility — AI sometimes misses aria attributes and keyboard navigation.\n\nFor styling I check that it matches our design system and doesn't use hardcoded values.\n\nThe rule is simple — never ship AI-generated code without reading and understanding it yourself.",
+        "bonus": "AI often generates working code that passes the obvious cases but misses edge cases. Always think about what happens with empty states, errors, and loading."
+    },
+    {
+        "id": "q49",
+        "module": "Module 6 — AI for Frontend Engineers",
+        "question": "Question 49. Have you built AI-powered frontend features?",
+        "answer": "Yes. I worked on interfaces for AI-powered products.\n\nOne example was a chat interface where users talk to an AI agent. The main challenges were streaming responses — showing text as it arrives — and handling errors gracefully when the AI is slow or fails.\n\nAnother example was a form that used AI to help users fill in information — the AI suggested answers based on what the user was typing.\n\nBuilding AI-powered UIs requires thinking about loading states, partial responses, and user experience when things go wrong.",
+        "bonus": "Streaming responses with the Fetch API and ReadableStream is a very useful technique for AI chat interfaces."
+    },
+    {
+        "id": "q50",
+        "module": "Module 6 — AI for Frontend Engineers",
+        "question": "Question 50. How do you use Claude Code in frontend projects?",
+        "answer": "We set up a CLAUDE.md file that describes our project — the framework, component structure, state management approach, and coding style.\n\nFor new features I use plan mode — Claude Code creates a plan for the component structure and I review it before any code is written.\n\nThen it helps generate components step by step. I review each part and give feedback.\n\nIt's also very useful for writing tests and reviewing pull requests.\n\nThe most important thing is giving it good context — with CLAUDE.md it understands our project and generates code that fits our style.",
+        "bonus": "Claude Code is most useful when you treat it as a pair programmer — not as a code generator. Review everything, give feedback, and iterate."
+    }
+]

@@ -1,0 +1,321 @@
+[
+    {
+        "id": "q1",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 1. Tell me about yourself",
+        "answer": "I'm a backend developer with 8 years of experience. I've worked with NodeJS, Express, Koa, NestJS, AWS, and Google Cloud.\n\nI've integrated services like Stripe, Shopify, S3, Lambda, and AI tools like LangChain and OpenAI.\n\nNow I work as a Backend Team Lead. I design architecture, review code, make technical decisions, and help the team grow. I've also built backend APIs with Go and Gin."
+    },
+    {
+        "id": "q2",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 2. What is the difference between REST and GraphQL?",
+        "answer": "REST and GraphQL are two different ways to build APIs.\n\nIn REST we use HTTP methods like GET, POST, PUT, and DELETE with clear endpoints. REST is simple, easy to cache, and easy to document.\n\nGraphQL has just one endpoint. The client asks for exactly the data it needs.\n\nWe usually use REST because it's simple and works well. We use GraphQL when clients need different data shapes."
+    },
+    {
+        "id": "q3",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 3. Describe a challenging technical problem you solved",
+        "answer": "In one project our events API worked fine for the first two weeks, but then it started getting slow and eventually timed out. After looking into it I found the root cause — the API was doing a full table scan on every single request. We were using DynamoDB Scan without pagination. When the data was small it worked fine, but as data grew it became too slow. We replaced Scan with Query, added indexes, and added pagination. Response time dropped from 8–10 seconds to under 200ms."
+    },
+    {
+        "id": "q4",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 4. How do you handle authentication?",
+        "answer": "We've used JWT, Auth0, Cognito, and Basic Auth depending on the project.\n\nMost projects use JWT. When a user logs in we create a token with an expiry time. The middleware checks the token and gets the user ID on every request.\n\nWe also use role-based access control to decide what each user can do. Secrets are stored in a secret management service.\n\nAuthentication checks who the user is. Authorization checks what the user can do.",
+        "bonus": "Authentication checks who the user is. Authorization checks what the user can do."
+    },
+    {
+        "id": "q5",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 5. How do you handle a large number of concurrent requests?",
+        "answer": "There are a few things we do to handle a lot of requests at the same time.\n\nFirst we keep our services stateless — so we can run more instances when traffic grows.\n\nWe use AWS Lambda which scales on its own. For EC2-based apps we use Auto Scaling Groups.\n\nWe also keep database queries fast, use Redis to cache data that is used a lot, and move long tasks to background jobs so the API can respond fast."
+    },
+    {
+        "id": "q6",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 6. How do you structure a backend project?",
+        "answer": "We split the application into modules. Each module has a controller, a service, and a repository.\n\nWe validate requests, separate authentication into middleware, and keep shared code in common libraries.\n\nFor example in our NodeJS projects we use NestJS with a monorepo setup. For larger systems we use microservices.\n\nWe never put secrets in the code and we document APIs with Swagger or Postman."
+    },
+    {
+        "id": "q7",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 7. How does the NodeJS Event Loop work?",
+        "answer": "NodeJS runs JavaScript in one thread, but it can handle many requests at the same time because of the Event Loop.\n\nWhen a request hits an I/O operation — like a database call or API call — NodeJS hands the work off and continues processing other requests.\n\nWhen the work is done the callback goes into a queue. The Event Loop checks if the call stack is empty and then runs the callback.\n\nThis makes NodeJS very good for I/O-heavy apps. But CPU-heavy tasks can block the Event Loop — so we move those to Worker Threads or background services.",
+        "bonus": "Event Loop phases — timers → I/O callbacks → setImmediate → close callbacks."
+    },
+    {
+        "id": "q8",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 8. How do you handle asynchronous operations?",
+        "answer": "Over time NodeJS changed how we write async code — first callbacks, then Promises, and now async/await. We use async/await today because it's the cleanest and easiest to read.\n\nAsync/await is built on top of Promises and makes async code look like normal code. It also fixes the callback hell problem.\n\nFor error handling we use try/catch — simple and works just like normal code.\n\nWhen we need to run more than one async operation at the same time we use Promise.all. This allows independent operations to run in parallel and reduces the total response time. But if one fails Promise.all stops right away — so sometimes we use Promise.allSettled when we want all results even if some fail."
+    },
+    {
+        "id": "q9",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 9. What databases do you use and when?",
+        "answer": "We pick the database based on the use case.\n\nWe use PostgreSQL for structured, transactional data like orders and payments.\n\nWe use DynamoDB or MongoDB for flexible data that changes a lot.\n\nRedis is our cache layer to reduce database load and speed up responses.",
+        "bonus": "Why not store everything in Redis? Memory costs more. The real data always stays in PostgreSQL or DynamoDB."
+    },
+    {
+        "id": "q10",
+        "module": "Module 1 — Backend Fundamentals",
+        "question": "Question 10. How do you use Redis for caching?",
+        "answer": "We use Redis as a cache.\n\nWe check Redis first. If the data isn't there, we load it from the database and save it in Redis with a TTL.\n\nWhen data changes, we update or remove it from the cache.\n\nThis is called the cache-aside pattern.",
+        "bonus": "Other strategies: Write-Through (write to cache and database at the same time), Write-Behind (write to cache first, sync to database later)."
+    },
+    {
+        "id": "q11",
+        "module": "Module 2 — API Design",
+        "question": "Question 11. How do you design a REST API?",
+        "answer": "REST is simple, consistent, and easy to maintain.\n\nWe use GET to read, POST to create, PUT or PATCH to update, and DELETE to remove data.\n\nEvery resource has its own URL, like /users or /orders.\n\nWe use JSON, proper status codes, and API versioning like /v1.\n\nWe keep APIs stateless, so they are easy to scale.",
+        "bonus": "URLs should describe resources, not actions — GET /users is right, /getUsers is not."
+    },
+    {
+        "id": "q12",
+        "module": "Module 2 — API Design",
+        "question": "Question 12. How do you version APIs?",
+        "answer": "We usually use URL versioning like /v1/users and /v2/users.\n\nWe create a new version only for breaking changes — like removing or renaming fields.\n\nAdding optional fields doesn't need a new version.\n\nWe keep old versions until all clients move to the new one."
+    },
+    {
+        "id": "q13",
+        "module": "Module 2 — API Design",
+        "question": "Question 13. How do you implement pagination?",
+        "answer": "The approach depends on the database.\n\nFor SQL we use limit/offset pagination. The client sends the page number and page size. We return the data plus metadata — total count and hasNextPage.\n\nFor DynamoDB we use cursor-based pagination with LastEvaluatedKey. Each response includes the cursor and the client sends it back to get the next page.\n\nPagination is important — without it a single request could load too much data and time out.\n\nOffset pagination is simple. Cursor pagination is faster for large datasets.",
+        "bonus": "Offset pagination is simple. Cursor pagination is faster for large datasets."
+    },
+    {
+        "id": "q14",
+        "module": "Module 2 — API Design",
+        "question": "Question 14. How do you implement filtering and sorting?",
+        "answer": "For SQL we add indexes on fields we filter or sort by.\n\nFor DynamoDB we use GSIs or LSIs based on our access patterns. DynamoDB is built around access patterns — we plan these indexes before building the app.\n\nFiltering and sorting come from query parameters like ?status=active&sortBy=createdAt."
+    },
+    {
+        "id": "q15",
+        "module": "Module 2 — API Design",
+        "question": "Question 15. What is idempotency?",
+        "answer": "Idempotency means sending the same request multiple times has the same final result as sending it once.\n\nDELETE is idempotent — the resource no longer exists whether you send it once or ten times. POST is not — sending it twice can create two orders.\n\nTo solve this we use an idempotency key. The client sends a unique key with the request. If the same key is sent again the server returns the previous result instead of running the request again.\n\nGET, PUT, DELETE = idempotent. POST = usually not.\n\nReal example: we use idempotency keys with our payment provider to prevent charging the same payment twice on retry.",
+        "bonus": "GET, PUT, DELETE = idempotent. POST = usually not. PATCH = depends."
+    },
+    {
+        "id": "q16",
+        "module": "Module 2 — API Design",
+        "question": "Question 16. How do you handle file uploads?",
+        "answer": "For small files we upload them through the API. We validate the file type and content, then save it to S3.\n\nFor large files, or when using Lambda where request size is limited, we use presigned URLs. The client uploads directly to S3 without going through our server.\n\nThis is faster and reduces the load on our backend. The URL also expires on its own."
+    },
+    {
+        "id": "q17",
+        "module": "Module 2 — API Design",
+        "question": "Question 17. How do you design a payment API?",
+        "answer": "When designing a payment API, my main goals are security, reliability, and consistency.\n\nWe store secrets in a secret management service and never put them in the code. We use a sandbox for testing before going live.\n\nFor payment data we use a SQL database — transactions keep the data consistent and we can roll back if something fails.\n\nWe use idempotency to prevent duplicate charges. If the same request comes twice the server returns the previous result.\n\nWe rely on webhooks from the payment provider for the final status — the frontend is not the source of truth.\n\nI've mostly worked with Stripe, but the same ideas apply to other payment providers."
+    },
+    {
+        "id": "q18",
+        "module": "Module 2 — API Design",
+        "question": "Question 18. How do you validate incoming requests?",
+        "answer": "We validate every request before it reaches the business logic.\n\nWe define request models with required fields and validation rules. If validation fails, we return HTTP 400.\n\nFrontend validation is helpful, but the backend must always validate data — anyone can bypass it with tools like Postman.\n\nWe validate body, query parameters, path parameters, and headers."
+    },
+    {
+        "id": "q19",
+        "module": "Module 3 — Databases & Performance",
+        "question": "Question 19. How do database indexes work?",
+        "answer": "An index is like the index at the back of a book — instead of reading every page, the database jumps straight to the data it needs.\n\nWithout an index the database checks every single row — this is called a full table scan, and it's slow on large tables.\n\nAn index stores the indexed field and a pointer to the data. This lets the database find rows much faster without checking every row.\n\nIn SQL an index doesn't copy the whole row — just the field and a pointer. In DynamoDB a GSI copies the data into a separate structure, which is different.\n\nIndexes make reads faster but writes a bit slower. So we only index fields we actually filter or sort by.",
+        "bonus": "Indexes make reads faster but writes a bit slower. Only index fields you actually filter or sort by."
+    },
+    {
+        "id": "q20",
+        "module": "Module 3 — Databases & Performance",
+        "question": "Question 20. What is a database transaction?",
+        "answer": "A transaction is a way to group multiple database operations so they all succeed or all fail together.\n\nFor example, moving money between two accounts needs two steps — take from one, add to another. If the second step fails we don't want to lose that money. A transaction makes sure either both steps complete or neither does.\n\nWe start a transaction, run the operations, then commit to save or roll back if something goes wrong.\n\nTransactions follow the ACID rules — Atomicity (all or nothing), Consistency (data stays correct), Isolation (transactions don't affect each other), Durability (saved data stays saved even if the system crashes).\n\nIf two transactions try to update the same row at the same time, isolation kicks in — one waits for the other to finish.",
+        "bonus": "If two transactions try to update the same row at the same time, isolation kicks in — one waits for the other to finish."
+    },
+    {
+        "id": "q21",
+        "module": "Module 3 — Databases & Performance",
+        "question": "Question 21. How do you optimize slow SQL queries?",
+        "answer": "I usually start with indexes and use EXPLAIN to see how the query works.\n\nThen I check pagination because we should never load more data than we need.\n\nAfter that I look at joins and remove unnecessary ones.\n\nSometimes we save calculated values like comment count or like count directly on the post to make reads faster.\n\nWe also select only the columns we need and cache frequently used data in Redis."
+    },
+    {
+        "id": "q22",
+        "module": "Module 3 — Databases & Performance",
+        "question": "Question 22. How do you investigate a slow API?",
+        "answer": "First I check if the problem affects one endpoint or the whole system.\n\nIf it's the whole system, I check CPU, memory, logs, and database connections.\n\nIf it's one endpoint, I check database queries, cache, external APIs, and business logic.\n\nI always find the slow part first and then fix it.\n\nOne real example was a DynamoDB Scan without pagination. We changed it to Query and reduced the response time from 8–10 seconds to under 200ms.",
+        "bonus": "Real example: DynamoDB Scan without pagination. Changed to Query — response time went from 8–10 seconds to under 200ms."
+    },
+    {
+        "id": "q23",
+        "module": "Module 3 — Databases & Performance",
+        "question": "Question 23. What is the N+1 query problem?",
+        "answer": "The N+1 problem happens when one query loads the main data and then many extra queries load related data.\n\nFor example, loading 100 posts and then fetching the author for each one — that's 101 queries instead of one.\n\nWe usually fix it with JOINs or batch loading using WHERE id IN (...).\n\nFor simple cases I use JOIN. For more complex cases batch loading gives more control."
+    },
+    {
+        "id": "q24",
+        "module": "Module 3 — Databases & Performance",
+        "question": "Question 24. What caching strategies do you know?",
+        "answer": "Before adding a cache, I first make sure caching is really needed.\n\nWe use Redis to cache database results and user sessions. We mainly use the cache-aside pattern — check Redis first, go to the database on a miss, save the result with a TTL.\n\nWe also use CloudFront or Cloudflare to cache static files close to the user.\n\nWhen data changes, we update or clear the cache."
+    },
+    {
+        "id": "q25",
+        "module": "Module 3 — Databases & Performance",
+        "question": "Question 25. How do you handle millions of records?",
+        "answer": "We never process millions of records inside an HTTP request.\n\nWe upload the file to S3, save the job with Pending status, and return HTTP 202 right away.\n\nA background worker or Lambda processes the file in small batches of 100–500 records at a time.\n\nWhen it's finished, we update the status and save the results — how many succeeded, how many failed, and why.\n\nThis keeps the API fast and reliable."
+    },
+    {
+        "id": "q27",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 27. Which AWS services have you used?",
+        "answer": "I've worked with many AWS services.\n\nFor storage: S3 for files.\nFor databases: RDS with PostgreSQL, DynamoDB for NoSQL, and ElastiCache with Redis for caching.\nFor compute: Lambda for background jobs and scheduled tasks, EC2 for traditional servers, and API Gateway to make our APIs available.\nFor messaging: SNS for notifications and event-driven communication.\nFor monitoring: CloudWatch for logs, metrics, and alarms.\nWe've also used IVS for live video and Bedrock for AI integrations.\n\nWe've also worked with Secrets Manager, EventBridge, Athena, and GuardDuty in specific projects."
+    },
+    {
+        "id": "q28",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 28. Why do you use AWS Lambda?",
+        "answer": "I've used Lambda for different tasks.\n\nWe run some APIs on Lambda because it scales automatically.\n\nWe also use it for scheduled jobs and background tasks. For example, when a file is uploaded to S3, Lambda starts automatically and processes the file.\n\nThe biggest advantages are automatic scaling, no server management, and paying only for what we use.\n\nThe main limitations are cold starts and the 15-minute timeout.",
+        "bonus": "Lambda is great for event-driven work. For long-running tasks EC2 or ECS is usually a better fit."
+    },
+    {
+        "id": "q29",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 29. How do you use Amazon S3?",
+        "answer": "We use S3 as our main file storage.\n\nFiles can be private or public depending on the project.\n\nWe use CloudFront to deliver files faster to users.\n\nFor uploads we use presigned URLs, so clients upload files directly to S3 without going through our server.\n\nWe also use S3 events to trigger Lambda functions for background processing."
+    },
+    {
+        "id": "q30",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 30. How do you manage secrets and sensitive configuration?",
+        "answer": "We never store secrets in the code or commit them to Git.\n\nIn production we use AWS Secrets Manager.\n\nIn CI/CD we use GitHub Secrets.\n\nThe application reads secrets from environment variables or Secrets Manager.\n\nEach environment has its own secrets — dev, staging, and production are always separate."
+    },
+    {
+        "id": "q31",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 31. Why do you use Docker?",
+        "answer": "Docker helps us run the application the same way everywhere.\n\nWe package the application and its dependencies into a Docker image. The same image is used in development, testing, and production.\n\nWe use Docker Compose for local development to run multiple services with one command.\n\nIn production we build images, push them to Amazon ECR, and deploy them.\n\nDocker makes deployment easier and more consistent.",
+        "bonus": "Docker vs VM? A VM includes a full OS — heavy and slow. Docker shares the host OS — lighter and starts in seconds."
+    },
+    {
+        "id": "q32",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 32. How does CI/CD work?",
+        "answer": "We use GitHub Actions, Jenkins, and Terraform.\n\nWhen code is pushed, the pipeline runs linting, tests, builds the application, and deploys it.\n\nDev and staging deploy automatically. Production requires manual approval.\n\nCI/CD helps us deploy faster and reduces manual work."
+    },
+    {
+        "id": "q33",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 33. How do you deploy backend services?",
+        "answer": "We use GitHub Actions for deployments.\n\nThe pipeline builds the application, runs tests, applies database migrations, and updates infrastructure with Terraform.\n\nFor containers we build a Docker image, push it to ECR, and deploy it.\nFor Lambda we package the code and deploy the function.\n\nProduction deployments require manual approval."
+    },
+    {
+        "id": "q34",
+        "module": "Module 4 — Cloud & Infrastructure",
+        "question": "Question 34. How do you monitor backend applications?",
+        "answer": "We use CloudWatch for logs, metrics, and alerts.\n\nWe monitor response time, error rate, CPU, memory, and request count.\n\nFor production errors we send alerts to Slack and Telegram.\n\nWe also have health check endpoints and dashboards.\n\nGood monitoring helps us find and fix problems quickly."
+    },
+    {
+        "id": "q26",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 26. Monolith vs Microservices",
+        "answer": "I've worked with both — monolith and microservices.\n\nA monolith works well for small or medium-sized projects. It's easier to build, deploy, test, and debug because everything is in one application.\n\nMicroservices are a good choice for larger systems with many teams or high traffic. Each service — like users, orders, or payments — runs on its own, has its own database, and communicates with other services through a message broker like RabbitMQ, Kafka, or Redis.\n\nBut microservices also add more complexity. You have more services to deploy, monitor, and maintain. That's why we don't start with microservices. We usually start with a well-structured monolith and move to microservices only when the project really needs it.\n\nI wouldn't use microservices for a small project or a small team. They add a lot of extra work — more deployments, more databases, and more communication between services.",
+        "bonus": "I wouldn't use microservices for a small project or a small team. They add a lot of extra work."
+    },
+    {
+        "id": "q35",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 35. How do services communicate with each other?",
+        "answer": "It depends on the architecture.\n\nIn a monolith, services communicate directly. One service calls another inside the same application. It's simple and fast.\n\nIn microservices we use two ways to communicate.\n\nThe first way is HTTP or gRPC. One service calls another and waits for the response. We use this when we need the result right away.\n\nThe second way is a message broker like RabbitMQ or Kafka. One service sends a message and another service processes it later. We use this for things like emails, notifications, or file processing — where the client doesn't need to wait.",
+        "bonus": "Sync when we need the result right away. Async for background work like emails or notifications."
+    },
+    {
+        "id": "q36",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 36. How do you do code review?",
+        "answer": "When we work on a new feature, we create a new branch from dev. We keep pull requests small because they are easier to review.\n\nWe use ESLint to keep the same coding style across the team.\n\nFor simple changes I review the code on GitHub. For bigger changes I run the code locally and test it myself.\n\nIf something isn't clear, we jump on a quick call.\n\nGood communication is the most important part of code review."
+    },
+    {
+        "id": "q37",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 37. How do you mentor junior developers?",
+        "answer": "I try to create an environment where junior developers are not afraid to ask questions.\n\nI lead by example. I show how I solve problems and follow our coding standards.\n\nBefore writing code, we discuss the task and I ask them to explain their plan first. This helps them learn to think on their own.\n\nAfter that I review the code, explain my comments, and help them improve."
+    },
+    {
+        "id": "q38",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 38. How do you make architecture decisions?",
+        "answer": "First we discuss the problem and different solutions with the team.\n\nWhen we start a new project, I usually create the main structure. For example, I created our NestJS monorepo architecture.\n\nThen I explain it to the team and listen to their ideas. If someone has a better idea, we discuss it together.\n\nThe goal is to build an architecture that everyone understands and can work with."
+    },
+    {
+        "id": "q39",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 39. How do you estimate tasks?",
+        "answer": "First, I make sure I understand the requirements. If something is unclear, I ask questions before giving an estimate.\n\nThen I break the work into smaller tasks and think about the main risks, dependencies, and parts that are not clear yet.\n\nIf the task is large or uncertain, I discuss it with the team — someone may know something I don't.\n\nI prefer to give realistic estimates with a small buffer instead of promising a date that we can't meet."
+    },
+    {
+        "id": "q40",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 40. How do you handle production incidents?",
+        "answer": "First I stay calm and understand how serious the problem is.\n\nMy first goal is to restore the service as quickly as possible. Finding the root cause can wait.\n\nI check logs, monitoring, and recent deployments. If the latest deployment caused the issue, we roll it back. Otherwise we fix the problem or use a temporary solution.\n\nI keep the team updated during the incident.\n\nAfter everything is working again, we find the root cause and discuss how to prevent the same problem in the future.",
+        "bonus": "After the incident we discuss what happened, why, and how to prevent it next time."
+    },
+    {
+        "id": "q41",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 41. Why should we hire you?",
+        "answer": "I have 8 years of backend development experience and I'm working as a Backend Team Lead. During that time I've built applications from scratch, solved production issues, and worked with technologies like NodeJS, Go, AWS, PostgreSQL, DynamoDB, Redis, and AI tools.\n\nI've worked on different kinds of projects — payments, e-commerce, file storage, video streaming, and AI integrations — so I'm comfortable learning new domains and solving different technical problems.\n\nBesides writing code, I enjoy designing architecture, reviewing code, and helping other developers grow.\n\nI think I can contribute both as an engineer and as a team lead, and I'm always looking for ways to improve the product and the development process."
+    },
+    {
+        "id": "q42",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 42. What are your career goals?",
+        "answer": "In the short term, I want to continue growing as a Senior Backend Engineer and Team Lead. I want to work on larger systems, solve more complex problems, and learn from experienced engineers.\n\nI'm also interested in AI integration. I've already worked with LangChain, OpenAI, Gemini, and Claude Code, and I think AI will become an important part of modern backend development.\n\nIn the long term, I want to become a stronger technical leader. I want to design good architectures, build strong teams, and help deliver high-quality software. My goal is to keep learning and keep improving."
+    },
+    {
+        "id": "q43",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 43. How do you use AI in your daily work?",
+        "answer": "We use Claude Code every day as our main AI coding tool.\n\nWhen we get a new task, we first create a plan with AI. We discuss the solution, prepare the documentation, and then start writing the code step by step.\n\nWe also use AI during code reviews. When someone opens a pull request, AI reviews it before another developer looks at it.\n\nWe trained the AI to follow our project rules, coding style, and file structure, so the generated code matches our project.\n\nWe also use MCP servers and Claude Code Skills to automate many everyday tasks."
+    },
+    {
+        "id": "q44",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 44. Which AI coding assistants have you used?",
+        "answer": "I mainly use Claude Code. I've also used Cursor and different OpenAI models.\n\nThe workflow is very similar. First, we set up the AI for our project by giving it our coding style, project structure, and rules.\n\nThen we write clear prompts and let the AI help us write the code. After every task we give feedback, so the AI understands our project better over time.\n\nToday Claude Code is our main tool because it works very well with our projects and fits our development process."
+    },
+    {
+        "id": "q45",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 45. How do you use AI safely in production?",
+        "answer": "AI helps us write code faster, but developers are always responsible for the final result.\n\nEvery AI-generated change goes through code review, testing, and CI before it reaches production.\n\nWe never trust AI without checking the code ourselves, especially for security, payments, or database changes.\n\nAI only has access to our development environment, never production. The developer always makes the final decision.",
+        "bonus": "The developer always makes the final decision — especially for security, payments, and database changes."
+    },
+    {
+        "id": "q46",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 46. How do you use Claude Code? Walk me through your workflow.",
+        "answer": "First we create a CLAUDE.md file. It contains our coding style, project rules, and important information about the project.\n\nClaude Code reads my Jira task, creates a branch, and prepares an implementation plan. We review the plan first, then write the code step by step.\n\nWhen the work is finished, Claude Code creates a commit, pushes the branch, and opens a pull request.\n\nAfter that AI reviews the code, and finally a developer does the last manual review before we merge."
+    },
+    {
+        "id": "q47",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 47. What is MCP (Model Context Protocol)?",
+        "answer": "MCP stands for Model Context Protocol. It lets AI connect to external tools like databases and Jira.\n\nIn our project we use three MCP servers: PostgreSQL, DynamoDB, and Jira.\n\nThe AI can read data, run queries, and read my Jira tasks without me copying information into the chat.\n\nThis saves time and makes AI much more useful in our daily work.",
+        "bonus": "We only give AI access to our development environment, never production."
+    },
+    {
+        "id": "q48",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 48. Have you built AI applications?",
+        "answer": "Yes. I worked on an AI business planning platform.\n\nThe client talks to an AI agent that asks questions and collects all the information needed for a business plan. The client can also upload documents for the AI to use.\n\nAfter that, the system automatically creates a professional PDF document.\n\nI worked on the backend, AI integration, and document generation using LangChain.\n\nWhat used to take days now takes only a few minutes."
+    },
+    {
+        "id": "q49",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 49. How do you write good prompts?",
+        "answer": "The most important thing is context. I always tell the AI about the project, the technologies we use, and what I want to build.\n\nThen I write a clear prompt with enough details. If needed, I also show an example from our codebase.\n\nIf the first result isn't right, I don't start over. I give feedback and ask the AI to improve it.\n\nThe better the context and the prompt, the better the result.",
+        "bonus": "The better the context and the prompt, the better the result."
+    },
+    {
+        "id": "q50",
+        "module": "Module 6 — AI for Backend Engineers",
+        "question": "Question 50. How do you review AI-generated code?",
+        "answer": "AI can write code very quickly, but we always review it carefully.\n\nWe ask the AI to follow our project structure and generate small changes instead of one large feature. This makes the code easier to review and maintain.\n\nWe also use AI to review pull requests, but a developer always does the final review before merging.\n\nThe most important rule is simple: never merge AI-generated code without reading and understanding it yourself.",
+        "bonus": "Never merge AI-generated code without reading and understanding it yourself."
+    }
+]
