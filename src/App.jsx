@@ -4,9 +4,11 @@ import { useTheme } from './hooks/useTheme'
 import PrepView from './components/PrepView'
 import { useSpeech } from './hooks/useSpeech'
 import AppHeader from './components/AppHeader'
-import { getCourse, COURSES } from './data/courses'
 import { useHashRoute } from './hooks/useHashRoute'
 import CourseSelect from './components/CourseSelect'
+import { LanguageContext } from './i18n/LanguageContext'
+import { useLanguageState, useLanguage } from './hooks/useLanguage'
+import { getLocalizedCourses, getLocalizedCourse, getCourse } from './data/courses'
 
 const COURSE_STORAGE_KEY = 'interviewPrepCourse'
 
@@ -19,9 +21,10 @@ function loadSelectedCourseId() {
   }
 }
 
-export default function App() {
+function AppContent() {
+  const { language, t } = useLanguage()
   const { toggleTheme, theme } = useTheme()
-  const { setVoiceName, voiceName, voices } = useSpeech()
+  const { setVoiceName, voiceName, voices } = useSpeech(language)
   const { courseId, jumpToId, navigate } = useHashRoute()
 
   // No course in the URL yet (fresh visit with no shared link) - resume the last one.
@@ -45,7 +48,8 @@ export default function App() {
   const selectCourse = (id, questionId = null) => navigate(id, questionId)
   const backToCourses = () => navigate(null)
 
-  const course = courseId ? getCourse(courseId) : null
+  const courses = getLocalizedCourses(language)
+  const course = courseId ? getLocalizedCourse(courseId, language) : null
   const validCourse = course?.questions?.length > 0 ? course : null
 
   return (
@@ -56,19 +60,35 @@ export default function App() {
         toggleTheme={toggleTheme}
         onHome={backToCourses}
         voiceName={voiceName}
-        courses={COURSES}
+        courses={courses}
         voices={voices}
         theme={theme}
       />
       {validCourse ? (
-        <PrepView voiceName={voiceName} course={validCourse} jumpToId={jumpToId} voices={voices} />
+        <PrepView
+          key={language + ':' + validCourse.id}
+          voiceName={voiceName}
+          course={validCourse}
+          jumpToId={jumpToId}
+          voices={voices}
+        />
       ) : (
         <div className="wrap">
-          <h1 className="home-heading">Choose your path to interview-ready</h1>
-          <CourseSelect onSelect={selectCourse} courses={COURSES} />
-          <footer>Made for interview practice &middot; works fully offline</footer>
+          <h1 className="home-heading">{t('homeHeading')}</h1>
+          <CourseSelect onSelect={selectCourse} courses={courses} />
+          <footer>{t('footer')}</footer>
         </div>
       )}
     </>
+  )
+}
+
+export default function App() {
+  const languageState = useLanguageState()
+
+  return (
+    <LanguageContext.Provider value={languageState}>
+      <AppContent />
+    </LanguageContext.Provider>
   )
 }

@@ -6,9 +6,11 @@ import ProgressBar from './ProgressBar'
 import QuestionCard from './QuestionCard'
 import CoursePlayer from './CoursePlayer'
 import InterviewMode from './InterviewMode'
+import { useLanguage } from '../hooks/useLanguage'
 import { useReviewState } from '../hooks/useReviewState'
 
 export default function PrepView({ voiceName, jumpToId, course, voices }) {
+  const { t } = useLanguage()
   const questions = course.questions
   const { toggleFavorite, markReviewed, state } = useReviewState(course.id)
   const [search, setSearch] = useState('')
@@ -58,8 +60,7 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
 
   const showModuleLabels = !term
 
-  const hintText =
-    mode === 'quiz' ? 'Tap question, then "Show answer" to test yourself' : 'Tap any question to reveal the answer'
+  const hintText = mode === 'quiz' ? t('hintQuiz') : t('hintList')
 
   return (
     <div className="wrap">
@@ -70,7 +71,7 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
         <div>
           <h1>{course.title}</h1>
           <div className="subtitle">
-            {course.subtitle} &middot; {questions.length} questions
+            {course.subtitle} &middot; {t('questionsCount', { n: questions.length })}
           </div>
         </div>
       </div>
@@ -78,8 +79,8 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
       <ProgressBar done={state.reviewed.length} total={questions.length} />
 
       <input
-        placeholder="Search... e.g. redis, jwt, stripe, pagination"
         onChange={(e) => setSearch(e.target.value)}
+        placeholder={t('searchPlaceholder')}
         className="search-box"
         value={search}
         type="text"
@@ -102,13 +103,13 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
             <span>{hintText}</span>
             <div className="controls-right">
               <button onClick={toggleAllOpen} className="plain-btn">
-                {allOpen ? 'Collapse all' : 'Expand all'}
+                {allOpen ? t('collapseAll') : t('expandAll')}
               </button>
             </div>
           </div>
 
           <div>
-            {filtered.length === 0 && <p className="empty">No questions match your search.</p>}
+            {filtered.length === 0 && <p className="empty">{t('noMatches')}</p>}
             {filtered.map((item, index) => {
               const showLabel = showModuleLabels && item.module !== filtered[index - 1]?.module
               const isCollapsed = showModuleLabels && collapsedModules.has(item.module)
@@ -140,7 +141,7 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
         </>
       )}
 
-      <footer>Made for interview practice &middot; works fully offline</footer>
+      <footer>{t('footer')}</footer>
 
       {playerActive && (
         <CoursePlayer

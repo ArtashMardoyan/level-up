@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 
+import { useLanguage } from '../hooks/useLanguage'
+
 export default function QuestionCard({
   onToggleFavorite,
   isFavorite,
@@ -11,6 +13,7 @@ export default function QuestionCard({
   onPlay,
   item
 }) {
+  const { t } = useLanguage()
   const [open, setOpen] = useState(false)
   const [answerVisible, setAnswerVisible] = useState(false)
   const [bonusVisible, setBonusVisible] = useState(false)
@@ -76,7 +79,7 @@ export default function QuestionCard({
               e.stopPropagation()
               onPlay(item.id)
             }}
-            aria-label="Play question and answer"
+            aria-label={t('playQuestionAria')}
             className="speak-btn"
             role="button"
           >
@@ -88,7 +91,7 @@ export default function QuestionCard({
               onToggleFavorite(item.id)
             }}
             className={'star-btn' + (isFavorite ? ' active' : '')}
-            aria-label="Toggle favorite"
+            aria-label={t('favoriteAria')}
             role="button"
           >
             {isFavorite ? '★' : '☆'}
@@ -107,7 +110,7 @@ export default function QuestionCard({
                 }}
                 className="copy-btn"
               >
-                {answerVisible ? 'Hide answer' : 'Show answer'}
+                {answerVisible ? t('hideAnswer') : t('showAnswer')}
               </button>
               {answerVisible && <div style={{ whiteSpace: 'pre-line' }}>{item.answer}</div>}
             </>
@@ -116,7 +119,7 @@ export default function QuestionCard({
           )}
           <div>
             <button className="copy-btn" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy answer'}
+              {copied ? t('copied') : t('copyAnswer')}
             </button>
             {item.bonus && (
               <button
@@ -126,13 +129,13 @@ export default function QuestionCard({
                 }}
                 className="copy-btn"
               >
-                {bonusVisible ? 'Hide bonus' : 'Show bonus'}
+                {bonusVisible ? t('hideBonus') : t('showBonus')}
               </button>
             )}
           </div>
           {item.bonus && bonusVisible && (
             <div className="bonus-box">
-              <span className="bonus-tag">Bonus</span>
+              <span className="bonus-tag">{t('bonus')}</span>
               <div style={{ whiteSpace: 'pre-line' }}>{item.bonus}</div>
             </div>
           )}

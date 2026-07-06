@@ -1,10 +1,12 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 
 import CourseIcon from './CourseIcon'
+import { useLanguage } from '../hooks/useLanguage'
 
 const MAX_RESULTS = 30
 
 export default function GlobalSearch({ onSelectQuestion, courses }) {
+  const { t } = useLanguage()
   const [term, setTerm] = useState('')
   const [open, setOpen] = useState(false)
   const wrapRef = useRef(null)
@@ -54,8 +56,8 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
         onKeyDown={(e) => {
           if (e.key === 'Escape') setOpen(false)
         }}
-        aria-label="Search across all courses"
-        placeholder="Search all courses..."
+        placeholder={t('globalSearchPlaceholder')}
+        aria-label={t('globalSearchAria')}
         className="header-search-input"
         onFocus={() => setOpen(true)}
         type="search"
@@ -63,7 +65,7 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
       />
       {open && query && (
         <div className="header-search-dropdown">
-          {shown.length === 0 && <p className="empty">No questions match your search.</p>}
+          {shown.length === 0 && <p className="empty">{t('noMatches')}</p>}
           {shown.map((q) => (
             <button
               onClick={() => pick(q.courseId, q.id)}
@@ -80,9 +82,7 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
             </button>
           ))}
           {results.length > MAX_RESULTS && (
-            <p className="global-search-more">
-              Showing first {MAX_RESULTS} of {results.length} matches — refine your search.
-            </p>
+            <p className="global-search-more">{t('showingFirst', { total: results.length, max: MAX_RESULTS })}</p>
           )}
         </div>
       )}
