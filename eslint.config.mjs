@@ -48,5 +48,9 @@ export default [
       'perfectionist/sort-classes': 'off',
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }]
     }
+  },
+  {
+    languageOptions: { globals: { ...globals.node } },
+    files: ['scripts/**/*.{js,mjs}']
   }
 ]

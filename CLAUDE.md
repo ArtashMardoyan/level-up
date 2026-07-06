@@ -18,6 +18,8 @@ npm run build     # production build to dist/
 npm run preview   # preview the production build locally
 npm run lint      # ESLint (flat config, eslint.config.mjs)
 npm run lint:fix  # auto-fix lint + formatting
+
+node scripts/validate-translations.mjs [course ...]  # check ru/*.json against English files
 ```
 
 There are no tests configured.
