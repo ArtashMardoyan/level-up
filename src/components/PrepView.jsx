@@ -1,15 +1,16 @@
-import { useMemo, useState } from 'react'
-import { useReviewState } from '../hooks/useReviewState'
-import ProgressBar from './ProgressBar'
-import ModeBar from './ModeBar'
-import QuestionCard from './QuestionCard'
-import InterviewMode from './InterviewMode'
-import CoursePlayer from './CoursePlayer'
-import CourseIcon from './CourseIcon'
+import { useState, useMemo } from 'react'
 
-export default function PrepView({ course, voices, voiceName, jumpToId }) {
+import ModeBar from './ModeBar'
+import CourseIcon from './CourseIcon'
+import ProgressBar from './ProgressBar'
+import QuestionCard from './QuestionCard'
+import CoursePlayer from './CoursePlayer'
+import InterviewMode from './InterviewMode'
+import { useReviewState } from '../hooks/useReviewState'
+
+export default function PrepView({ voiceName, jumpToId, course, voices }) {
   const questions = course.questions
-  const { state, toggleFavorite, markReviewed } = useReviewState(course.id)
+  const { toggleFavorite, markReviewed, state } = useReviewState(course.id)
   const [search, setSearch] = useState('')
   const [mode, setMode] = useState('list')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
@@ -36,51 +37,61 @@ export default function PrepView({ course, voices, voiceName, jumpToId }) {
 
   const filtered = useMemo(() => {
     return questions.filter((item) => {
-      const matches = !term
-        || item.question.toLowerCase().includes(term)
-        || item.answer.toLowerCase().includes(term)
-        || (item.bonus && item.bonus.toLowerCase().includes(term))
+      const matches =
+        !term ||
+        item.question.toLowerCase().includes(term) ||
+        item.answer.toLowerCase().includes(term) ||
+        (item.bonus && item.bonus.toLowerCase().includes(term))
       if (!matches) return false
       if (favoritesOnly && !state.favorites.includes(item.id)) return false
       return true
     })
   }, [questions, term, favoritesOnly, state.favorites])
 
+  const toggleAllOpen = () => {
+    const next = !allOpen
+    setAllOpen(next)
+    // Opening every card counts as reviewing them (QuestionCard only reports
+    // opens the user makes directly).
+    if (next) filtered.forEach((item) => markReviewed(item.id))
+  }
+
   const showModuleLabels = !term
 
-  const hintText = mode === 'quiz'
-    ? 'Tap question, then "Show answer" to test yourself'
-    : 'Tap any question to reveal the answer'
-
-  let lastModule = null
+  const hintText =
+    mode === 'quiz' ? 'Tap question, then "Show answer" to test yourself' : 'Tap any question to reveal the answer'
 
   return (
     <div className="wrap">
       <div className="page-title-row">
-        <div className="page-title-icon"><CourseIcon courseId={course.id} emoji={course.emoji} /></div>
+        <div className="page-title-icon">
+          <CourseIcon courseId={course.id} emoji={course.emoji} />
+        </div>
         <div>
           <h1>{course.title}</h1>
-          <div className="subtitle">{course.subtitle} &middot; {questions.length} questions</div>
+          <div className="subtitle">
+            {course.subtitle} &middot; {questions.length} questions
+          </div>
         </div>
       </div>
 
       <ProgressBar done={state.reviewed.length} total={questions.length} />
 
       <input
-        type="text"
-        className="search-box"
         placeholder="Search... e.g. redis, jwt, stripe, pagination"
-        value={search}
         onChange={(e) => setSearch(e.target.value)}
+        className="search-box"
+        value={search}
+        type="text"
       />
 
       <ModeBar
-        mode={mode}
-        onModeChange={setMode}
-        favoritesOnly={favoritesOnly}
         onToggleFavorites={() => setFavoritesOnly((v) => !v)}
-        playerActive={playerActive}
         onTogglePlayer={() => setPlayerActive((v) => !v)}
+        favoritesOnly={favoritesOnly}
+        playerActive={playerActive}
+        onModeChange={setMode}
+        mode={mode}
       />
 
       {mode === 'interview' ? (
@@ -90,7 +101,7 @@ export default function PrepView({ course, voices, voiceName, jumpToId }) {
           <div className="controls">
             <span>{hintText}</span>
             <div className="controls-right">
-              <button className="plain-btn" onClick={() => setAllOpen((v) => !v)}>
+              <button onClick={toggleAllOpen} className="plain-btn">
                 {allOpen ? 'Collapse all' : 'Expand all'}
               </button>
             </div>
@@ -98,29 +109,28 @@ export default function PrepView({ course, voices, voiceName, jumpToId }) {
 
           <div>
             {filtered.length === 0 && <p className="empty">No questions match your search.</p>}
-            {filtered.map((item) => {
-              const showLabel = showModuleLabels && item.module !== lastModule
-              lastModule = item.module
+            {filtered.map((item, index) => {
+              const showLabel = showModuleLabels && item.module !== filtered[index - 1]?.module
               const isCollapsed = showModuleLabels && collapsedModules.has(item.module)
               return (
                 <div key={item.id}>
                   {showLabel && (
-                    <button className="module-label" onClick={() => toggleModule(item.module)}>
+                    <button onClick={() => toggleModule(item.module)} className="module-label">
                       {item.module}
                       <span className={'arrow' + (isCollapsed ? '' : ' open')}>&#9662;</span>
                     </button>
                   )}
                   {!isCollapsed && (
                     <QuestionCard
-                      item={item}
                       isFavorite={state.favorites.includes(item.id)}
                       isReviewed={state.reviewed.includes(item.id)}
-                      quizMode={mode === 'quiz'}
-                      forceOpen={allOpen}
                       onToggleFavorite={toggleFavorite}
-                      onOpen={markReviewed}
-                      onPlay={playQuestionInPlayer}
                       autoOpen={item.id === jumpToId}
+                      onPlay={playQuestionInPlayer}
+                      quizMode={mode === 'quiz'}
+                      onOpen={markReviewed}
+                      forceOpen={allOpen}
+                      item={item}
                     />
                   )}
                 </div>
@@ -134,11 +144,11 @@ export default function PrepView({ course, voices, voiceName, jumpToId }) {
 
       {playerActive && (
         <CoursePlayer
-          questions={questions}
-          voices={voices}
-          voiceName={voiceName}
           onClose={() => setPlayerActive(false)}
           startRequest={playerStartRequest}
+          questions={questions}
+          voiceName={voiceName}
+          voices={voices}
         />
       )}
     </div>

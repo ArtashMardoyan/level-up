@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
-export default function CoursePlayer({ questions, voices, voiceName, onClose, startRequest }) {
+export default function CoursePlayer({ startRequest, questions, voiceName, onClose, voices }) {
   const moduleNames = useMemo(() => {
     const seen = []
     for (const item of questions) {
@@ -13,10 +13,25 @@ export default function CoursePlayer({ questions, voices, voiceName, onClose, st
   const [currentIndex, setCurrentIndex] = useState(0)
   const [phase, setPhase] = useState('question')
   const [playing, setPlaying] = useState(false)
+  const [prevStartRequest, setPrevStartRequest] = useState(null)
 
-  const scopedList = useMemo(() => (
-    selectedModule === 'all' ? questions : questions.filter((q) => q.module === selectedModule)
-  ), [questions, selectedModule])
+  // Jump to the requested question by adjusting state during render
+  // (https://react.dev/learn/you-might-not-need-an-effect).
+  if (startRequest !== prevStartRequest) {
+    setPrevStartRequest(startRequest)
+    const idx = startRequest ? questions.findIndex((q) => q.id === startRequest.id) : -1
+    if (idx !== -1) {
+      setSelectedModule('all')
+      setCurrentIndex(idx)
+      setPhase('question')
+      setPlaying(true)
+    }
+  }
+
+  const scopedList = useMemo(
+    () => (selectedModule === 'all' ? questions : questions.filter((q) => q.module === selectedModule)),
+    [questions, selectedModule]
+  )
 
   const currentItem = scopedList[currentIndex] || null
 
@@ -24,16 +39,6 @@ export default function CoursePlayer({ questions, voices, voiceName, onClose, st
     document.body.classList.add('player-open')
     return () => document.body.classList.remove('player-open')
   }, [])
-
-  useEffect(() => {
-    if (!startRequest) return
-    const idx = questions.findIndex((q) => q.id === startRequest.id)
-    if (idx === -1) return
-    setSelectedModule('all')
-    setCurrentIndex(idx)
-    setPhase('question')
-    setPlaying(true)
-  }, [startRequest, questions])
 
   // Chrome silently stalls speechSynthesis on utterances longer than ~15s
   // unless it's kept alive with a periodic pause/resume nudge.
@@ -103,25 +108,29 @@ export default function CoursePlayer({ questions, voices, voiceName, onClose, st
   return (
     <div className="player-bar">
       <div className="player-top">
-        <select
-          className="plain-btn"
-          value={selectedModule}
-          onChange={(e) => handleModuleChange(e.target.value)}
-        >
+        <select onChange={(e) => handleModuleChange(e.target.value)} value={selectedModule} className="plain-btn">
           <option value="all">All modules</option>
           {moduleNames.map((m) => (
-            <option key={m} value={m}>{m}</option>
+            <option value={m} key={m}>
+              {m}
+            </option>
           ))}
         </select>
-        <button className="player-close" aria-label="Stop and close player" onClick={handleClose}>✕</button>
+        <button aria-label="Stop and close player" className="player-close" onClick={handleClose}>
+          ✕
+        </button>
       </div>
       <div className="player-title">{currentItem ? currentItem.question : 'Nothing to play'}</div>
       <div className="player-controls">
-        <button className="player-btn" onClick={handlePrev} disabled={currentIndex === 0}>⏮</button>
+        <button disabled={currentIndex === 0} className="player-btn" onClick={handlePrev}>
+          ⏮
+        </button>
         <button className="player-btn player-btn-main" onClick={() => setPlaying((p) => !p)} disabled={!currentItem}>
           {playing ? '⏸' : '▶'}
         </button>
-        <button className="player-btn" onClick={handleNext} disabled={currentIndex >= scopedList.length - 1}>⏭</button>
+        <button disabled={currentIndex >= scopedList.length - 1} className="player-btn" onClick={handleNext}>
+          ⏭
+        </button>
         <span className="player-status">
           {currentItem ? `${phase === 'question' ? 'Q' : 'A'} ${currentIndex + 1} of ${scopedList.length}` : ''}
         </span>

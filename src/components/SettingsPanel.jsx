@@ -1,13 +1,34 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 const NOVELTY_VOICE_PREFIXES = [
-  'Albert', 'Bad News', 'Bahh', 'Bells', 'Boing', 'Bubbles', 'Cellos',
-  'Eddy', 'Flo', 'Good News', 'Grandma', 'Grandpa', 'Jester', 'Junior',
-  'Organ', 'Ralph', 'Reed', 'Rocko', 'Sandy', 'Shelley', 'Superstar',
-  'Trinoids', 'Whisper', 'Wobble', 'Zarvox',
+  'Albert',
+  'Bad News',
+  'Bahh',
+  'Bells',
+  'Boing',
+  'Bubbles',
+  'Cellos',
+  'Eddy',
+  'Flo',
+  'Good News',
+  'Grandma',
+  'Grandpa',
+  'Jester',
+  'Junior',
+  'Organ',
+  'Ralph',
+  'Reed',
+  'Rocko',
+  'Sandy',
+  'Shelley',
+  'Superstar',
+  'Trinoids',
+  'Whisper',
+  'Wobble',
+  'Zarvox'
 ]
 
-export default function SettingsPanel({ theme, toggleTheme, voices, voiceName, setVoiceName }) {
+export default function SettingsPanel({ setVoiceName, toggleTheme, voiceName, voices, theme }) {
   const [open, setOpen] = useState(false)
   const wrapRef = useRef(null)
 
@@ -21,19 +42,12 @@ export default function SettingsPanel({ theme, toggleTheme, voices, voiceName, s
   }, [open])
 
   const englishVoices = voices.filter((v) => v.lang.toLowerCase().startsWith('en'))
-  const normalVoices = englishVoices.filter(
-    (v) => !NOVELTY_VOICE_PREFIXES.some((prefix) => v.name.startsWith(prefix))
-  )
-  const voiceOptions = normalVoices.length ? normalVoices : (englishVoices.length ? englishVoices : voices)
+  const normalVoices = englishVoices.filter((v) => !NOVELTY_VOICE_PREFIXES.some((prefix) => v.name.startsWith(prefix)))
+  const voiceOptions = normalVoices.length ? normalVoices : englishVoices.length ? englishVoices : voices
 
   return (
     <div className="settings-wrap" ref={wrapRef}>
-      <button
-        className="settings-gear"
-        aria-label="Settings"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
+      <button onClick={() => setOpen((v) => !v)} className="settings-gear" aria-label="Settings" aria-expanded={open}>
         ⚙️
       </button>
       {open && (
@@ -48,14 +62,16 @@ export default function SettingsPanel({ theme, toggleTheme, voices, voiceName, s
             <div className="settings-row">
               <span className="settings-label">Voice</span>
               <select
-                className="plain-btn"
-                value={voiceName}
                 onChange={(e) => setVoiceName(e.target.value)}
                 aria-label="Voice for read-aloud"
+                className="plain-btn"
+                value={voiceName}
               >
                 <option value="">Default voice</option>
                 {voiceOptions.map((v) => (
-                  <option key={v.name} value={v.name}>{v.name} ({v.lang})</option>
+                  <option value={v.name} key={v.name}>
+                    {v.name} ({v.lang})
+                  </option>
                 ))}
               </select>
             </div>

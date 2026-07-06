@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState, useMemo } from 'react'
 
 function shuffle(arr) {
   const a = arr.slice()
@@ -44,7 +44,9 @@ export default function InterviewMode({ questions }) {
 
   return (
     <div className="interview-stage">
-      <div className="qnum">Question {index + 1} of {queue.length}</div>
+      <div className="qnum">
+        Question {index + 1} of {queue.length}
+      </div>
       <div className="qtext">{content.question}</div>
       <button onClick={() => setShowAnswer(true)}>Show answer</button>
       <button onClick={next}>Skip / next</button>

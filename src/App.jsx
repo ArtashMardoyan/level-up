@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
-import { COURSES, getCourse } from './data/courses'
+
 import { useTheme } from './hooks/useTheme'
-import { useSpeech } from './hooks/useSpeech'
-import { useHashRoute } from './hooks/useHashRoute'
-import AppHeader from './components/AppHeader'
-import CourseSelect from './components/CourseSelect'
 import PrepView from './components/PrepView'
+import { useSpeech } from './hooks/useSpeech'
+import AppHeader from './components/AppHeader'
+import { getCourse, COURSES } from './data/courses'
+import { useHashRoute } from './hooks/useHashRoute'
+import CourseSelect from './components/CourseSelect'
 
 const COURSE_STORAGE_KEY = 'interviewPrepCourse'
 
@@ -19,8 +20,8 @@ function loadSelectedCourseId() {
 }
 
 export default function App() {
-  const { theme, toggleTheme } = useTheme()
-  const { voices, voiceName, setVoiceName } = useSpeech()
+  const { toggleTheme, theme } = useTheme()
+  const { setVoiceName, voiceName, voices } = useSpeech()
   const { courseId, jumpToId, navigate } = useHashRoute()
 
   // No course in the URL yet (fresh visit with no shared link) - resume the last one.
@@ -36,7 +37,9 @@ export default function App() {
     try {
       if (courseId) localStorage.setItem(COURSE_STORAGE_KEY, courseId)
       else localStorage.removeItem(COURSE_STORAGE_KEY)
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [courseId])
 
   const selectCourse = (id, questionId = null) => navigate(id, questionId)
@@ -48,26 +51,21 @@ export default function App() {
   return (
     <>
       <AppHeader
-        courses={COURSES}
         onSelectQuestion={selectCourse}
-        onHome={backToCourses}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        voices={voices}
-        voiceName={voiceName}
         setVoiceName={setVoiceName}
+        toggleTheme={toggleTheme}
+        onHome={backToCourses}
+        voiceName={voiceName}
+        courses={COURSES}
+        voices={voices}
+        theme={theme}
       />
       {validCourse ? (
-        <PrepView
-          course={validCourse}
-          voices={voices}
-          voiceName={voiceName}
-          jumpToId={jumpToId}
-        />
+        <PrepView voiceName={voiceName} course={validCourse} jumpToId={jumpToId} voices={voices} />
       ) : (
         <div className="wrap">
           <h1 className="home-heading">Choose your path to interview-ready</h1>
-          <CourseSelect courses={COURSES} onSelect={selectCourse} />
+          <CourseSelect onSelect={selectCourse} courses={COURSES} />
           <footer>Made for interview practice &middot; works fully offline</footer>
         </div>
       )}

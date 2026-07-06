@@ -3,23 +3,29 @@ import GlobalSearch from './GlobalSearch'
 import SettingsPanel from './SettingsPanel'
 
 export default function AppHeader({
-  courses, onSelectQuestion, onHome,
-  theme, toggleTheme, voices, voiceName, setVoiceName,
+  onSelectQuestion,
+  setVoiceName,
+  toggleTheme,
+  voiceName,
+  courses,
+  onHome,
+  voices,
+  theme
 }) {
   return (
     <header className="app-header">
       <div className="app-header-inner">
-        <button className="brand" onClick={onHome} aria-label="Level Up — all courses">
+        <button aria-label="Level Up — all courses" className="brand" onClick={onHome}>
           <Logo size={30} />
           <span className="brand-name">Level Up</span>
         </button>
-        <GlobalSearch courses={courses} onSelectQuestion={onSelectQuestion} />
+        <GlobalSearch onSelectQuestion={onSelectQuestion} courses={courses} />
         <SettingsPanel
-          theme={theme}
-          toggleTheme={toggleTheme}
-          voices={voices}
-          voiceName={voiceName}
           setVoiceName={setVoiceName}
+          toggleTheme={toggleTheme}
+          voiceName={voiceName}
+          voices={voices}
+          theme={theme}
         />
       </div>
     </header>

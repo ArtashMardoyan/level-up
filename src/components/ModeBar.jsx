@@ -1,31 +1,32 @@
 const MODES = [
-  { key: 'list', label: 'List view' },
-  { key: 'quiz', label: 'Quiz mode' },
-  { key: 'interview', label: 'Interview mode' },
+  { label: 'List view', key: 'list' },
+  { label: 'Quiz mode', key: 'quiz' },
+  { label: 'Interview mode', key: 'interview' }
 ]
 
-export default function ModeBar({ mode, onModeChange, favoritesOnly, onToggleFavorites, playerActive, onTogglePlayer }) {
+export default function ModeBar({
+  onToggleFavorites,
+  onTogglePlayer,
+  favoritesOnly,
+  onModeChange,
+  playerActive,
+  mode
+}) {
   return (
     <div className="mode-bar">
       {MODES.map((m) => (
         <button
-          key={m.key}
           className={'mode-btn' + (mode === m.key ? ' active' : '')}
           onClick={() => onModeChange(m.key)}
+          key={m.key}
         >
           {m.label}
         </button>
       ))}
-      <button
-        className={'mode-btn' + (favoritesOnly ? ' active' : '')}
-        onClick={onToggleFavorites}
-      >
+      <button className={'mode-btn' + (favoritesOnly ? ' active' : '')} onClick={onToggleFavorites}>
         &#9733; Favorites only
       </button>
-      <button
-        className={'mode-btn' + (playerActive ? ' active' : '')}
-        onClick={onTogglePlayer}
-      >
+      <button className={'mode-btn' + (playerActive ? ' active' : '')} onClick={onTogglePlayer}>
         🎧 Listen
       </button>
     </div>

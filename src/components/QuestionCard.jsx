@@ -1,32 +1,46 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
-export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, forceOpen, onToggleFavorite, onOpen, onPlay, autoOpen }) {
+export default function QuestionCard({
+  onToggleFavorite,
+  isFavorite,
+  isReviewed,
+  forceOpen,
+  quizMode,
+  autoOpen,
+  onOpen,
+  onPlay,
+  item
+}) {
   const [open, setOpen] = useState(false)
   const [answerVisible, setAnswerVisible] = useState(false)
   const [bonusVisible, setBonusVisible] = useState(false)
   const [copied, setCopied] = useState(false)
-  const prevForceOpen = useRef(forceOpen)
+  const [prevForceOpen, setPrevForceOpen] = useState(forceOpen)
+  const [prevAutoOpen, setPrevAutoOpen] = useState(false)
   const cardRef = useRef(null)
+
+  // Sync with "Expand/Collapse all" by adjusting state during render
+  // (https://react.dev/learn/you-might-not-need-an-effect).
+  if (forceOpen !== prevForceOpen) {
+    setPrevForceOpen(forceOpen)
+    setOpen(forceOpen)
+    if (!forceOpen) {
+      setAnswerVisible(false)
+      setBonusVisible(false)
+    }
+  }
+
+  if (autoOpen !== prevAutoOpen) {
+    setPrevAutoOpen(autoOpen)
+    if (autoOpen) setOpen(true)
+  }
 
   useEffect(() => {
     if (!autoOpen) return
-    setOpen(true)
     if (!isReviewed) onOpen(item.id)
     cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoOpen])
-
-  useEffect(() => {
-    if (forceOpen !== prevForceOpen.current) {
-      prevForceOpen.current = forceOpen
-      setOpen(forceOpen)
-      if (forceOpen && !isReviewed) onOpen(item.id)
-      if (!forceOpen) {
-        setAnswerVisible(false)
-        setBonusVisible(false)
-      }
-    }
-  }, [forceOpen, isReviewed, item.id, onOpen])
 
   const handleToggle = () => {
     const next = !open
@@ -40,50 +54,59 @@ export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, f
 
   const handleCopy = (e) => {
     e.stopPropagation()
-    navigator.clipboard.writeText(item.answer).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1200)
-    }).catch(() => {})
+    navigator.clipboard
+      .writeText(item.answer)
+      .then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1200)
+      })
+      .catch(() => {})
   }
 
   return (
     <div className="card" ref={cardRef}>
-      <button className="q-header" onClick={handleToggle}>
+      <button onClick={handleToggle} className="q-header">
         <div className="q-header-row">
           <span className="q-title">
             {item.question}
             {isReviewed && <span className="check">&#10003;</span>}
           </span>
           <span
-            className="speak-btn"
-            role="button"
-            aria-label="Play question and answer"
             onClick={(e) => {
               e.stopPropagation()
               onPlay(item.id)
             }}
+            aria-label="Play question and answer"
+            className="speak-btn"
+            role="button"
           >
             🔊
           </span>
           <span
-            className={'star-btn' + (isFavorite ? ' active' : '')}
-            role="button"
-            aria-label="Toggle favorite"
             onClick={(e) => {
               e.stopPropagation()
               onToggleFavorite(item.id)
             }}
+            className={'star-btn' + (isFavorite ? ' active' : '')}
+            aria-label="Toggle favorite"
+            role="button"
           >
             {isFavorite ? '★' : '☆'}
           </span>
           <span className={'arrow' + (open ? ' open' : '')}>&#9662;</span>
         </div>
       </button>
-      <div className="a-body" style={{ maxHeight: open ? '3000px' : '0px' }}>
+      <div style={{ maxHeight: open ? '3000px' : '0px' }} className="a-body">
         <div className="a-inner">
           {quizMode ? (
             <>
-              <button className="copy-btn" onClick={(e) => { e.stopPropagation(); setAnswerVisible((v) => !v) }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setAnswerVisible((v) => !v)
+                }}
+                className="copy-btn"
+              >
                 {answerVisible ? 'Hide answer' : 'Show answer'}
               </button>
               {answerVisible && <div style={{ whiteSpace: 'pre-line' }}>{item.answer}</div>}
@@ -92,9 +115,17 @@ export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, f
             <div style={{ whiteSpace: 'pre-line' }}>{item.answer}</div>
           )}
           <div>
-            <button className="copy-btn" onClick={handleCopy}>{copied ? 'Copied!' : 'Copy answer'}</button>
+            <button className="copy-btn" onClick={handleCopy}>
+              {copied ? 'Copied!' : 'Copy answer'}
+            </button>
             {item.bonus && (
-              <button className="copy-btn" onClick={(e) => { e.stopPropagation(); setBonusVisible((v) => !v) }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setBonusVisible((v) => !v)
+                }}
+                className="copy-btn"
+              >
                 {bonusVisible ? 'Hide bonus' : 'Show bonus'}
               </button>
             )}

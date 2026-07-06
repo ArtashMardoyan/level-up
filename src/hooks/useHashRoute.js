@@ -4,7 +4,7 @@ function parseHash() {
   const raw = window.location.hash.replace(/^#/, '')
   if (!raw) return { courseId: null, jumpToId: null }
   const [courseId, questionId] = raw.split('/').map((s) => decodeURIComponent(s))
-  return { courseId: courseId || null, jumpToId: questionId || null }
+  return { jumpToId: questionId || null, courseId: courseId || null }
 }
 
 export function useHashRoute() {
@@ -21,7 +21,7 @@ export function useHashRoute() {
       ? '#' + encodeURIComponent(courseId) + (questionId ? '/' + encodeURIComponent(questionId) : '')
       : '#'
     if (window.location.hash === nextHash) {
-      setRoute({ courseId, jumpToId: questionId })
+      setRoute({ jumpToId: questionId, courseId })
     } else {
       window.location.hash = nextHash
     }

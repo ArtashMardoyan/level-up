@@ -1,22 +1,30 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 
 const VOICE_STORAGE_KEY = 'interviewPrepVoice'
 const DEFAULT_VOICE_NAME = 'Google US English'
 
 function readStoredVoice() {
-  try { return localStorage.getItem(VOICE_STORAGE_KEY) } catch { return null }
+  try {
+    return localStorage.getItem(VOICE_STORAGE_KEY)
+  } catch {
+    return null
+  }
 }
 
 export function useSpeech() {
   const [voices, setVoices] = useState([])
-  const storedVoice = useRef(readStoredVoice()).current
+  const storedVoice = useMemo(() => readStoredVoice(), [])
   const [voiceName, setVoiceNameState] = useState(storedVoice ?? '')
   const hasAppliedDefault = useRef(storedVoice !== null)
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window
 
   const setVoiceName = useCallback((name) => {
     setVoiceNameState(name)
-    try { localStorage.setItem(VOICE_STORAGE_KEY, name) } catch { /* ignore */ }
+    try {
+      localStorage.setItem(VOICE_STORAGE_KEY, name)
+    } catch {
+      /* ignore */
+    }
   }, [])
 
   useEffect(() => {
@@ -37,5 +45,5 @@ export function useSpeech() {
     }
   }, [supported, setVoiceName])
 
-  return { supported, voices, voiceName, setVoiceName }
+  return { setVoiceName, supported, voiceName, voices }
 }
