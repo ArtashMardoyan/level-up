@@ -7,7 +7,7 @@ import InterviewMode from './InterviewMode'
 import CoursePlayer from './CoursePlayer'
 import CourseIcon from './CourseIcon'
 
-export default function PrepView({ course, onBack, voices, voiceName, jumpToId }) {
+export default function PrepView({ course, voices, voiceName, jumpToId }) {
   const questions = course.questions
   const { state, toggleFavorite, markReviewed } = useReviewState(course.id)
   const [search, setSearch] = useState('')
@@ -56,7 +56,6 @@ export default function PrepView({ course, onBack, voices, voiceName, jumpToId }
 
   return (
     <div className="wrap">
-      <button className="back-link" onClick={onBack}>&larr; All courses</button>
       <div className="page-title-row">
         <div className="page-title-icon"><CourseIcon courseId={course.id} emoji={course.emoji} /></div>
         <div>

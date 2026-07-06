@@ -1,9 +1,22 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import CourseIcon from './CourseIcon'
 
 const MAX_RESULTS = 30
 
-export default function GlobalSearch({ courses, term, onTermChange, onSelectQuestion }) {
+export default function GlobalSearch({ courses, onSelectQuestion }) {
+  const [term, setTerm] = useState('')
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handleOutsideClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [open])
+
   const index = useMemo(() => {
     return courses
       .filter((c) => c.questions?.length > 0)
@@ -23,23 +36,32 @@ export default function GlobalSearch({ courses, term, onTermChange, onSelectQues
 
   const shown = results.slice(0, MAX_RESULTS)
 
+  const pick = (courseId, questionId) => {
+    setOpen(false)
+    setTerm('')
+    onSelectQuestion(courseId, questionId)
+  }
+
   return (
-    <div className="global-search">
+    <div className="header-search" ref={wrapRef}>
       <input
-        type="text"
-        className="search-box"
-        placeholder="Search across all courses... e.g. redis, hooks, kubernetes"
+        type="search"
+        className="header-search-input"
+        placeholder="Search all courses..."
+        aria-label="Search across all courses"
         value={term}
-        onChange={(e) => onTermChange(e.target.value)}
+        onChange={(e) => { setTerm(e.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false) }}
       />
-      {query && (
-        <div className="global-search-results">
+      {open && query && (
+        <div className="header-search-dropdown">
           {shown.length === 0 && <p className="empty">No questions match your search.</p>}
           {shown.map((q) => (
             <button
               key={q.courseId + ':' + q.id}
               className="global-search-result"
-              onClick={() => onSelectQuestion(q.courseId, q.id)}
+              onClick={() => pick(q.courseId, q.id)}
             >
               <div className="global-search-result-icon">
                 <CourseIcon courseId={q.courseId} emoji={q.courseEmoji} />

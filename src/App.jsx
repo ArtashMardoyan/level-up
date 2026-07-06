@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { COURSES, getCourse } from './data/courses'
 import { useTheme } from './hooks/useTheme'
 import { useSpeech } from './hooks/useSpeech'
 import { useHashRoute } from './hooks/useHashRoute'
+import AppHeader from './components/AppHeader'
 import CourseSelect from './components/CourseSelect'
-import GlobalSearch from './components/GlobalSearch'
 import PrepView from './components/PrepView'
-import SettingsPanel from './components/SettingsPanel'
 
 const COURSE_STORAGE_KEY = 'interviewPrepCourse'
 
@@ -23,7 +22,6 @@ export default function App() {
   const { theme, toggleTheme } = useTheme()
   const { voices, voiceName, setVoiceName } = useSpeech()
   const { courseId, jumpToId, navigate } = useHashRoute()
-  const [searchTerm, setSearchTerm] = useState('')
 
   // No course in the URL yet (fresh visit with no shared link) - resume the last one.
   useEffect(() => {
@@ -47,44 +45,32 @@ export default function App() {
   const course = courseId ? getCourse(courseId) : null
   const validCourse = course?.questions?.length > 0 ? course : null
 
-  const settings = (
-    <SettingsPanel
-      theme={theme}
-      toggleTheme={toggleTheme}
-      voices={voices}
-      voiceName={voiceName}
-      setVoiceName={setVoiceName}
-    />
-  )
-
-  if (!validCourse) {
-    return (
-      <div className="wrap">
-        {settings}
-        <h1>Level Up</h1>
-        <div className="subtitle">Choose your path to interview-ready</div>
-        <GlobalSearch
-          courses={COURSES}
-          term={searchTerm}
-          onTermChange={setSearchTerm}
-          onSelectQuestion={selectCourse}
-        />
-        {!searchTerm.trim() && <CourseSelect courses={COURSES} onSelect={selectCourse} />}
-        <footer>Made for interview practice &middot; works fully offline</footer>
-      </div>
-    )
-  }
-
   return (
     <>
-      {settings}
-      <PrepView
-        course={validCourse}
-        onBack={backToCourses}
+      <AppHeader
+        courses={COURSES}
+        onSelectQuestion={selectCourse}
+        onHome={backToCourses}
+        theme={theme}
+        toggleTheme={toggleTheme}
         voices={voices}
         voiceName={voiceName}
-        jumpToId={jumpToId}
+        setVoiceName={setVoiceName}
       />
+      {validCourse ? (
+        <PrepView
+          course={validCourse}
+          voices={voices}
+          voiceName={voiceName}
+          jumpToId={jumpToId}
+        />
+      ) : (
+        <div className="wrap">
+          <h1 className="home-heading">Choose your path to interview-ready</h1>
+          <CourseSelect courses={COURSES} onSelect={selectCourse} />
+          <footer>Made for interview practice &middot; works fully offline</footer>
+        </div>
+      )}
     </>
   )
 }
