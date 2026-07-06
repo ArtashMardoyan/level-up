@@ -1,49 +1,68 @@
-import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const VOICE_STORAGE_KEY = 'interviewPrepVoice'
-const DEFAULT_VOICE_NAME = 'Google US English'
+const DEFAULT_VOICE_NAMES = {
+  en: ['Google US English', 'Samantha'],
+  ru: ['Google русский', 'Milena']
+}
 
-function readStoredVoice() {
+// English keeps the legacy un-suffixed key so existing users keep their voice.
+function voiceStorageKey(language) {
+  return language === 'en' ? VOICE_STORAGE_KEY : `${VOICE_STORAGE_KEY}:${language}`
+}
+
+function readStoredVoice(language) {
   try {
-    return localStorage.getItem(VOICE_STORAGE_KEY)
+    return localStorage.getItem(voiceStorageKey(language)) ?? ''
   } catch {
-    return null
+    return ''
   }
 }
 
-export function useSpeech() {
+// '' means "auto default for the language" — resolved here at consumption time.
+export function resolveVoice(voices, voiceName, language) {
+  return (
+    voices.find((v) => v.name === voiceName) ??
+    DEFAULT_VOICE_NAMES[language]?.map((name) => voices.find((v) => v.name === name)).find(Boolean) ??
+    voices.find((v) => v.lang.toLowerCase().startsWith(language)) ??
+    null
+  )
+}
+
+export function useSpeech(language) {
   const [voices, setVoices] = useState([])
-  const storedVoice = useMemo(() => readStoredVoice(), [])
-  const [voiceName, setVoiceNameState] = useState(storedVoice ?? '')
-  const hasAppliedDefault = useRef(storedVoice !== null)
+  const [voiceName, setVoiceNameState] = useState(() => readStoredVoice(language))
+  const [prevLanguage, setPrevLanguage] = useState(language)
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window
 
-  const setVoiceName = useCallback((name) => {
-    setVoiceNameState(name)
-    try {
-      localStorage.setItem(VOICE_STORAGE_KEY, name)
-    } catch {
-      /* ignore */
-    }
-  }, [])
+  // Each language keeps its own voice preference — reload it on switch.
+  if (language !== prevLanguage) {
+    setPrevLanguage(language)
+    setVoiceNameState(readStoredVoice(language))
+  }
+
+  const setVoiceName = useCallback(
+    (name) => {
+      setVoiceNameState(name)
+      try {
+        localStorage.setItem(voiceStorageKey(language), name)
+      } catch {
+        /* ignore */
+      }
+    },
+    [language]
+  )
 
   useEffect(() => {
     if (!supported) return
-    const loadVoices = () => {
-      const list = window.speechSynthesis.getVoices()
-      setVoices(list)
-      if (!hasAppliedDefault.current && list.some((v) => v.name === DEFAULT_VOICE_NAME)) {
-        hasAppliedDefault.current = true
-        setVoiceName(DEFAULT_VOICE_NAME)
-      }
-    }
+    const loadVoices = () => setVoices(window.speechSynthesis.getVoices())
     loadVoices()
     window.speechSynthesis.addEventListener('voiceschanged', loadVoices)
     return () => {
       window.speechSynthesis.removeEventListener('voiceschanged', loadVoices)
       window.speechSynthesis.cancel()
     }
-  }, [supported, setVoiceName])
+  }, [supported])
 
   return { setVoiceName, supported, voiceName, voices }
 }

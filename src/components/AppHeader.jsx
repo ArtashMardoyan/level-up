@@ -1,6 +1,7 @@
 import Logo from './Logo'
 import GlobalSearch from './GlobalSearch'
 import SettingsPanel from './SettingsPanel'
+import { useLanguage } from '../hooks/useLanguage'
 
 export default function AppHeader({
   onSelectQuestion,
@@ -12,10 +13,12 @@ export default function AppHeader({
   voices,
   theme
 }) {
+  const { t } = useLanguage()
+
   return (
     <header className="app-header">
       <div className="app-header-inner">
-        <button aria-label="Level Up — all courses" className="brand" onClick={onHome}>
+        <button aria-label={t('brandAria')} className="brand" onClick={onHome}>
           <Logo size={30} />
           <span className="brand-name">Level Up</span>
         </button>

@@ -1,6 +1,10 @@
+import { useLanguage } from '../hooks/useLanguage'
+
 export default function Logo({ size = 40 }) {
+  const { t } = useLanguage()
+
   return (
-    <svg aria-label="Level Up logo" viewBox="0 0 64 64" height={size} width={size} role="img">
+    <svg aria-label={t('logoAria')} viewBox="0 0 64 64" height={size} width={size} role="img">
       <defs>
         <linearGradient id="logo-g" x1="0" y1="1" x2="0" y2="0">
           <stop stopColor="#6f9bd8" offset="0" />

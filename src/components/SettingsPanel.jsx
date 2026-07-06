@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 
+import { useLanguage } from '../hooks/useLanguage'
+
 const NOVELTY_VOICE_PREFIXES = [
   'Albert',
   'Bad News',
@@ -29,6 +31,7 @@ const NOVELTY_VOICE_PREFIXES = [
 ]
 
 export default function SettingsPanel({ setVoiceName, toggleTheme, voiceName, voices, theme }) {
+  const { setLanguage, language, t } = useLanguage()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef(null)
 
@@ -41,33 +44,44 @@ export default function SettingsPanel({ setVoiceName, toggleTheme, voiceName, vo
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [open])
 
-  const englishVoices = voices.filter((v) => v.lang.toLowerCase().startsWith('en'))
-  const normalVoices = englishVoices.filter((v) => !NOVELTY_VOICE_PREFIXES.some((prefix) => v.name.startsWith(prefix)))
-  const voiceOptions = normalVoices.length ? normalVoices : englishVoices.length ? englishVoices : voices
+  const languageVoices = voices.filter((v) => v.lang.toLowerCase().startsWith(language))
+  const normalVoices = languageVoices.filter((v) => !NOVELTY_VOICE_PREFIXES.some((prefix) => v.name.startsWith(prefix)))
+  const voiceOptions = normalVoices.length ? normalVoices : languageVoices.length ? languageVoices : voices
 
   return (
     <div className="settings-wrap" ref={wrapRef}>
-      <button onClick={() => setOpen((v) => !v)} className="settings-gear" aria-label="Settings" aria-expanded={open}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label={t('settingsAria')}
+        className="settings-gear"
+        aria-expanded={open}
+      >
         ⚙️
       </button>
       {open && (
         <div className="settings-panel">
           <div className="settings-row">
-            <span className="settings-label">Theme</span>
+            <span className="settings-label">{t('language')}</span>
+            <button onClick={() => setLanguage(language === 'en' ? 'ru' : 'en')} className="plain-btn">
+              {language === 'en' ? 'Русский' : 'English'}
+            </button>
+          </div>
+          <div className="settings-row">
+            <span className="settings-label">{t('theme')}</span>
             <button className="plain-btn" onClick={toggleTheme}>
-              {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+              {theme === 'dark' ? t('themeLight') : t('themeDark')}
             </button>
           </div>
           {voiceOptions.length > 0 && (
             <div className="settings-row">
-              <span className="settings-label">Voice</span>
+              <span className="settings-label">{t('voice')}</span>
               <select
                 onChange={(e) => setVoiceName(e.target.value)}
-                aria-label="Voice for read-aloud"
+                aria-label={t('voiceAria')}
                 className="plain-btn"
                 value={voiceName}
               >
-                <option value="">Default voice</option>
+                <option value="">{t('defaultVoice')}</option>
                 {voiceOptions.map((v) => (
                   <option value={v.name} key={v.name}>
                     {v.name} ({v.lang})

@@ -1,6 +1,10 @@
 import { useEffect, useState, useMemo } from 'react'
 
+import { resolveVoice } from '../hooks/useSpeech'
+import { useLanguage } from '../hooks/useLanguage'
+
 export default function CoursePlayer({ startRequest, questions, voiceName, onClose, voices }) {
+  const { language, t } = useLanguage()
   const moduleNames = useMemo(() => {
     const seen = []
     for (const item of questions) {
@@ -57,12 +61,12 @@ export default function CoursePlayer({ startRequest, questions, voiceName, onClo
     if (!playing || !currentItem) return
     const text = phase === 'question' ? currentItem.question : currentItem.answer
     const utterance = new SpeechSynthesisUtterance(text)
-    const selectedVoice = voices.find((v) => v.name === voiceName)
+    const selectedVoice = resolveVoice(voices, voiceName, language)
     if (selectedVoice) {
       utterance.voice = selectedVoice
       utterance.lang = selectedVoice.lang
     } else {
-      utterance.lang = 'en-US'
+      utterance.lang = language === 'ru' ? 'ru-RU' : 'en-US'
     }
     utterance.onend = () => {
       if (phase === 'question') {
@@ -81,7 +85,7 @@ export default function CoursePlayer({ startRequest, questions, voiceName, onClo
       clearTimeout(timer)
       window.speechSynthesis.cancel()
     }
-  }, [playing, currentIndex, phase, currentItem, scopedList.length, voices, voiceName])
+  }, [playing, currentIndex, phase, currentItem, scopedList.length, voices, voiceName, language])
 
   const handleModuleChange = (value) => {
     setSelectedModule(value)
@@ -109,18 +113,18 @@ export default function CoursePlayer({ startRequest, questions, voiceName, onClo
     <div className="player-bar">
       <div className="player-top">
         <select onChange={(e) => handleModuleChange(e.target.value)} value={selectedModule} className="plain-btn">
-          <option value="all">All modules</option>
+          <option value="all">{t('allModules')}</option>
           {moduleNames.map((m) => (
             <option value={m} key={m}>
               {m}
             </option>
           ))}
         </select>
-        <button aria-label="Stop and close player" className="player-close" onClick={handleClose}>
+        <button aria-label={t('playerCloseAria')} className="player-close" onClick={handleClose}>
           ✕
         </button>
       </div>
-      <div className="player-title">{currentItem ? currentItem.question : 'Nothing to play'}</div>
+      <div className="player-title">{currentItem ? currentItem.question : t('nothingToPlay')}</div>
       <div className="player-controls">
         <button disabled={currentIndex === 0} className="player-btn" onClick={handlePrev}>
           ⏮
@@ -132,7 +136,12 @@ export default function CoursePlayer({ startRequest, questions, voiceName, onClo
           ⏭
         </button>
         <span className="player-status">
-          {currentItem ? `${phase === 'question' ? 'Q' : 'A'} ${currentIndex + 1} of ${scopedList.length}` : ''}
+          {currentItem
+            ? t(phase === 'question' ? 'playerStatusQuestion' : 'playerStatusAnswer', {
+                total: scopedList.length,
+                n: currentIndex + 1
+              })
+            : ''}
         </span>
       </div>
     </div>
