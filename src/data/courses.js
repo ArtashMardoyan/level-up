@@ -11,7 +11,7 @@ export const COURSES = [
   {
     id: 'backend',
     title: 'Backend Developer',
-    subtitle: 'Node.js, APIs, databases, AWS & infrastructure',
+    subtitle: 'NodeJS, APIs, databases, AWS & infrastructure',
     emoji: '🛠️',
     questions: backendSeniorQuestions,
   },
@@ -38,7 +38,7 @@ export const COURSES = [
   },
   {
     id: 'nodejs',
-    title: 'Node.js',
+    title: 'NodeJS',
     subtitle: 'Runtime internals, streams, npm ecosystem',
     emoji: '🟢',
     questions: nodejsQuestions,

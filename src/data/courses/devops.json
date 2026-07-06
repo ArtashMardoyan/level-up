@@ -66,7 +66,7 @@
         "id": "q10",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 10. How does package management work in Linux?",
-        "answer": "Different Linux distributions use different package managers.\n\nDebian and Ubuntu use apt. Red Hat and Amazon Linux use yum or dnf.\n\nBasic commands: install, update, remove, and search for packages.\n\nFor Python we use pip. For Node.js we use npm or yarn.\n\nIn production servers we avoid installing packages manually — we use configuration management tools like Ansible or we bake packages into Docker images.\n\nThis makes servers reproducible and prevents the 'works on my machine' problem.",
+        "answer": "Different Linux distributions use different package managers.\n\nDebian and Ubuntu use apt. Red Hat and Amazon Linux use yum or dnf.\n\nBasic commands: install, update, remove, and search for packages.\n\nFor Python we use pip. For NodeJS we use npm or yarn.\n\nIn production servers we avoid installing packages manually — we use configuration management tools like Ansible or we bake packages into Docker images.\n\nThis makes servers reproducible and prevents the 'works on my machine' problem.",
         "bonus": "Always pin package versions in production — installing 'latest' can break things when a new version with breaking changes is released."
     },
     {
@@ -80,7 +80,7 @@
         "id": "q12",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 12. How do you write a Dockerfile?",
-        "answer": "A Dockerfile is a list of instructions to build a Docker image.\n\nWe start with a base image — for example node:18-alpine for Node.js apps. Alpine is a small Linux image which keeps the final image small.\n\nThen we copy the application files, install dependencies, and define how to start the app.\n\nBest practices: use specific image versions not latest, copy only what's needed, run as a non-root user, and use .dockerignore to exclude unnecessary files.\n\nFor production we use multi-stage builds to keep the final image as small as possible.",
+        "answer": "A Dockerfile is a list of instructions to build a Docker image.\n\nWe start with a base image — for example node:18-alpine for NodeJS apps. Alpine is a small Linux image which keeps the final image small.\n\nThen we copy the application files, install dependencies, and define how to start the app.\n\nBest practices: use specific image versions not latest, copy only what's needed, run as a non-root user, and use .dockerignore to exclude unnecessary files.\n\nFor production we use multi-stage builds to keep the final image as small as possible.",
         "bonus": "Order matters in Dockerfiles — put things that change less often at the top. Docker caches layers, so this makes builds faster."
     },
     {
@@ -122,7 +122,7 @@
         "id": "q18",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 18. What are multi-stage builds?",
-        "answer": "Multi-stage builds let you use multiple FROM statements in one Dockerfile.\n\nThe idea is to build the application in one stage — with all the build tools — and then copy only the final output into a smaller production image.\n\nFor example for a Node.js app: first stage installs all dependencies and builds the app. Second stage starts from a clean image and copies only the built files.\n\nThis keeps the final image much smaller and more secure — build tools and source code are not in the production image.",
+        "answer": "Multi-stage builds let you use multiple FROM statements in one Dockerfile.\n\nThe idea is to build the application in one stage — with all the build tools — and then copy only the final output into a smaller production image.\n\nFor example for a NodeJS app: first stage installs all dependencies and builds the app. Second stage starts from a clean image and copies only the built files.\n\nThis keeps the final image much smaller and more secure — build tools and source code are not in the production image.",
         "bonus": "Smaller images are faster to pull, use less storage, and have a smaller attack surface — fewer packages means fewer potential vulnerabilities."
     },
     {

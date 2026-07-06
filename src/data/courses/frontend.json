@@ -164,7 +164,7 @@
         "id": "q24",
         "module": "Module 3 — Performance",
         "question": "Question 24. Debounce vs Throttle",
-        "answer": "Both are techniques to limit how often a function runs.\n\nDebounce waits until the user stops doing something for a set time, then runs the function. For example a search input that only calls the API after the user stops typing for 300ms.\n\nThrottle runs the function at most once every set time period. For example scroll events that fire at most 10 times per second.\n\nWe use debounce for search inputs and API calls. We use throttle for scroll, resize, and mouse move events.",
+        "answer": "Both are techniques to limit how often a function runs.\n\nDebounce waits until the user stops doing something for a set time, then runs the function. For example a search input that only calls the API after the user stops typing for 300 milliseconds.\n\nThrottle runs the function at most once every set time period. For example scroll events that fire at most 10 times per second.\n\nWe use debounce for search inputs and API calls. We use throttle for scroll, resize, and mouse move events.",
         "bonus": "Both can be implemented with setTimeout or using lodash's debounce and throttle utilities."
     },
     {

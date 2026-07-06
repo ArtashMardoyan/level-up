@@ -185,7 +185,7 @@
         "id": "q27",
         "module": "Module 4 — Test Automation",
         "question": "Question 27. What automation tools have you used?",
-        "answer": "For UI automation: Playwright and Cypress for web applications. Both are modern, fast, and have great developer experience.\n\nFor API automation: Postman with Newman, Supertest for Node.js APIs, RestAssured for Java.\n\nFor mobile: Appium for cross-platform mobile testing.\n\nFor performance: k6 and JMeter.\n\nPlaywright is my preferred tool for web UI automation — it's fast, reliable, and supports multiple browsers.\n\nPlaywright is becoming the industry standard for modern web testing — it's faster, supports multiple browsers natively, and handles modern web applications better than Selenium.",
+        "answer": "For UI automation: Playwright and Cypress for web applications. Both are modern, fast, and have great developer experience.\n\nFor API automation: Postman with Newman, Supertest for NodeJS APIs, RestAssured for Java.\n\nFor mobile: Appium for cross-platform mobile testing.\n\nFor performance: k6 and JMeter.\n\nPlaywright is my preferred tool for web UI automation — it's fast, reliable, and supports multiple browsers.\n\nPlaywright is becoming the industry standard for modern web testing — it's faster, supports multiple browsers natively, and handles modern web applications better than Selenium.",
         "bonus": "Choose automation tools based on your team's tech stack — a tool your developers know is easier to maintain than one only QA knows."
     },
     {
