@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, forceOpen, onToggleFavorite, onOpen, speak, speakingId, speechLocked, autoOpen }) {
+export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, forceOpen, onToggleFavorite, onOpen, onPlay, autoOpen }) {
   const [open, setOpen] = useState(false)
   const [answerVisible, setAnswerVisible] = useState(false)
   const [bonusVisible, setBonusVisible] = useState(false)
@@ -46,11 +46,6 @@ export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, f
     }).catch(() => {})
   }
 
-  const questionSpeakId = item.id + ':q'
-  const answerSpeakId = item.id + ':a'
-  const isQuestionSpeaking = speakingId === questionSpeakId
-  const isAnswerSpeaking = speakingId === answerSpeakId
-
   return (
     <div className="card" ref={cardRef}>
       <button className="q-header" onClick={handleToggle}>
@@ -60,17 +55,15 @@ export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, f
             {isReviewed && <span className="check">&#10003;</span>}
           </span>
           <span
-            className={'speak-btn' + (isQuestionSpeaking ? ' active' : '') + (speechLocked ? ' disabled' : '')}
+            className="speak-btn"
             role="button"
-            aria-label="Read question aloud"
-            aria-disabled={speechLocked}
+            aria-label="Play question and answer"
             onClick={(e) => {
               e.stopPropagation()
-              if (speechLocked) return
-              speak(questionSpeakId, item.question)
+              onPlay(item.id)
             }}
           >
-            {isQuestionSpeaking ? '⏹' : '🔊'}
+            🔊
           </span>
           <span
             className={'star-btn' + (isFavorite ? ' active' : '')}
@@ -100,13 +93,6 @@ export default function QuestionCard({ item, isFavorite, isReviewed, quizMode, f
           )}
           <div>
             <button className="copy-btn" onClick={handleCopy}>{copied ? 'Copied!' : 'Copy answer'}</button>
-            <button
-              className="copy-btn"
-              disabled={speechLocked}
-              onClick={(e) => { e.stopPropagation(); speak(answerSpeakId, item.answer) }}
-            >
-              {isAnswerSpeaking ? '⏹ Stop' : '🔊 Read answer'}
-            </button>
             {item.bonus && (
               <button className="copy-btn" onClick={(e) => { e.stopPropagation(); setBonusVisible((v) => !v) }}>
                 {bonusVisible ? 'Hide bonus' : 'Show bonus'}

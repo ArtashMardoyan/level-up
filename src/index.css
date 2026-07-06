@@ -348,8 +348,6 @@ select.plain-btn {
   color: var(--text-muted);
   flex-shrink: 0;
 }
-.speak-btn.active { color: var(--accent); }
-.speak-btn.disabled { opacity: 0.35; cursor: not-allowed; }
 .copy-btn {
   border: 1px solid var(--btn-border);
   background: var(--btn-bg);
@@ -362,7 +360,6 @@ select.plain-btn {
   margin-right: 8px;
 }
 .copy-btn:active { transform: scale(0.97); }
-.copy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .bonus-box {
   margin-top: 12px;
   padding: 12px 14px;

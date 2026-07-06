@@ -21,7 +21,7 @@ function loadSelectedCourseId() {
 
 export default function App() {
   const { theme, toggleTheme } = useTheme()
-  const { speak, speakingId, voices, voiceName, setVoiceName } = useSpeech()
+  const { voices, voiceName, setVoiceName } = useSpeech()
   const { courseId, jumpToId, navigate } = useHashRoute()
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -81,8 +81,6 @@ export default function App() {
       <PrepView
         course={validCourse}
         onBack={backToCourses}
-        speak={speak}
-        speakingId={speakingId}
         voices={voices}
         voiceName={voiceName}
         jumpToId={jumpToId}

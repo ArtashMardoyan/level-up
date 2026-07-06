@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-export default function CoursePlayer({ questions, voices, voiceName, onClose, onPlayingChange }) {
+export default function CoursePlayer({ questions, voices, voiceName, onClose, startRequest }) {
   const moduleNames = useMemo(() => {
     const seen = []
     for (const item of questions) {
@@ -26,12 +26,14 @@ export default function CoursePlayer({ questions, voices, voiceName, onClose, on
   }, [])
 
   useEffect(() => {
-    onPlayingChange(playing)
-  }, [playing, onPlayingChange])
-
-  useEffect(() => {
-    return () => onPlayingChange(false)
-  }, [onPlayingChange])
+    if (!startRequest) return
+    const idx = questions.findIndex((q) => q.id === startRequest.id)
+    if (idx === -1) return
+    setSelectedModule('all')
+    setCurrentIndex(idx)
+    setPhase('question')
+    setPlaying(true)
+  }, [startRequest, questions])
 
   // Chrome silently stalls speechSynthesis on utterances longer than ~15s
   // unless it's kept alive with a periodic pause/resume nudge.

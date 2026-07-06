@@ -7,7 +7,7 @@ import InterviewMode from './InterviewMode'
 import CoursePlayer from './CoursePlayer'
 import CourseIcon from './CourseIcon'
 
-export default function PrepView({ course, onBack, speak, speakingId, voices, voiceName, jumpToId }) {
+export default function PrepView({ course, onBack, voices, voiceName, jumpToId }) {
   const questions = course.questions
   const { state, toggleFavorite, markReviewed } = useReviewState(course.id)
   const [search, setSearch] = useState('')
@@ -16,7 +16,12 @@ export default function PrepView({ course, onBack, speak, speakingId, voices, vo
   const [allOpen, setAllOpen] = useState(false)
   const [collapsedModules, setCollapsedModules] = useState(() => new Set())
   const [playerActive, setPlayerActive] = useState(false)
-  const [playerSpeaking, setPlayerSpeaking] = useState(false)
+  const [playerStartRequest, setPlayerStartRequest] = useState(null)
+
+  const playQuestionInPlayer = (id) => {
+    setPlayerStartRequest({ id })
+    setPlayerActive(true)
+  }
 
   const toggleModule = (moduleName) => {
     setCollapsedModules((prev) => {
@@ -115,9 +120,7 @@ export default function PrepView({ course, onBack, speak, speakingId, voices, vo
                       forceOpen={allOpen}
                       onToggleFavorite={toggleFavorite}
                       onOpen={markReviewed}
-                      speak={speak}
-                      speakingId={speakingId}
-                      speechLocked={playerActive && playerSpeaking}
+                      onPlay={playQuestionInPlayer}
                       autoOpen={item.id === jumpToId}
                     />
                   )}
@@ -136,7 +139,7 @@ export default function PrepView({ course, onBack, speak, speakingId, voices, vo
           voices={voices}
           voiceName={voiceName}
           onClose={() => setPlayerActive(false)}
-          onPlayingChange={setPlayerSpeaking}
+          startRequest={playerStartRequest}
         />
       )}
     </div>
