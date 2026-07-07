@@ -61,15 +61,15 @@ export default function SettingsPanel({ setVoiceName, toggleTheme, voiceName, vo
       {open && (
         <div className="settings-panel">
           <div className="settings-row">
-            <span className="settings-label">{t('language')}</span>
-            <button onClick={() => setLanguage(language === 'en' ? 'ru' : 'en')} className="plain-btn">
-              {language === 'en' ? 'Русский' : 'English'}
-            </button>
-          </div>
-          <div className="settings-row">
             <span className="settings-label">{t('theme')}</span>
             <button className="plain-btn" onClick={toggleTheme}>
               {theme === 'dark' ? t('themeLight') : t('themeDark')}
+            </button>
+          </div>
+          <div className="settings-row">
+            <span className="settings-label">{t('language')}</span>
+            <button onClick={() => setLanguage(language === 'en' ? 'ru' : 'en')} className="plain-btn">
+              {language === 'en' ? '🌐 Русский' : '🌐 English'}
             </button>
           </div>
           {voiceOptions.length > 0 && (
@@ -81,10 +81,10 @@ export default function SettingsPanel({ setVoiceName, toggleTheme, voiceName, vo
                 className="plain-btn"
                 value={voiceName}
               >
-                <option value="">{t('defaultVoice')}</option>
+                <option value="">🎙 {t('defaultVoice')}</option>
                 {voiceOptions.map((v) => (
                   <option value={v.name} key={v.name}>
-                    {v.name} ({v.lang})
+                    🎙 {v.name} ({v.lang})
                   </option>
                 ))}
               </select>

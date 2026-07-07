@@ -31,7 +31,7 @@ export default function ModeBar({
         &#9733; {t('favoritesOnly')}
       </button>
       <button className={'mode-btn' + (playerActive ? ' active' : '')} onClick={onTogglePlayer}>
-        🎧 {t('listen')}
+        🔊 {t('listen')}
       </button>
     </div>
   )
