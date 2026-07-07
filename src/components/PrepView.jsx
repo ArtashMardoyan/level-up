@@ -20,6 +20,7 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
   const [collapsedModules, setCollapsedModules] = useState(() => new Set())
   const [playerActive, setPlayerActive] = useState(false)
   const [playerStartRequest, setPlayerStartRequest] = useState(null)
+  const [playerActiveId, setPlayerActiveId] = useState(null)
 
   const playQuestionInPlayer = (id) => {
     setPlayerStartRequest({ id })
@@ -123,10 +124,10 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
                   )}
                   {!isCollapsed && (
                     <QuestionCard
+                      autoOpen={item.id === jumpToId || item.id === playerActiveId}
                       isFavorite={state.favorites.includes(item.id)}
                       isReviewed={state.reviewed.includes(item.id)}
                       onToggleFavorite={toggleFavorite}
-                      autoOpen={item.id === jumpToId}
                       onPlay={playQuestionInPlayer}
                       quizMode={mode === 'quiz'}
                       onOpen={markReviewed}
@@ -145,7 +146,11 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
 
       {playerActive && (
         <CoursePlayer
-          onClose={() => setPlayerActive(false)}
+          onClose={() => {
+            setPlayerActive(false)
+            setPlayerActiveId(null)
+          }}
+          onActiveChange={setPlayerActiveId}
           startRequest={playerStartRequest}
           questions={questions}
           voiceName={voiceName}

@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { resolveVoice } from '../hooks/useSpeech'
 import { useLanguage } from '../hooks/useLanguage'
 
-export default function CoursePlayer({ startRequest, questions, voiceName, onClose, voices }) {
+export default function CoursePlayer({ onActiveChange, startRequest, questions, voiceName, onClose, voices }) {
   const { language, t } = useLanguage()
   const moduleNames = useMemo(() => {
     const seen = []
@@ -43,6 +43,10 @@ export default function CoursePlayer({ startRequest, questions, voiceName, onClo
     document.body.classList.add('player-open')
     return () => document.body.classList.remove('player-open')
   }, [])
+
+  useEffect(() => {
+    if (currentItem) onActiveChange?.(currentItem.id)
+  }, [currentItem, onActiveChange])
 
   // Chrome silently stalls speechSynthesis on utterances longer than ~15s
   // unless it's kept alive with a periodic pause/resume nudge.
