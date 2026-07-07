@@ -1,13 +1,16 @@
 import qaQuestions from './courses/qa.json'
 import goQuestions from './courses/go.json'
+import ruGoQuestions from './courses/ru/go.json'
 import ruQaQuestions from './courses/ru/qa.json'
 import reactQuestions from './courses/react.json'
 import devopsQuestions from './courses/devops.json'
 import nodejsQuestions from './courses/nodejs.json'
 import nextjsQuestions from './courses/nextjs.json'
+import ruReactQuestions from './courses/ru/react.json'
 import frontendQuestions from './courses/frontend.json'
 import ruDevopsQuestions from './courses/ru/devops.json'
 import ruNodejsQuestions from './courses/ru/nodejs.json'
+import ruNextjsQuestions from './courses/ru/nextjs.json'
 import ruBackendQuestions from './courses/ru/backend.json'
 import backendSeniorQuestions from './courses/backend.json'
 import ruFrontendQuestions from './courses/ru/frontend.json'
@@ -78,9 +81,12 @@ export function getCourse(id) {
 const RU_QUESTIONS = {
   frontend: ruFrontendQuestions,
   backend: ruBackendQuestions,
+  nextjs: ruNextjsQuestions,
   nodejs: ruNodejsQuestions,
   devops: ruDevopsQuestions,
-  qa: ruQaQuestions
+  react: ruReactQuestions,
+  qa: ruQaQuestions,
+  go: ruGoQuestions
 }
 
 // Russian files carry question/answer/bonus only; id, module and everything else
