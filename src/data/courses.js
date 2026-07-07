@@ -89,8 +89,6 @@ const RU_QUESTIONS = {
   go: ruGoQuestions
 }
 
-// Russian files carry question/answer/bonus only; id, module and everything else
-// always come from the canonical English entry, with per-field English fallback.
 function mergeQuestions(enQuestions, ruQuestions) {
   if (!ruQuestions?.length) return enQuestions
   const ruById = new Map(ruQuestions.map((q) => [q.id, q]))

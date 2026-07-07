@@ -1,7 +1,5 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-// Validates src/data/courses/ru/*.json against the canonical English files.
-// Usage: node scripts/validate-translations.mjs [course ...]  (default: all ru files)
 import { readFileSync, readdirSync } from 'node:fs'
 
 const coursesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'data', 'courses')
