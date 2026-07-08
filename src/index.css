@@ -331,6 +331,7 @@ select.plain-btn {
   background: var(--card-bg);
   margin-bottom: 10px;
   overflow: hidden;
+  scroll-margin-top: 68px;
 }
 .q-header {
   width: 100%;

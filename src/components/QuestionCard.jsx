@@ -41,7 +41,7 @@ export default function QuestionCard({
   useEffect(() => {
     if (!autoOpen) return
     if (!isReviewed) onOpen(item.id)
-    cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoOpen])
 
