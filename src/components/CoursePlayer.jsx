@@ -97,6 +97,12 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
     setPhase('question')
   }
 
+  const handleRestart = () => {
+    setCurrentIndex(0)
+    setPhase('question')
+    setPlaying(true)
+  }
+
   const handlePrev = () => {
     setCurrentIndex((i) => Math.max(0, i - 1))
     setPhase('question')
@@ -130,6 +136,9 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
       </div>
       <div className="player-title">{currentItem ? currentItem.question : t('nothingToPlay')}</div>
       <div className="player-controls">
+        <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
+          ↺
+        </button>
         <button disabled={currentIndex === 0} className="player-btn" onClick={handlePrev}>
           ⏮
         </button>
