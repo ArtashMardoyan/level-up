@@ -7,6 +7,8 @@ export const STRINGS = {
     // App
     footer: 'Сделано для подготовки к собеседованиям · работает полностью офлайн',
     homeHeading: 'Выберите свой путь к успешному собеседованию',
+    tabDictionary: 'Словарь',
+    tabCourses: 'Курсы',
     // AppHeader
     brandAria: 'Level Up — все курсы',
     logoAria: 'Логотип Level Up',
@@ -61,12 +63,39 @@ export const STRINGS = {
     themeDark: '☾ Тёмная',
     language: 'Язык',
     voice: 'Голос',
-    theme: 'Тема'
+    theme: 'Тема',
+    // DictionaryView
+    dictionaryWordsToUseMore: 'Слова для более частого использования',
+    dictionaryLearnedProgress: '{done} / {total} изучено',
+    dictionaryTeamLeadSentences: 'Сильные фразы тимлида',
+    dictionaryGrammarFixes: 'Исправление грамматики',
+    dictionaryMarkLearned: 'Отметить как изученное',
+    dictionaryColTrySaying: 'Попробуйте сказать…',
+    dictionaryTitle: 'Словарь для собеседований',
+    dictionarySpeakAria: 'Озвучить эту строку',
+    dictionaryPlayerStatus: '{n} из {total}',
+    dictionaryPhrases: 'Фразы для интервью',
+    dictionaryColSayInstead: 'Говорите так',
+    dictionaryDayOf: 'День {n} из {total}',
+    dictionaryDailyGoal: 'Цель на сегодня',
+    dictionaryPrevDay: 'Предыдущий день',
+    dictionaryNewDaily: 'Слова и фразы',
+    dictionaryNextDay: 'Следующий день',
+    dictionaryColTranslation: 'Перевод',
+    dictionaryColDontSay: 'Не говорите',
+    dictionaryColInsteadOf: 'Вместо…',
+    dictionaryVocabulary: 'Словарь',
+    dictionaryDayLabel: 'День {n}',
+    dictionaryColExample: 'Пример',
+    dictionaryColPhrase: 'Фраза',
+    dictionaryColWord: 'Слово'
   },
   en: {
     // App
     footer: 'Made for interview practice · works fully offline',
     homeHeading: 'Choose your path to interview-ready',
+    tabDictionary: 'Dictionary',
+    tabCourses: 'Courses',
     // AppHeader
     brandAria: 'Level Up — all courses',
     logoAria: 'Level Up logo',
@@ -121,7 +150,32 @@ export const STRINGS = {
     language: 'Language',
     themeDark: '☾ Dark',
     theme: 'Theme',
-    voice: 'Voice'
+    voice: 'Voice',
+    // DictionaryView
+    dictionaryTeamLeadSentences: 'Powerful Team Lead Sentences',
+    dictionaryLearnedProgress: '{done} / {total} learned',
+    dictionaryWordsToUseMore: 'Words to Use More Often',
+    dictionaryNewDaily: 'Vocabulary & phrases',
+    dictionarySpeakAria: 'Pronounce this row',
+    dictionaryMarkLearned: 'Mark as learned',
+    dictionaryPlayerStatus: '{n} of {total}',
+    dictionaryTitle: 'Interview Dictionary',
+    dictionaryGrammarFixes: 'Grammar Fixes',
+    dictionaryColTranslation: 'Translation',
+    dictionaryPhrases: 'Interview Phrases',
+    dictionaryColSayInstead: 'Say Instead',
+    dictionaryDayOf: 'Day {n} of {total}',
+    dictionaryColInsteadOf: 'Instead of…',
+    dictionaryColTrySaying: 'Try Saying…',
+    dictionaryDailyGoal: "Today's Goal",
+    dictionaryVocabulary: 'Vocabulary',
+    dictionaryPrevDay: 'Previous day',
+    dictionaryColDontSay: "Don't Say",
+    dictionaryColExample: 'Example',
+    dictionaryDayLabel: 'Day {n}',
+    dictionaryNextDay: 'Next day',
+    dictionaryColPhrase: 'Phrase',
+    dictionaryColWord: 'Word'
   }
 }
 

@@ -1,0 +1,77 @@
+{
+  "day": 1,
+  "vocabulary": [
+    { "id": "d1-v1", "en": "genuinely", "ru": "действительно, искренне", "example": "I genuinely enjoy backend development." },
+    { "id": "d1-v2", "en": "confidence", "ru": "уверенность", "example": "Confidence comes from practice." },
+    { "id": "d1-v3", "en": "confident", "ru": "уверенный", "example": "I'm confident in my solution." },
+    { "id": "d1-v4", "en": "approach", "ru": "подход", "example": "My approach is simple." },
+    { "id": "d1-v5", "en": "bottleneck", "ru": "узкое место", "example": "The database was the bottleneck." },
+    { "id": "d1-v6", "en": "feedback", "ru": "обратная связь", "example": "I always give constructive feedback." },
+    { "id": "d1-v7", "en": "improve", "ru": "улучшать", "example": "I want to improve every day." },
+    { "id": "d1-v8", "en": "respectfully", "ru": "уважительно", "example": "I always disagree respectfully." },
+    { "id": "d1-v9", "en": "blame", "ru": "обвинять", "example": "I never blame developers." },
+    { "id": "d1-v10", "en": "grow", "ru": "развиваться", "example": "My goal is to help people grow." }
+  ],
+  "phrases": [
+    { "id": "d1-p1", "en": "In my experience…", "ru": "По моему опыту…" },
+    { "id": "d1-p2", "en": "From my perspective…", "ru": "С моей точки зрения…" },
+    { "id": "d1-p3", "en": "One thing I've learned is…", "ru": "Чему я научился…" },
+    { "id": "d1-p4", "en": "The most important thing is…", "ru": "Самое важное…" },
+    { "id": "d1-p5", "en": "It depends on the business requirements.", "ru": "Это зависит от требований бизнеса." },
+    { "id": "d1-p6", "en": "First, I'd check…", "ru": "Сначала я бы проверил…" },
+    { "id": "d1-p7", "en": "Then I'd investigate…", "ru": "Затем я бы исследовал…" },
+    { "id": "d1-p8", "en": "My goal is to help developers grow.", "ru": "Моя цель — помогать разработчикам расти." },
+    { "id": "d1-p9", "en": "Everyone makes mistakes.", "ru": "Все совершают ошибки." },
+    { "id": "d1-p10", "en": "Even experienced developers can be wrong sometimes.", "ru": "Даже опытные разработчики иногда ошибаются." }
+  ],
+  "grammarFixes": [
+    { "id": "d1-g1", "wrong": "For first", "right": "First" },
+    { "id": "d1-g2", "wrong": "I work with Node.js for 8 years.", "right": "I've worked with Node.js for 8 years." },
+    { "id": "d1-g3", "wrong": "Listen each other", "right": "Listen to each other" },
+    { "id": "d1-g4", "wrong": "The most important think", "right": "The most important thing" },
+    { "id": "d1-g5", "wrong": "On our office", "right": "In the office" }
+  ],
+  "teamLeadSentences": [
+    {
+      "id": "d1-t1",
+      "en": "My goal is not to prove that I'm right. My goal is to find the best solution.",
+      "ru": "Моя цель — не доказать, что я прав. Моя цель — найти лучшее решение."
+    },
+    {
+      "id": "d1-t2",
+      "en": "Sometimes the best solution combines ideas from both developers.",
+      "ru": "Иногда лучшее решение объединяет идеи обоих разработчиков."
+    },
+    {
+      "id": "d1-t3",
+      "en": "I always try to understand the other person's point of view.",
+      "ru": "Я всегда стараюсь понять точку зрения другого человека."
+    },
+    {
+      "id": "d1-t4",
+      "en": "Good communication is just as important as good code.",
+      "ru": "Хорошая коммуникация так же важна, как хороший код."
+    },
+    {
+      "id": "d1-t5",
+      "en": "I always focus on solving the problem, not blaming people.",
+      "ru": "Я всегда сосредоточен на решении проблемы, а не на поиске виноватых."
+    }
+  ],
+  "wordsToUseMore": [
+    { "id": "d1-w1", "instead": "I think", "tryThis": "In my experience…" },
+    { "id": "d1-w2", "instead": "Maybe", "tryThis": "It depends…" },
+    { "id": "d1-w3", "instead": "Good", "tryThis": "Reliable" },
+    { "id": "d1-w4", "instead": "Big problem", "tryThis": "Challenging problem" },
+    { "id": "d1-w5", "instead": "Fast", "tryThis": "Efficient" },
+    { "id": "d1-w6", "instead": "Easy", "tryThis": "Straightforward" },
+    { "id": "d1-w7", "instead": "Difficult", "tryThis": "Challenging" }
+  ],
+  "dailyGoal": [
+    { "id": "d1-goal1", "en": "In my experience, this approach works well." },
+    { "id": "d1-goal2", "en": "The most important thing is to stay calm." },
+    { "id": "d1-goal3", "en": "It depends on the business requirements." },
+    { "id": "d1-goal4", "en": "My goal is to help developers grow." },
+    { "id": "d1-goal5", "en": "Everyone makes mistakes." }
+  ]
+}
