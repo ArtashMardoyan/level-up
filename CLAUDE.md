@@ -40,6 +40,8 @@ A React 18 + Vite SPA for practicing interview questions across multiple course 
 
 Deployed to GitHub Pages via `.github/workflows/deploy.yml` on every push to `master`. `vite.config.js` sets `base: '/level-up/'` to match the Pages URL — keep that in mind for any absolute asset paths.
 
+`docs/` has context per feature/ticket — a single markdown file for smaller ones, or a folder with a few files for larger ones (e.g. `docs/dictionary/overview.md` for why/decisions/status, `docs/dictionary/code.md` for the technical reference). Check it for context beyond what this file covers before starting work on a feature.
+
 ## Architecture
 
 **Routing** is hash-based (`useHashRoute`): `#<courseId>` or `#<courseId>/<questionId>`. `App.jsx` switches between the course picker (`CourseSelect`) and the course view (`PrepView`) based on the hash; the last-visited course is persisted and restored on fresh visits. Global search results navigate by setting a `#course/question` hash, and `PrepView` scrolls to and expands the `jumpToId` question.

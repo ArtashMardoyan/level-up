@@ -6,7 +6,9 @@ import { useSpeech } from './hooks/useSpeech'
 import AppHeader from './components/AppHeader'
 import { useHashRoute } from './hooks/useHashRoute'
 import CourseSelect from './components/CourseSelect'
+import DictionaryView from './components/DictionaryView'
 import { LanguageContext } from './i18n/LanguageContext'
+import DictionarySelect from './components/DictionarySelect'
 import { useLanguageState, useLanguage } from './hooks/useLanguage'
 import { getLocalizedCourses, getLocalizedCourse, getCourse } from './data/courses'
 
@@ -15,6 +17,7 @@ const COURSE_STORAGE_KEY = 'interviewPrepCourse'
 function loadSelectedCourseId() {
   try {
     const id = localStorage.getItem(COURSE_STORAGE_KEY)
+    if (id === 'dictionary') return id
     return getCourse(id)?.questions?.length > 0 ? id : null
   } catch {
     return null
@@ -49,8 +52,11 @@ function AppContent() {
   const backToCourses = () => navigate(null)
 
   const courses = getLocalizedCourses(language)
-  const course = courseId ? getLocalizedCourse(courseId, language) : null
+  const isDictionary = courseId === 'dictionary'
+  const course = courseId && !isDictionary ? getLocalizedCourse(courseId, language) : null
   const validCourse = course?.questions?.length > 0 ? course : null
+  const dictionaryDayNumber = isDictionary ? Number((jumpToId || '').replace('day', '')) || null : null
+  const showDictionaryDay = isDictionary && dictionaryDayNumber
 
   return (
     <>
@@ -64,7 +70,14 @@ function AppContent() {
         voices={voices}
         theme={theme}
       />
-      {validCourse ? (
+      {showDictionaryDay ? (
+        <DictionaryView
+          onNavigateDay={(n) => navigate('dictionary', 'day' + n)}
+          dayNumber={dictionaryDayNumber}
+          voiceName={voiceName}
+          voices={voices}
+        />
+      ) : validCourse ? (
         <PrepView
           key={language + ':' + validCourse.id}
           voiceName={voiceName}
@@ -75,7 +88,19 @@ function AppContent() {
       ) : (
         <div className="wrap">
           <h1 className="home-heading">{t('homeHeading')}</h1>
-          <CourseSelect onSelect={selectCourse} courses={courses} />
+          <div className="mode-bar">
+            <button className={'mode-btn' + (isDictionary ? '' : ' active')} onClick={backToCourses}>
+              {t('tabCourses')}
+            </button>
+            <button className={'mode-btn' + (isDictionary ? ' active' : '')} onClick={() => selectCourse('dictionary')}>
+              {t('tabDictionary')}
+            </button>
+          </div>
+          {isDictionary ? (
+            <DictionarySelect onSelect={(day) => navigate('dictionary', 'day' + day)} />
+          ) : (
+            <CourseSelect onSelect={selectCourse} courses={courses} />
+          )}
           <footer>{t('footer')}</footer>
         </div>
       )}
