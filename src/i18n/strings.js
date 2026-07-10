@@ -6,7 +6,7 @@ export const STRINGS = {
   ru: {
     // App
     footer: 'Сделано для подготовки к собеседованиям · работает полностью офлайн',
-    homeHeading: 'Выберите свой путь к успешному собеседованию',
+    homeHeading: 'Выберите свой путь обучения',
     tabDictionary: 'Словарь',
     tabCourses: 'Курсы',
     // AppHeader
@@ -65,9 +65,16 @@ export const STRINGS = {
     voice: 'Голос',
     theme: 'Тема',
     // Dictionary
+    dictionaryDescGrammarFixes: 'Частые ошибки в английском — исправленные',
+    dictionaryDescPronunciation: 'Сложные IT-слова и как их произносить',
     dictionaryWordsToUseMore: 'Слова для более частого использования',
+    dictionaryDescSentenceOfDay: 'Одна фраза, чтобы освоить сегодня',
+    dictionaryDescVocabulary: 'Английские слова для бэкенд-интервью',
+    dictionaryDescWordsToUseMore: 'Замени слабые слова на сильные',
+    dictionaryDescLeadership: 'Сильные фразы для вопросов тимлиду',
+    dictionaryDescPhrases: 'Готовые фразы для ответов на интервью',
+    dictionaryDescTodaysChallenge: 'Маленькая цель на день',
     dictionaryLearnedProgress: '{done} / {total} изучено',
-    dictionaryUpdatedDaily: 'Обновляется каждый день',
     dictionaryGrammarFixes: 'Исправление грамматики',
     dictionaryTodaysChallenge: 'Задание на сегодня',
     dictionaryMarkLearned: 'Отметить как изученное',
@@ -78,6 +85,7 @@ export const STRINGS = {
     dictionaryPhrases: 'Фразы для интервью',
     dictionaryColSayInstead: 'Говорите так',
     dictionaryPronunciation: 'Произношение',
+    dictionaryDailyBadge: '📅 Каждый день',
     dictionarySentenceOfDay: 'Фраза дня',
     dictionaryColSayLike: 'Читается как',
     dictionaryColTranslation: 'Перевод',
@@ -92,7 +100,7 @@ export const STRINGS = {
   en: {
     // App
     footer: 'Made for interview practice · works fully offline',
-    homeHeading: 'Choose your path to interview-ready',
+    homeHeading: 'Choose Your Learning Path',
     tabDictionary: 'Dictionary',
     tabCourses: 'Courses',
     // AppHeader
@@ -151,6 +159,14 @@ export const STRINGS = {
     theme: 'Theme',
     voice: 'Voice',
     // Dictionary
+    dictionaryDescPronunciation: 'Tricky tech words and how to say them.',
+    dictionaryDescVocabulary: 'English words used in backend interviews.',
+    dictionaryDescLeadership: 'Strong sentences for team-lead questions.',
+    dictionaryDescPhrases: 'Ready-made phrases for interview answers.',
+    dictionaryDescWordsToUseMore: 'Swap weak words for stronger ones.',
+    dictionaryDescGrammarFixes: 'Common English mistakes, corrected.',
+    dictionaryDescTodaysChallenge: 'A small daily speaking goal.',
+    dictionaryDescSentenceOfDay: 'One phrase to master today.',
     dictionaryLearnedProgress: '{done} / {total} learned',
     dictionaryWordsToUseMore: 'Words to Use More Often',
     dictionaryTodaysChallenge: "Today's Challenge",
@@ -159,7 +175,6 @@ export const STRINGS = {
     dictionaryMarkLearned: 'Mark as learned',
     dictionaryPlayerStatus: '{n} of {total}',
     dictionaryPronunciation: 'Pronunciation',
-    dictionaryUpdatedDaily: 'Updated daily',
     dictionaryTitle: 'Interview Dictionary',
     dictionaryGrammarFixes: 'Grammar Fixes',
     dictionaryColTranslation: 'Translation',
@@ -171,6 +186,7 @@ export const STRINGS = {
     dictionaryVocabulary: 'Vocabulary',
     dictionaryLeadership: 'Leadership',
     dictionaryColDontSay: "Don't Say",
+    dictionaryDailyBadge: '📅 Daily',
     dictionaryColExample: 'Example',
     dictionaryColPhrase: 'Phrase',
     dictionaryColWord: 'Word'

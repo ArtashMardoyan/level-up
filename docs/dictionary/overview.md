@@ -21,7 +21,7 @@ Eight categories, each a card on the Dictionary tab. Grid order puts the two dai
 - 💬 **Interview Phrases** — en / ru (table)
 - 📝 **Grammar Fixes** — wrong / right, shown with ❌ / ✅ (table)
 - 👨‍💼 **Leadership** — en / ru (table)
-- 🔁 **Words to Use More** — instead / try saying (table)
+- 📈 **Words to Use More** — instead / try saying (table)
 
 Table categories support "mark as learned" + a progress bar. The two single-card categories show the newest item only (no progress) and are meant to be replaced/appended daily.
 
@@ -40,5 +40,6 @@ Table categories support "mark as learned" + a progress bar. The two single-card
 
 ## Improvements log
 
+- 2026-07-10: **Home-grid polish (from a product review).** Added a one-line description under each category card (`descKey` per descriptor → `.course-subtitle`); replaced the single categories' plain "Updated daily" text with a top-right "📅 Daily" `.course-badge` (reusing the "Coming soon" pill) and dropped their learned-count line; swapped the Words-to-Use-More icon 🔁 → 📈; changed the home headline to "Choose Your Learning Path". Deliberately *not* done: fabricated content stats ("245 words"/"+N today" — no per-item dates, not enough content), a "today's progress" widget, and the reviewer's reorder (kept the two daily cards grouped at the top). Pronunciation kept.
 - 2026-07-10: **By-day → by-category refactor.** Removed day navigation entirely (`day{N}.json`, `DictionaryView`, `DictionaryGoalList`, prev/next day nav). Replaced with a category-card grid and a single data-driven `DictionaryCategoryPage`. `wordsToUseMore` became its own category; the old `dailyGoal` sentences seeded Sentence of the Day (with added ru + explanation). Item ids were re-keyed from `d1-*` to per-category prefixes (`voc-*`, `phr-*`…), which resets the previous localStorage "learned" progress.
 - 2026-07-10 (earlier): Added text-to-speech "Listen" support — a per-row 🔊 icon and a whole-page "Listen" toggle (`DictionaryPlayer.jsx`).
