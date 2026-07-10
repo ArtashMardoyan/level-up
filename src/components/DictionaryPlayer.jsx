@@ -78,6 +78,12 @@ export default function DictionaryPlayer({ onActiveChange, startRequest, voiceNa
     }
   }, [playing, currentIndex, phase, currentItem, items.length, voices, voiceName, language])
 
+  const handleRestart = () => {
+    setCurrentIndex(0)
+    setPhase('primary')
+    setPlaying(true)
+  }
+
   const handlePrev = () => {
     setCurrentIndex((i) => Math.max(0, i - 1))
     setPhase('primary')
@@ -104,6 +110,9 @@ export default function DictionaryPlayer({ onActiveChange, startRequest, voiceNa
       </div>
       <div className="player-title">{currentItem ? currentItem.primary : t('nothingToPlay')}</div>
       <div className="player-controls">
+        <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
+          ↺
+        </button>
         <button disabled={currentIndex === 0} className="player-btn" onClick={handlePrev}>
           ⏮
         </button>
