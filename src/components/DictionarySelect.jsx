@@ -14,11 +14,13 @@ export default function DictionarySelect({ onSelect }) {
         const done = ids.filter((id) => state.reviewed.includes(id)).length
         return (
           <button onClick={() => onSelect(category.id)} className="course-card" key={category.id}>
+            {!learnable && <span className="course-badge">{t('dictionaryDailyBadge')}</span>}
             <div className="course-emoji">{category.emoji}</div>
             <div className="course-title">{t(category.titleKey)}</div>
-            <div className="course-count">
-              {learnable ? t('dictionaryLearnedProgress', { total: ids.length, done }) : t('dictionaryUpdatedDaily')}
-            </div>
+            <div className="course-subtitle">{t(category.descKey)}</div>
+            {learnable && (
+              <div className="course-count">{t('dictionaryLearnedProgress', { total: ids.length, done })}</div>
+            )}
           </button>
         )
       })}

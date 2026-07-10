@@ -14,6 +14,7 @@ import sentenceOfTheDay from './dictionary/sentenceOfTheDay.json'
 export const DICTIONARY_CATEGORIES = [
   {
     speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    descKey: 'dictionaryDescTodaysChallenge',
     titleKey: 'dictionaryTodaysChallenge',
     items: todaysChallenge,
     id: 'todaysChallenge',
@@ -22,6 +23,7 @@ export const DICTIONARY_CATEGORIES = [
   },
   {
     speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    descKey: 'dictionaryDescSentenceOfDay',
     titleKey: 'dictionarySentenceOfDay',
     items: sentenceOfTheDay,
     id: 'sentenceOfTheDay',
@@ -35,6 +37,7 @@ export const DICTIONARY_CATEGORIES = [
       { labelKey: 'dictionaryColExample', key: 'example' }
     ],
     speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    descKey: 'dictionaryDescVocabulary',
     titleKey: 'dictionaryVocabulary',
     items: vocabulary,
     id: 'vocabulary',
@@ -48,6 +51,7 @@ export const DICTIONARY_CATEGORIES = [
       { labelKey: 'dictionaryColTranslation', key: 'ru' }
     ],
     speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    descKey: 'dictionaryDescPronunciation',
     titleKey: 'dictionaryPronunciation',
     items: pronunciation,
     id: 'pronunciation',
@@ -60,6 +64,7 @@ export const DICTIONARY_CATEGORIES = [
       { labelKey: 'dictionaryColTranslation', key: 'ru' }
     ],
     speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    descKey: 'dictionaryDescPhrases',
     titleKey: 'dictionaryPhrases',
     items: interviewPhrases,
     id: 'interviewPhrases',
@@ -72,6 +77,7 @@ export const DICTIONARY_CATEGORIES = [
       { labelKey: 'dictionaryColSayInstead', key: 'right', prefix: '✅ ' }
     ],
     speak: (item) => ({ primary: item.right, secondary: null }),
+    descKey: 'dictionaryDescGrammarFixes',
     titleKey: 'dictionaryGrammarFixes',
     items: grammarFixes,
     id: 'grammarFixes',
@@ -84,6 +90,7 @@ export const DICTIONARY_CATEGORIES = [
       { labelKey: 'dictionaryColTranslation', key: 'ru' }
     ],
     speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    descKey: 'dictionaryDescLeadership',
     titleKey: 'dictionaryLeadership',
     items: leadership,
     id: 'leadership',
@@ -96,11 +103,12 @@ export const DICTIONARY_CATEGORIES = [
       { labelKey: 'dictionaryColTrySaying', key: 'tryThis' }
     ],
     speak: (item) => ({ primary: item.tryThis, secondary: null }),
+    descKey: 'dictionaryDescWordsToUseMore',
     titleKey: 'dictionaryWordsToUseMore',
     items: wordsToUseMore,
     id: 'wordsToUseMore',
     layout: 'table',
-    emoji: '🔁'
+    emoji: '📈'
   }
 ]
 
