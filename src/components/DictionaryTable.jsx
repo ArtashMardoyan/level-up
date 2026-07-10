@@ -5,7 +5,7 @@ export default function DictionaryTable({ onToggleReviewed, reviewed, activeId, 
 
   return (
     <div className="dictionary-section">
-      <h2 className="dictionary-section-title">{title}</h2>
+      {title && <h2 className="dictionary-section-title">{title}</h2>}
       <div className="dictionary-table-wrap">
         <table className="dictionary-table">
           <thead>
@@ -28,7 +28,10 @@ export default function DictionaryTable({ onToggleReviewed, reviewed, activeId, 
                   id={row.id}
                 >
                   {columns.map((col) => (
-                    <td key={col.key}>{row[col.key]}</td>
+                    <td key={col.key}>
+                      {col.prefix}
+                      {row[col.key]}
+                    </td>
                   ))}
                   <td>
                     <span

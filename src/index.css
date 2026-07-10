@@ -267,14 +267,6 @@ h1 {
   border-radius: 20px;
   padding: 3px 10px;
 }
-.dictionary-day-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 8px 0 18px;
-}
-.dictionary-day-nav .plain-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .dictionary-section { margin: 28px 0; }
 .dictionary-section-title {
   font-size: 15px;
@@ -308,26 +300,32 @@ h1 {
 .dictionary-row-learned td { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--border); }
 .dictionary-row-active { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .dictionary-learn-toggle { cursor: pointer; accent-color: var(--accent); width: 17px; height: 17px; }
-.dictionary-goal-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.dictionary-goal-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+.dictionary-single {
+  margin: 28px 0;
+  padding: 28px 24px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--card-bg);
-  font-size: 15px;
+  text-align: center;
 }
-.dictionary-goal-item.done { opacity: 0.6; }
-.dictionary-goal-item .speak-btn { margin-left: auto; }
+.dictionary-single-en {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+.dictionary-single-ru {
+  margin: 12px 0 0;
+  font-size: 17px;
+  color: var(--text-secondary);
+}
+.dictionary-single-note {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.dictionary-single .speak-btn { display: inline-block; margin-top: 18px; }
 .controls {
   display: flex;
   justify-content: space-between;

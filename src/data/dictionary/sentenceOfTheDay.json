@@ -1,0 +1,32 @@
+[
+  {
+    "id": "sotd-1",
+    "en": "In my experience, this approach works well.",
+    "ru": "По моему опыту, этот подход работает хорошо.",
+    "explanation": "A confident way to back up a technical opinion without sounding arrogant."
+  },
+  {
+    "id": "sotd-2",
+    "en": "The most important thing is to stay calm.",
+    "ru": "Самое важное — сохранять спокойствие.",
+    "explanation": "Useful for behavioural questions about pressure or incidents."
+  },
+  {
+    "id": "sotd-3",
+    "en": "It depends on the business requirements.",
+    "ru": "Это зависит от требований бизнеса.",
+    "explanation": "A strong answer to open-ended design questions — shows you think about context."
+  },
+  {
+    "id": "sotd-4",
+    "en": "My goal is to help developers grow.",
+    "ru": "Моя цель — помогать разработчикам расти.",
+    "explanation": "A go-to sentence for team-lead and mentoring questions."
+  },
+  {
+    "id": "sotd-5",
+    "en": "Everyone makes mistakes.",
+    "ru": "Все совершают ошибки.",
+    "explanation": "Frames a failure story with humility instead of blame."
+  }
+]

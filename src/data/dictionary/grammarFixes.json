@@ -1,0 +1,7 @@
+[
+  { "id": "gr-1", "wrong": "For first", "right": "First" },
+  { "id": "gr-2", "wrong": "I work with Node.js for 8 years.", "right": "I've worked with Node.js for 8 years." },
+  { "id": "gr-3", "wrong": "Listen each other", "right": "Listen to each other" },
+  { "id": "gr-4", "wrong": "The most important think", "right": "The most important thing" },
+  { "id": "gr-5", "wrong": "On our office", "right": "In the office" }
+]
