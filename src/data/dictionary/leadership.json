@@ -1,0 +1,27 @@
+[
+  {
+    "id": "lead-1",
+    "en": "My goal is not to prove that I'm right. My goal is to find the best solution.",
+    "ru": "Моя цель — не доказать, что я прав. Моя цель — найти лучшее решение."
+  },
+  {
+    "id": "lead-2",
+    "en": "Sometimes the best solution combines ideas from both developers.",
+    "ru": "Иногда лучшее решение объединяет идеи обоих разработчиков."
+  },
+  {
+    "id": "lead-3",
+    "en": "I always try to understand the other person's point of view.",
+    "ru": "Я всегда стараюсь понять точку зрения другого человека."
+  },
+  {
+    "id": "lead-4",
+    "en": "Good communication is just as important as good code.",
+    "ru": "Хорошая коммуникация так же важна, как хороший код."
+  },
+  {
+    "id": "lead-5",
+    "en": "I always focus on solving the problem, not blaming people.",
+    "ru": "Я всегда сосредоточен на решении проблемы, а не на поиске виноватых."
+  }
+]

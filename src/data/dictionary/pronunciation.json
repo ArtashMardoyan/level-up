@@ -1,0 +1,12 @@
+[
+  { "id": "pron-1", "en": "queue", "hint": "kyoo (like the letter Q)", "ru": "очередь" },
+  { "id": "pron-2", "en": "cache", "hint": "kash (like \"cash\")", "ru": "кэш" },
+  { "id": "pron-3", "en": "asynchronous", "hint": "ay-SING-kruh-nus", "ru": "асинхронный" },
+  { "id": "pron-4", "en": "schema", "hint": "SKEE-muh", "ru": "схема" },
+  { "id": "pron-5", "en": "tuple", "hint": "TOO-pul / TUH-pul", "ru": "кортеж" },
+  { "id": "pron-6", "en": "idempotent", "hint": "eye-dem-POH-tent", "ru": "идемпотентный" },
+  { "id": "pron-7", "en": "latency", "hint": "LAY-ten-see", "ru": "задержка" },
+  { "id": "pron-8", "en": "throughput", "hint": "THROO-put", "ru": "пропускная способность" },
+  { "id": "pron-9", "en": "Kubernetes", "hint": "koo-ber-NET-eez", "ru": "Kubernetes (система оркестрации)" },
+  { "id": "pron-10", "en": "nginx", "hint": "engine-x", "ru": "nginx (веб-сервер)" }
+]

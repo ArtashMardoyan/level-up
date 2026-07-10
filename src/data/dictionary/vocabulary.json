@@ -1,0 +1,12 @@
+[
+  { "id": "voc-1", "en": "genuinely", "ru": "действительно, искренне", "example": "I genuinely enjoy backend development." },
+  { "id": "voc-2", "en": "confidence", "ru": "уверенность", "example": "Confidence comes from practice." },
+  { "id": "voc-3", "en": "confident", "ru": "уверенный", "example": "I'm confident in my solution." },
+  { "id": "voc-4", "en": "approach", "ru": "подход", "example": "My approach is simple." },
+  { "id": "voc-5", "en": "bottleneck", "ru": "узкое место", "example": "The database was the bottleneck." },
+  { "id": "voc-6", "en": "feedback", "ru": "обратная связь", "example": "I always give constructive feedback." },
+  { "id": "voc-7", "en": "improve", "ru": "улучшать", "example": "I want to improve every day." },
+  { "id": "voc-8", "en": "respectfully", "ru": "уважительно", "example": "I always disagree respectfully." },
+  { "id": "voc-9", "en": "blame", "ru": "обвинять", "example": "I never blame developers." },
+  { "id": "voc-10", "en": "grow", "ru": "развиваться", "example": "My goal is to help people grow." }
+]

@@ -6,10 +6,11 @@ import { useSpeech } from './hooks/useSpeech'
 import AppHeader from './components/AppHeader'
 import { useHashRoute } from './hooks/useHashRoute'
 import CourseSelect from './components/CourseSelect'
-import DictionaryView from './components/DictionaryView'
 import { LanguageContext } from './i18n/LanguageContext'
+import { getDictionaryCategory } from './data/dictionary'
 import DictionarySelect from './components/DictionarySelect'
 import { useLanguageState, useLanguage } from './hooks/useLanguage'
+import DictionaryCategoryPage from './components/DictionaryCategoryPage'
 import { getLocalizedCourses, getLocalizedCourse, getCourse } from './data/courses'
 
 const COURSE_STORAGE_KEY = 'interviewPrepCourse'
@@ -55,8 +56,8 @@ function AppContent() {
   const isDictionary = courseId === 'dictionary'
   const course = courseId && !isDictionary ? getLocalizedCourse(courseId, language) : null
   const validCourse = course?.questions?.length > 0 ? course : null
-  const dictionaryDayNumber = isDictionary ? Number((jumpToId || '').replace('day', '')) || null : null
-  const showDictionaryDay = isDictionary && dictionaryDayNumber
+  const dictionaryCategory = isDictionary ? getDictionaryCategory(jumpToId) : null
+  const showDictionaryCategory = isDictionary && dictionaryCategory
 
   return (
     <>
@@ -70,13 +71,8 @@ function AppContent() {
         voices={voices}
         theme={theme}
       />
-      {showDictionaryDay ? (
-        <DictionaryView
-          onNavigateDay={(n) => navigate('dictionary', 'day' + n)}
-          dayNumber={dictionaryDayNumber}
-          voiceName={voiceName}
-          voices={voices}
-        />
+      {showDictionaryCategory ? (
+        <DictionaryCategoryPage categoryId={jumpToId} voiceName={voiceName} voices={voices} />
       ) : validCourse ? (
         <PrepView
           key={language + ':' + validCourse.id}
@@ -97,7 +93,7 @@ function AppContent() {
             </button>
           </div>
           {isDictionary ? (
-            <DictionarySelect onSelect={(day) => navigate('dictionary', 'day' + day)} />
+            <DictionarySelect onSelect={(id) => navigate('dictionary', id)} />
           ) : (
             <CourseSelect onSelect={selectCourse} courses={courses} />
           )}

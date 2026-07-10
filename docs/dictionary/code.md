@@ -4,61 +4,69 @@ See `overview.md` in this folder for why this feature exists and the decisions b
 
 ## File map
 
-- `src/data/dictionary/day{N}.json` — one file per day. Every row has a hand-authored, stable `id` (`d{day}-{prefix}{n}`, e.g. `d1-v3`) so "mark as learned" state survives future content edits.
-- `src/data/dictionary.js` — registry: `DICTIONARY_DAYS`, `getDictionaryDay(n)`, `getLatestDictionaryDay()`, `getDictionaryDayCount()`, `getDictionaryDayRowIds(day)` (flattens every section's row ids for a day, used for per-day progress).
-- `src/components/DictionarySelect.jsx` — day-picker grid (reached via `#dictionary`, no day segment), one card per day showing "{done} / {total} learned", reusing `.course-card` styling. Clicking a card navigates to `#dictionary/day{N}`.
-- `src/components/DictionaryView.jsx` — a specific day's content (reached via `#dictionary/day{N}`). Renders `DictionaryTable.jsx` (generic table renderer, reused for the five tabular sections with different `columns` props) and `DictionaryGoalList.jsx` (checklist for the daily-goal sentences).
-- `src/components/ProgressBar.jsx` — reused as-is, now takes an optional `labelKey` prop (defaults to `'reviewedProgress'`) so `DictionaryView` can pass `labelKey="dictionaryLearnedProgress"` instead of the course-review wording.
-- "Mark as learned" reuses `useReviewState('dictionary')` (the same hook courses use for favorites/reviewed) — one shared bucket across all days, since ids are globally unique.
-- Home page tabs live in `App.jsx`'s home branch: a `Courses` / `Dictionary` switcher reusing `.mode-bar`/`.mode-btn` (the same pill-toggle used for list/quiz/interview mode). `Courses` tab renders the existing `CourseSelect` grid; `Dictionary` tab renders `DictionarySelect`. Not mixed into `src/data/courses.js`'s `COURSES` registry.
+- `src/data/dictionary/{category}.json` — one file per category (`vocabulary`, `pronunciation`, `interviewPhrases`, `grammarFixes`, `leadership`, `wordsToUseMore`, `sentenceOfTheDay`, `todaysChallenge`). Each is a **plain array** of items with a hand-authored, stable `id` (per-category prefix, e.g. `voc-1`, `phr-3`) so "mark as learned" state survives content edits. Items are stored **newest-first**; display order = file order, so adding new content means prepending one object.
+- `src/data/dictionary.js` — the category registry: `DICTIONARY_CATEGORIES` (array of descriptors), `getDictionaryCategory(id)`, `getDictionaryCategoryItemIds(category)`, `isDictionaryCategoryLearnable(category)` (true when `layout === 'table'`).
+- `src/components/DictionarySelect.jsx` — the category-card grid (reached via `#dictionary`, no second segment), one `.course-card` per category. Table categories show "{done} / {total} learned"; single categories show a static "Updated daily" subtitle. Clicking navigates to `#dictionary/{categoryId}`.
+- `src/components/DictionaryCategoryPage.jsx` — the single, data-driven page for one category (reached via `#dictionary/{categoryId}`). Branches on `category.layout`: `table` → `DictionaryTable` (columns resolved from the descriptor) + `ProgressBar`; `single` → `DictionarySingle` (newest item, no progress bar). Owns the `DictionaryPlayer`, `activeId` highlight/scroll, and per-row speak wiring.
+- `src/components/DictionaryTable.jsx` — generic table renderer. Columns are `{ label, key, prefix? }`; `prefix` prepends a marker to the cell value (used for ❌ / ✅ on grammar fixes). Renders the speak 🔊 column and the "learned" checkbox. `title` is optional (the page's `<h1>` already names the category, so it's omitted).
+- `src/components/DictionarySingle.jsx` — the prominent single-item card (Sentence of the Day / Today's Challenge): large `en`, optional `ru`, optional `explanation`, and a 🔊 speak button.
+- `src/components/DictionaryPlayer.jsx` — the TTS player (unchanged, generic over an `items` array of `{ id, primary, secondary }`).
+- `src/components/ProgressBar.jsx` — reused with `labelKey="dictionaryLearnedProgress"`.
+- "Mark as learned" reuses `useReviewState('dictionary')` — one shared bucket across all categories, since ids are globally unique.
+- Home page tabs live in `App.jsx`'s home branch: a `Courses` / `Dictionary` switcher reusing `.mode-bar`/`.mode-btn`. `Dictionary` tab renders `DictionarySelect`. Not mixed into `src/data/courses.js`'s `COURSES` registry.
 
-## Day schema
+## Category descriptor schema
 
-Each day file has these optional sections (omit a key entirely if a day doesn't have that section):
+Each entry in `DICTIONARY_CATEGORIES`:
 
-```json
+```js
 {
-  "day": 1,
-  "vocabulary": [{ "id": "d1-v1", "en": "genuinely", "ru": "действительно, искренне", "example": "..." }],
-  "phrases": [{ "id": "d1-p1", "en": "In my experience…", "ru": "По моему опыту…" }],
-  "grammarFixes": [{ "id": "d1-g1", "wrong": "For first", "right": "First" }],
-  "teamLeadSentences": [{ "id": "d1-t1", "en": "...", "ru": "..." }],
-  "wordsToUseMore": [{ "id": "d1-w1", "instead": "I think", "tryThis": "In my experience…" }],
-  "dailyGoal": [{ "id": "d1-goal1", "en": "..." }]
+  id: 'vocabulary',              // matches the hash segment and JSON filename
+  emoji: '📖',
+  layout: 'table',              // 'table' | 'single'
+  titleKey: 'dictionaryVocabulary',   // i18n key
+  columns: [                     // table layout only
+    { key: 'en', labelKey: 'dictionaryColWord' },
+    { key: 'ru', labelKey: 'dictionaryColTranslation' },
+    { key: 'example', labelKey: 'dictionaryColExample' }
+  ],
+  speak: (item) => ({ primary: item.en, secondary: item.ru }),  // secondary null = one-sided
+  items: vocabulary              // imported JSON array
 }
 ```
 
-`grammarFixes` and `wordsToUseMore` are English-only (no `ru` field) — they're not translation tables. `vocabulary`/`phrases`/`teamLeadSentences` share the `en`/`ru` shape and render through the same `DictionaryTable` component with different `columns`.
+- `speak` maps an item to the `{ primary, secondary }` phrases the player reads (English then Russian). One-sided sections return `secondary: null` — grammar fixes speak only `right`, words-to-use-more only `tryThis`. `DictionaryPlayer` skips a null secondary.
+- A `single`-layout category has no `columns`; the page renders `items[0]` via `DictionarySingle` and builds a one-item speak list.
+- Item shapes per category: vocabulary `{id,en,ru,example}`, pronunciation `{id,en,hint,ru}`, interviewPhrases/leadership `{id,en,ru}`, grammarFixes `{id,wrong,right}`, wordsToUseMore `{id,instead,tryThis}`, sentenceOfTheDay `{id,en,ru,explanation}`, todaysChallenge `{id,en,ru}`.
 
 ## Routing
 
-`#dictionary` (no second segment) → `DictionarySelect` day-picker grid, tab bar shows `Dictionary` active. `#dictionary/day{N}` → `DictionaryView` for that specific day, tab bar hidden (same as how picking a course hides the `Courses`/`Dictionary` tabs and shows `PrepView`).
+`#dictionary` (no second segment) → `DictionarySelect` category grid, home tab bar shows `Dictionary` active. `#dictionary/{categoryId}` → `DictionaryCategoryPage` for that category, tab bar hidden.
 
 In `App.jsx`:
 ```js
 const isDictionary = courseId === 'dictionary'
-const dictionaryDayNumber = isDictionary ? Number((jumpToId || '').replace('day', '')) || null : null
-const showDictionaryDay = isDictionary && dictionaryDayNumber
+const dictionaryCategory = isDictionary ? getDictionaryCategory(jumpToId) : null
+const showDictionaryCategory = isDictionary && dictionaryCategory
 ```
-`showDictionaryDay` gates whether `DictionaryView` renders; otherwise (when `isDictionary` is true but there's no day number) the home branch renders with the `Dictionary` tab active and `DictionarySelect` as its content.
+`showDictionaryCategory` gates whether `DictionaryCategoryPage` renders; otherwise the home branch renders with the `Dictionary` tab active and `DictionarySelect` as its content. An unknown/stale category id (e.g. an old `#dictionary/day1` bookmark) resolves to `null` → falls back to the grid.
 
-`loadSelectedCourseId()` treats a saved `'dictionary'` value as valid on resume — landing back on the day-picker (not a remembered specific day), consistent with how resuming a course lands you in that course's `PrepView` directly but does *not* restore your exact scroll position/question.
+`loadSelectedCourseId()` treats a saved `'dictionary'` value as valid on resume — landing back on the category grid.
 
 ## i18n
 
-All `dictionary*` keys in `src/i18n/strings.js` are chrome-only (section headers, column labels, nav labels, progress text) — the actual word/phrase/sentence content is read straight from the day JSON's `en`/`ru`/`wrong`/`right`/`instead`/`tryThis` fields and never passed through `t()`. `tabCourses`/`tabDictionary` (home page tab labels) live under the `// App` partition since they're shared between both tabs, not specific to the dictionary page.
+All `dictionary*` keys in `src/i18n/strings.js` are chrome-only (category titles, column labels, progress text, "Updated daily"). The actual word/phrase/sentence content is read straight from the JSON `en`/`ru`/`wrong`/`right`/`instead`/`tryThis`/`explanation` fields and never passed through `t()`. `tabCourses`/`tabDictionary` live under the `// App` partition.
 
 ## Listen (text-to-speech)
 
-- `src/components/DictionaryPlayer.jsx` — a trimmed-down sibling of `CoursePlayer.jsx` (same floating `.player-bar` markup/CSS, same Chrome cancel/setTimeout(50ms) and 10s pause/resume keep-alive workarounds). Instead of question/answer phases it plays `primary`/`secondary` phases per item, always in **English then Russian** regardless of the app's active UI language (unlike `CoursePlayer`, which speaks in whichever language the UI toggle is on) — dictionary content is inherently bilingual per row, so the player forces `en`/`ru` voices directly rather than deriving language from `useLanguage()`.
-- `buildSpeakItems(day)` (module-level function in `DictionaryView.jsx`) flattens a day into `{ id, primary, secondary }` items in display order: vocabulary/phrases/teamLeadSentences speak `en` then `ru`; grammarFixes speaks only `right` (the corrected form, not `wrong`); wordsToUseMore speaks only `tryThis`; dailyGoal speaks `en`. `secondary` is `null` for the English-only sections — `DictionaryPlayer` skips straight to the next item instead of speaking an empty phase (checked via `currentItem.secondary` truthiness in the `onend` handler, not a separate silent-utterance).
-- Two entry points into the same player: a per-row 🔊 icon (`DictionaryTable`/`DictionaryGoalList`, `onSpeak(row.id)`) that opens the player and jumps straight to that row (mirrors `QuestionCard`'s speak icon → `CoursePlayer` `startRequest` pattern), and a "🔊 Listen" toggle button in `DictionaryView` (mirrors `ModeBar`'s Listen button) that opens it at the current position.
-- The player reports its currently-speaking row id back up via `onActiveChange` → `DictionaryView`'s `activeId` state → passed down to every `DictionaryTable`/`DictionaryGoalList` instance for a highlight class (`.dictionary-row-active`) and used in a `useEffect` that calls `document.getElementById(activeId)?.scrollIntoView(...)` (simpler than threading a `ref` through every row across five separate table instances — safe here because row ids are unique across the whole day).
-- Voice resolution per phase: `targetLang === language ? voiceName : ''` passed into the existing `resolveVoice(voices, name, lang)` helper — if the phase's language matches the app's current UI language, honor the user's chosen voice for it; otherwise auto-pick a default voice for that language. This avoids needing to plumb separate stored voice preferences for "the other" language through `SettingsPanel`.
+`DictionaryPlayer.jsx` plays `primary`/`secondary` phases per item, always **English then Russian** regardless of the app's UI language (dictionary content is inherently bilingual). The page builds `speakItems = items.map(i => ({ id: i.id, ...category.speak(i) }))` (single layout: just `items[0]`). Two entry points: a per-row/per-card 🔊 icon (`onSpeak(id)` → opens the player at that item) and the "🔊 Listen" toggle. The player reports its active item id via `onActiveChange`, which drives the `.dictionary-row-active` highlight and a `scrollIntoView`.
 
-## How to add a new day
+## How to extend
 
-1. Write `src/data/dictionary/day{N}.json` with `"day": N` and ids prefixed `d{N}-...`.
-2. In `src/data/dictionary.js`: add the import and append it to `DICTIONARY_DAYS`.
-3. Nothing else needs to change — `DictionarySelect`'s day cards, the day-nav bounds inside `DictionaryView`, and progress all read off `DICTIONARY_DAYS`/`getDictionaryDayRowIds` automatically.
-4. If a new section type is introduced (the original plan mentions "pronunciation tip" and "technical concept" starting later days), add the field to that day's JSON, to `SECTION_KEYS` in `src/data/dictionary.js`, and a small conditional render block in `DictionaryView.jsx` — don't add it speculatively before a day actually needs it.
+**Add an item:** prepend one object (with a fresh `id` using the category's prefix) to the top of the corresponding `{category}.json`. Nothing else changes — cards, progress, tables, and the player all read off the registry.
+
+**Add a category:**
+1. Create `src/data/dictionary/{id}.json` (array of items, ids prefixed for that category).
+2. Add a descriptor to `DICTIONARY_CATEGORIES` in `src/data/dictionary.js` (import the JSON, set `id`/`emoji`/`layout`/`titleKey`/`columns?`/`speak`).
+3. Add the `titleKey` (and any new column label keys) to both languages in `src/i18n/strings.js`.
+4. No component changes needed — `DictionarySelect` and `DictionaryCategoryPage` render it automatically.

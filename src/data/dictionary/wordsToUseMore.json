@@ -1,0 +1,9 @@
+[
+  { "id": "words-1", "instead": "I think", "tryThis": "In my experience…" },
+  { "id": "words-2", "instead": "Maybe", "tryThis": "It depends…" },
+  { "id": "words-3", "instead": "Good", "tryThis": "Reliable" },
+  { "id": "words-4", "instead": "Big problem", "tryThis": "Challenging problem" },
+  { "id": "words-5", "instead": "Fast", "tryThis": "Efficient" },
+  { "id": "words-6", "instead": "Easy", "tryThis": "Straightforward" },
+  { "id": "words-7", "instead": "Difficult", "tryThis": "Challenging" }
+]

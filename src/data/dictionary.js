@@ -1,21 +1,117 @@
-import day1 from './dictionary/day1.json'
+import leadership from './dictionary/leadership.json'
+import vocabulary from './dictionary/vocabulary.json'
+import grammarFixes from './dictionary/grammarFixes.json'
+import pronunciation from './dictionary/pronunciation.json'
+import wordsToUseMore from './dictionary/wordsToUseMore.json'
+import todaysChallenge from './dictionary/todaysChallenge.json'
+import interviewPhrases from './dictionary/interviewPhrases.json'
+import sentenceOfTheDay from './dictionary/sentenceOfTheDay.json'
 
-const SECTION_KEYS = ['vocabulary', 'phrases', 'grammarFixes', 'teamLeadSentences', 'wordsToUseMore', 'dailyGoal']
+// Category registry. Each descriptor is self-rendering: `layout` picks the page
+// shape, `columns` (table layout only) drives DictionaryTable, and `speak` maps
+// an item to the { primary, secondary } phrases the player reads (secondary null
+// = one-sided). Adding a category = one entry here + one JSON file.
+export const DICTIONARY_CATEGORIES = [
+  {
+    speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    titleKey: 'dictionaryTodaysChallenge',
+    items: todaysChallenge,
+    id: 'todaysChallenge',
+    layout: 'single',
+    emoji: '🎯'
+  },
+  {
+    speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    titleKey: 'dictionarySentenceOfDay',
+    items: sentenceOfTheDay,
+    id: 'sentenceOfTheDay',
+    layout: 'single',
+    emoji: '⭐'
+  },
+  {
+    columns: [
+      { labelKey: 'dictionaryColWord', key: 'en' },
+      { labelKey: 'dictionaryColTranslation', key: 'ru' },
+      { labelKey: 'dictionaryColExample', key: 'example' }
+    ],
+    speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    titleKey: 'dictionaryVocabulary',
+    items: vocabulary,
+    id: 'vocabulary',
+    layout: 'table',
+    emoji: '📖'
+  },
+  {
+    columns: [
+      { labelKey: 'dictionaryColWord', key: 'en' },
+      { labelKey: 'dictionaryColSayLike', key: 'hint' },
+      { labelKey: 'dictionaryColTranslation', key: 'ru' }
+    ],
+    speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    titleKey: 'dictionaryPronunciation',
+    items: pronunciation,
+    id: 'pronunciation',
+    layout: 'table',
+    emoji: '🗣️'
+  },
+  {
+    columns: [
+      { labelKey: 'dictionaryColPhrase', key: 'en' },
+      { labelKey: 'dictionaryColTranslation', key: 'ru' }
+    ],
+    speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    titleKey: 'dictionaryPhrases',
+    items: interviewPhrases,
+    id: 'interviewPhrases',
+    layout: 'table',
+    emoji: '💬'
+  },
+  {
+    columns: [
+      { labelKey: 'dictionaryColDontSay', key: 'wrong', prefix: '❌ ' },
+      { labelKey: 'dictionaryColSayInstead', key: 'right', prefix: '✅ ' }
+    ],
+    speak: (item) => ({ primary: item.right, secondary: null }),
+    titleKey: 'dictionaryGrammarFixes',
+    items: grammarFixes,
+    id: 'grammarFixes',
+    layout: 'table',
+    emoji: '📝'
+  },
+  {
+    columns: [
+      { labelKey: 'dictionaryColPhrase', key: 'en' },
+      { labelKey: 'dictionaryColTranslation', key: 'ru' }
+    ],
+    speak: (item) => ({ secondary: item.ru, primary: item.en }),
+    titleKey: 'dictionaryLeadership',
+    items: leadership,
+    id: 'leadership',
+    layout: 'table',
+    emoji: '👨‍💼'
+  },
+  {
+    columns: [
+      { labelKey: 'dictionaryColInsteadOf', key: 'instead' },
+      { labelKey: 'dictionaryColTrySaying', key: 'tryThis' }
+    ],
+    speak: (item) => ({ primary: item.tryThis, secondary: null }),
+    titleKey: 'dictionaryWordsToUseMore',
+    items: wordsToUseMore,
+    id: 'wordsToUseMore',
+    layout: 'table',
+    emoji: '🔁'
+  }
+]
 
-export const DICTIONARY_DAYS = [day1]
-
-export function getDictionaryDay(day) {
-  return DICTIONARY_DAYS.find((d) => d.day === Number(day)) || null
+export function getDictionaryCategory(id) {
+  return DICTIONARY_CATEGORIES.find((c) => c.id === id) || null
 }
 
-export function getLatestDictionaryDay() {
-  return DICTIONARY_DAYS[DICTIONARY_DAYS.length - 1]
+export function getDictionaryCategoryItemIds(category) {
+  return category.items.map((item) => item.id)
 }
 
-export function getDictionaryDayCount() {
-  return DICTIONARY_DAYS.length
-}
-
-export function getDictionaryDayRowIds(day) {
-  return SECTION_KEYS.flatMap((key) => day[key] || []).map((row) => row.id)
+export function isDictionaryCategoryLearnable(category) {
+  return category.layout === 'table'
 }
