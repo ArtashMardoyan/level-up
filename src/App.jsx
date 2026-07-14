@@ -72,13 +72,15 @@ function AppContent() {
         theme={theme}
       />
       {showDictionaryCategory ? (
-        <DictionaryCategoryPage categoryId={jumpToId} voiceName={voiceName} voices={voices} />
+        <DictionaryCategoryPage onNavigate={navigate} categoryId={jumpToId} voiceName={voiceName} voices={voices} />
       ) : validCourse ? (
         <PrepView
           key={language + ':' + validCourse.id}
+          onNavigate={navigate}
           voiceName={voiceName}
           course={validCourse}
           jumpToId={jumpToId}
+          courses={courses}
           voices={voices}
         />
       ) : (

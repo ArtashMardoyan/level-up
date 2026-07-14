@@ -5,13 +5,21 @@ import CourseIcon from './CourseIcon'
 import ProgressBar from './ProgressBar'
 import QuestionCard from './QuestionCard'
 import CoursePlayer from './CoursePlayer'
+import PageSwitcher from './PageSwitcher'
 import InterviewMode from './InterviewMode'
 import { useLanguage } from '../hooks/useLanguage'
 import { useReviewState } from '../hooks/useReviewState'
 
-export default function PrepView({ voiceName, jumpToId, course, voices }) {
+export default function PrepView({ onNavigate, voiceName, jumpToId, courses, course, voices }) {
   const { t } = useLanguage()
   const questions = course.questions
+  const crumbItems = useMemo(
+    () =>
+      courses
+        .filter((c) => c.questions.length > 0)
+        .map((c) => ({ icon: <CourseIcon courseId={c.id} emoji={c.emoji} />, label: c.title, id: c.id })),
+    [courses]
+  )
   const { toggleFavorite, markReviewed, state } = useReviewState(course.id)
   const [search, setSearch] = useState('')
   const [mode, setMode] = useState('list')
@@ -65,17 +73,20 @@ export default function PrepView({ voiceName, jumpToId, course, voices }) {
 
   return (
     <div className="wrap">
-      <div className="page-title-row">
-        <div className="page-title-icon">
-          <CourseIcon courseId={course.id} emoji={course.emoji} />
-        </div>
-        <div>
-          <h1>{course.title}</h1>
-          <div className="subtitle">
+      <PageSwitcher
+        subtitle={
+          <>
             {course.subtitle} &middot; {t('questionsCount', { n: questions.length })}
-          </div>
-        </div>
-      </div>
+          </>
+        }
+        icon={<CourseIcon courseId={course.id} emoji={course.emoji} />}
+        onSelect={(id) => onNavigate(id)}
+        onBack={() => onNavigate(null)}
+        backLabel={t('tabCourses')}
+        currentId={course.id}
+        title={course.title}
+        items={crumbItems}
+      />
 
       <ProgressBar done={state.reviewed.length} total={questions.length} />
 
