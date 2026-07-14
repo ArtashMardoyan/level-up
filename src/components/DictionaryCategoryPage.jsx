@@ -2,14 +2,20 @@ import { useEffect, useState, useMemo } from 'react'
 
 import CourseIcon from './CourseIcon'
 import ProgressBar from './ProgressBar'
+import PageSwitcher from './PageSwitcher'
 import DictionaryTable from './DictionaryTable'
 import DictionarySingle from './DictionarySingle'
 import DictionaryPlayer from './DictionaryPlayer'
 import { useLanguage } from '../hooks/useLanguage'
 import { useReviewState } from '../hooks/useReviewState'
-import { isDictionaryCategoryLearnable, getDictionaryCategoryItemIds, getDictionaryCategory } from '../data/dictionary'
+import {
+  isDictionaryCategoryLearnable,
+  getDictionaryCategoryItemIds,
+  getDictionaryCategory,
+  DICTIONARY_CATEGORIES
+} from '../data/dictionary'
 
-export default function DictionaryCategoryPage({ categoryId, voiceName, voices }) {
+export default function DictionaryCategoryPage({ onNavigate, categoryId, voiceName, voices }) {
   const { t } = useLanguage()
   const { toggleReviewed, state } = useReviewState('dictionary')
   const category = getDictionaryCategory(categoryId)
@@ -27,6 +33,15 @@ export default function DictionaryCategoryPage({ categoryId, voiceName, voices }
     const source = isSingle ? category.items.slice(0, 1) : category.items
     return source.map((item) => ({ id: item.id, ...category.speak(item) }))
   }, [category, isSingle])
+  const crumbItems = useMemo(
+    () =>
+      DICTIONARY_CATEGORIES.map((cat) => ({
+        icon: <CourseIcon courseId="dictionary" emoji={cat.emoji} />,
+        label: t(cat.titleKey),
+        id: cat.id
+      })),
+    [t]
+  )
 
   const doneCount = allIds.filter((id) => state.reviewed.includes(id)).length
 
@@ -47,15 +62,16 @@ export default function DictionaryCategoryPage({ categoryId, voiceName, voices }
 
   return (
     <div className="wrap">
-      <div className="page-title-row">
-        <div className="page-title-icon">
-          <CourseIcon emoji={category.emoji} courseId="dictionary" />
-        </div>
-        <div>
-          <h1>{t(category.titleKey)}</h1>
-          <div className="subtitle">{t('dictionaryTitle')}</div>
-        </div>
-      </div>
+      <PageSwitcher
+        icon={<CourseIcon emoji={category.emoji} courseId="dictionary" />}
+        onSelect={(id) => onNavigate('dictionary', id)}
+        onBack={() => onNavigate('dictionary')}
+        backLabel={t('dictionaryBack')}
+        subtitle={t('dictionaryTitle')}
+        title={t(category.titleKey)}
+        currentId={category.id}
+        items={crumbItems}
+      />
 
       {learnable && <ProgressBar labelKey="dictionaryLearnedProgress" total={allIds.length} done={doneCount} />}
 

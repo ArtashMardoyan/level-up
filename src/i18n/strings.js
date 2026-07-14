@@ -95,7 +95,8 @@ export const STRINGS = {
     dictionaryVocabulary: 'Словарь',
     dictionaryColExample: 'Пример',
     dictionaryColPhrase: 'Фраза',
-    dictionaryColWord: 'Слово'
+    dictionaryColWord: 'Слово',
+    dictionaryBack: 'Словарь'
   },
   en: {
     // App
@@ -189,6 +190,7 @@ export const STRINGS = {
     dictionaryDailyBadge: '📅 Daily',
     dictionaryColExample: 'Example',
     dictionaryColPhrase: 'Phrase',
+    dictionaryBack: 'Dictionary',
     dictionaryColWord: 'Word'
   }
 }
