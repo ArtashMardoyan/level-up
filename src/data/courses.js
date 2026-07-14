@@ -1,19 +1,19 @@
-import qaQuestions from './courses/qa.json'
-import goQuestions from './courses/go.json'
-import ruGoQuestions from './courses/ru/go.json'
-import ruQaQuestions from './courses/ru/qa.json'
-import reactQuestions from './courses/react.json'
-import devopsQuestions from './courses/devops.json'
-import nodejsQuestions from './courses/nodejs.json'
-import nextjsQuestions from './courses/nextjs.json'
-import ruReactQuestions from './courses/ru/react.json'
-import frontendQuestions from './courses/frontend.json'
-import ruDevopsQuestions from './courses/ru/devops.json'
-import ruNodejsQuestions from './courses/ru/nodejs.json'
-import ruNextjsQuestions from './courses/ru/nextjs.json'
-import ruBackendQuestions from './courses/ru/backend.json'
-import backendSeniorQuestions from './courses/backend.json'
-import ruFrontendQuestions from './courses/ru/frontend.json'
+import qaQuestions from './courses/qa/en.json'
+import goQuestions from './courses/go/en.json'
+import ruGoQuestions from './courses/go/ru.json'
+import ruQaQuestions from './courses/qa/ru.json'
+import reactQuestions from './courses/react/en.json'
+import devopsQuestions from './courses/devops/en.json'
+import nodejsQuestions from './courses/nodejs/en.json'
+import nextjsQuestions from './courses/nextjs/en.json'
+import ruReactQuestions from './courses/react/ru.json'
+import ruDevopsQuestions from './courses/devops/ru.json'
+import ruNodejsQuestions from './courses/nodejs/ru.json'
+import ruNextjsQuestions from './courses/nextjs/ru.json'
+import frontendQuestions from './courses/frontend/en.json'
+import ruBackendQuestions from './courses/backend/ru.json'
+import ruFrontendQuestions from './courses/frontend/ru.json'
+import backendSeniorQuestions from './courses/backend/en.json'
 
 export const COURSES = [
   {
@@ -97,6 +97,9 @@ function mergeQuestions(enQuestions, ruQuestions) {
     if (!ru) return q
     const merged = { ...q, question: ru.question || q.question, answer: ru.answer || q.answer }
     if (q.bonus && ru.bonus) merged.bonus = ru.bonus
+    // Audio is per-language: use the ru keys, or none (don't inherit en audio).
+    if (ru.audio) merged.audio = ru.audio
+    else delete merged.audio
     return merged
   })
 }
