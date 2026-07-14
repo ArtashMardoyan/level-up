@@ -10,7 +10,7 @@ import InterviewMode from './InterviewMode'
 import { useLanguage } from '../hooks/useLanguage'
 import { useReviewState } from '../hooks/useReviewState'
 
-export default function PrepView({ onNavigate, voiceName, jumpToId, courses, course, voices }) {
+export default function PrepView({ onNavigate, jumpToId, courses, course, voices }) {
   const { t } = useLanguage()
   const questions = course.questions
   const crumbItems = useMemo(
@@ -164,7 +164,6 @@ export default function PrepView({ onNavigate, voiceName, jumpToId, courses, cou
           onActiveChange={setPlayerActiveId}
           startRequest={playerStartRequest}
           questions={questions}
-          voiceName={voiceName}
           courseId={course.id}
           voices={voices}
         />

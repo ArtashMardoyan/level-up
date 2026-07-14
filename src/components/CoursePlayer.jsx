@@ -4,17 +4,48 @@ import { audioUrl } from '../data/audio'
 import { resolveVoice } from '../hooks/useSpeech'
 import { useLanguage } from '../hooks/useLanguage'
 import { audioPlayer } from '../services/audioPlayer'
+import { useAudioPlayer } from '../hooks/useAudioPlayer'
 
-export default function CoursePlayer({
-  onActiveChange,
-  startRequest,
-  questions,
-  voiceName,
-  courseId,
-  onClose,
-  voices
-}) {
+const SPEEDS = [0.75, 1, 1.25, 1.5]
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '0:00'
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+// Inline SVG player icons — crisp at any size and consistent across platforms.
+const PlayIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+)
+const PauseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M6.5 5h3.5v14H6.5zM14 5h3.5v14H14z" />
+  </svg>
+)
+const PrevIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M7 5h2.2v14H7zM20 5v14L9.6 12z" />
+  </svg>
+)
+const NextIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M4 5l10.4 7L4 19zM14.8 5H17v14h-2.2z" />
+  </svg>
+)
+const RestartIcon = () => (
+  <svg stroke="currentColor" strokeLinecap="round" viewBox="0 0 24 24" aria-hidden="true" strokeWidth="2.2" fill="none">
+    <path d="M3 12a9 9 0 1 0 3-6.7" />
+    <path strokeLinejoin="round" d="M3 4v4h4" />
+  </svg>
+)
+
+export default function CoursePlayer({ onActiveChange, startRequest, questions, courseId, onClose, voices }) {
   const { language, t } = useLanguage()
+  const { currentTime, duration, canSeek, rate } = useAudioPlayer()
   const moduleNames = useMemo(() => {
     const seen = []
     for (const item of questions) {
@@ -78,7 +109,7 @@ export default function CoursePlayer({
       return
     }
     if (paused) return
-    const voice = resolveVoice(voices, voiceName, language)
+    const voice = resolveVoice(voices, '', language)
     audioPlayer.play({
       onEnded: () => {
         if (phase === 'question') {
@@ -96,7 +127,7 @@ export default function CoursePlayer({
       voice,
       id
     })
-  }, [playing, paused, currentIndex, phase, currentItem, courseId, scopedList.length, voices, voiceName, language])
+  }, [playing, paused, currentIndex, phase, currentItem, courseId, scopedList.length, voices, language])
 
   const handleModuleChange = (value) => {
     setSelectedModule(value)
@@ -133,6 +164,11 @@ export default function CoursePlayer({
     setPaused((p) => !p)
   }
 
+  const cycleSpeed = () => {
+    const next = SPEEDS[(SPEEDS.indexOf(rate) + 1) % SPEEDS.length]
+    audioPlayer.setRate(next)
+  }
+
   const handleClose = () => {
     audioPlayer.stop()
     setPlaying(false)
@@ -156,19 +192,49 @@ export default function CoursePlayer({
         </button>
       </div>
       <div className="player-title">{currentItem ? currentItem.question : t('nothingToPlay')}</div>
+      <div className="player-progress">
+        <span className="player-time">{formatTime(currentTime)}</span>
+        <input
+          onChange={(e) => audioPlayer.seek(Number(e.target.value))}
+          value={Math.min(currentTime, duration || 0)}
+          className="player-seek"
+          aria-label={t('seek')}
+          disabled={!canSeek}
+          max={duration || 0}
+          type="range"
+          step={0.1}
+          min={0}
+        />
+        <span className="player-time">{formatTime(duration)}</span>
+      </div>
       <div className="player-controls">
-        <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
-          ↺
-        </button>
-        <button disabled={currentIndex === 0} className="player-btn" onClick={handlePrev}>
-          ⏮
-        </button>
-        <button className="player-btn player-btn-main" onClick={handlePlayPause} disabled={!currentItem}>
-          {playing && !paused ? '⏸' : '▶'}
-        </button>
-        <button disabled={currentIndex >= scopedList.length - 1} className="player-btn" onClick={handleNext}>
-          ⏭
-        </button>
+        <div className="player-controls-main">
+          <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
+            <RestartIcon />
+          </button>
+          <button disabled={currentIndex === 0} aria-label={t('previous')} className="player-btn" onClick={handlePrev}>
+            <PrevIcon />
+          </button>
+          <button
+            className="player-btn player-btn-main"
+            aria-label={t('playPause')}
+            onClick={handlePlayPause}
+            disabled={!currentItem}
+          >
+            {playing && !paused ? <PauseIcon /> : <PlayIcon />}
+          </button>
+          <button
+            disabled={currentIndex >= scopedList.length - 1}
+            aria-label={t('next')}
+            className="player-btn"
+            onClick={handleNext}
+          >
+            <NextIcon />
+          </button>
+          <button className="player-btn player-speed" aria-label={t('speed')} onClick={cycleSpeed}>
+            {rate}×
+          </button>
+        </div>
         <span className="player-status">
           {currentItem
             ? t(phase === 'question' ? 'playerStatusQuestion' : 'playerStatusAnswer', {

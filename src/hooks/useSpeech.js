@@ -1,25 +1,13 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const VOICE_STORAGE_KEY = 'interviewPrepVoice'
 const DEFAULT_VOICE_NAMES = {
   en: ['Google US English', 'Samantha'],
   ru: ['Google русский', 'Milena']
 }
 
-// English keeps the legacy un-suffixed key so existing users keep their voice.
-function voiceStorageKey(language) {
-  return language === 'en' ? VOICE_STORAGE_KEY : `${VOICE_STORAGE_KEY}:${language}`
-}
-
-function readStoredVoice(language) {
-  try {
-    return localStorage.getItem(voiceStorageKey(language)) ?? ''
-  } catch {
-    return ''
-  }
-}
-
-// '' means "auto default for the language" — resolved here at consumption time.
+// The app no longer lets users pick a voice — it always uses the language's
+// default (Google / Samantha / Milena), resolved here at consumption time.
+// `voiceName` is kept in the signature for callers that pass '' (auto).
 export function resolveVoice(voices, voiceName, language) {
   return (
     voices.find((v) => v.name === voiceName) ??
@@ -29,29 +17,9 @@ export function resolveVoice(voices, voiceName, language) {
   )
 }
 
-export function useSpeech(language) {
+export function useSpeech() {
   const [voices, setVoices] = useState([])
-  const [voiceName, setVoiceNameState] = useState(() => readStoredVoice(language))
-  const [prevLanguage, setPrevLanguage] = useState(language)
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window
-
-  // Each language keeps its own voice preference — reload it on switch.
-  if (language !== prevLanguage) {
-    setPrevLanguage(language)
-    setVoiceNameState(readStoredVoice(language))
-  }
-
-  const setVoiceName = useCallback(
-    (name) => {
-      setVoiceNameState(name)
-      try {
-        localStorage.setItem(voiceStorageKey(language), name)
-      } catch {
-        /* ignore */
-      }
-    },
-    [language]
-  )
 
   useEffect(() => {
     if (!supported) return
@@ -64,5 +32,5 @@ export function useSpeech(language) {
     }
   }, [supported])
 
-  return { setVoiceName, supported, voiceName, voices }
+  return { supported, voices }
 }
