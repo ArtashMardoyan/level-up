@@ -44,7 +44,6 @@ export default function PageSwitcher({ backLabel, currentId, onSelect, subtitle,
             aria-haspopup="listbox"
             aria-expanded={open}
           >
-            {current?.icon && <span className="crumb-icon">{current.icon}</span>}
             <span className="crumb-current-label">{current?.label}</span>
             <ChevronDown className="crumb-caret" aria-hidden="true" size={15} />
           </button>
