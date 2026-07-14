@@ -20,6 +20,7 @@ export const COURSES = [
     subtitle: 'NodeJS, APIs, databases, AWS & infrastructure',
     questions: backendSeniorQuestions,
     title: 'Backend Developer',
+    accent: '#fbbf24',
     id: 'backend',
     emoji: '🛠️'
   },
@@ -27,6 +28,7 @@ export const COURSES = [
     subtitle: 'React, browser internals, performance',
     questions: frontendQuestions,
     title: 'Frontend Developer',
+    accent: '#c084fc',
     id: 'frontend',
     emoji: '🎨'
   },
@@ -34,6 +36,7 @@ export const COURSES = [
     subtitle: 'CI/CD, containers, cloud infrastructure',
     questions: devopsQuestions,
     title: 'DevOps Engineer',
+    accent: '#38bdf8',
     id: 'devops',
     emoji: '⚙️'
   },
@@ -41,12 +44,14 @@ export const COURSES = [
     subtitle: 'Testing strategy, automation, bug reports',
     questions: qaQuestions,
     title: 'QA Engineer',
+    accent: '#fb7185',
     emoji: '🔍',
     id: 'qa'
   },
   {
     subtitle: 'Runtime internals, streams, npm ecosystem',
     questions: nodejsQuestions,
+    accent: '#4ade80',
     title: 'NodeJS',
     id: 'nodejs',
     emoji: '🟢'
@@ -54,6 +59,7 @@ export const COURSES = [
   {
     subtitle: 'Goroutines, channels, standard library',
     questions: goQuestions,
+    accent: '#22d3ee',
     title: 'Go',
     emoji: '🐹',
     id: 'go'
@@ -61,6 +67,7 @@ export const COURSES = [
   {
     subtitle: 'Hooks, state management, component patterns',
     questions: reactQuestions,
+    accent: '#818cf8',
     title: 'React',
     id: 'react',
     emoji: '⚛️'
@@ -68,6 +75,7 @@ export const COURSES = [
   {
     subtitle: 'SSR/SSG, App Router, API routes',
     questions: nextjsQuestions,
+    accent: '#e2e8f0',
     title: 'Next.js',
     id: 'nextjs',
     emoji: '▲'

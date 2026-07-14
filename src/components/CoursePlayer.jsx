@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { SkipForward, RotateCcw, SkipBack, Pause, Play } from 'lucide-react'
 
 import { audioUrl } from '../data/audio'
 import { resolveVoice } from '../hooks/useSpeech'
@@ -14,34 +15,6 @@ function formatTime(seconds) {
   const s = Math.floor(seconds % 60)
   return `${m}:${String(s).padStart(2, '0')}`
 }
-
-// Inline SVG player icons — crisp at any size and consistent across platforms.
-const PlayIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M8 5v14l11-7z" />
-  </svg>
-)
-const PauseIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M6.5 5h3.5v14H6.5zM14 5h3.5v14H14z" />
-  </svg>
-)
-const PrevIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M7 5h2.2v14H7zM20 5v14L9.6 12z" />
-  </svg>
-)
-const NextIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M4 5l10.4 7L4 19zM14.8 5H17v14h-2.2z" />
-  </svg>
-)
-const RestartIcon = () => (
-  <svg stroke="currentColor" strokeLinecap="round" viewBox="0 0 24 24" aria-hidden="true" strokeWidth="2.2" fill="none">
-    <path d="M3 12a9 9 0 1 0 3-6.7" />
-    <path strokeLinejoin="round" d="M3 4v4h4" />
-  </svg>
-)
 
 export default function CoursePlayer({ onActiveChange, startRequest, questions, courseId, onClose, voices }) {
   const { language, t } = useLanguage()
@@ -210,10 +183,10 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
       <div className="player-controls">
         <div className="player-controls-main">
           <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
-            <RestartIcon />
+            <RotateCcw aria-hidden="true" size={17} />
           </button>
           <button disabled={currentIndex === 0} aria-label={t('previous')} className="player-btn" onClick={handlePrev}>
-            <PrevIcon />
+            <SkipBack aria-hidden="true" size={18} />
           </button>
           <button
             className="player-btn player-btn-main"
@@ -221,7 +194,7 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
             onClick={handlePlayPause}
             disabled={!currentItem}
           >
-            {playing && !paused ? <PauseIcon /> : <PlayIcon />}
+            {playing && !paused ? <Pause aria-hidden="true" size={20} /> : <Play aria-hidden="true" size={20} />}
           </button>
           <button
             disabled={currentIndex >= scopedList.length - 1}
@@ -229,7 +202,7 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
             className="player-btn"
             onClick={handleNext}
           >
-            <NextIcon />
+            <SkipForward aria-hidden="true" size={18} />
           </button>
           <button className="player-btn player-speed" aria-label={t('speed')} onClick={cycleSpeed}>
             {rate}×

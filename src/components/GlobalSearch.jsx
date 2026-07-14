@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react'
 import { useEffect, useState, useMemo, useRef } from 'react'
 
 import CourseIcon from './CourseIcon'
@@ -48,6 +49,7 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
 
   return (
     <div className="header-search" ref={wrapRef}>
+      <Search className="header-search-icon" aria-hidden="true" size={17} />
       <input
         onChange={(e) => {
           setTerm(e.target.value)

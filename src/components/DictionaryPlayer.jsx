@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { SkipForward, RotateCcw, SkipBack, Pause, Play } from 'lucide-react'
 
 import { resolveVoice } from '../hooks/useSpeech'
 import { useLanguage } from '../hooks/useLanguage'
@@ -109,18 +110,30 @@ export default function DictionaryPlayer({ onActiveChange, startRequest, onClose
       </div>
       <div className="player-title">{currentItem ? currentItem.primary : t('nothingToPlay')}</div>
       <div className="player-controls">
-        <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
-          ↺
-        </button>
-        <button disabled={currentIndex === 0} className="player-btn" onClick={handlePrev}>
-          ⏮
-        </button>
-        <button className="player-btn player-btn-main" onClick={() => setPlaying((p) => !p)} disabled={!currentItem}>
-          {playing ? '⏸' : '▶'}
-        </button>
-        <button disabled={currentIndex >= items.length - 1} className="player-btn" onClick={handleNext}>
-          ⏭
-        </button>
+        <div className="player-controls-main">
+          <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
+            <RotateCcw aria-hidden="true" size={17} />
+          </button>
+          <button disabled={currentIndex === 0} aria-label={t('previous')} className="player-btn" onClick={handlePrev}>
+            <SkipBack aria-hidden="true" size={18} />
+          </button>
+          <button
+            className="player-btn player-btn-main"
+            onClick={() => setPlaying((p) => !p)}
+            aria-label={t('playPause')}
+            disabled={!currentItem}
+          >
+            {playing ? <Pause aria-hidden="true" size={20} /> : <Play aria-hidden="true" size={20} />}
+          </button>
+          <button
+            disabled={currentIndex >= items.length - 1}
+            aria-label={t('next')}
+            className="player-btn"
+            onClick={handleNext}
+          >
+            <SkipForward aria-hidden="true" size={18} />
+          </button>
+        </div>
         <span className="player-status">
           {currentItem ? t('dictionaryPlayerStatus', { total: items.length, n: currentIndex + 1 }) : ''}
         </span>

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { ChevronDown } from 'lucide-react'
 
 import ModeBar from './ModeBar'
 import CourseIcon from './CourseIcon'
@@ -72,7 +73,7 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
   const hintText = mode === 'quiz' ? t('hintQuiz') : t('hintList')
 
   return (
-    <div className="wrap">
+    <div style={{ '--page-accent': course.accent || '#818cf8' }} className="wrap">
       <PageSwitcher
         subtitle={
           <>
@@ -130,7 +131,7 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
                   {showLabel && (
                     <button onClick={() => toggleModule(item.module)} className="module-label">
                       {item.module}
-                      <span className={'arrow' + (isCollapsed ? '' : ' open')}>&#9662;</span>
+                      <ChevronDown className={'arrow' + (isCollapsed ? '' : ' open')} aria-hidden="true" size={14} />
                     </button>
                   )}
                   {!isCollapsed && (

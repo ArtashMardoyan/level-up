@@ -1,3 +1,4 @@
+import { Settings, Moon, Sun } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
 
 import { useLanguage } from '../hooks/useLanguage'
@@ -16,6 +17,10 @@ export default function SettingsPanel({ toggleTheme, theme }) {
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [open])
 
+  const setTheme = (next) => {
+    if (theme !== next) toggleTheme()
+  }
+
   return (
     <div className="settings-wrap" ref={wrapRef}>
       <button
@@ -24,21 +29,43 @@ export default function SettingsPanel({ toggleTheme, theme }) {
         className="settings-gear"
         aria-expanded={open}
       >
-        ⚙️
+        <Settings aria-hidden="true" strokeWidth={1.9} size={19} />
       </button>
       {open && (
         <div className="settings-panel">
           <div className="settings-row">
             <span className="settings-label">{t('theme')}</span>
-            <button className="plain-btn" onClick={toggleTheme}>
-              {theme === 'dark' ? t('themeLight') : t('themeDark')}
-            </button>
+            <div className="segmented">
+              <button
+                className={'segmented-btn' + (theme === 'light' ? ' active' : '')}
+                onClick={() => setTheme('light')}
+              >
+                <Sun aria-hidden="true" size={15} /> {t('themeLightLabel')}
+              </button>
+              <button
+                className={'segmented-btn' + (theme === 'dark' ? ' active' : '')}
+                onClick={() => setTheme('dark')}
+              >
+                <Moon aria-hidden="true" size={15} /> {t('themeDarkLabel')}
+              </button>
+            </div>
           </div>
           <div className="settings-row">
             <span className="settings-label">{t('language')}</span>
-            <button onClick={() => setLanguage(language === 'en' ? 'ru' : 'en')} className="plain-btn">
-              {language === 'en' ? '🌐 Русский' : '🌐 English'}
-            </button>
+            <div className="segmented">
+              <button
+                className={'segmented-btn' + (language === 'en' ? ' active' : '')}
+                onClick={() => setLanguage('en')}
+              >
+                English
+              </button>
+              <button
+                className={'segmented-btn' + (language === 'ru' ? ' active' : '')}
+                onClick={() => setLanguage('ru')}
+              >
+                Русский
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,3 +1,5 @@
+import { Volume2 } from 'lucide-react'
+
 import { useLanguage } from '../hooks/useLanguage'
 
 export default function DictionaryTable({ onToggleReviewed, reviewed, activeId, onSpeak, columns, title, rows }) {
@@ -40,7 +42,7 @@ export default function DictionaryTable({ onToggleReviewed, reviewed, activeId, 
                       className="speak-btn"
                       role="button"
                     >
-                      🔊
+                      <Volume2 aria-hidden="true" size={16} />
                     </span>
                   </td>
                   <td>

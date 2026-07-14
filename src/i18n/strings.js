@@ -5,7 +5,10 @@
 export const STRINGS = {
   ru: {
     // App
+    homeSubtitle:
+      'Структурированные банки вопросов, чтобы прокачать основы. Выбери трек и отработай темы, которые встречаются на реальных собеседованиях.',
     footer: 'Сделано для подготовки к собеседованиям · работает полностью офлайн',
+    homeEyebrow: 'Подготовка к собеседованиям · {n} треков',
     homeHeading: 'Выберите свой путь обучения',
     tabDictionary: 'Словарь',
     tabCourses: 'Курсы',
@@ -30,6 +33,8 @@ export const STRINGS = {
     collapseAll: 'Свернуть все',
     // ProgressBar
     reviewedProgress: '{done} / {total} отмечено как просмотренные',
+    reviewedLabel: 'Просмотрено',
+    learnedLabel: 'Изучено',
     // QuestionCard
     favoriteAria: 'Добавить в избранное или убрать',
     playQuestionAria: 'Озвучить вопрос и ответ',
@@ -61,7 +66,9 @@ export const STRINGS = {
     globalSearchPlaceholder: 'Поиск по всем курсам...',
     globalSearchAria: 'Поиск по всем курсам',
     // SettingsPanel
+    themeLightLabel: 'Светлая',
     settingsAria: 'Настройки',
+    themeDarkLabel: 'Тёмная',
     themeLight: '☀ Светлая',
     themeDark: '☾ Тёмная',
     language: 'Язык',
@@ -94,15 +101,20 @@ export const STRINGS = {
     dictionaryColDontSay: 'Не говорите',
     dictionaryLeadership: 'Лидерство',
     dictionaryColInsteadOf: 'Вместо…',
+    dictionaryDailyShort: 'Ежедневно',
     dictionaryVocabulary: 'Словарь',
     dictionaryColExample: 'Пример',
+    dictionaryStartNow: 'Начать',
     dictionaryColPhrase: 'Фраза',
     dictionaryColWord: 'Слово',
     dictionaryBack: 'Словарь'
   },
   en: {
     // App
+    homeSubtitle:
+      'Structured question banks to sharpen your fundamentals. Pick a track and drill the concepts that come up in real interviews.',
     footer: 'Made for interview practice · works fully offline',
+    homeEyebrow: 'Interview Prep · {n} paths',
     homeHeading: 'Choose Your Learning Path',
     tabDictionary: 'Dictionary',
     tabCourses: 'Courses',
@@ -127,6 +139,8 @@ export const STRINGS = {
     expandAll: 'Expand all',
     // ProgressBar
     reviewedProgress: '{done} / {total} marked as reviewed',
+    reviewedLabel: 'Reviewed',
+    learnedLabel: 'Learned',
     // QuestionCard
     playQuestionAria: 'Play question and answer',
     favoriteAria: 'Toggle favorite',
@@ -159,6 +173,8 @@ export const STRINGS = {
     globalSearchAria: 'Search across all courses',
     // SettingsPanel
     settingsAria: 'Settings',
+    themeLightLabel: 'Light',
+    themeDarkLabel: 'Dark',
     themeLight: '☀ Light',
     language: 'Language',
     themeDark: '☾ Dark',
@@ -192,7 +208,9 @@ export const STRINGS = {
     dictionaryLeadership: 'Leadership',
     dictionaryColDontSay: "Don't Say",
     dictionaryDailyBadge: '📅 Daily',
+    dictionaryStartNow: 'Start now',
     dictionaryColExample: 'Example',
+    dictionaryDailyShort: 'Daily',
     dictionaryColPhrase: 'Phrase',
     dictionaryBack: 'Dictionary',
     dictionaryColWord: 'Word'

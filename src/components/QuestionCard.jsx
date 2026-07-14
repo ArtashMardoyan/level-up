@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { ChevronDown, Volume2, Check, Star } from 'lucide-react'
 
 import { useLanguage } from '../hooks/useLanguage'
 
@@ -72,7 +73,7 @@ export default function QuestionCard({
         <div className="q-header-row">
           <span className="q-title">
             {item.question}
-            {isReviewed && <span className="check">&#10003;</span>}
+            {isReviewed && <Check aria-hidden="true" className="check" size={15} />}
           </span>
           <span
             onClick={(e) => {
@@ -83,7 +84,7 @@ export default function QuestionCard({
             className="speak-btn"
             role="button"
           >
-            🔊
+            <Volume2 aria-hidden="true" size={17} />
           </span>
           <span
             onClick={(e) => {
@@ -94,9 +95,9 @@ export default function QuestionCard({
             aria-label={t('favoriteAria')}
             role="button"
           >
-            {isFavorite ? '★' : '☆'}
+            <Star fill={isFavorite ? 'currentColor' : 'none'} aria-hidden="true" size={17} />
           </span>
-          <span className={'arrow' + (open ? ' open' : '')}>&#9662;</span>
+          <ChevronDown className={'arrow' + (open ? ' open' : '')} aria-hidden="true" size={18} />
         </div>
       </button>
       <div style={{ maxHeight: open ? '3000px' : '0px' }} className="a-body">
@@ -117,7 +118,7 @@ export default function QuestionCard({
           ) : (
             <div style={{ whiteSpace: 'pre-line' }}>{item.answer}</div>
           )}
-          <div>
+          <div className="a-actions">
             <button className="copy-btn" onClick={handleCopy}>
               {copied ? t('copied') : t('copyAnswer')}
             </button>

@@ -1,8 +1,9 @@
+import { Volume2 } from 'lucide-react'
 import { useEffect, useState, useMemo } from 'react'
 
-import CourseIcon from './CourseIcon'
 import ProgressBar from './ProgressBar'
 import PageSwitcher from './PageSwitcher'
+import DictionaryIcon from './DictionaryIcon'
 import DictionaryTable from './DictionaryTable'
 import DictionarySingle from './DictionarySingle'
 import DictionaryPlayer from './DictionaryPlayer'
@@ -36,7 +37,7 @@ export default function DictionaryCategoryPage({ onNavigate, categoryId, voices 
   const crumbItems = useMemo(
     () =>
       DICTIONARY_CATEGORIES.map((cat) => ({
-        icon: <CourseIcon courseId="dictionary" emoji={cat.emoji} />,
+        icon: <DictionaryIcon categoryId={cat.id} size={18} />,
         label: t(cat.titleKey),
         id: cat.id
       })),
@@ -61,9 +62,9 @@ export default function DictionaryCategoryPage({ onNavigate, categoryId, voices 
   const tableProps = { onToggleReviewed: toggleReviewed, reviewed: state.reviewed, onSpeak: playRow, activeId }
 
   return (
-    <div className="wrap">
+    <div style={{ '--page-accent': category.accent || '#818cf8' }} className="wrap wrap-dict">
       <PageSwitcher
-        icon={<CourseIcon emoji={category.emoji} courseId="dictionary" />}
+        icon={<DictionaryIcon categoryId={category.id} size={24} />}
         onSelect={(id) => onNavigate('dictionary', id)}
         onBack={() => onNavigate('dictionary')}
         backLabel={t('dictionaryBack')}
@@ -73,11 +74,11 @@ export default function DictionaryCategoryPage({ onNavigate, categoryId, voices 
         items={crumbItems}
       />
 
-      {learnable && <ProgressBar labelKey="dictionaryLearnedProgress" total={allIds.length} done={doneCount} />}
+      {learnable && <ProgressBar labelKey="learnedLabel" total={allIds.length} done={doneCount} />}
 
       <div className="mode-bar">
-        <button className={'mode-btn' + (playerOpen ? ' active' : '')} onClick={() => setPlayerOpen((v) => !v)}>
-          🔊 {t('listen')}
+        <button className={'chip-btn' + (playerOpen ? ' active' : '')} onClick={() => setPlayerOpen((v) => !v)}>
+          <Volume2 aria-hidden="true" size={16} /> {t('listen')}
         </button>
       </div>
 

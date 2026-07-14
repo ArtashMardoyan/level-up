@@ -40,7 +40,11 @@ export default function InterviewMode({ questions }) {
     return (
       <div className="interview-stage">
         <div className="qtext">{t('interviewDone')}</div>
-        <button onClick={restart}>{t('restart')}</button>
+        <div className="interview-actions">
+          <button className="btn-primary" onClick={restart}>
+            {t('restart')}
+          </button>
+        </div>
       </div>
     )
   }
@@ -49,8 +53,14 @@ export default function InterviewMode({ questions }) {
     <div className="interview-stage">
       <div className="qnum">{t('questionOf', { total: queue.length, n: index + 1 })}</div>
       <div className="qtext">{content.question}</div>
-      <button onClick={() => setShowAnswer(true)}>{t('showAnswer')}</button>
-      <button onClick={next}>{t('skipNext')}</button>
+      <div className="interview-actions">
+        <button onClick={() => setShowAnswer(true)} className="btn-primary">
+          {t('showAnswer')}
+        </button>
+        <button className="btn-ghost" onClick={next}>
+          {t('skipNext')}
+        </button>
+      </div>
       {showAnswer && (
         <div className="a-inner">
           <div style={{ whiteSpace: 'pre-line' }}>{content.answer}</div>

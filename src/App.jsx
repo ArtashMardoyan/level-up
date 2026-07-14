@@ -80,13 +80,18 @@ function AppContent() {
           voices={voices}
         />
       ) : (
-        <div className="wrap">
+        <main className="home">
+          <div className="home-eyebrow">{t('homeEyebrow', { n: courses.length })}</div>
           <h1 className="home-heading">{t('homeHeading')}</h1>
-          <div className="mode-bar">
-            <button className={'mode-btn' + (isDictionary ? '' : ' active')} onClick={backToCourses}>
+          <p className="home-subtitle">{t('homeSubtitle')}</p>
+          <div className="segmented home-tabs">
+            <button className={'segmented-btn' + (isDictionary ? '' : ' active')} onClick={backToCourses}>
               {t('tabCourses')}
             </button>
-            <button className={'mode-btn' + (isDictionary ? ' active' : '')} onClick={() => selectCourse('dictionary')}>
+            <button
+              className={'segmented-btn' + (isDictionary ? ' active' : '')}
+              onClick={() => selectCourse('dictionary')}
+            >
               {t('tabDictionary')}
             </button>
           </div>
@@ -96,7 +101,7 @@ function AppContent() {
             <CourseSelect onSelect={selectCourse} courses={courses} />
           )}
           <footer>{t('footer')}</footer>
-        </div>
+        </main>
       )}
     </>
   )
