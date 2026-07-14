@@ -1,9 +1,19 @@
 import { useEffect, useState, useMemo } from 'react'
 
+import { audioUrl } from '../data/audio'
 import { resolveVoice } from '../hooks/useSpeech'
 import { useLanguage } from '../hooks/useLanguage'
+import { audioPlayer } from '../services/audioPlayer'
 
-export default function CoursePlayer({ onActiveChange, startRequest, questions, voiceName, onClose, voices }) {
+export default function CoursePlayer({
+  onActiveChange,
+  startRequest,
+  questions,
+  voiceName,
+  courseId,
+  onClose,
+  voices
+}) {
   const { language, t } = useLanguage()
   const moduleNames = useMemo(() => {
     const seen = []
@@ -17,6 +27,7 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [phase, setPhase] = useState('question')
   const [playing, setPlaying] = useState(false)
+  const [paused, setPaused] = useState(false)
   const [prevStartRequest, setPrevStartRequest] = useState(null)
 
   // Jump to the requested question by adjusting state during render
@@ -29,6 +40,7 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
       setCurrentIndex(idx)
       setPhase('question')
       setPlaying(true)
+      setPaused(false)
     }
   }
 
@@ -48,74 +60,83 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
     if (currentItem) onActiveChange?.(currentItem.id)
   }, [currentItem, onActiveChange])
 
-  // Chrome silently stalls speechSynthesis on utterances longer than ~15s
-  // unless it's kept alive with a periodic pause/resume nudge.
-  useEffect(() => {
-    if (!playing) return
-    const interval = setInterval(() => {
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.pause()
-        window.speechSynthesis.resume()
-      }
-    }, 10000)
-    return () => clearInterval(interval)
-  }, [playing])
+  // Stop playback when the player unmounts so nothing keeps running in the background.
+  useEffect(() => () => audioPlayer.stop(), [])
 
+  // Drive the shared service: it plays a local MP3 when one exists and otherwise
+  // reads the text via speech — the component neither knows nor cares which.
   useEffect(() => {
-    if (!playing || !currentItem) return
-    const text = phase === 'question' ? currentItem.question : currentItem.answer
-    const utterance = new SpeechSynthesisUtterance(text)
-    const selectedVoice = resolveVoice(voices, voiceName, language)
-    if (selectedVoice) {
-      utterance.voice = selectedVoice
-      utterance.lang = selectedVoice.lang
-    } else {
-      utterance.lang = language === 'ru' ? 'ru-RU' : 'en-US'
+    if (!playing || !currentItem) {
+      if (!playing) audioPlayer.stop()
+      return
     }
-    utterance.onend = () => {
-      if (phase === 'question') {
-        setPhase('answer')
-      } else if (currentIndex + 1 < scopedList.length) {
-        setCurrentIndex((i) => i + 1)
-        setPhase('question')
-      } else {
-        setPlaying(false)
-      }
+    const id = `${courseId}/${language}/${currentItem.id}-${phase}`
+    // Same track already loaded → this is a pause/resume, not a new track.
+    if (audioPlayer.currentInterviewId() === id) {
+      if (paused) audioPlayer.pause()
+      else if (audioPlayer.isPaused()) audioPlayer.resume()
+      return
     }
-    window.speechSynthesis.cancel()
-    // Chrome can silently drop a speak() call made in the same tick as cancel().
-    const timer = setTimeout(() => window.speechSynthesis.speak(utterance), 50)
-    return () => {
-      clearTimeout(timer)
-      window.speechSynthesis.cancel()
-    }
-  }, [playing, currentIndex, phase, currentItem, scopedList.length, voices, voiceName, language])
+    if (paused) return
+    const voice = resolveVoice(voices, voiceName, language)
+    audioPlayer.play({
+      onEnded: () => {
+        if (phase === 'question') {
+          setPhase('answer')
+        } else if (currentIndex + 1 < scopedList.length) {
+          setCurrentIndex((i) => i + 1)
+          setPhase('question')
+        } else {
+          setPlaying(false)
+        }
+      },
+      text: phase === 'question' ? currentItem.question : currentItem.answer,
+      lang: voice ? voice.lang : language === 'ru' ? 'ru-RU' : 'en-US',
+      url: audioUrl(currentItem.audio?.[phase]),
+      voice,
+      id
+    })
+  }, [playing, paused, currentIndex, phase, currentItem, courseId, scopedList.length, voices, voiceName, language])
 
   const handleModuleChange = (value) => {
     setSelectedModule(value)
     setCurrentIndex(0)
     setPhase('question')
+    setPaused(false)
   }
 
   const handleRestart = () => {
     setCurrentIndex(0)
     setPhase('question')
     setPlaying(true)
+    setPaused(false)
   }
 
   const handlePrev = () => {
     setCurrentIndex((i) => Math.max(0, i - 1))
     setPhase('question')
+    setPaused(false)
   }
 
   const handleNext = () => {
     setCurrentIndex((i) => Math.min(scopedList.length - 1, i + 1))
     setPhase('question')
+    setPaused(false)
+  }
+
+  const handlePlayPause = () => {
+    if (!playing) {
+      setPlaying(true)
+      setPaused(false)
+      return
+    }
+    setPaused((p) => !p)
   }
 
   const handleClose = () => {
-    window.speechSynthesis.cancel()
+    audioPlayer.stop()
     setPlaying(false)
+    setPaused(false)
     onClose()
   }
 
@@ -142,8 +163,8 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
         <button disabled={currentIndex === 0} className="player-btn" onClick={handlePrev}>
           ⏮
         </button>
-        <button className="player-btn player-btn-main" onClick={() => setPlaying((p) => !p)} disabled={!currentItem}>
-          {playing ? '⏸' : '▶'}
+        <button className="player-btn player-btn-main" onClick={handlePlayPause} disabled={!currentItem}>
+          {playing && !paused ? '⏸' : '▶'}
         </button>
         <button disabled={currentIndex >= scopedList.length - 1} className="player-btn" onClick={handleNext}>
           ⏭

@@ -2,3 +2,9 @@ node_modules
 dist
 .DS_Store
 .idea
+.env
+.env.local
+.env.*.local
+
+# Generated interview audio — lives in S3, not git (see docs/audio-playback.md)
+public/audio/courses/**/*.mp3

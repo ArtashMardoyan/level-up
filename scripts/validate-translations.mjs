@@ -3,14 +3,13 @@ import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync } from 'node:fs'
 
 const coursesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'data', 'courses')
-const ruDir = path.join(coursesDir, 'ru')
 
 const CYRILLIC = /[а-яё]/i
 
 function validateCourse(name) {
   const errors = []
-  const en = JSON.parse(readFileSync(path.join(coursesDir, `${name}.json`), 'utf8'))
-  const ru = JSON.parse(readFileSync(path.join(ruDir, `${name}.json`), 'utf8'))
+  const en = JSON.parse(readFileSync(path.join(coursesDir, name, 'en.json'), 'utf8'))
+  const ru = JSON.parse(readFileSync(path.join(coursesDir, name, 'ru.json'), 'utf8'))
 
   if (!Array.isArray(ru)) return [`${name}: ru file is not an array`]
   if (ru.length === 0) return { skipped: true }
@@ -37,7 +36,11 @@ function validateCourse(name) {
 }
 
 const requested = process.argv.slice(2)
-const names = requested.length ? requested : readdirSync(ruDir).map((f) => f.replace(/\.json$/, ''))
+const names = requested.length
+  ? requested
+  : readdirSync(coursesDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
 
 let failed = false
 for (const name of names) {

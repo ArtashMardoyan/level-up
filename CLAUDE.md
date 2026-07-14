@@ -19,7 +19,7 @@ npm run preview   # preview the production build locally
 npm run lint      # ESLint (flat config, eslint.config.mjs)
 npm run lint:fix  # auto-fix lint + formatting
 
-node scripts/validate-translations.mjs [course ...]  # check ru/*.json against English files
+node scripts/validate-translations.mjs [course ...]  # check each <course>/ru.json against its en.json
 ```
 
 There are no tests configured.
@@ -46,7 +46,7 @@ Deployed to GitHub Pages via `.github/workflows/deploy.yml` on every push to `ma
 
 **Routing** is hash-based (`useHashRoute`): `#<courseId>` or `#<courseId>/<questionId>`. `App.jsx` switches between the course picker (`CourseSelect`) and the course view (`PrepView`) based on the hash; the last-visited course is persisted and restored on fresh visits. Global search results navigate by setting a `#course/question` hash, and `PrepView` scrolls to and expands the `jumpToId` question.
 
-**Content pipeline**: `src/data/courses.js` is the registry — it imports one JSON file per course from `src/data/courses/` and exports `COURSES` (id, title, subtitle, emoji, questions). A course with zero questions renders as "Coming soon" on the landing page. To add a course: create the JSON file and register it in `courses.js`.
+**Content pipeline**: `src/data/courses.js` is the registry — it imports per-course JSON from `src/data/courses/<id>/en.json` (and `<id>/ru.json` for the Russian overlay, merged by question id) and exports `COURSES` (id, title, subtitle, emoji, questions). This folder-per-course/file-per-language layout mirrors the audio layout in S3 (`audio/courses/<id>/<lang>/…`). A course with zero questions renders as "Coming soon" on the landing page. To add a course: create `src/data/courses/<id>/en.json` (plus `ru.json`) and register it in `courses.js`.
 
 Question schema (per entry in a course JSON file):
 
@@ -56,13 +56,15 @@ Question schema (per entry in a course JSON file):
   "module": "Module 1 — Some Topic",
   "question": "…?",
   "answer": "Paragraphs separated with \\n\\n.",
-  "bonus": "Optional; omit the field if there isn't one."
+  "bonus": "Optional; omit the field if there isn't one.",
+  "audio": { "question": "audio/courses/nodejs/en/q1-question.mp3", "answer": "audio/courses/nodejs/en/q1-answer.mp3" }
 }
 ```
 
 - `id` must be unique and stable within the file — favorites and reviewed-progress in `localStorage` are keyed by it.
 - `module` groups questions under collapsible headers; use the exact same string for every question in a module.
 - Answer text is also read aloud via text-to-speech — prefer wording that pronounces well (avoid heavy symbols/abbreviations).
+- `audio` is optional and **script-managed** (`scripts/upload-audio.mjs` stamps it after uploading MP3s) — don't hand-edit. Each value is an S3 object key; a phase present means that track plays a pre-generated MP3, absent means browser speech. See `docs/audio-playback.md`.
 
 **State**: no state library. Per-course favorites/reviewed progress live in `useReviewState` (localStorage, keyed by course id). Theme (`useTheme`) and TTS voice (`useSpeech`) are global and also persisted. `PrepView` holds all in-course UI state (mode, search, collapsed modules, player).
 
