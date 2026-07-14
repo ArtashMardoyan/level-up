@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  a { color: #a5b0ff; }
+  a:hover { color: #c3ccff; }
+  input::placeholder { color: #626a7e; }
+  @keyframes lu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+<div style="--minw: {{ minw }}; --glow: {{ glow }}; --bg:#090a0e; --surface:rgba(255,255,255,0.025); --surface-hover:rgba(255,255,255,0.045); --control:rgba(255,255,255,0.04); --control-2:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.07); --border-2:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.1); --hairline:rgba(255,255,255,0.06); --hairline-2:rgba(255,255,255,0.08); --text:#f3f5f9; --text-2:#868da0; --text-3:#5c6377; --header-bg:rgba(9,10,14,0.72); --panel-bg:rgba(13,14,19,0.9); --panel-solid:#14161d; {{ themeOverride }} transition: background .25s ease, color .25s ease; min-height: 100vh; font-family: 'Manrope', sans-serif; color: var(--text); background: radial-gradient(1100px 560px at 82% -12%, rgba(129,140,248,0.12), transparent 60%), radial-gradient(900px 480px at -5% 108%, rgba(34,211,238,0.07), transparent 55%), var(--bg);">
+
+  <header style="position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 12px clamp(14px, 4vw, 26px); background: var(--header-bg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);">
+    <div onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 9px; flex-shrink: 0; cursor: pointer;">
+      <div style="width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>
+      </div>
+      <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; color: var(--text);">Level Up</span>
+    </div>
+
+    <div style="position: relative; flex: 1 1 200px; max-width: 540px;">
+      <svg style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-3);" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search all courses…" style="width: 100%; height: 42px; padding: 0 14px 0 42px; border-radius: 11px; border: 1px solid var(--border-2); background: var(--control); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" />
+    </div>
+
+    <div style="position: relative; flex-shrink: 0;">
+      <button onClick="{{ toggleSettings }}" style="width: 42px; height: 42px; border-radius: 11px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="color: var(--text); border-color: rgba(255,255,255,0.16);">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
+      </button>
+      <div style="display: {{ settingsDisplay }}; position: absolute; right: 0; top: 50px; z-index: 50; width: 240px; padding: 16px; border-radius: 14px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 16px 40px rgba(0,0,0,0.5);">
+        <div style="margin-bottom: 16px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 9px;">Theme</div>
+          <div style="display: flex; gap: 4px; padding: 4px; border-radius: 11px; background: var(--control); border: 1px solid var(--border);">
+            <button data-val="light" onClick="{{ setTheme }}" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; padding: 8px; border-radius: 8px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ themeLight.bg }}; color: {{ themeLight.col }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button>
+            <button data-val="dark" onClick="{{ setTheme }}" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; padding: 8px; border-radius: 8px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ themeDark.bg }}; color: {{ themeDark.col }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Dark</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 9px;">Language</div>
+          <div style="display: flex; gap: 4px; padding: 4px; border-radius: 11px; background: var(--control); border: 1px solid var(--border);">
+            <button data-val="en" onClick="{{ setLang }}" style="flex: 1; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; padding: 8px; border-radius: 8px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ langEn.bg }}; color: {{ langEn.col }};">English</button>
+            <button data-val="ru" onClick="{{ setLang }}" style="flex: 1; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; padding: 8px; border-radius: 8px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ langRu.bg }}; color: {{ langRu.col }};">Русский</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main style="display: {{ homeDisplay }}; max-width: 1160px; margin: 0 auto; padding: clamp(30px, 5vw, 52px) clamp(16px, 4vw, 28px) 90px; animation: lu-rise 0.5s ease both;">
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.22em; color: #818cf8; text-transform: uppercase; margin-bottom: 14px;">Interview Prep · 8 paths</div>
+    <h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: clamp(30px, 4vw, 44px); line-height: 1.05; letter-spacing: -0.025em; margin: 0; color: var(--text);">Choose Your Learning Path</h1>
+    <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.55; color: var(--text-2); max-width: 540px;">Structured question banks to sharpen your fundamentals. Pick a track and drill the concepts that come up in real interviews.</p>
+
+    <div style="display: inline-flex; gap: 4px; margin-top: 30px; padding: 4px; border-radius: 13px; background: var(--control); border: 1px solid var(--border);">
+      <button onClick="{{ selectCourses }}" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; padding: 8px 20px; border-radius: 10px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ coursesBg }}; color: {{ coursesColor }};">Courses</button>
+      <button onClick="{{ selectDict }}" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; padding: 8px 20px; border-radius: 10px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ dictBg }}; color: {{ dictColor }};">Dictionary</button>
+    </div>
+
+    <div onClick="{{ openCourse }}" style="display: {{ coursesDisplay }}; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--minw)), 1fr)); gap: 18px; margin-top: 30px;">
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(251,191,36,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(251,191,36,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #fbbf24 15%, transparent); border: 1px solid color-mix(in oklab, #fbbf24 30%, transparent); color: #fbbf24;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Backend Developer</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Node.js, APIs, databases, AWS &amp; infrastructure</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #fbbf24;">51 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(192,132,252,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(192,132,252,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #c084fc 15%, transparent); border: 1px solid color-mix(in oklab, #c084fc 30%, transparent); color: #c084fc;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6.5 6.5h.01M9 6.5h.01"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Frontend Developer</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">React, browser internals, performance</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #c084fc;">50 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(56,189,248,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(56,189,248,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #38bdf8 15%, transparent); border: 1px solid color-mix(in oklab, #38bdf8 30%, transparent); color: #38bdf8;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8c-2.2 0-4 1.8-4 4s1.8 4 4 4c3 0 5-8 8-8 2.2 0 4 1.8 4 4s-1.8 4-4 4c-3 0-5-8-8-8z"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">DevOps Engineer</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">CI/CD, containers, cloud infrastructure</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #38bdf8;">50 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(251,113,133,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(251,113,133,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #fb7185 15%, transparent); border: 1px solid color-mix(in oklab, #fb7185 30%, transparent); color: #fb7185;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6a4 4 0 0 1 8 0"/><rect x="6" y="8" width="12" height="10" rx="6"/><path d="M12 8v10M6 12H3M21 12h-3M6 16l-2.5 2M18 16l2.5 2M6 9 3.5 7.2M18 9l2.5-2"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">QA Engineer</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Testing strategy, automation, bug reports</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #fb7185;">50 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(74,222,128,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(74,222,128,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #4ade80 15%, transparent); border: 1px solid color-mix(in oklab, #4ade80 30%, transparent); color: #4ade80;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3.5 7v10L12 22l8.5-5V7L12 2z"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Node.js</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Runtime internals, streams, npm ecosystem</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #4ade80;">50 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(34,211,238,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(34,211,238,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #22d3ee 15%, transparent); border: 1px solid color-mix(in oklab, #22d3ee 30%, transparent); color: #22d3ee;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><text x="12" y="16.5" text-anchor="middle" font-family="'Space Grotesk', sans-serif" font-size="12.5" font-weight="700" letter-spacing="-0.5">Go</text></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Go</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Goroutines, channels, standard library</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #22d3ee;">50 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(129,140,248,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(129,140,248,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #818cf8 15%, transparent); border: 1px solid color-mix(in oklab, #818cf8 30%, transparent); color: #818cf8;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">React</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Hooks, state management, component patterns</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #818cf8;">50 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(226,232,240,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(226,232,240,0.16), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #e2e8f0 13%, transparent); border: 1px solid color-mix(in oklab, #e2e8f0 26%, transparent); color: #e2e8f0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 21 19H3L12 3z"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Next.js</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">SSR/SSG, App Router, API routes</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: var(--text-2);">50 questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+    </div>
+
+    <div onClick="{{ openDict }}" style="display: {{ dictDisplay }}; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--minw)), 1fr)); gap: 18px; margin-top: 30px;">
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(251,113,133,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(251,113,133,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+          <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #fb7185 15%, transparent); border: 1px solid color-mix(in oklab, #fb7185 30%, transparent); color: #fb7185;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; color: var(--text-2); padding: 5px 9px; border-radius: 8px; background: var(--hairline); border: 1px solid var(--hairline-2);">DAILY</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Today's Challenge</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">A small daily speaking goal.</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #fb7185;">Start now</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(251,191,36,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(251,191,36,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+          <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #fbbf24 15%, transparent); border: 1px solid color-mix(in oklab, #fbbf24 30%, transparent); color: #fbbf24;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17.8 6.8 20.1l1-5.8L3.5 9.2l5.9-.9L12 3z"/></svg>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; color: var(--text-2); padding: 5px 9px; border-radius: 8px; background: var(--hairline); border: 1px solid var(--hairline-2);">DAILY</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Sentence of the Day</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">One phrase to master today.</p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #fbbf24;">Start now</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(129,140,248,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(129,140,248,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #818cf8 15%, transparent); border: 1px solid color-mix(in oklab, #818cf8 30%, transparent); color: #818cf8;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.5 8 5 6 5v12c2 0 4.5.5 6 1.5 1.5-1 4-1.5 6-1.5V5c-2 0-4.5.5-6 1.5z"/><path d="M12 6.5V19"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Vocabulary</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">English words used in backend interviews.</p>
+        </div>
+        <div style="margin-top: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #818cf8;">0 / 10 learned</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+          <div style="height: 5px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 9px;"><div style="height: 100%; width: 0%; border-radius: 99px; background: #818cf8;"></div></div>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(34,211,238,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(34,211,238,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #22d3ee 15%, transparent); border: 1px solid color-mix(in oklab, #22d3ee 30%, transparent); color: #22d3ee;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9a3 3 0 0 1 0 6M18.5 7a6.5 6.5 0 0 1 0 10"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Pronunciation</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Tricky tech words and how to say them.</p>
+        </div>
+        <div style="margin-top: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #22d3ee;">0 / 10 learned</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+          <div style="height: 5px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 9px;"><div style="height: 100%; width: 0%; border-radius: 99px; background: #22d3ee;"></div></div>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(192,132,252,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(192,132,252,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #c084fc 15%, transparent); border: 1px solid color-mix(in oklab, #c084fc 30%, transparent); color: #c084fc;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Interview Phrases</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Ready-made phrases for interview answers.</p>
+        </div>
+        <div style="margin-top: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #c084fc;">0 / 10 learned</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+          <div style="height: 5px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 9px;"><div style="height: 100%; width: 0%; border-radius: 99px; background: #c084fc;"></div></div>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(74,222,128,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(74,222,128,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #4ade80 15%, transparent); border: 1px solid color-mix(in oklab, #4ade80 30%, transparent); color: #4ade80;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-5"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Grammar Fixes</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Common English mistakes, corrected.</p>
+        </div>
+        <div style="margin-top: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #4ade80;">0 / 5 learned</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+          <div style="height: 5px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 9px;"><div style="height: 100%; width: 0%; border-radius: 99px; background: #4ade80;"></div></div>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(56,189,248,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(56,189,248,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #38bdf8 15%, transparent); border: 1px solid color-mix(in oklab, #38bdf8 30%, transparent); color: #38bdf8;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Leadership</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Strong sentences for team-lead questions.</p>
+        </div>
+        <div style="margin-top: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #38bdf8;">0 / 5 learned</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+          <div style="height: 5px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 9px;"><div style="height: 100%; width: 0%; border-radius: 99px; background: #38bdf8;"></div></div>
+        </div>
+      </a>
+
+      <a href="#" style="position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 15px; padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease;" style-hover="transform: translateY(-3px); border-color: rgba(45,212,191,0.35); background: var(--surface-hover);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(45,212,191,0.22), transparent 68%); filter: blur(8px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, #2dd4bf 15%, transparent); border: 1px solid color-mix(in oklab, #2dd4bf 30%, transparent); color: #2dd4bf;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-7"/><path d="M17 7h4v4"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin: 0; color: var(--text);">Words to Use More Often</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-2);">Swap weak words for stronger ones.</p>
+        </div>
+        <div style="margin-top: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #2dd4bf;">0 / 7 learned</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+          <div style="height: 5px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 9px;"><div style="height: 100%; width: 0%; border-radius: 99px; background: #2dd4bf;"></div></div>
+        </div>
+      </a>
+
+    </div>
+  </main>
+
+  <main style="display: {{ courseDisplay }}; max-width: 900px; margin: 0 auto; padding: clamp(24px, 4vw, 44px) clamp(16px, 4vw, 28px) 150px; animation: lu-rise 0.4s ease both;">
+
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; margin-bottom: 16px;">
+      <button onClick="{{ goHome }}" style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: var(--text-2); font-family: 'Manrope', sans-serif; font-size: 13.5px; cursor: pointer; padding: 0;" style-hover="color: var(--text);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Courses
+      </button>
+      <span style="color: #3f4557;">/</span>
+      <span style="color: var(--text-2); font-weight: 600;">{{ courseTitle }}</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+      <div style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: {{ courseTint }}; border: 1px solid {{ courseBorder }}; color: {{ courseAccent }}; flex-shrink: 0;">
+        {{ courseIconEl }}
+      </div>
+      <div>
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: clamp(24px, 3.4vw, 34px); letter-spacing: -0.02em; margin: 0; color: var(--text);">{{ courseTitle }}</h1>
+        <p style="margin: 4px 0 0; font-size: 14px; color: var(--text-2);">{{ courseSub }} · {{ courseCount }} questions</p>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-2); margin-bottom: 7px;"><span>Reviewed</span><span style="color: {{ courseAccent }};">{{ reviewedCount }} / {{ courseTotal }}</span></div>
+      <div style="height: 6px; border-radius: 99px; background: var(--border); overflow: hidden;"><div style="height: 100%; width: {{ progressPct }}; border-radius: 99px; background: {{ courseAccent }}; transition: width .3s ease;"></div></div>
+    </div>
+
+    <div style="position: relative; margin-bottom: 16px;">
+      <svg style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-3);" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search questions…" style="width: 100%; height: 44px; padding: 0 14px 0 42px; border-radius: 12px; border: 1px solid var(--border-2); background: var(--control); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" />
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px;">
+      <div style="display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--control); border: 1px solid var(--border);">
+        <button data-mode="list" onClick="{{ setMode }}" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 8px 16px; border-radius: 9px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ listBg }}; color: {{ listColor }};">List</button>
+        <button data-mode="quiz" onClick="{{ setMode }}" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 8px 16px; border-radius: 9px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ quizBg }}; color: {{ quizColor }};">Quiz</button>
+        <button data-mode="interview" onClick="{{ setMode }}" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 8px 16px; border-radius: 9px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ interviewBg }}; color: {{ interviewColor }};">Interview</button>
+      </div>
+      <button onClick="{{ toggleFavOnly }}" style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 8px 15px; border-radius: 11px; border: 1px solid var(--border); cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ favBg }}; color: {{ favColor }};">★ Favorites</button>
+      <button onClick="{{ togglePlayer }}" style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 8px 15px; border-radius: 11px; border: 1px solid var(--border); cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ playerBg }}; color: {{ playerColor }};">🔊 Listen</button>
+    </div>
+
+    <div style="display: {{ listDisplay }};">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <span style="font-size: 13px; color: var(--text-3);">Tap a question to reveal the answer.</span>
+        <button style="font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text-2); cursor: pointer;">Expand all</button>
+      </div>
+
+      <sc-for list="{{ questions }}" as="q" hint-placeholder-count="4">
+        <div>
+          <sc-if value="{{ q.showModule }}" hint-placeholder-val="{{ true }}">
+            <button data-module="{{ q.module }}" onClick="{{ toggleModule }}" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; cursor: pointer; padding: 0; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin: 22px 0 12px;">{{ q.module }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate({{ q.moduleArrow }}); transition: transform .2s ease;"><path d="m6 9 6 6 6-6"/></svg></button>
+          </sc-if>
+          <div style="display: {{ q.cardDisplay }}; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; margin-bottom: 10px;">
+            <button data-id="{{ q.id }}" onClick="{{ toggleCard }}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: transparent; border: none; cursor: pointer; text-align: left;">
+              <span style="flex: 1; font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 15.5px; color: var(--text); line-height: 1.4;">{{ q.question }}<sc-if value="{{ q.reviewed }}" hint-placeholder-val="{{ false }}"><span style="color: #4ade80; margin-left: 7px;">✓</span></sc-if></span>
+              <span data-id="{{ q.id }}" onClick="{{ speak }}" role="button" style="color: var(--text-3); font-size: 15px; cursor: pointer; flex-shrink: 0;">🔊</span>
+              <span data-id="{{ q.id }}" onClick="{{ toggleFav }}" role="button" style="font-size: 16px; cursor: pointer; flex-shrink: 0; color: {{ q.favColor }};">{{ q.favChar }}</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3); flex-shrink: 0; transform: rotate({{ q.arrowRotate }}); transition: transform .2s ease;"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div style="max-height: {{ q.bodyMax }}; overflow: hidden; transition: max-height .3s ease;">
+              <div style="padding: 0 18px 18px; display: flex; flex-direction: column; gap: 14px;">
+                <sc-if value="{{ q.quiz }}" hint-placeholder-val="{{ false }}">
+                  <button data-id="{{ q.id }}" onClick="{{ toggleAnswer }}" style="align-self: flex-start; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text-2); cursor: pointer;">{{ q.answerBtnLabel }}</button>
+                </sc-if>
+                <sc-if value="{{ q.answerVisible }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-size: 14.5px; line-height: 1.65; color: var(--text-2); white-space: pre-line;">{{ q.answer }}</div>
+                </sc-if>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button style="font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text-2); cursor: pointer;">Copy answer</button>
+                  <sc-if value="{{ q.hasBonus }}" hint-placeholder-val="{{ false }}">
+                    <button data-id="{{ q.id }}" onClick="{{ toggleBonus }}" style="font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text-2); cursor: pointer;">{{ q.bonusBtnLabel }}</button>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ q.bonusVisible }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-radius: 10px; padding: 12px 14px; background: rgba(129,140,248,0.08); border: 1px solid rgba(129,140,248,0.2);">
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: #a5b0ff; text-transform: uppercase;">Bonus</span>
+                    <div style="margin-top: 6px; font-size: 14px; line-height: 1.6; color: var(--text-2); white-space: pre-line;">{{ q.bonus }}</div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: {{ interviewDisplay }};">
+      <div style="max-width: 640px; margin: 10px auto; padding: 40px 30px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); text-align: center;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #818cf8; margin-bottom: 16px;">{{ ivNum }}</div>
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: clamp(20px, 2.6vw, 26px); line-height: 1.35; color: var(--text); margin-bottom: 26px;">{{ ivQuestion }}</div>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <button onClick="{{ ivShowAnswer }}" style="background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; border: none; padding: 10px 22px; border-radius: 11px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(99,102,241,0.35);">Show answer</button>
+          <button onClick="{{ ivSkip }}" style="background: var(--control); border: 1px solid var(--border-strong); color: var(--text-2); padding: 10px 22px; border-radius: 11px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer;">Skip →</button>
+        </div>
+        <sc-if value="{{ ivShow }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 26px; text-align: left; font-size: 14.5px; line-height: 1.65; color: var(--text-2); white-space: pre-line; padding-top: 22px; border-top: 1px solid var(--hairline-2);">{{ ivAnswer }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+
+  <main style="display: {{ dictScreenDisplay }}; max-width: 820px; margin: 0 auto; padding: clamp(24px, 4vw, 44px) clamp(16px, 4vw, 28px) 90px; animation: lu-rise 0.4s ease both;">
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; margin-bottom: 16px;">
+      <button onClick="{{ goHome }}" style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: var(--text-2); font-family: 'Manrope', sans-serif; font-size: 13.5px; cursor: pointer; padding: 0;" style-hover="color: var(--text);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Dictionary
+      </button>
+      <span style="color: #3f4557;">/</span>
+      <span style="color: var(--text-2); font-weight: 600;">{{ dictTitle }}</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+      <div style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: {{ dictTint }}; border: 1px solid {{ dictBorder }}; color: {{ dictAccent }}; flex-shrink: 0;">
+        {{ dictIconEl }}
+      </div>
+      <h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: clamp(24px, 3.4vw, 34px); letter-spacing: -0.02em; margin: 0; color: var(--text);">{{ dictTitle }}</h1>
+    </div>
+
+    <sc-if value="{{ dictIsTable }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="margin-bottom: 22px;">
+          <div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-2); margin-bottom: 7px;"><span>Learned</span><span style="color: {{ dictAccent }};">{{ dictLearnedCount }} / {{ dictTotal }}</span></div>
+          <div style="height: 6px; border-radius: 99px; background: var(--border); overflow: hidden;"><div style="height: 100%; width: {{ dictPct }}; border-radius: 99px; background: {{ dictAccent }}; transition: width .3s ease;"></div></div>
+        </div>
+
+        <div style="border-radius: 14px; background: var(--surface); border: 1px solid var(--border); overflow: hidden;">
+          <div style="display: grid; grid-template-columns: {{ dictGrid }}; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--hairline-2); background: var(--control);">
+            <sc-for list="{{ dictColumns }}" as="col" hint-placeholder-count="3">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3);">{{ col.label }}</div>
+            </sc-for>
+            <div></div>
+            <div></div>
+          </div>
+          <sc-for list="{{ dictRows }}" as="row" hint-placeholder-count="4">
+            <div style="display: grid; grid-template-columns: {{ dictGrid }}; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--control-2);">
+              <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="3">
+                <div style="font-family: 'Manrope', sans-serif; font-size: 14px; line-height: 1.45; color: var(--text-2);">{{ cell.value }}</div>
+              </sc-for>
+              <span role="button" style="color: var(--text-3); font-size: 15px; cursor: pointer; text-align: center;">🔊</span>
+              <span data-id="{{ row.id }}" onClick="{{ toggleDictLearned }}" role="button" style="width: 22px; height: 22px; border-radius: 7px; border: 1.5px solid {{ row.learnedBorder }}; background: {{ row.learnedBg }}; color: #0b0c10; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; justify-self: center;">{{ row.learnedChar }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ dictIsSingle }}" hint-placeholder-val="{{ false }}">
+      <div style="border-radius: 18px; background: var(--surface); border: 1px solid var(--border); padding: 34px 30px; position: relative; overflow: hidden; isolation: isolate;">
+        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, {{ dictTint }}, transparent 68%); filter: blur(10px); opacity: var(--glow); pointer-events: none;"></div>
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: clamp(20px, 2.8vw, 27px); line-height: 1.35; color: var(--text);">{{ dictSingleEn }}</div>
+        <sc-if value="{{ dictHasRu }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top: 12px; font-size: 16px; line-height: 1.5; color: var(--text-2);">{{ dictSingleRu }}</div>
+        </sc-if>
+        <sc-if value="{{ dictHasExpl }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--hairline-2); font-size: 14px; line-height: 1.6; color: var(--text-2);">{{ dictSingleExpl }}</div>
+        </sc-if>
+        <button style="margin-top: 22px; display: inline-flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; padding: 9px 18px; border-radius: 11px; border: 1px solid {{ dictBorder }}; background: {{ dictTint }}; color: {{ dictAccent }}; cursor: pointer;">🔊 Listen</button>
+      </div>
+    </sc-if>
+  </main>
+
+  <div style="display: {{ playerDisplay }}; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; flex-direction: column; padding: 14px clamp(16px, 4vw, 28px) 18px; background: var(--panel-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border-2);">
+    <div style="max-width: 900px; margin: 0 auto; width: 100%;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px;">
+        <select style="max-width: 220px; height: 34px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--control-2); color: var(--text-2); font-family: 'Manrope', sans-serif; font-size: 13px; cursor: pointer; outline: none;">
+          <option>All modules</option>
+          <option>Event Loop</option>
+          <option>Streams</option>
+          <option>Modules</option>
+        </select>
+        <button onClick="{{ closePlayer }}" style="background: transparent; border: none; color: var(--text-3); font-size: 15px; cursor: pointer; flex-shrink: 0;">✕</button>
+      </div>
+      <div style="font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ playerTitle }}</div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3);">0:00</span>
+        <div style="flex: 1; height: 4px; border-radius: 99px; background: var(--border-strong); overflow: hidden;"><div style="height: 100%; width: 22%; background: #818cf8; border-radius: 99px;"></div></div>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3);">1:12</span>
+      </div>
+      <div style="position: relative; display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px;">
+        <span style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-3);">{{ playerStatus }}</span>
+        <button style="width: 38px; height: 38px; border-radius: 10px; background: var(--control-2); border: 1px solid var(--border-strong); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg></button>
+        <button style="width: 38px; height: 38px; border-radius: 10px; background: var(--control-2); border: 1px solid var(--border-strong); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h2.2v14H7zM20 5v14L9.6 12z"/></svg></button>
+        <button style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(150deg, #818cf8, #6366f1); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 14px rgba(99,102,241,0.4);"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+        <button style="width: 38px; height: 38px; border-radius: 10px; background: var(--control-2); border: 1px solid var(--border-strong); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5l10.4 7L4 19zM14.8 5H17v14h-2.2z"/></svg></button>
+        <button style="min-width: 38px; height: 38px; padding: 0 10px; border-radius: 10px; background: var(--control-2); border: 1px solid var(--border-strong); color: var(--text-2); font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer;">1×</button>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1160, &quot;height&quot;: 900 },
+  &quot;cardSize&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;comfortable&quot;, &quot;compact&quot;], &quot;default&quot;: &quot;comfortable&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Layout&quot; },
+  &quot;glow&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot; }
+}">
+const QUESTIONS = [
+  { id: 'ev1', module: 'Event Loop', question: 'What is the event loop in Node.js?',
+    answer: 'The event loop is what lets Node.js perform non-blocking I/O despite JavaScript being single-threaded — it offloads operations to the system kernel where possible and runs callbacks in phases: timers → pending callbacks → poll → check → close callbacks, looping until there is no more work.',
+    bonus: 'process.nextTick callbacks and Promise microtasks drain between every phase, before the loop moves on.' },
+  { id: 'ev2', module: 'Event Loop', question: 'setImmediate vs setTimeout(fn, 0)?',
+    answer: 'setImmediate fires on the "check" phase, right after the poll phase completes. setTimeout(fn, 0) fires on the "timers" phase. Inside an I/O cycle setImmediate always runs first; at the top level their order is not guaranteed.',
+    bonus: '' },
+  { id: 'ev3', module: 'Event Loop', question: 'process.nextTick vs setImmediate?',
+    answer: 'nextTick runs before the event loop is allowed to continue (it drains after the current operation, as a microtask-like queue). setImmediate is scheduled for the next check phase of the loop. Overusing nextTick can starve the loop.',
+    bonus: '' },
+  { id: 'st1', module: 'Streams', question: 'What are streams and what types exist?',
+    answer: 'Streams process data in chunks instead of loading it all into memory. Four types: Readable (fs.createReadStream), Writable (res), Duplex (TCP socket), and Transform (zlib.createGzip) which is a Duplex that mutates data as it passes through.',
+    bonus: 'Streams are EventEmitters — data, end, error, and drain are the events you handle most.' },
+  { id: 'st2', module: 'Streams', question: 'What is backpressure?',
+    answer: 'Backpressure is when a writable destination cannot consume data as fast as a readable source produces it. .pipe() and pipeline() handle it automatically by pausing the source until the destination emits "drain".',
+    bonus: '' },
+  { id: 'md1', module: 'Modules', question: 'CommonJS vs ES Modules?',
+    answer: 'CommonJS uses require()/module.exports, loads synchronously, and resolves at runtime. ES Modules use import/export, are asynchronous, statically analyzable (enabling tree-shaking), and support top-level await. Node picks the loader by "type" in package.json or the .mjs/.cjs extension.',
+    bonus: 'You can import CJS from ESM, but named exports from CJS are not always statically detectable.' },
+];
+
+const DICT = {
+  todaysChallenge: { title: "Today's Challenge", accent: '#fb7185', layout: 'single',
+    items: [{ id: 'ch-1', en: 'Describe a time you disagreed with a teammate and how you resolved it.', ru: 'Опишите случай, когда вы не согласились с коллегой, и как вы это разрешили.' }] },
+  sentenceOfTheDay: { title: 'Sentence of the Day', accent: '#fbbf24', layout: 'single',
+    items: [{ id: 'sod-1', en: 'Let me walk you through my reasoning.', ru: 'Позвольте я объясню ход своих мыслей.', explanation: '"Walk you through" = explain step by step. A great opener for system-design answers.' }] },
+  vocabulary: { title: 'Vocabulary', accent: '#818cf8', layout: 'table',
+    columns: [{ key: 'en', label: 'Word' }, { key: 'ru', label: 'Translation' }, { key: 'example', label: 'Example' }],
+    items: [
+      { id: 'voc-1', en: 'Idempotent', ru: 'Идемпотентный', example: 'A PUT request should be idempotent.' },
+      { id: 'voc-2', en: 'Throughput', ru: 'Пропускная способность', example: 'We measured throughput under load.' },
+      { id: 'voc-3', en: 'Bottleneck', ru: 'Узкое место', example: 'The database was the bottleneck.' },
+      { id: 'voc-4', en: 'Graceful shutdown', ru: 'Плавное завершение', example: 'Handle SIGTERM for a graceful shutdown.' } ] },
+  pronunciation: { title: 'Pronunciation', accent: '#22d3ee', layout: 'table',
+    columns: [{ key: 'en', label: 'Word' }, { key: 'hint', label: 'Say it like' }, { key: 'ru', label: 'Translation' }],
+    items: [
+      { id: 'pr-1', en: 'Cache', hint: 'cash', ru: 'Кэш' },
+      { id: 'pr-2', en: 'Queue', hint: 'kyoo', ru: 'Очередь' },
+      { id: 'pr-3', en: 'Schema', hint: 'SKEE-muh', ru: 'Схема' },
+      { id: 'pr-4', en: 'Tuple', hint: 'TOO-pul', ru: 'Кортеж' } ] },
+  interviewPhrases: { title: 'Interview Phrases', accent: '#c084fc', layout: 'table',
+    columns: [{ key: 'en', label: 'Phrase' }, { key: 'ru', label: 'Translation' }],
+    items: [
+      { id: 'ph-1', en: 'Let me clarify the requirements first.', ru: 'Позвольте сначала уточнить требования.' },
+      { id: 'ph-2', en: 'One trade-off to consider is…', ru: 'Один компромисс, который стоит учесть…' },
+      { id: 'ph-3', en: 'In my last role I was responsible for…', ru: 'На прошлой позиции я отвечал за…' } ] },
+  grammarFixes: { title: 'Grammar Fixes', accent: '#4ade80', layout: 'table',
+    columns: [{ key: 'wrong', label: 'Wrong', prefix: '❌ ' }, { key: 'right', label: 'Right', prefix: '✅ ' }],
+    items: [
+      { id: 'gr-1', wrong: 'I have experience on Node.js', right: 'I have experience with Node.js' },
+      { id: 'gr-2', wrong: 'It depends of the case', right: 'It depends on the case' },
+      { id: 'gr-3', wrong: 'I am agree with you', right: 'I agree with you' } ] },
+  leadership: { title: 'Leadership', accent: '#38bdf8', layout: 'table',
+    columns: [{ key: 'en', label: 'Phrase' }, { key: 'ru', label: 'Translation' }],
+    items: [
+      { id: 'ld-1', en: 'I aligned the team around a shared goal.', ru: 'Я сплотил команду вокруг общей цели.' },
+      { id: 'ld-2', en: 'I mentored two junior engineers.', ru: 'Я наставлял двух джуниор-инженеров.' } ] },
+  wordsToUseMore: { title: 'Words to Use More Often', accent: '#2dd4bf', layout: 'table',
+    columns: [{ key: 'instead', label: 'Instead of' }, { key: 'tryThis', label: 'Try saying' }],
+    items: [
+      { id: 'wm-1', instead: 'good', tryThis: 'robust, solid, reliable' },
+      { id: 'wm-2', instead: 'fast', tryThis: 'performant, low-latency' },
+      { id: 'wm-3', instead: 'make', tryThis: 'build, implement, design' } ] },
+};
+const DICT_BY_TITLE = { "Today's Challenge": 'todaysChallenge', 'Sentence of the Day': 'sentenceOfTheDay', 'Vocabulary': 'vocabulary', 'Pronunciation': 'pronunciation', 'Interview Phrases': 'interviewPhrases', 'Grammar Fixes': 'grammarFixes', 'Leadership': 'leadership', 'Words to Use More Often': 'wordsToUseMore' };
+
+class Component extends DCLogic {
+  state = {
+    screen: 'home',
+    tab: 'courses',
+    course: null,
+    mode: 'list',
+    openId: null,
+    reviewed: new Set(),
+    favorites: new Set(),
+    answerShown: new Set(),
+    bonusShown: new Set(),
+    favoritesOnly: false,
+    playerOpen: false,
+    interview: { index: 0, show: false },
+    dictCat: 'vocabulary',
+    dictLearned: new Set(),
+    collapsedModules: new Set(),
+    courseIcon: '',
+    dictIcon: '',
+    settingsOpen: false,
+    theme: 'dark',
+    lang: 'en',
+  };
+
+  renderVals() {
+    const s = this.state;
+    const glow = (this.props.glow ?? true) ? 1 : 0;
+    const minw = String(this.props.cardSize) === 'compact' ? '250px' : '330px';
+    const onCourses = s.tab === 'courses';
+    const light = s.theme === 'light';
+    const act = (on) => ({
+      bg: on ? (light ? 'rgba(99,102,241,0.13)' : 'rgba(129,140,248,0.18)') : 'transparent',
+      col: on ? (light ? '#4f46e5' : '#b9c1ff') : (light ? '#55607a' : 'var(--text-2)'),
+    });
+
+    const c = s.course || { title: 'Node.js', sub: 'Runtime internals, streams, npm ecosystem', accent: '#4ade80', count: 50 };
+    const total = QUESTIONS.length;
+    const reviewedCount = QUESTIONS.filter((q) => s.reviewed.has(q.id)).length;
+
+    let list = QUESTIONS;
+    if (s.favoritesOnly) list = list.filter((q) => s.favorites.has(q.id));
+    const quiz = s.mode === 'quiz';
+    const questions = list.map((q, i) => {
+      const open = s.openId === q.id;
+      const fav = s.favorites.has(q.id);
+      const collapsed = s.collapsedModules.has(q.module);
+      return {
+        id: q.id, module: q.module, question: q.question, answer: q.answer, bonus: q.bonus || '',
+        showModule: i === 0 || list[i - 1].module !== q.module,
+        cardDisplay: collapsed ? 'none' : 'block',
+        moduleArrow: collapsed ? '-90deg' : '0deg',
+        reviewed: s.reviewed.has(q.id),
+        favChar: fav ? '\u2605' : '\u2606',
+        favColor: fav ? '#fbbf24' : 'var(--text-3)',
+        arrowRotate: open ? '180deg' : '0deg',
+        bodyMax: open ? '3000px' : '0px',
+        quiz,
+        answerVisible: !quiz || s.answerShown.has(q.id),
+        answerBtnLabel: s.answerShown.has(q.id) ? 'Hide answer' : 'Show answer',
+        hasBonus: !!q.bonus,
+        bonusVisible: s.bonusShown.has(q.id),
+        bonusBtnLabel: s.bonusShown.has(q.id) ? 'Hide bonus' : 'Show bonus',
+      };
+    });
+
+    const iv = s.interview || { index: 0, show: false };
+    const ivQ = QUESTIONS[iv.index % QUESTIONS.length];
+
+    const dcat = DICT[s.dictCat] || DICT.vocabulary;
+    const dCols = dcat.columns || [];
+    const dRows = dcat.items.map((it) => {
+      const learned = s.dictLearned.has(it.id);
+      return {
+        id: it.id,
+        cells: dCols.map((col) => ({ value: (col.prefix || '') + (it[col.key] || '') })),
+        learnedBg: learned ? dcat.accent : 'transparent',
+        learnedBorder: learned ? dcat.accent : 'rgba(255,255,255,0.2)',
+        learnedChar: learned ? '✓' : '',
+      };
+    });
+    const dLearned = dcat.items.filter((it) => s.dictLearned.has(it.id)).length;
+    const dSingle = dcat.items[0] || {};
+
+    return {
+      minw, glow,
+      homeDisplay: s.screen === 'home' ? 'block' : 'none',
+      courseDisplay: s.screen === 'course' ? 'block' : 'none',
+      playerDisplay: s.screen === 'course' && s.playerOpen ? 'flex' : 'none',
+      // home tabs
+      coursesDisplay: onCourses ? 'grid' : 'none',
+      dictDisplay: onCourses ? 'none' : 'grid',
+      coursesBg: act(onCourses).bg, coursesColor: act(onCourses).col,
+      dictBg: act(!onCourses).bg, dictColor: act(!onCourses).col,
+      selectCourses: () => this.setState({ tab: 'courses' }),
+      selectDict: () => this.setState({ tab: 'dictionary' }),
+      // course header
+      courseIconEl: React.createElement('span', { style: { display: 'flex' }, dangerouslySetInnerHTML: { __html: s.courseIcon || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3.5 7v10L12 22l8.5-5V7L12 2z"/></svg>' } }),
+      dictIconEl: React.createElement('span', { style: { display: 'flex' }, dangerouslySetInnerHTML: { __html: s.dictIcon || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.5 8 5 6 5v12c2 0 4.5.5 6 1.5 1.5-1 4-1.5 6-1.5V5c-2 0-4.5.5-6 1.5z"/><path d="M12 6.5V19"/></svg>' } }),
+      courseTitle: c.title, courseSub: c.sub, courseCount: c.count, courseAccent: c.accent,
+      courseTint: 'color-mix(in oklab, ' + c.accent + ' 16%, transparent)',
+      courseBorder: 'color-mix(in oklab, ' + c.accent + ' 32%, transparent)',
+      reviewedCount, courseTotal: total,
+      progressPct: total ? Math.round((reviewedCount / total) * 100) + '%' : '0%',
+      // mode bar
+      listBg: act(s.mode === 'list').bg, listColor: act(s.mode === 'list').col,
+      quizBg: act(s.mode === 'quiz').bg, quizColor: act(s.mode === 'quiz').col,
+      interviewBg: act(s.mode === 'interview').bg, interviewColor: act(s.mode === 'interview').col,
+      favBg: act(s.favoritesOnly).bg, favColor: act(s.favoritesOnly).col,
+      playerBg: act(s.playerOpen).bg, playerColor: act(s.playerOpen).col,
+      listDisplay: s.mode === 'interview' ? 'none' : 'block',
+      interviewDisplay: s.mode === 'interview' ? 'block' : 'none',
+      questions,
+      // interview
+      ivNum: 'Question ' + (iv.index + 1) + ' of ' + QUESTIONS.length,
+      ivQuestion: ivQ.question, ivAnswer: ivQ.answer, ivBonus: ivQ.bonus || '',
+      ivHasBonus: !!ivQ.bonus, ivShow: iv.show,
+      playerTitle: (QUESTIONS.find((q) => q.id === s.openId) || QUESTIONS[0]).question,
+      playerStatus: 'Q 1 of ' + c.count,
+      // dictionary detail
+      dictScreenDisplay: s.screen === 'dict' ? 'block' : 'none',
+      dictTitle: dcat.title, dictAccent: dcat.accent,
+      dictTint: 'color-mix(in oklab, ' + dcat.accent + ' 16%, transparent)',
+      dictBorder: 'color-mix(in oklab, ' + dcat.accent + ' 32%, transparent)',
+      dictIsTable: dcat.layout === 'table', dictIsSingle: dcat.layout !== 'table',
+      dictColumns: dCols.map((col) => ({ label: col.label })),
+      dictRows: dRows,
+      dictGrid: dCols.map(() => 'minmax(0,1fr)').join(' ') + ' 38px 40px',
+      dictLearnedCount: dLearned, dictTotal: dcat.items.length,
+      dictPct: dcat.items.length ? Math.round((dLearned / dcat.items.length) * 100) + '%' : '0%',
+      dictSingleEn: dSingle.en || '', dictSingleRu: dSingle.ru || '', dictSingleExpl: dSingle.explanation || '',
+      dictHasRu: !!dSingle.ru, dictHasExpl: !!dSingle.explanation,
+      themeOverride: light ? '--bg:#eef0f5;--surface:rgba(20,25,45,0.04);--surface-hover:rgba(20,25,45,0.065);--control:rgba(20,25,45,0.05);--control-2:rgba(20,25,45,0.06);--border:rgba(20,25,45,0.1);--border-2:rgba(20,25,45,0.13);--border-strong:rgba(20,25,45,0.15);--hairline:rgba(20,25,45,0.08);--hairline-2:rgba(20,25,45,0.11);--text:#181b24;--text-2:#55607a;--text-3:#97a0b3;--header-bg:rgba(255,255,255,0.82);--panel-bg:rgba(248,249,252,0.92);--panel-solid:#ffffff;' : '',
+      settingsDisplay: s.settingsOpen ? 'block' : 'none',
+      themeDark: act(s.theme === 'dark'), themeLight: act(s.theme === 'light'),
+      langEn: act(s.lang === 'en'), langRu: act(s.lang === 'ru'),
+      toggleSettings: () => this.setState((st) => ({ settingsOpen: !st.settingsOpen })),
+      setTheme: (e) => this.setState({ theme: e.currentTarget.dataset.val }),
+      setLang: (e) => this.setState({ lang: e.currentTarget.dataset.val }),
+      openDict: (e) => { const a = e.target.closest('a'); if (!a) return; e.preventDefault(); const key = DICT_BY_TITLE[a.querySelector('h3')?.textContent]; if (!key) return; this.setState({ screen: 'dict', dictCat: key, dictIcon: a.querySelector('svg')?.outerHTML || '' }); },
+      toggleDictLearned: (e) => { e.stopPropagation(); const id = e.currentTarget.dataset.id; this.setState((st) => { const l = new Set(st.dictLearned); l.has(id) ? l.delete(id) : l.add(id); return { dictLearned: l }; }); },
+      // handlers
+      openCourse: (e) => {
+        const a = e.target.closest('a'); if (!a) return; e.preventDefault();
+        const span = a.querySelector('span');
+        const accent = span ? getComputedStyle(span).color : '#4ade80';
+        const m = (span ? span.textContent : '').match(/\d+/);
+        this.setState({ screen: 'course', mode: 'list', openId: QUESTIONS[0].id, playerOpen: false, courseIcon: a.querySelector('svg')?.outerHTML || '',
+          course: { title: a.querySelector('h3')?.textContent || 'Course', sub: a.querySelector('p')?.textContent || '', accent, count: m ? m[0] : 50 } });
+      },
+      goHome: () => this.setState({ screen: 'home' }),
+      setMode: (e) => this.setState({ mode: e.currentTarget.dataset.mode }),
+      toggleModule: (e) => { const m = e.currentTarget.dataset.module; this.setState((st) => { const c = new Set(st.collapsedModules); c.has(m) ? c.delete(m) : c.add(m); return { collapsedModules: c }; }); },
+      toggleFavOnly: () => this.setState((st) => ({ favoritesOnly: !st.favoritesOnly })),
+      togglePlayer: () => this.setState((st) => ({ playerOpen: !st.playerOpen })),
+      toggleCard: (e) => { const id = e.currentTarget.dataset.id; this.setState((st) => { const rev = new Set(st.reviewed); rev.add(id); return { openId: st.openId === id ? null : id, reviewed: rev }; }); },
+      toggleFav: (e) => { e.stopPropagation(); const id = e.currentTarget.dataset.id; this.setState((st) => { const f = new Set(st.favorites); f.has(id) ? f.delete(id) : f.add(id); return { favorites: f }; }); },
+      speak: (e) => { e.stopPropagation(); this.setState({ playerOpen: true }); },
+      toggleAnswer: (e) => { e.stopPropagation(); const id = e.currentTarget.dataset.id; this.setState((st) => { const a = new Set(st.answerShown); a.has(id) ? a.delete(id) : a.add(id); return { answerShown: a }; }); },
+      toggleBonus: (e) => { e.stopPropagation(); const id = e.currentTarget.dataset.id; this.setState((st) => { const b = new Set(st.bonusShown); b.has(id) ? b.delete(id) : b.add(id); return { bonusShown: b }; }); },
+      ivShowAnswer: () => this.setState((st) => ({ interview: { index: st.interview.index, show: true } })),
+      ivSkip: () => this.setState((st) => ({ interview: { index: (st.interview.index + 1) % QUESTIONS.length, show: false } })),
+      closePlayer: () => this.setState({ playerOpen: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>

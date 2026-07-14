@@ -18,6 +18,7 @@ export const DICTIONARY_CATEGORIES = [
     titleKey: 'dictionaryTodaysChallenge',
     items: todaysChallenge,
     id: 'todaysChallenge',
+    accent: '#fb7185',
     layout: 'single',
     emoji: '🎯'
   },
@@ -27,6 +28,7 @@ export const DICTIONARY_CATEGORIES = [
     titleKey: 'dictionarySentenceOfDay',
     items: sentenceOfTheDay,
     id: 'sentenceOfTheDay',
+    accent: '#fbbf24',
     layout: 'single',
     emoji: '⭐'
   },
@@ -40,6 +42,7 @@ export const DICTIONARY_CATEGORIES = [
     descKey: 'dictionaryDescVocabulary',
     titleKey: 'dictionaryVocabulary',
     items: vocabulary,
+    accent: '#818cf8',
     id: 'vocabulary',
     layout: 'table',
     emoji: '📖'
@@ -55,6 +58,7 @@ export const DICTIONARY_CATEGORIES = [
     titleKey: 'dictionaryPronunciation',
     items: pronunciation,
     id: 'pronunciation',
+    accent: '#22d3ee',
     layout: 'table',
     emoji: '🗣️'
   },
@@ -68,6 +72,7 @@ export const DICTIONARY_CATEGORIES = [
     titleKey: 'dictionaryPhrases',
     items: interviewPhrases,
     id: 'interviewPhrases',
+    accent: '#c084fc',
     layout: 'table',
     emoji: '💬'
   },
@@ -81,6 +86,7 @@ export const DICTIONARY_CATEGORIES = [
     titleKey: 'dictionaryGrammarFixes',
     items: grammarFixes,
     id: 'grammarFixes',
+    accent: '#4ade80',
     layout: 'table',
     emoji: '📝'
   },
@@ -93,6 +99,7 @@ export const DICTIONARY_CATEGORIES = [
     descKey: 'dictionaryDescLeadership',
     titleKey: 'dictionaryLeadership',
     items: leadership,
+    accent: '#38bdf8',
     id: 'leadership',
     layout: 'table',
     emoji: '👨‍💼'
@@ -107,6 +114,7 @@ export const DICTIONARY_CATEGORIES = [
     titleKey: 'dictionaryWordsToUseMore',
     items: wordsToUseMore,
     id: 'wordsToUseMore',
+    accent: '#2dd4bf',
     layout: 'table',
     emoji: '📈'
   }

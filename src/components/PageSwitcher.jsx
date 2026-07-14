@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { ChevronDown, ArrowLeft, Check } from 'lucide-react'
 
 // Page header with a switcher row + a large title. The row is
 // "← {backLabel}  ›  {current} ▾"; the current segment opens a dropdown of
@@ -28,14 +29,12 @@ export default function PageSwitcher({ backLabel, currentId, onSelect, subtitle,
     <>
       <div className="crumb-nav">
         <button className="crumb-back" onClick={onBack}>
-          <span className="crumb-back-arrow" aria-hidden="true">
-            ←
-          </span>
+          <ArrowLeft className="crumb-back-arrow" aria-hidden="true" size={16} />
           {backLabel}
         </button>
 
         <span className="crumb-sep" aria-hidden="true">
-          ›
+          /
         </span>
 
         <div className={'crumb-switcher' + (open ? ' open' : '')} ref={ref}>
@@ -47,9 +46,7 @@ export default function PageSwitcher({ backLabel, currentId, onSelect, subtitle,
           >
             {current?.icon && <span className="crumb-icon">{current.icon}</span>}
             <span className="crumb-current-label">{current?.label}</span>
-            <span className="crumb-caret" aria-hidden="true">
-              ▾
-            </span>
+            <ChevronDown className="crumb-caret" aria-hidden="true" size={15} />
           </button>
 
           {open && (
@@ -69,11 +66,7 @@ export default function PageSwitcher({ backLabel, currentId, onSelect, subtitle,
                   >
                     {item.icon && <span className="crumb-icon">{item.icon}</span>}
                     <span className="crumb-option-label">{item.label}</span>
-                    {isActive && (
-                      <span className="crumb-check" aria-hidden="true">
-                        ✓
-                      </span>
-                    )}
+                    {isActive && <Check className="crumb-check" aria-hidden="true" size={15} />}
                   </button>
                 )
               })}

@@ -1,34 +1,28 @@
 import { useLanguage } from '../hooks/useLanguage'
 
-export default function Logo({ size = 40 }) {
+export default function Logo({ size = 30 }) {
   const { t } = useLanguage()
 
   return (
-    <svg aria-label={t('logoAria')} viewBox="0 0 64 64" height={size} width={size} role="img">
+    <svg aria-label={t('logoAria')} className="brand-logo" viewBox="0 0 30 30" height={size} width={size} role="img">
       <defs>
-        <linearGradient id="logo-g" x1="0" y1="1" x2="0" y2="0">
-          <stop stopColor="#6f9bd8" offset="0" />
-          <stop stopColor="#4caf6f" offset="1" />
+        <linearGradient id="logo-g" x1="0.1" x2="0.9" y1="0" y2="1">
+          <stop stopColor="#818cf8" offset="0" />
+          <stop stopColor="#6366f1" offset="1" />
         </linearGradient>
       </defs>
-      <rect fill="#1f2228" height="64" width="64" rx="14" />
-      <path
-        d="M18 50 L32 36 L46 50"
+      <rect fill="url(#logo-g)" height="30" width="30" rx="9" />
+      <g
+        transform="translate(9 9) scale(0.5)"
         strokeLinejoin="round"
-        stroke="url(#logo-g)"
         strokeLinecap="round"
-        strokeWidth="8"
-        opacity="0.45"
+        strokeWidth="2.4"
+        stroke="#fff"
         fill="none"
-      />
-      <path
-        d="M18 30 L32 16 L46 30"
-        strokeLinejoin="round"
-        stroke="url(#logo-g)"
-        strokeLinecap="round"
-        strokeWidth="8"
-        fill="none"
-      />
+      >
+        <path d="m17 11-5-5-5 5" />
+        <path d="m17 18-5-5-5 5" />
+      </g>
     </svg>
   )
 }

@@ -1,3 +1,5 @@
+import { Volume2, Star } from 'lucide-react'
+
 import { useLanguage } from '../hooks/useLanguage'
 
 const MODES = [
@@ -18,20 +20,22 @@ export default function ModeBar({
 
   return (
     <div className="mode-bar">
-      {MODES.map((m) => (
-        <button
-          className={'mode-btn' + (mode === m.key ? ' active' : '')}
-          onClick={() => onModeChange(m.key)}
-          key={m.key}
-        >
-          {t(m.labelKey)}
-        </button>
-      ))}
-      <button className={'mode-btn' + (favoritesOnly ? ' active' : '')} onClick={onToggleFavorites}>
-        &#9733; {t('favoritesOnly')}
+      <div className="segmented">
+        {MODES.map((m) => (
+          <button
+            className={'segmented-btn' + (mode === m.key ? ' active' : '')}
+            onClick={() => onModeChange(m.key)}
+            key={m.key}
+          >
+            {t(m.labelKey)}
+          </button>
+        ))}
+      </div>
+      <button className={'chip-btn' + (favoritesOnly ? ' active' : '')} onClick={onToggleFavorites}>
+        <Star aria-hidden="true" size={16} /> {t('favoritesOnly')}
       </button>
-      <button className={'mode-btn' + (playerActive ? ' active' : '')} onClick={onTogglePlayer}>
-        🔊 {t('listen')}
+      <button className={'chip-btn' + (playerActive ? ' active' : '')} onClick={onTogglePlayer}>
+        <Volume2 aria-hidden="true" size={16} /> {t('listen')}
       </button>
     </div>
   )
