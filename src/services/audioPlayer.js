@@ -13,6 +13,16 @@
 const KEEPALIVE_INTERVAL_MS = 10000
 // Chrome can drop a speak() call issued in the same tick as cancel().
 const SPEAK_AFTER_CANCEL_MS = 50
+const RATE_STORAGE_KEY = 'interviewPrepRate'
+
+function readStoredRate() {
+  try {
+    const value = parseFloat(localStorage.getItem(RATE_STORAGE_KEY))
+    return Number.isFinite(value) && value > 0 ? value : 1
+  } catch {
+    return 1
+  }
+}
 
 function speechSupported() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window
@@ -48,7 +58,11 @@ class AudioPlayerService {
     // Ids known to have no MP3 this session — skip the network attempt next time.
     this.missingIds = new Set()
     this.listeners = new Set()
-    this.snapshot = { currentId: null, status: 'idle' }
+    // Playback speed (persisted) and current MP3 position for the seek slider.
+    this.rate = readStoredRate()
+    this.currentTime = 0
+    this.duration = 0
+    this.snapshot = { currentId: null, rate: this.rate, status: 'idle', currentTime: 0, canSeek: false, duration: 0 }
   }
 
   // --- React external-store binding (stable identities for useSyncExternalStore) ---
@@ -125,6 +139,26 @@ class AudioPlayerService {
 
   currentInterviewId = () => this.currentId
 
+  // Playback speed applies live to MP3; speech picks it up on the next utterance.
+  setRate = (rate) => {
+    this.rate = rate
+    try {
+      localStorage.setItem(RATE_STORAGE_KEY, String(rate))
+    } catch {
+      /* ignore */
+    }
+    if (this.mode === 'audio' && this.audio) this.audio.playbackRate = rate
+    this.emit()
+  }
+
+  // Seek only makes sense for MP3; speech has no timeline.
+  seek = (seconds) => {
+    if (this.mode !== 'audio' || !this.audio) return
+    this.audio.currentTime = seconds
+    this.currentTime = seconds
+    this.emit()
+  }
+
   // --- MP3 path ---
 
   playAudio({ voice, token, text, lang, url, id }) {
@@ -134,6 +168,15 @@ class AudioPlayerService {
       return
     }
     this.mode = 'audio'
+    audio.playbackRate = this.rate
+    audio.ontimeupdate = () => {
+      this.currentTime = audio.currentTime
+      this.emit()
+    }
+    audio.onloadedmetadata = () => {
+      this.duration = Number.isFinite(audio.duration) ? audio.duration : 0
+      this.emit()
+    }
 
     // Resolve the load exactly once: first of play()-resolved / error / rejection wins.
     let settled = false
@@ -183,9 +226,13 @@ class AudioPlayerService {
 
   detachAudio() {
     const audio = this.audio
+    this.currentTime = 0
+    this.duration = 0
     if (!audio) return
     audio.onended = null
     audio.onerror = null
+    audio.ontimeupdate = null
+    audio.onloadedmetadata = null
     audio.pause()
     // Drop the buffered media so it can be garbage-collected; keep the element.
     audio.removeAttribute('src')
@@ -204,6 +251,7 @@ class AudioPlayerService {
     }
 
     const utterance = new SpeechSynthesisUtterance(text)
+    utterance.rate = this.rate
     if (voice) {
       utterance.voice = voice
       utterance.lang = voice.lang
@@ -276,14 +324,39 @@ class AudioPlayerService {
   // --- State + subscriber notification ---
 
   setStatus(status) {
-    this.setState(status, this.currentId)
+    this.playbackStatus = status
+    this.emit()
   }
 
   setState(status, currentId) {
-    if (this.playbackStatus === status && this.currentId === currentId) return
     this.playbackStatus = status
     this.currentId = currentId
-    this.snapshot = { currentId, status }
+    this.emit()
+  }
+
+  // Rebuild the snapshot and notify listeners only when something actually changed
+  // (useSyncExternalStore requires a stable reference between no-op updates).
+  emit() {
+    const canSeek = this.mode === 'audio'
+    const prev = this.snapshot
+    if (
+      prev.status === this.playbackStatus &&
+      prev.currentId === this.currentId &&
+      prev.currentTime === this.currentTime &&
+      prev.duration === this.duration &&
+      prev.rate === this.rate &&
+      prev.canSeek === canSeek
+    ) {
+      return
+    }
+    this.snapshot = {
+      currentTime: this.currentTime,
+      status: this.playbackStatus,
+      currentId: this.currentId,
+      duration: this.duration,
+      rate: this.rate,
+      canSeek
+    }
     for (const listener of this.listeners) listener()
   }
 }

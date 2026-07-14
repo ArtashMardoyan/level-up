@@ -15,7 +15,7 @@ import {
   DICTIONARY_CATEGORIES
 } from '../data/dictionary'
 
-export default function DictionaryCategoryPage({ onNavigate, categoryId, voiceName, voices }) {
+export default function DictionaryCategoryPage({ onNavigate, categoryId, voices }) {
   const { t } = useLanguage()
   const { toggleReviewed, state } = useReviewState('dictionary')
   const category = getDictionaryCategory(categoryId)
@@ -92,7 +92,6 @@ export default function DictionaryCategoryPage({ onNavigate, categoryId, voiceNa
           onClose={() => setPlayerOpen(false)}
           startRequest={playerStartRequest}
           onActiveChange={setActiveId}
-          voiceName={voiceName}
           items={speakItems}
           voices={voices}
         />

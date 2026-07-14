@@ -116,6 +116,7 @@ async function run() {
 
   let written = 0
   let skipped = 0
+  const failed = []
   for (const courseId of courseIds) {
     for (const lang of options.langs) {
       const questions = loadQuestions(courseId, lang)
@@ -137,17 +138,28 @@ async function run() {
             continue
           }
           process.stdout.write(`  ${courseId}/${lang}/${q.id}-${phase}.mp3 … `)
-          const audio = await synthesize(text, options, apiKey)
-          mkdirSync(dir, { recursive: true }) // create staging only when actually writing
-          writeFileSync(file, audio)
-          written++
-          console.log(`${(audio.length / 1024).toFixed(0)} KB`)
+          // One bad/transient TTS call shouldn't abort the whole run — skip it
+          // (that track just falls back to speech) and report it at the end.
+          try {
+            const audio = await synthesize(text, options, apiKey)
+            mkdirSync(dir, { recursive: true }) // create staging only when actually writing
+            writeFileSync(file, audio)
+            written++
+            console.log(`${(audio.length / 1024).toFixed(0)} KB`)
+          } catch (error) {
+            failed.push({ id: `${courseId}/${lang}/${q.id}-${phase}`, message: error.message })
+            console.log(`FAILED`)
+          }
         }
       }
     }
   }
 
-  console.log(`\nDone. ${written} written, ${skipped} skipped.`)
+  console.log(`\nDone. ${written} written, ${skipped} skipped, ${failed.length} failed.`)
+  if (failed.length) {
+    console.log('Failed (re-run to retry; unresolved ones just fall back to speech):')
+    for (const f of failed) console.log(`  ${f.id} — ${f.message.slice(0, 120)}`)
+  }
 }
 
 run().catch((error) => {

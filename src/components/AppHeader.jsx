@@ -3,16 +3,7 @@ import GlobalSearch from './GlobalSearch'
 import SettingsPanel from './SettingsPanel'
 import { useLanguage } from '../hooks/useLanguage'
 
-export default function AppHeader({
-  onSelectQuestion,
-  setVoiceName,
-  toggleTheme,
-  voiceName,
-  courses,
-  onHome,
-  voices,
-  theme
-}) {
+export default function AppHeader({ onSelectQuestion, toggleTheme, courses, onHome, theme }) {
   const { t } = useLanguage()
 
   return (
@@ -23,13 +14,7 @@ export default function AppHeader({
           <span className="brand-name">Level Up</span>
         </button>
         <GlobalSearch onSelectQuestion={onSelectQuestion} courses={courses} />
-        <SettingsPanel
-          setVoiceName={setVoiceName}
-          toggleTheme={toggleTheme}
-          voiceName={voiceName}
-          voices={voices}
-          theme={theme}
-        />
+        <SettingsPanel toggleTheme={toggleTheme} theme={theme} />
       </div>
     </header>
   )

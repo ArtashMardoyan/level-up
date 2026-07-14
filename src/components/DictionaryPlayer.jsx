@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { resolveVoice } from '../hooks/useSpeech'
 import { useLanguage } from '../hooks/useLanguage'
 
-export default function DictionaryPlayer({ onActiveChange, startRequest, voiceName, onClose, voices, items }) {
+export default function DictionaryPlayer({ onActiveChange, startRequest, onClose, voices, items }) {
   const { language, t } = useLanguage()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [phase, setPhase] = useState('primary')
@@ -51,8 +51,7 @@ export default function DictionaryPlayer({ onActiveChange, startRequest, voiceNa
     const targetLang = phase === 'primary' ? 'en' : 'ru'
     const text = phase === 'primary' ? currentItem.primary : currentItem.secondary
     const utterance = new SpeechSynthesisUtterance(text)
-    const preferredName = targetLang === language ? voiceName : ''
-    const selectedVoice = resolveVoice(voices, preferredName, targetLang)
+    const selectedVoice = resolveVoice(voices, '', targetLang)
     if (selectedVoice) {
       utterance.voice = selectedVoice
       utterance.lang = selectedVoice.lang
@@ -76,7 +75,7 @@ export default function DictionaryPlayer({ onActiveChange, startRequest, voiceNa
       clearTimeout(timer)
       window.speechSynthesis.cancel()
     }
-  }, [playing, currentIndex, phase, currentItem, items.length, voices, voiceName, language])
+  }, [playing, currentIndex, phase, currentItem, items.length, voices, language])
 
   const handleRestart = () => {
     setCurrentIndex(0)

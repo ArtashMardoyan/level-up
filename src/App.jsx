@@ -28,7 +28,7 @@ function loadSelectedCourseId() {
 function AppContent() {
   const { language, t } = useLanguage()
   const { toggleTheme, theme } = useTheme()
-  const { setVoiceName, voiceName, voices } = useSpeech(language)
+  const { voices } = useSpeech()
   const { courseId, jumpToId, navigate } = useHashRoute()
 
   // No course in the URL yet (fresh visit with no shared link) - resume the last one.
@@ -63,21 +63,17 @@ function AppContent() {
     <>
       <AppHeader
         onSelectQuestion={selectCourse}
-        setVoiceName={setVoiceName}
         toggleTheme={toggleTheme}
         onHome={backToCourses}
-        voiceName={voiceName}
         courses={courses}
-        voices={voices}
         theme={theme}
       />
       {showDictionaryCategory ? (
-        <DictionaryCategoryPage onNavigate={navigate} categoryId={jumpToId} voiceName={voiceName} voices={voices} />
+        <DictionaryCategoryPage onNavigate={navigate} categoryId={jumpToId} voices={voices} />
       ) : validCourse ? (
         <PrepView
           key={language + ':' + validCourse.id}
           onNavigate={navigate}
-          voiceName={voiceName}
           course={validCourse}
           jumpToId={jumpToId}
           courses={courses}
