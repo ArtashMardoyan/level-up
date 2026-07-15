@@ -296,6 +296,37 @@ a `.light` class = overrides). Token names and values used:
 Accent colors (per course/category, brand indigo `#818cf8`) are the same in both themes; the active
 tab/segment uses `rgba(129,140,248,0.18)`/`#b9c1ff` in dark and `rgba(99,102,241,0.13)`/`#4f46e5` in light.
 
+## Mobile responsive (≤ 560px)
+The reference now includes an explicit mobile breakpoint. Add these rules to `src/index.css`
+(the base layout is otherwise fluid). Verify at ~390px.
+
+```css
+@media (max-width: 560px) {
+  /* Header: search drops to its own full-width row below logo + icons */
+  .lu-search-wrap { order: 3; flex-basis: 100%; }        /* search trigger wrapper */
+  .lu-actions     { margin-left: auto; }                  /* bell + account pushed to right edge */
+
+  /* Notifications popover: pin to the viewport's right edge, not the bell wrapper */
+  .lu-notif { position: fixed; top: 124px; right: 10px; left: auto;
+              width: min(340px, calc(100vw - 20px)); }
+
+  /* Audio player transport: "Q n of N" status wraps onto its own centered line
+     under the buttons instead of overlapping them at right:0 */
+  .lu-pcontrols { flex-wrap: wrap; gap: 10px; }
+  .lu-pstatus   { position: static; transform: none; order: 1;
+                  flex-basis: 100%; text-align: center; margin-top: 2px; }
+}
+```
+Layout intent per element:
+- **Header** — three flex children (logo / search / actions). On mobile the search wrapper
+  reorders below (`order:3; flex-basis:100%`) so row 1 is **logo left + icons right**
+  (`.lu-actions { margin-left:auto }`), row 2 is the full-width search pill. Header height ≈ 125px.
+- **NotificationBell popover** — on desktop it's `position:absolute` off the bell; on mobile it
+  overflowed the narrow viewport, so switch to `position:fixed` pinned 10px from the right edge,
+  124px from top (just under the header).
+- **CoursePlayer transport** — on desktop the `Q n of N` label is absolutely positioned at the
+  row's right; on mobile it wraps to a centered line of its own beneath the transport buttons.
+
 ## Files
 - `Level Up.dc.html` — the design reference (open in a browser to view; toggle the
   Dictionary tab, and click any course card to see the course / quiz / interview / player screens).

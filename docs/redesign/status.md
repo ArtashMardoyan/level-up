@@ -1,46 +1,52 @@
 # Redesign — dark developer UI
 
 Full restyle of the app to match the design handoff in `docs/design_handoff_level_up/`
-(`README.md` = spec, `Level Up.dc.html` = reference prototype). Presentation only —
-data, routing, state hooks, i18n logic and speech were not touched.
+(`README.md` = spec, `Level Up.dc.html` = reference prototype), plus the header/search/
+notifications/footer additions and the audio rework that followed. Presentation-only for
+the restyle; data, routing, state hooks and i18n logic were not changed.
 
-## Decisions
-- **Fonts:** Google Fonts (Space Grotesk / Manrope / JetBrains Mono), loaded via `<link>` in `index.html`.
-- **Icons:** `lucide-react` for UI chrome + dictionary category icons; course icons are monochrome
+## Design system
+- **Fonts:** Google Fonts (Space Grotesk / Manrope / JetBrains Mono) via `<link>` in `index.html`.
+- **Icons:** `lucide-react` for UI chrome + dictionary categories; course icons are monochrome
   line icons in `CourseIcon.jsx` (currentColor, tinted by each card's accent).
-- **Themes:** dark is primary (`[data-theme="dark"]`), light is `:root`. Both use the exact token
-  sets from the handoff. All component colors derive from tokens or `color-mix()` on a per-card /
-  per-page accent, so both themes stay correct.
-- Shipped as one branch: `feature/redesign-dark-ui`.
+- **Themes:** dark is primary (`[data-theme="dark"]`), light is `:root`; both from the handoff token
+  sets. Component colors derive from tokens or `color-mix()` on a per-card `--card-accent` /
+  per-page `--page-accent`.
 
-## Accent wiring
-- Per course: `accent` added to the registry in `src/data/courses.js` (flows through `getLocalizedCourse(s)`).
-- Per dictionary category: `accent` added in `src/data/dictionary.js`; lucide icon mapped in `DictionaryIcon.jsx`.
-- Cards set `--card-accent` inline; detail pages set `--page-accent` on the `.wrap`. CSS reads those.
+## Shipped (all deployed to master)
+- [x] **Dark redesign** — tokens, fonts, home (eyebrow/H1/subtitle/segmented tabs/card grid),
+      course screen, interview mode, dictionary (table + single), players. (`index.css` rewrite.)
+- [x] **Account block** — `AccountMenu` (avatar → dropdown: Guest / signed-in profile + stats +
+      Theme/Language). UI-only, local demo toggle; real auth later.
+- [x] **Notifications** — `NotificationBell` (badge + dropdown, 3 seed items, mark-all-read).
+      Static feed; wire to real data later.
+- [x] **Command palette (⌘K)** — `GlobalSearch` trigger + portal overlay, filters Courses /
+      Questions / Dictionary, navigates on select.
+- [x] **Rich footer** — `AppFooter` (brand + social + link columns + bottom bar), home only.
+- [x] **Header polish** — 3-zone layout (logo · centered search · notif+account cluster),
+      44px rounded-square buttons, inner row capped at 1160.
+- [x] **Audio — one MP3 per question** (question+answer together), single `audio` key string.
+      Generated + uploaded for **all 8 courses, en+ru** (OpenAI TTS → S3). Player has one
+      continuous seekable track; speech fallback only when a key is missing. See
+      `docs/audio-playback.md`.
+- [x] **Mobile ≤560px breakpoint** — search drops to its own full-width row; notifications
+      popover pinned to the viewport edge (`position: fixed`); player status wraps to a centered
+      line under the transport. (`@media (max-width: 560px)` in `index.css`.)
+- [x] **Dropdown UX** — notification/account close on outside click **and** page scroll
+      (non-capturing, so the notification list's own scroll keeps it open).
 
-## Done (all screens)
-- [x] Tokens + fonts + base (`index.css` full rewrite, `index.html`)
-- [x] Home: eyebrow / H1 / subtitle / segmented tabs / card grid (`App.jsx`, `CourseSelect`, `DictionarySelect`)
-- [x] Cards: accent icon tile, glow blob, mono meta, arrow; DAILY badge + "Start now"; learn progress bar
-- [x] Header: gradient logo tile, search w/ icon, gear + segmented settings panel (`AppHeader`/`Logo`/`GlobalSearch`/`SettingsPanel`)
-- [x] Course screen: breadcrumb switcher, accent title tile, progress, search, ModeBar (segment + Favorites/Listen chips), question cards (`PrepView`/`PageSwitcher`/`ModeBar`/`ProgressBar`/`QuestionCard`)
-- [x] Interview mode: centered card, mono counter, primary/ghost buttons (`InterviewMode`)
-- [x] Dictionary detail: table (mono headers, learned checkbox) + single card w/ glow (`DictionaryCategoryPage`/`DictionaryTable`/`DictionarySingle`)
-- [x] Players: fixed glassy bottom bar, lucide transport (`CoursePlayer`/`DictionaryPlayer`)
-- [x] i18n: added `homeEyebrow`, `homeSubtitle`, `reviewedLabel`, `learnedLabel`, `themeLightLabel`,
-      `themeDarkLabel`, `dictionaryDailyShort`, `dictionaryStartNow` (en + ru)
+## Gotchas (fixed)
+- A `transform` entrance animation on `.wrap` created a containing block that broke the player's
+  `position: fixed`; `.wrap` now uses opacity-only `lu-fade` (`.home` keeps `lu-rise`).
+- The command palette overlay was trapped by the header's `backdrop-filter` containing block →
+  rendered via `createPortal` into `document.body`.
+- The global `footer {}` rule (mono + centered) leaked into `.site-footer` → scoped font/text-align.
 
 ## Verified
-`npm run lint` clean, `npm run build` OK. Rendered via headless Chrome: home / course / dictionary
-in dark + light themes, plus tablet width — all match the reference.
+`npm run lint` clean, `npm run build` OK. Rendered via headless Chrome across desktop (1440/1024)
+and mobile (390, device-emulated): home / course / dictionary / palette / notifications / footer /
+player, in dark + light themes.
 
-## Gotcha (fixed)
-- A `transform` entrance animation on `.wrap` created a containing block that broke the
-  player's `position: fixed` (bar fell into document flow instead of sticking to the viewport).
-  `.wrap` now uses an opacity-only `lu-fade`; `.home` keeps the `transform`-based `lu-rise`
-  because it has no fixed descendants.
-
-## Not yet
-- Manual pass on a real phone (< 500px) — headless Chrome clamps window width so sub-500px couldn't be
-  screenshotted here; layout is fluid (clamp / auto-fill / flex-wrap) so it should collapse cleanly.
-- Optional: the reference's "glow on/off" and "compact density" toggles were design-tool props; not wired.
+## Not wired (intentional, backend later)
+Real auth/user, notification feed, streak, footer links (most are placeholders); the reference's
+"glow on/off" and "compact density" design-tool props.

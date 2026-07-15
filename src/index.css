@@ -1356,14 +1356,8 @@ footer {
   transform: translateY(-50%);
 }
 @media (max-width: 480px) {
-  .player-controls {
-    gap: 10px;
-  }
   .player-controls-main {
     gap: 10px;
-  }
-  .player-controls > .player-status {
-    display: none;
   }
 }
 
@@ -1816,4 +1810,37 @@ footer {
 .footer-legal .footer-link {
   font-size: 12.5px;
   color: var(--text-3);
+}
+
+/* ── Mobile ≤560px (kept last so it overrides the base component rules above) ── */
+@media (max-width: 560px) {
+  /* Header: search drops to its own full-width row 2; row 1 = logo left + icons right. */
+  .header-search-zone {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .header-cluster {
+    margin-left: auto;
+  }
+  /* Notifications: pin to the viewport edge so the popover doesn't overflow. */
+  .notif-menu {
+    position: fixed;
+    top: 124px;
+    right: 10px;
+    left: auto;
+    width: min(340px, calc(100vw - 20px));
+  }
+  /* Player: the "Q n of N" status wraps to its own centered line under the buttons. */
+  .player-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .player-controls > .player-status {
+    position: static;
+    transform: none;
+    order: 1;
+    flex-basis: 100%;
+    text-align: center;
+    margin-top: 2px;
+  }
 }

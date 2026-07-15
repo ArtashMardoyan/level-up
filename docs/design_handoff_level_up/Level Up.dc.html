@@ -21,6 +21,13 @@
   a:hover { color: #c3ccff; }
   input::placeholder { color: #626a7e; }
   @keyframes lu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 560px) {
+    .lu-search-wrap { order: 3 !important; flex-basis: 100% !important; }
+    .lu-actions { margin-left: auto !important; }
+    .lu-pcontrols { flex-wrap: wrap !important; gap: 10px !important; }
+    .lu-pstatus { position: static !important; transform: none !important; order: 1 !important; flex-basis: 100% !important; text-align: center !important; margin-top: 2px !important; }
+    .lu-notif { position: fixed !important; top: 124px !important; right: 10px !important; left: auto !important; width: min(340px, calc(100vw - 20px)) !important; }
+  }
 </style>
 </helmet>
 <div style="--minw: {{ minw }}; --glow: {{ glow }}; --bg:#090a0e; --surface:rgba(255,255,255,0.025); --surface-hover:rgba(255,255,255,0.045); --control:rgba(255,255,255,0.04); --control-2:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.07); --border-2:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.1); --hairline:rgba(255,255,255,0.06); --hairline-2:rgba(255,255,255,0.08); --text:#f3f5f9; --text-2:#868da0; --text-3:#5c6377; --header-bg:rgba(9,10,14,0.72); --panel-bg:rgba(13,14,19,0.9); --panel-solid:#14161d; {{ themeOverride }} transition: background .25s ease, color .25s ease; min-height: 100vh; font-family: 'Manrope', sans-serif; color: var(--text); background: radial-gradient(1100px 560px at 82% -12%, rgba(129,140,248,0.12), transparent 60%), radial-gradient(900px 480px at -5% 108%, rgba(34,211,238,0.07), transparent 55%), var(--bg);">
@@ -34,7 +41,7 @@
       <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; color: var(--text);">Level Up</span>
     </div>
 
-    <div style="flex: 1 1 280px; display: flex; justify-content: center; min-width: 0;">
+    <div class="lu-search-wrap" style="flex: 1 1 280px; display: flex; justify-content: center; min-width: 0;">
     <button onClick="{{ openSearch }}" aria-label="Search" style="display: flex; align-items: center; gap: 10px; width: 100%; max-width: 520px; height: 44px; padding: 0 10px 0 14px; border-radius: 12px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-3); cursor: pointer; font-family: 'Manrope', sans-serif; text-align: left;" style-hover="border-color: var(--border-strong); background: var(--control-2);">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <span style="flex: 1; min-width: 0; font-size: 14.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Search courses, questions, terms…</span>
@@ -42,7 +49,7 @@
     </button>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+    <div class="lu-actions" style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
     <div style="position: relative;">
       <button onClick="{{ toggleNotif }}" aria-label="Notifications" style="position: relative; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="color: var(--text); background: var(--control-2);">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
@@ -50,7 +57,7 @@
           <span style="position: absolute; top: 7px; right: 8px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px; background: #fb7185; border: 2px solid var(--panel-solid); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; line-height: 11px; display: flex; align-items: center; justify-content: center;">{{ unreadCount }}</span>
         </sc-if>
       </button>
-      <div style="display: {{ notifDisplay }}; position: absolute; right: 0; top: 50px; z-index: 50; width: 328px; border-radius: 16px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 18px 44px rgba(0,0,0,0.5); overflow: hidden;">
+      <div class="lu-notif" style="display: {{ notifDisplay }}; position: absolute; right: 0; top: 50px; z-index: 50; width: 328px; border-radius: 16px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 18px 44px rgba(0,0,0,0.5); overflow: hidden;">
         <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--hairline);">
           <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14.5px; color: var(--text);">Notifications</span>
           <button onClick="{{ markAllRead }}" style="background: none; border: none; cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 600; color: #818cf8; padding: 0;" style-hover="color: var(--text);">Mark all read</button>
@@ -687,8 +694,8 @@
         <div style="flex: 1; height: 4px; border-radius: 99px; background: var(--border-strong); overflow: hidden;"><div style="height: 100%; width: 22%; background: #818cf8; border-radius: 99px;"></div></div>
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3);">1:12</span>
       </div>
-      <div style="position: relative; display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px;">
-        <span style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-3);">{{ playerStatus }}</span>
+      <div class="lu-pcontrols" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px;">
+        <span class="lu-pstatus" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-3);">{{ playerStatus }}</span>
         <button style="width: 38px; height: 38px; border-radius: 10px; background: var(--control-2); border: 1px solid var(--border-strong); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg></button>
         <button style="width: 38px; height: 38px; border-radius: 10px; background: var(--control-2); border: 1px solid var(--border-strong); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h2.2v14H7zM20 5v14L9.6 12z"/></svg></button>
         <button style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(150deg, #818cf8, #6366f1); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 14px rgba(99,102,241,0.4);"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
@@ -696,6 +703,26 @@
         <button style="min-width: 38px; height: 38px; padding: 0 10px; border-radius: 10px; background: var(--control-2); border: 1px solid var(--border-strong); color: var(--text-2); font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer;">1×</button>
       </div>
     </div>
+  </div>
+
+  <div style="display: {{ mobileDisplay }}; position: fixed; inset: 0; z-index: 250; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 28px 16px 92px; background: radial-gradient(900px 600px at 50% -4%, rgba(129,140,248,0.12), transparent 60%), rgba(4,5,8,0.93); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div style="display: flex; align-items: center; gap: 9px; color: var(--text-2); font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.01em;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M11 18h2"/></svg>
+      iPhone 14 · 390 × 844
+    </div>
+    <div style="position: relative; width: 412px; max-width: calc(100vw - 32px); height: min(844px, 80vh); border-radius: 54px; padding: 11px; background: linear-gradient(155deg, #1d1f28, #0b0c11); box-shadow: 0 44px 100px rgba(0,0,0,0.62), inset 0 0 0 2px rgba(255,255,255,0.05); flex-shrink: 0;">
+      <div style="position: absolute; left: 50%; top: 21px; transform: translateX(-50%); width: 118px; height: 30px; border-radius: 16px; background: #05060a; z-index: 3;"></div>
+      <iframe src="{{ frameSrc }}" title="Mobile preview" style="width: 100%; height: 100%; border: none; border-radius: 44px; background: var(--bg); display: block;"></iframe>
+    </div>
+  </div>
+
+  <div style="display: {{ toolbarDisplay }}; position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 300; align-items: center; gap: 4px; padding: 5px; border-radius: 15px; background: rgba(13,14,19,0.9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--border-strong); box-shadow: 0 16px 44px rgba(0,0,0,0.55);">
+    <button data-dev="desktop" onClick="{{ setDevice }}" aria-label="Desktop preview" style="display: flex; align-items: center; gap: 7px; height: 36px; padding: 0 15px; border-radius: 11px; border: none; cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600; background: {{ deskBg }}; color: {{ deskColor }}; transition: background .18s ease, color .18s ease;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Desktop
+    </button>
+    <button data-dev="mobile" onClick="{{ setDevice }}" aria-label="Mobile preview" style="display: flex; align-items: center; gap: 7px; height: 36px; padding: 0 15px; border-radius: 11px; border: none; cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600; background: {{ mobBg }}; color: {{ mobColor }}; transition: background .18s ease, color .18s ease;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M11 18h2"/></svg>Mobile
+    </button>
   </div>
 </div>
 </x-dc>
@@ -812,6 +839,8 @@ class Component extends DCLogic {
     query: '',
     notifOpen: false,
     notifRead: new Set(),
+    device: 'desktop',
+    inIframe: (typeof location !== 'undefined') && new URLSearchParams(location.search).has('embed'),
   };
 
   componentDidMount() {
@@ -820,6 +849,9 @@ class Component extends DCLogic {
       else if (e.key === 'Escape' && this.state.searchOpen) { this.setState({ searchOpen: false }); }
     };
     window.addEventListener('keydown', this._onKey);
+    const base = window.location.href;
+    const sep = base.includes('?') ? '&' : '?';
+    this._embedUrl = base.includes('embed=1') ? base : base + sep + 'embed=1';
   }
   componentWillUnmount() { window.removeEventListener('keydown', this._onKey); }
   openSearchNow() { this.setState({ searchOpen: true }, () => setTimeout(() => this._searchEl && this._searchEl.focus(), 30)); }
@@ -1023,6 +1055,15 @@ class Component extends DCLogic {
           course: { title: a.querySelector('h3')?.textContent || 'Course', sub: a.querySelector('p')?.textContent || '', accent, count: m ? m[0] : 50 } });
       },
       goHome: () => this.setState({ screen: 'home' }),
+      // device preview
+      setDevice: (e) => this.setState({ device: e.currentTarget.dataset.dev }),
+      toolbarDisplay: s.inIframe ? 'none' : 'flex',
+      mobileDisplay: (s.device === 'mobile' && !s.inIframe) ? 'flex' : 'none',
+      frameSrc: (s.device === 'mobile' && !s.inIframe) ? (this._embedUrl || '') : '',
+      deskBg: s.device !== 'mobile' ? '#6366f1' : 'transparent',
+      deskColor: s.device !== 'mobile' ? '#fff' : 'var(--text-2)',
+      mobBg: s.device === 'mobile' ? '#6366f1' : 'transparent',
+      mobColor: s.device === 'mobile' ? '#fff' : 'var(--text-2)',
       setMode: (e) => this.setState({ mode: e.currentTarget.dataset.mode }),
       toggleModule: (e) => { const m = e.currentTarget.dataset.module; this.setState((st) => { const c = new Set(st.collapsedModules); c.has(m) ? c.delete(m) : c.add(m); return { collapsedModules: c }; }); },
       toggleFavOnly: () => this.setState((st) => ({ favoritesOnly: !st.favoritesOnly })),
