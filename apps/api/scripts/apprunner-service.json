@@ -1,0 +1,36 @@
+{
+  "ServiceName": "level-up-backend",
+  "SourceConfiguration": {
+    "ImageRepository": {
+      "ImageIdentifier": "813021164486.dkr.ecr.us-east-2.amazonaws.com/level-up-backend:latest",
+      "ImageRepositoryType": "ECR",
+      "ImageConfiguration": {
+        "Port": "3000",
+        "RuntimeEnvironmentVariables": {
+          "DB_HOST": "level-up-backend-db.cls020emml3r.us-east-2.rds.amazonaws.com",
+          "DB_PORT": "5432",
+          "DB_NAME": "levelup",
+          "DB_USER": "postgres",
+          "DB_PASSWORD": "__DB_PASSWORD__",
+          "DB_SSLMODE": "require"
+        }
+      }
+    },
+    "AutoDeploymentsEnabled": true,
+    "AuthenticationConfiguration": {
+      "AccessRoleArn": "arn:aws:iam::813021164486:role/AppRunnerECRAccessRole-gofirstapi"
+    }
+  },
+  "InstanceConfiguration": {
+    "Cpu": "256",
+    "Memory": "512"
+  },
+  "HealthCheckConfiguration": {
+    "Protocol": "HTTP",
+    "Path": "/ping",
+    "Interval": 10,
+    "Timeout": 5,
+    "HealthyThreshold": 1,
+    "UnhealthyThreshold": 5
+  }
+}

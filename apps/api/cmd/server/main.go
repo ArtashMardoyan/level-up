@@ -1,0 +1,60 @@
+package main
+
+import (
+	"database/sql"
+	"log"
+	"net/http"
+
+	"level-up-backend/internal/config"
+	"level-up-backend/internal/infrastructure/database"
+	"level-up-backend/internal/infrastructure/middleware"
+	"level-up-backend/internal/modules/auth"
+	"level-up-backend/internal/modules/health"
+	"level-up-backend/internal/modules/user"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
+)
+
+func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sqlDB, err := sql.Open("pgx", cfg.DB.DSN())
+	if err != nil {
+		log.Fatal("failed to open database: ", err)
+	}
+
+	if err := goose.Up(sqlDB, "migrations"); err != nil {
+		log.Fatal("failed to run migrations: ", err)
+	}
+
+	db, err := database.Connect(&cfg.DB)
+	if err != nil {
+		log.Fatal("failed to connect to database: ", err)
+	}
+
+	userRepo := user.NewRepository(db)
+	revokedRepo := auth.NewRevokedTokenRepository(db)
+
+	userHandler := user.NewHandler(user.NewService(userRepo))
+	authHandler := auth.NewHandler(auth.NewService(userRepo, revokedRepo, cfg.JWT.Secret))
+	healthHandler := health.NewHandler(db)
+
+	jwtMiddleware := middleware.JWT(userRepo, revokedRepo, cfg.JWT.Secret)
+
+	r := gin.Default()
+	r.Use(func(c *gin.Context) {
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 1<<20)
+		c.Next()
+	})
+
+	healthHandler.RegisterRoutes(r)
+	authHandler.RegisterRoutes(r, jwtMiddleware)
+	userHandler.RegisterRoutes(r, jwtMiddleware)
+
+	log.Fatal(r.Run(cfg.Server.Addr))
+}
