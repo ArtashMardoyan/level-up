@@ -1,6 +1,6 @@
 # Redesign — dark developer UI
 
-Full restyle of the app to match the design handoff in `docs/design_handoff_level_up/`
+Full restyle of the app to match the design handoff in `docs/redesign/handoff/`
 (`README.md` = spec, `Level Up.dc.html` = reference prototype), plus the header/search/
 notifications/footer additions and the audio rework that followed. Presentation-only for
 the restyle; data, routing, state hooks and i18n logic were not changed.
