@@ -1,7 +1,8 @@
 // Pre-generate interview audio with OpenAI TTS.
 //
-// Writes one MP3 per question phase into a staging dir, named to match the S3
-// key: public/audio/courses/{courseId}/{lang}/{questionId}-{phase}.mp3. Then
+// Writes ONE MP3 per question (question + answer read back to back) into a
+// staging dir, named to match the S3 key:
+// public/audio/courses/{courseId}/{lang}/{questionId}.mp3. Then
 // `upload-audio.mjs` pushes these to S3 and records their keys in the course
 // JSON. See docs/audio-playback.md. Safe to run incrementally.
 //
@@ -124,32 +125,31 @@ async function run() {
         console.log(`- ${courseId} (${lang}): no questions, skipped`)
         continue
       }
-      // Mirror the data layout: courses/<courseId>/<lang>/<questionId>-<phase>.mp3
+      // Mirror the data layout: courses/<courseId>/<lang>/<questionId>.mp3
       const dir = path.join(outDir, courseId, lang)
       for (const q of questions) {
-        for (const phase of ['question', 'answer']) {
-          const text = q[phase]
-          if (typeof text !== 'string' || !text.trim()) continue
-          const file = path.join(dir, `${q.id}-${phase}.mp3`)
-          // Already generated if the local file exists or the JSON already
-          // carries its key (meaning it's uploaded to S3) — don't re-pay.
-          if (!options.force && (existsSync(file) || q.audio?.[phase])) {
-            skipped++
-            continue
-          }
-          process.stdout.write(`  ${courseId}/${lang}/${q.id}-${phase}.mp3 … `)
-          // One bad/transient TTS call shouldn't abort the whole run — skip it
-          // (that track just falls back to speech) and report it at the end.
-          try {
-            const audio = await synthesize(text, options, apiKey)
-            mkdirSync(dir, { recursive: true }) // create staging only when actually writing
-            writeFileSync(file, audio)
-            written++
-            console.log(`${(audio.length / 1024).toFixed(0)} KB`)
-          } catch (error) {
-            failed.push({ id: `${courseId}/${lang}/${q.id}-${phase}`, message: error.message })
-            console.log(`FAILED`)
-          }
+        // One track per question: the question, then the answer, read together.
+        const text = [q.question, q.answer].filter((s) => typeof s === 'string' && s.trim()).join('\n\n')
+        if (!text.trim()) continue
+        const file = path.join(dir, `${q.id}.mp3`)
+        // Already generated if the local file exists or the JSON already carries
+        // its key (meaning it's uploaded to S3) — don't re-pay.
+        if (!options.force && (existsSync(file) || q.audio)) {
+          skipped++
+          continue
+        }
+        process.stdout.write(`  ${courseId}/${lang}/${q.id}.mp3 … `)
+        // One bad/transient TTS call shouldn't abort the whole run — skip it
+        // (that question just falls back to speech) and report it at the end.
+        try {
+          const audio = await synthesize(text, options, apiKey)
+          mkdirSync(dir, { recursive: true }) // create staging only when actually writing
+          writeFileSync(file, audio)
+          written++
+          console.log(`${(audio.length / 1024).toFixed(0)} KB`)
+        } catch (error) {
+          failed.push({ id: `${courseId}/${lang}/${q.id}`, message: error.message })
+          console.log(`FAILED`)
         }
       }
     }

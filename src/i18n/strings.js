@@ -52,7 +52,6 @@ export const STRINGS = {
     // CoursePlayer
     playerStatusQuestion: 'Вопрос {n} из {total}',
     playerCloseAria: 'Остановить и закрыть плеер',
-    playerStatusAnswer: 'Ответ {n} из {total}',
     nothingToPlay: 'Нечего воспроизводить',
     playPause: 'Воспроизведение / пауза',
     allModules: 'Все модули',
@@ -204,7 +203,6 @@ export const STRINGS = {
     // CoursePlayer
     playerStatusQuestion: 'Q {n} of {total}',
     playerCloseAria: 'Stop and close player',
-    playerStatusAnswer: 'A {n} of {total}',
     nothingToPlay: 'Nothing to play',
     allModules: 'All modules',
     playPause: 'Play / pause',
