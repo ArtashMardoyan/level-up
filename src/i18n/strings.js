@@ -32,7 +32,6 @@ export const STRINGS = {
     expandAll: 'Развернуть все',
     collapseAll: 'Свернуть все',
     // ProgressBar
-    reviewedProgress: '{done} / {total} отмечено как просмотренные',
     reviewedLabel: 'Просмотрено',
     learnedLabel: 'Изучено',
     // QuestionCard
@@ -62,10 +61,7 @@ export const STRINGS = {
     previous: 'Назад',
     next: 'Вперёд',
     // GlobalSearch
-    showingFirst: 'Показаны первые {max} из {total} совпадений — уточните запрос.',
     searchNoMatchHint: 'Попробуйте название курса, ключевое слово или термин.',
-    searchPlaceholder2: 'Поиск курсов, вопросов, терминов…',
-    globalSearchPlaceholder: 'Поиск по всем курсам...',
     searchTrigger: 'Поиск курсов, вопросов, терминов…',
     searchNoMatch: 'Ничего не найдено по «{q}»',
     globalSearchAria: 'Поиск по всем курсам',
@@ -110,10 +106,7 @@ export const STRINGS = {
     footerTerms: 'Условия',
     // SettingsPanel
     themeLightLabel: 'Светлая',
-    settingsAria: 'Настройки',
     themeDarkLabel: 'Тёмная',
-    themeLight: '☀ Светлая',
-    themeDark: '☾ Тёмная',
     language: 'Язык',
     theme: 'Тема',
     // AccountMenu
@@ -148,7 +141,6 @@ export const STRINGS = {
     dictionaryPhrases: 'Фразы для интервью',
     dictionaryColSayInstead: 'Говорите так',
     dictionaryPronunciation: 'Произношение',
-    dictionaryDailyBadge: '📅 Каждый день',
     dictionarySentenceOfDay: 'Фраза дня',
     dictionaryColSayLike: 'Читается как',
     dictionaryColTranslation: 'Перевод',
@@ -192,7 +184,6 @@ export const STRINGS = {
     collapseAll: 'Collapse all',
     expandAll: 'Expand all',
     // ProgressBar
-    reviewedProgress: '{done} / {total} marked as reviewed',
     reviewedLabel: 'Reviewed',
     learnedLabel: 'Learned',
     // QuestionCard
@@ -222,11 +213,8 @@ export const STRINGS = {
     seek: 'Seek',
     next: 'Next',
     // GlobalSearch
-    showingFirst: 'Showing first {max} of {total} matches — refine your search.',
     searchNoMatchHint: 'Try a course name, a keyword, or a term.',
-    searchPlaceholder2: 'Search courses, questions, terms…',
     searchTrigger: 'Search courses, questions, terms…',
-    globalSearchPlaceholder: 'Search all courses...',
     globalSearchAria: 'Search across all courses',
     searchNoMatch: 'No matches for "{q}"',
     searchGroupDictionary: 'Dictionary',
@@ -269,12 +257,9 @@ export const STRINGS = {
     footerPrivacy: 'Privacy',
     footerTerms: 'Terms',
     // SettingsPanel
-    settingsAria: 'Settings',
     themeLightLabel: 'Light',
     themeDarkLabel: 'Dark',
-    themeLight: '☀ Light',
     language: 'Language',
-    themeDark: '☾ Dark',
     theme: 'Theme',
     // AccountMenu
     accountSignInHint: 'Sync your streak & progress across devices',
@@ -315,7 +300,6 @@ export const STRINGS = {
     dictionaryVocabulary: 'Vocabulary',
     dictionaryLeadership: 'Leadership',
     dictionaryColDontSay: "Don't Say",
-    dictionaryDailyBadge: '📅 Daily',
     dictionaryStartNow: 'Start now',
     dictionaryColExample: 'Example',
     dictionaryDailyShort: 'Daily',

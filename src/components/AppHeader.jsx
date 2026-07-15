@@ -14,7 +14,9 @@ export default function AppHeader({ onSelectQuestion, toggleTheme, courses, onHo
           <Logo size={30} />
           <span className="brand-name">Level Up</span>
         </button>
-        <GlobalSearch onSelectQuestion={onSelectQuestion} courses={courses} />
+        <div className="header-search-zone">
+          <GlobalSearch onSelectQuestion={onSelectQuestion} courses={courses} />
+        </div>
         <div className="header-cluster">
           <NotificationBell />
           <AccountMenu toggleTheme={toggleTheme} theme={theme} />

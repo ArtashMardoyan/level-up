@@ -246,8 +246,17 @@ select.plain-btn {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px 16px;
-  padding: 12px clamp(14px, 4vw, 26px);
+  gap: 12px 14px;
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 12px clamp(14px, 4vw, 28px);
+}
+.header-search-zone {
+  flex: 1 1 280px;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
 }
 .brand {
   display: flex;
@@ -273,72 +282,9 @@ select.plain-btn {
   color: var(--text);
   white-space: nowrap;
 }
-.header-search {
-  position: relative;
-  flex: 1 1 200px;
-  max-width: 540px;
-  min-width: 0;
-}
-.header-search-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-3);
-  pointer-events: none;
-}
-.header-search-input {
-  width: 100%;
-  height: 42px;
-  padding: 0 14px 0 42px;
-  border: 1px solid var(--border-2);
-  border-radius: 11px;
-  background: var(--control);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 16px; /* 16px keeps iOS Safari from zooming on focus */
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-}
-.header-search-input::-webkit-search-decoration {
-  -webkit-appearance: none;
-}
-.header-search-input:focus {
-  border-color: color-mix(in oklab, var(--brand) 55%, var(--border-2));
-}
-.header-search-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: min(60vh, 440px);
-  overflow-y: auto;
-  padding: 8px;
-  border: 1px solid var(--border-strong);
-  border-radius: 14px;
-  background: var(--panel-solid);
-  box-shadow: var(--panel-shadow);
-}
-.header-search-dropdown .empty {
-  margin: 8px 6px;
-}
-.header-search-dropdown .global-search-more {
-  margin: 4px 0 8px;
-}
 @media (max-width: 560px) {
   .brand-name {
     display: none;
-  }
-  .header-search-dropdown {
-    position: fixed;
-    left: 12px;
-    right: 12px;
-    top: 64px;
   }
 }
 
@@ -348,24 +294,28 @@ select.plain-btn {
   flex-shrink: 0;
 }
 .account-btn {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border-2);
-  border-radius: 50%;
+  border-radius: 12px;
   background: var(--control);
   color: var(--text-2);
   cursor: pointer;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: 14.5px;
   letter-spacing: -0.02em;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 .account-btn:hover {
   color: var(--text);
+  background: var(--control-2);
+}
+.account-btn.signed:hover {
+  background: linear-gradient(150deg, #818cf8, #6366f1);
 }
 .account-btn.signed {
   background: linear-gradient(150deg, #818cf8, #6366f1);
@@ -1254,61 +1204,6 @@ select.plain-btn {
   color: var(--text-3);
   font-size: 14px;
 }
-.global-search-result {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.12s ease;
-}
-.global-search-result:hover {
-  background: var(--control);
-}
-.global-search-result-icon {
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  background: var(--control);
-  color: var(--text-2);
-}
-.global-search-result-text {
-  flex: 1;
-  min-width: 0;
-}
-.global-search-result-course {
-  margin-bottom: 2px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--brand);
-}
-.global-search-result-question {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.global-search-more {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--text-3);
-  text-align: center;
-}
 
 footer {
   text-align: center;
@@ -1477,7 +1372,6 @@ footer {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -1486,13 +1380,13 @@ footer {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1 1 200px;
-  max-width: 620px;
+  width: 100%;
+  max-width: 520px;
   min-width: 0;
-  height: 42px;
+  height: 44px;
   padding: 0 10px 0 14px;
   border: 1px solid var(--border-2);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--control);
   color: var(--text-3);
   cursor: pointer;
@@ -1672,13 +1566,13 @@ footer {
 }
 .notif-btn {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border-2);
-  border-radius: 50%;
+  border-radius: 12px;
   background: var(--control);
   color: var(--text-2);
   cursor: pointer;

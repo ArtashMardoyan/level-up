@@ -36,7 +36,8 @@ pixel-close using the codebase's own libraries.
 - `position: sticky; top: 0; z-index: 20`
 - `background: rgba(9,10,14,0.72)`, `backdrop-filter: blur(14px)`,
   `border-bottom: 1px solid rgba(255,255,255,0.07)`
-- `display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 12px clamp(14px,4vw,26px)`
+- Inner row: `display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; max-width: 1160px; margin: 0 auto`; padding `12px clamp(14px,4vw,28px)`.
+- **3-zone layout:** logo (left, `flex-shrink:0`) · centered search (`flex: 1 1 280px; display:flex; justify-content:center`, inner button `width:100%; max-width:520px`) · account cluster (right, `display:flex; gap:10px; flex-shrink:0`). Search stays visually centered between the two side groups; on narrow widths it wraps to a full-width row. Do **not** stretch the search edge-to-edge or `margin-left:auto` the cluster only.
 - **Logo:** 30×30 rounded (radius 9) tile, `linear-gradient(150deg, #818cf8, #6366f1)`,
   white chevrons-up icon, shadow `0 4px 14px rgba(99,102,241,0.4)`. Label "Level Up",
   Space Grotesk 700, 17px, `#f4f6fb`.
@@ -219,10 +220,10 @@ gradient, next, `1×` speed). Toggled by the `🔊 Listen` chip.
 
 ### Global search — command palette → `src/components/GlobalSearch.jsx`
 The header search is a **trigger button**, not an inline input. Recreate as a ⌘K command palette.
-- **Trigger:** `flex: 1 1 200px; max-width: 620px`, height 42, radius 11, `--control` bg + `--border-2`
+- **Trigger:** centered in the header's middle zone — `width: 100%; max-width: 520px`, height 44, radius 12, `--control` bg + `--border-2`
   border. Left search icon (17px), placeholder text "Search courses, questions, terms…" in `--text-3`,
   and a right-aligned `⌘K` `<kbd>` (JetBrains Mono 11px, radius 7, hairline bg). Hover lightens bg/border.
-  Pushed apart from the account cluster which is `margin-left: auto`.
+  Lives in a centered flex zone (see Header); the account cluster (bell + account) sits to its right, not `margin-left:auto` on the account alone.
 - **Open:** click the trigger OR press ⌘K / Ctrl+K anywhere. Close on `Esc`, on backdrop click, or the `Esc` kbd.
 - **Overlay:** `position: fixed; inset: 0; z-index: 100`, `rgba(4,5,8,0.6)` + `backdrop-filter: blur(6px)`,
   top-aligned (`padding-top: clamp(56px,11vh,120px)`). Panel: `width: min(640px,100%)`, radius 18,
@@ -239,7 +240,7 @@ The header search is a **trigger button**, not an inline input. Recreate as a �
 
 ### Notifications → `src/components/NotificationBell.jsx`
 Sits left of the account button in the header cluster.
-- **Bell button:** 38×38 circle, `--control` bg + `--border-2`, bell icon 18px `--text-2`→`--text` on hover.
+- **Bell button:** 44×44 rounded-square (radius 12), `--control` bg + `--border-2`, bell icon 19px `--text-2`→`--text` on hover. Matches the 44×44 account button beside it (both in the right-hand cluster, `gap:10px`).
 - **Unread badge:** top-right pill, `min-width 15 / height 15`, `#fb7185` bg, 2px `--panel-solid` ring,
   white mono count 9px. Hidden when no unread.
 - **Dropdown:** `absolute; right:0; top:50px; z-index:50`, width 328, radius 16, `--panel-solid`,
