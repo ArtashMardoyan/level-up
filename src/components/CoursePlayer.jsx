@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from 'react'
-import { SkipForward, RotateCcw, SkipBack, Pause, Play } from 'lucide-react'
+import { useEffect, useState, useMemo, useRef } from 'react'
+import { SkipForward, RotateCcw, SkipBack, Repeat, Pause, Play } from 'lucide-react'
 
 import { audioUrl } from '../data/audio'
 import { resolveVoice } from '../hooks/useSpeech'
@@ -39,7 +39,11 @@ export default function CoursePlayer({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [paused, setPaused] = useState(false)
+  const [repeat, setRepeat] = useState(false)
+  const [replayTick, setReplayTick] = useState(0)
   const [prevStartRequest, setPrevStartRequest] = useState(null)
+  // Read inside onEnded so toggling repeat mid-track takes effect immediately.
+  const repeatRef = useRef(repeat)
 
   // Jump to the requested question by adjusting state during render
   // (https://react.dev/learn/you-might-not-need-an-effect).
@@ -70,6 +74,12 @@ export default function CoursePlayer({
     if (currentItem) onActiveChange?.(currentItem.id)
   }, [currentItem, onActiveChange])
 
+  // Keep the ref current so the onEnded closure (captured when a track starts)
+  // always sees the latest repeat value, even if toggled mid-playback.
+  useEffect(() => {
+    repeatRef.current = repeat
+  }, [repeat])
+
   // Stop playback when the player unmounts so nothing keeps running in the background.
   useEffect(() => () => audioPlayer.stop(), [])
 
@@ -99,7 +109,10 @@ export default function CoursePlayer({
     const voice = resolveVoice(voices, '', language)
     audioPlayer.play({
       onEnded: () => {
-        if (currentIndex + 1 < scopedList.length) {
+        if (repeatRef.current) {
+          // Repeat the same question: bump the tick so the effect replays it.
+          setReplayTick((n) => n + 1)
+        } else if (currentIndex + 1 < scopedList.length) {
           setCurrentIndex((i) => i + 1)
         } else {
           setPlaying(false)
@@ -113,7 +126,7 @@ export default function CoursePlayer({
       voice,
       id
     })
-  }, [playing, paused, currentIndex, currentItem, courseId, scopedList.length, voices, language])
+  }, [playing, paused, currentIndex, currentItem, courseId, scopedList.length, voices, language, replayTick])
 
   const handleModuleChange = (value) => {
     setSelectedModule(value)
@@ -237,6 +250,14 @@ export default function CoursePlayer({
           </button>
           <button className="player-btn player-speed" aria-label={t('speed')} onClick={cycleSpeed}>
             {rate}×
+          </button>
+          <button
+            className={'player-btn' + (repeat ? ' active' : '')}
+            onClick={() => setRepeat((v) => !v)}
+            aria-label={t('playerRepeat')}
+            aria-pressed={repeat}
+          >
+            <Repeat aria-hidden="true" size={17} />
           </button>
         </div>
         <span className="player-status">
