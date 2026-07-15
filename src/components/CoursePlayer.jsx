@@ -29,7 +29,6 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
 
   const [selectedModule, setSelectedModule] = useState('all')
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [phase, setPhase] = useState('question')
   const [playing, setPlaying] = useState(false)
   const [paused, setPaused] = useState(false)
   const [prevStartRequest, setPrevStartRequest] = useState(null)
@@ -42,7 +41,6 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
     if (idx !== -1) {
       setSelectedModule('all')
       setCurrentIndex(idx)
-      setPhase('question')
       setPlaying(true)
       setPaused(false)
     }
@@ -74,7 +72,7 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
       if (!playing) audioPlayer.stop()
       return
     }
-    const id = `${courseId}/${language}/${currentItem.id}-${phase}`
+    const id = `${courseId}/${language}/${currentItem.id}`
     // Same track already loaded → this is a pause/resume, not a new track.
     if (audioPlayer.currentInterviewId() === id) {
       if (paused) audioPlayer.pause()
@@ -85,46 +83,41 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
     const voice = resolveVoice(voices, '', language)
     audioPlayer.play({
       onEnded: () => {
-        if (phase === 'question') {
-          setPhase('answer')
-        } else if (currentIndex + 1 < scopedList.length) {
+        if (currentIndex + 1 < scopedList.length) {
           setCurrentIndex((i) => i + 1)
-          setPhase('question')
         } else {
           setPlaying(false)
         }
       },
-      text: phase === 'question' ? currentItem.question : currentItem.answer,
+      // One track per question: the question, then the answer (speech fallback
+      // reads both; the MP3 already contains both).
+      text: [currentItem.question, currentItem.answer].filter(Boolean).join('\n\n'),
       lang: voice ? voice.lang : language === 'ru' ? 'ru-RU' : 'en-US',
-      url: audioUrl(currentItem.audio?.[phase]),
+      url: audioUrl(currentItem.audio),
       voice,
       id
     })
-  }, [playing, paused, currentIndex, phase, currentItem, courseId, scopedList.length, voices, language])
+  }, [playing, paused, currentIndex, currentItem, courseId, scopedList.length, voices, language])
 
   const handleModuleChange = (value) => {
     setSelectedModule(value)
     setCurrentIndex(0)
-    setPhase('question')
     setPaused(false)
   }
 
   const handleRestart = () => {
     setCurrentIndex(0)
-    setPhase('question')
     setPlaying(true)
     setPaused(false)
   }
 
   const handlePrev = () => {
     setCurrentIndex((i) => Math.max(0, i - 1))
-    setPhase('question')
     setPaused(false)
   }
 
   const handleNext = () => {
     setCurrentIndex((i) => Math.min(scopedList.length - 1, i + 1))
-    setPhase('question')
     setPaused(false)
   }
 
@@ -209,12 +202,7 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
           </button>
         </div>
         <span className="player-status">
-          {currentItem
-            ? t(phase === 'question' ? 'playerStatusQuestion' : 'playerStatusAnswer', {
-                total: scopedList.length,
-                n: currentIndex + 1
-              })
-            : ''}
+          {currentItem ? t('playerStatusQuestion', { total: scopedList.length, n: currentIndex + 1 }) : ''}
         </span>
       </div>
     </div>

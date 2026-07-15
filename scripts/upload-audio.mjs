@@ -1,11 +1,13 @@
 // Upload generated course audio to S3 and record the keys in the course data.
 //
-// 1. Syncs public/audio/courses/**/*.mp3 to s3://$S3_BUCKET/audio/courses/.
+// 1. Syncs public/audio/courses/**/*.mp3 to s3://$S3_BUCKET/audio/courses/,
+//    with --delete so S3 files no longer present locally (e.g. the old
+//    per-phase files) are removed.
 // 2. Stamps each uploaded file's S3 key into the matching question in
-//    src/data/courses/<id>/<lang>.json under `audio.{question|answer}`.
+//    src/data/courses/<id>/<lang>.json under `audio` (a single key string).
 //
-// The stamped key (e.g. "audio/courses/nodejs/en/q1-answer.mp3") is what the app
-// reads to know a track has audio and to build its URL (base = VITE_S3_BUCKET_URL).
+// The stamped key (e.g. "audio/courses/nodejs/en/q1.mp3") is what the app reads
+// to know a question has audio and to build its URL (base = VITE_S3_BUCKET_URL).
 // Both steps are idempotent.
 //
 // Usage:
@@ -64,6 +66,9 @@ function sync() {
     'audio/mpeg',
     '--cache-control',
     'public, max-age=86400',
+    // Remove S3 objects that aren't in the local staging (e.g. old per-phase
+    // <qid>-question/<qid>-answer files) so a regen leaves the bucket clean.
+    '--delete',
     ...filters
   ]
   console.log(`Uploading ${courses.length ? courses.join(', ') : 'all courses'} → s3://${bucket}/${S3_PREFIX}/`)
@@ -80,13 +85,10 @@ function stampKeys() {
     const [course, lang, filename] = rel.split(path.sep)
     if (!course || !lang || !filename) continue
     if (wanted.size && !wanted.has(course)) continue
-    const base = filename.replace(/\.mp3$/, '')
-    const cut = base.lastIndexOf('-')
-    const questionId = base.slice(0, cut)
-    const phase = base.slice(cut + 1)
+    const questionId = filename.replace(/\.mp3$/, '')
     const fileKey = `${course}/${lang}`
     if (!byFile.has(fileKey)) byFile.set(fileKey, [])
-    byFile.get(fileKey).push({ key: `${S3_PREFIX}/${course}/${lang}/${filename}`, questionId, phase })
+    byFile.get(fileKey).push({ key: `${S3_PREFIX}/${course}/${lang}/${filename}`, questionId })
   }
 
   let stamped = 0
@@ -95,12 +97,11 @@ function stampKeys() {
     if (!existsSync(jsonPath)) continue
     const questions = JSON.parse(readFileSync(jsonPath, 'utf8'))
     const byId = new Map(questions.map((q) => [q.id, q]))
-    for (const { questionId, phase, key } of entries) {
+    for (const { questionId, key } of entries) {
       const q = byId.get(questionId)
       if (!q) continue
-      if (!q.audio) q.audio = {}
-      if (q.audio[phase] !== key) {
-        q.audio[phase] = key
+      if (q.audio !== key) {
+        q.audio = key
         stamped++
       }
     }
