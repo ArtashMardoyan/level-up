@@ -212,10 +212,67 @@ time / seek track (fill `#818cf8`) / duration; transport (restart, prev, **play*
 gradient, next, `1×` speed). Toggled by the `🔊 Listen` chip.
 
 ### Also restyle
-- **`src/components/AppHeader.jsx`** / `Logo` / `GlobalSearch` / `SettingsPanel` — the shared header
-  per the Header spec (logo gradient tile, search field, gear button).
+- **`src/components/AppHeader.jsx`** / `Logo` / `GlobalSearch` / `SettingsPanel` / `NotificationBell` — the shared header
+  per the Header spec (logo gradient tile, search trigger, notification bell, gear/account button).
 - **`src/index.css`** — this is where nearly all of the above classes live; apply the Design Tokens
   there. Keep the light theme working (`useTheme`).
+
+### Global search — command palette → `src/components/GlobalSearch.jsx`
+The header search is a **trigger button**, not an inline input. Recreate as a ⌘K command palette.
+- **Trigger:** `flex: 1 1 200px; max-width: 620px`, height 42, radius 11, `--control` bg + `--border-2`
+  border. Left search icon (17px), placeholder text "Search courses, questions, terms…" in `--text-3`,
+  and a right-aligned `⌘K` `<kbd>` (JetBrains Mono 11px, radius 7, hairline bg). Hover lightens bg/border.
+  Pushed apart from the account cluster which is `margin-left: auto`.
+- **Open:** click the trigger OR press ⌘K / Ctrl+K anywhere. Close on `Esc`, on backdrop click, or the `Esc` kbd.
+- **Overlay:** `position: fixed; inset: 0; z-index: 100`, `rgba(4,5,8,0.6)` + `backdrop-filter: blur(6px)`,
+  top-aligned (`padding-top: clamp(56px,11vh,120px)`). Panel: `width: min(640px,100%)`, radius 18,
+  `--panel-solid` bg, `--border-strong`, `box-shadow: 0 30px 80px rgba(0,0,0,0.6)`, `max-height: min(70vh,620px)`.
+- **Input row:** 20px search icon + borderless autofocus input (16px) + clickable `Esc` kbd; hairline bottom border.
+- **Results:** live filter across **Courses** (title+desc), **Questions** (question+module+answer), and
+  **Dictionary** terms (all fields). Grouped with mono uppercase group labels. Each row: 36×36 accent icon tile
+  (course=hexagon / question=help-circle / term=book), title + sub (both truncated), optional right badge
+  (e.g. `51 Q` / category name). Row hover = `--surface-hover`, radius 11.
+- **Empty query:** show Courses (all) + "Popular questions" (first 3) as a jump list ("Jump to anything" hint).
+- **No match:** centered `No matches for "{q}"` + hint line.
+- **Selecting a result** navigates: course→course view, question→course view with that question open,
+  term→that dictionary category. Clears query and closes.
+
+### Notifications → `src/components/NotificationBell.jsx`
+Sits left of the account button in the header cluster.
+- **Bell button:** 38×38 circle, `--control` bg + `--border-2`, bell icon 18px `--text-2`→`--text` on hover.
+- **Unread badge:** top-right pill, `min-width 15 / height 15`, `#fb7185` bg, 2px `--panel-solid` ring,
+  white mono count 9px. Hidden when no unread.
+- **Dropdown:** `absolute; right:0; top:50px; z-index:50`, width 328, radius 16, `--panel-solid`,
+  `--border-strong`, shadow `0 18px 44px rgba(0,0,0,0.5)`.
+  - Header: "Notifications" (Space Grotesk 600 14.5) + "Mark all read" text button (`#818cf8`).
+  - List (`max-height: 340; overflow-y:auto`): each item = 34×34 accent icon tile + title (13.5 600) +
+    body (12.5, `--text-2`) + mono uppercase time (10px `--text-3`) + unread dot (`#fb7185` 7px). Unread
+    rows get `--surface-hover` bg; each row hairline-separated.
+  - Footer: full-width "View all activity" button (12.5 600 `--text-2`), hairline top border.
+- **Seed data** (3): "Streak milestone" (`#fbbf24`, flame), "Today's Challenge is ready" (`#818cf8`, target),
+  "New questions added" (`#4ade80`, hexagon). Wire to the app's real activity feed; "Mark all read" clears unread.
+- Opening the bell closes the settings panel (and vice-versa) — one popover at a time.
+
+### Footer → `src/components/AppFooter.jsx` (home view, inside the content column)
+Replaces the old "works fully offline" line (the app is no longer offline-only).
+- `margin-top: 64px; padding-top: 36px; border-top: 1px solid --border`. Two rows.
+- **Top row** (`flex; flex-wrap; justify-content: space-between; gap: 40px 56px`):
+  - **Brand block** (max-width 300): 28×28 logo gradient tile + "Level Up", a `--text-2` tagline
+    ("Structured question banks and daily drills…"), and a row of 3 social icon buttons (GitHub / X /
+    Telegram) — 34×34, radius 9, `--control` + `--border-2`, `--text-2`→`--text` hover.
+  - **Link columns** (3): mono uppercase headings (`Practice` / `Resources` / `Company`) + vertical link
+    lists (13.5px `--text-2`→`--text`). Practice: All courses, Dictionary, Daily challenge, Saved questions.
+    Resources: Study guide, Roadmaps, Changelog. Company: About, Contact, Feedback.
+- **Bottom bar** (`margin-top: 40; padding-top: 22; border-top: 1px solid --hairline`;
+  space-between, wraps): `© 2026 Level Up · Made for interview practice` (12.5 `--text-3`) +
+  Privacy / Terms links on the right.
+- Uses tokens only → works in both themes. `--border-2` = `rgba(255,255,255,0.09)` dark /
+  `rgba(20,25,45,0.13)` light; `--border-strong` = `rgba(255,255,255,0.12)` dark /
+  `rgba(20,25,45,0.16)` light; `--hairline` = `rgba(255,255,255,0.06)` dark.
+
+### `src/index.css`
+This is where nearly all of the above classes live; apply the Design Tokens there. Keep the light
+theme working (`useTheme`).
 
 ## Theming (light / dark)
 The reference implements both themes with **CSS custom properties** on the root, swapped by the
