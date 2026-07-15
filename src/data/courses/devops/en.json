@@ -4,349 +4,399 @@
         "module": "Module 1 — Linux & Shell",
         "question": "Question 1. Tell me about yourself",
         "answer": "I'm a DevOps engineer with experience in cloud infrastructure, automation, and CI/CD pipelines.\n\nI've worked with AWS, Docker, Kubernetes, Terraform, and GitHub Actions. I've built and maintained deployment pipelines, set up monitoring and alerting, and helped development teams ship faster and more reliably.\n\nI focus on automation — if something is done manually more than twice, I try to automate it.\n\nRecently I've started using AI tools in my daily work, which helps me write scripts, troubleshoot issues, and document infrastructure faster.",
-        "bonus": "Good DevOps is about removing friction between development and production — that's what I try to do every day."
+        "bonus": "Good DevOps is about removing friction between development and production — that's what I try to do every day.",
+        "audio": "audio/courses/devops/en/q1.mp3"
     },
     {
         "id": "q2",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 2. What Linux commands do you use most often?",
         "answer": "For files and navigation: ls, cd, cp, mv, rm, find, grep, cat, tail, less.\n\nFor processes: ps, top, htop, kill, killall.\n\nFor networking: curl, wget, netstat, ss, ping, traceroute, nslookup.\n\nFor disk and memory: df, du, free.\n\nFor permissions: chmod, chown.\n\nI use grep and find a lot for searching logs and files. And tail -f for watching logs in real time.",
-        "bonus": "Piping commands together is very powerful — for example: cat access.log | grep ERROR | sort | uniq -c | sort -rn shows error counts sorted by frequency."
+        "bonus": "Piping commands together is very powerful — for example: cat access.log | grep ERROR | sort | uniq -c | sort -rn shows error counts sorted by frequency.",
+        "audio": "audio/courses/devops/en/q2.mp3"
     },
     {
         "id": "q3",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 3. How do file permissions work in Linux?",
         "answer": "Every file has three sets of permissions — for the owner, the group, and everyone else.\n\nEach set has three bits — read (r), write (w), and execute (x).\n\nFor example -rwxr-xr-- means the owner can read, write, and execute. The group can read and execute. Others can only read.\n\nWe change permissions with chmod. For example chmod 755 file gives the owner full access and others read and execute.\n\nWe change ownership with chown.",
-        "bonus": "The numeric notation is faster to type — 7 means rwx, 5 means r-x, 4 means r--. So 755 is a common permission for scripts."
+        "bonus": "The numeric notation is faster to type — 7 means rwx, 5 means r-x, 4 means r--. So 755 is a common permission for scripts.",
+        "audio": "audio/courses/devops/en/q3.mp3"
     },
     {
         "id": "q4",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 4. How do you manage processes in Linux?",
         "answer": "I use ps aux to list all running processes and top or htop for a live view.\n\nTo stop a process I use kill with the process ID. kill -9 forces the process to stop immediately.\n\nFor background processes I use & to run them in the background, and nohup to keep them running after logout.\n\nFor services I use systemctl — systemctl start, stop, restart, and status.\n\nI also use journalctl to check service logs.",
-        "bonus": "htop is much more user-friendly than top — you can scroll, search, and kill processes interactively."
+        "bonus": "htop is much more user-friendly than top — you can scroll, search, and kill processes interactively.",
+        "audio": "audio/courses/devops/en/q4.mp3"
     },
     {
         "id": "q5",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 5. How do you write shell scripts?",
         "answer": "Shell scripts automate repetitive tasks. Every script starts with a shebang — #!/bin/bash.\n\nI use variables, if statements, loops, and functions — just like any other language.\n\nFor error handling I use set -e to stop the script on error, and set -x for debugging to see each command before it runs.\n\nI always add comments to explain what the script does, especially for complex logic.\n\nI use shell scripts for deployment steps, backups, log rotation, and cleanup tasks.",
-        "bonus": "For complex logic I prefer Python over shell — it's easier to read, test, and maintain."
+        "bonus": "For complex logic I prefer Python over shell — it's easier to read, test, and maintain.",
+        "audio": "audio/courses/devops/en/q5.mp3"
     },
     {
         "id": "q6",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 6. What are cron jobs?",
         "answer": "Cron is a scheduler that runs commands or scripts at a specific time or interval.\n\nYou define jobs in a crontab file. Each line has five fields — minute, hour, day of month, month, day of week — followed by the command.\n\nFor example 0 2 * * * means run at 2am every day.\n\nWe use cron for backups, log rotation, database cleanup, and sending scheduled reports.\n\nFor production systems I prefer managed schedulers like AWS EventBridge because they have better monitoring and retry logic.",
-        "bonus": "Always redirect output to a log file in cron jobs — by default cron sends output to email which is often not configured."
+        "bonus": "Always redirect output to a log file in cron jobs — by default cron sends output to email which is often not configured.",
+        "audio": "audio/courses/devops/en/q6.mp3"
     },
     {
         "id": "q7",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 7. How does SSH work?",
         "answer": "SSH — Secure Shell — is a protocol for securely connecting to remote servers.\n\nInstead of passwords we use key pairs — a private key that stays on your machine and a public key that goes on the server.\n\nWhen you connect, the server verifies your private key against the stored public key. No password is sent over the network.\n\nWe also use SSH for port forwarding — tunneling traffic from a local port to a remote server.\n\nFor team access we use bastion hosts — a single secure entry point to the infrastructure.",
-        "bonus": "Never use password authentication for SSH in production — always use key-based authentication and disable password login."
+        "bonus": "Never use password authentication for SSH in production — always use key-based authentication and disable password login.",
+        "audio": "audio/courses/devops/en/q7.mp3"
     },
     {
         "id": "q8",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 8. How do you work with environment variables?",
         "answer": "Environment variables store configuration that changes between environments — like database URLs, API keys, and feature flags.\n\nIn Linux you set them with export MY_VAR=value. Applications read them with process.env or os.getenv.\n\nFor Docker we pass them with -e or in a .env file. For Kubernetes we use ConfigMaps and Secrets.\n\nWe never hardcode secrets in code or config files. Secrets always come from a secret management service like AWS Secrets Manager.\n\nEach environment — dev, staging, production — has its own set of variables.",
-        "bonus": "A .env file is useful for local development, but it should never be committed to Git — add it to .gitignore."
+        "bonus": "A .env file is useful for local development, but it should never be committed to Git — add it to .gitignore.",
+        "audio": "audio/courses/devops/en/q8.mp3"
     },
     {
         "id": "q9",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 9. How do you work with log files?",
         "answer": "For real-time monitoring I use tail -f to follow a log file as it grows.\n\nFor searching I use grep to filter by keyword, error level, or time range.\n\nFor system logs I use journalctl — it works with systemd services and supports filtering by time and service.\n\nIn production we don't read logs on the server — we send logs to a centralized system like CloudWatch, ELK, or Datadog where we can search and create alerts.\n\nLog rotation is important — without it log files grow until they fill the disk.",
-        "bonus": "Always include a timestamp and request ID in logs — it makes debugging much easier, especially in distributed systems."
+        "bonus": "Always include a timestamp and request ID in logs — it makes debugging much easier, especially in distributed systems.",
+        "audio": "audio/courses/devops/en/q9.mp3"
     },
     {
         "id": "q10",
         "module": "Module 1 — Linux & Shell",
         "question": "Question 10. How does package management work in Linux?",
         "answer": "Different Linux distributions use different package managers.\n\nDebian and Ubuntu use apt. Red Hat and Amazon Linux use yum or dnf.\n\nBasic commands: install, update, remove, and search for packages.\n\nFor Python we use pip. For NodeJS we use npm or yarn.\n\nIn production servers we avoid installing packages manually — we use configuration management tools like Ansible or we bake packages into Docker images.\n\nThis makes servers reproducible and prevents the 'works on my machine' problem.",
-        "bonus": "Always pin package versions in production — installing 'latest' can break things when a new version with breaking changes is released."
+        "bonus": "Always pin package versions in production — installing 'latest' can break things when a new version with breaking changes is released.",
+        "audio": "audio/courses/devops/en/q10.mp3"
     },
     {
         "id": "q11",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 11. What is Docker and why do you use it?",
         "answer": "Docker packages an application with everything it needs — code, runtime, libraries, and configuration — into a container.\n\nContainers run the same way on any machine. This solves the 'works on my machine' problem.\n\nDocker makes it easy to run multiple isolated services on the same server. It also makes deployments faster and more reliable.\n\nWe use Docker for all our services — it's the standard way to package and deploy applications today.",
-        "bonus": "Docker doesn't just help with deployment — it also makes local development easier. Developers can run the whole stack with one command."
+        "bonus": "Docker doesn't just help with deployment — it also makes local development easier. Developers can run the whole stack with one command.",
+        "audio": "audio/courses/devops/en/q11.mp3"
     },
     {
         "id": "q12",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 12. How do you write a Dockerfile?",
         "answer": "A Dockerfile is a list of instructions to build a Docker image.\n\nWe start with a base image — for example node:18-alpine for NodeJS apps. Alpine is a small Linux image which keeps the final image small.\n\nThen we copy the application files, install dependencies, and define how to start the app.\n\nBest practices: use specific image versions not latest, copy only what's needed, run as a non-root user, and use .dockerignore to exclude unnecessary files.\n\nFor production we use multi-stage builds to keep the final image as small as possible.",
-        "bonus": "Order matters in Dockerfiles — put things that change less often at the top. Docker caches layers, so this makes builds faster."
+        "bonus": "Order matters in Dockerfiles — put things that change less often at the top. Docker caches layers, so this makes builds faster.",
+        "audio": "audio/courses/devops/en/q12.mp3"
     },
     {
         "id": "q13",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 13. What is Docker Compose?",
         "answer": "Docker Compose lets you define and run multiple containers together with one configuration file.\n\nInstead of running docker run commands for each service, you define everything in a docker-compose.yml — the services, networks, volumes, and environment variables.\n\nThen you start everything with docker-compose up.\n\nWe use Docker Compose for local development — running the API, database, Redis, and other services together with one command.\n\nFor production we use Kubernetes or managed container services instead of Docker Compose.",
-        "bonus": "Docker Compose is great for development, but it's not designed for production — it doesn't handle scaling, health checks, or automatic restarts well."
+        "bonus": "Docker Compose is great for development, but it's not designed for production — it doesn't handle scaling, health checks, or automatic restarts well.",
+        "audio": "audio/courses/devops/en/q13.mp3"
     },
     {
         "id": "q14",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 14. How does Docker networking work?",
         "answer": "Docker containers are isolated by default — they can't communicate with each other unless you connect them to the same network.\n\nWhen you use Docker Compose, all services are automatically placed on the same network and can reach each other by service name.\n\nDocker has different network modes — bridge for most use cases, host to share the host's network, and none for complete isolation.\n\nFor production we use managed networking in Kubernetes or AWS VPC.",
-        "bonus": "Using service names instead of IP addresses in Docker Compose is important — container IPs can change when containers restart."
+        "bonus": "Using service names instead of IP addresses in Docker Compose is important — container IPs can change when containers restart.",
+        "audio": "audio/courses/devops/en/q14.mp3"
     },
     {
         "id": "q15",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 15. What are Docker volumes?",
         "answer": "Docker containers don't persist data by default — when a container stops, all data inside it is gone.\n\nVolumes solve this by storing data outside the container on the host machine or in a managed storage service.\n\nWe use volumes for databases, uploaded files, and any data that needs to survive container restarts.\n\nIn production we use managed storage — like AWS EFS or RDS — instead of local volumes, because local volumes are tied to one server.",
-        "bonus": "Never store important data inside a container — always use volumes or external storage services."
+        "bonus": "Never store important data inside a container — always use volumes or external storage services.",
+        "audio": "audio/courses/devops/en/q15.mp3"
     },
     {
         "id": "q16",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 16. Containers vs Virtual Machines",
         "answer": "Virtual Machines include a full operating system. They are heavy, take minutes to start, and use a lot of resources.\n\nContainers share the host OS kernel. They are much lighter, start in seconds, and use less memory and CPU.\n\nThis makes containers perfect for microservices where you need to run many isolated services efficiently.\n\nVMs are still useful when you need strong isolation, a different OS, or full control over the environment.",
-        "bonus": "In practice many teams use both — VMs for the hosts and containers for the applications running on those hosts."
+        "bonus": "In practice many teams use both — VMs for the hosts and containers for the applications running on those hosts.",
+        "audio": "audio/courses/devops/en/q16.mp3"
     },
     {
         "id": "q17",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 17. What is a Docker registry?",
         "answer": "A Docker registry is where Docker images are stored and shared.\n\nDocker Hub is the public registry. For private images we use AWS ECR, Google Container Registry, or a self-hosted registry.\n\nIn our CI/CD pipeline we build the Docker image, tag it with the commit hash or version, and push it to ECR. Then the deployment pulls the image from ECR and runs it.\n\nUsing a registry makes deployments reliable — every environment runs the exact same image.",
-        "bonus": "Always tag images with a specific version — never use 'latest' in production because it makes it impossible to know which version is running."
+        "bonus": "Always tag images with a specific version — never use 'latest' in production because it makes it impossible to know which version is running.",
+        "audio": "audio/courses/devops/en/q17.mp3"
     },
     {
         "id": "q18",
         "module": "Module 2 — Docker & Containers",
         "question": "Question 18. What are multi-stage builds?",
         "answer": "Multi-stage builds let you use multiple FROM statements in one Dockerfile.\n\nThe idea is to build the application in one stage — with all the build tools — and then copy only the final output into a smaller production image.\n\nFor example for a NodeJS app: first stage installs all dependencies and builds the app. Second stage starts from a clean image and copies only the built files.\n\nThis keeps the final image much smaller and more secure — build tools and source code are not in the production image.",
-        "bonus": "Smaller images are faster to pull, use less storage, and have a smaller attack surface — fewer packages means fewer potential vulnerabilities."
+        "bonus": "Smaller images are faster to pull, use less storage, and have a smaller attack surface — fewer packages means fewer potential vulnerabilities.",
+        "audio": "audio/courses/devops/en/q18.mp3"
     },
     {
         "id": "q19",
         "module": "Module 3 — CI/CD",
         "question": "Question 19. What is CI/CD?",
         "answer": "CI stands for Continuous Integration. Every time a developer pushes code, the pipeline automatically builds and tests it. This catches problems early.\n\nCD stands for Continuous Delivery or Continuous Deployment. After the code passes all checks, it's automatically deployed to staging or production.\n\nCI/CD removes manual steps from the release process. Deployments become faster, more frequent, and more reliable.\n\nIn our projects every merge to the main branch triggers the pipeline automatically.",
-        "bonus": "The goal of CI/CD is to make deployment boring — small, frequent, low-risk releases instead of big stressful ones."
+        "bonus": "The goal of CI/CD is to make deployment boring — small, frequent, low-risk releases instead of big stressful ones.",
+        "audio": "audio/courses/devops/en/q19.mp3"
     },
     {
         "id": "q20",
         "module": "Module 3 — CI/CD",
         "question": "Question 20. How do you use GitHub Actions?",
         "answer": "GitHub Actions is our main CI/CD tool. We define workflows in YAML files inside the repository.\n\nA typical workflow triggers on push or pull request, runs tests, builds the Docker image, pushes it to ECR, and deploys it.\n\nWe use reusable workflows to avoid repeating the same steps across multiple repositories.\n\nFor secrets we use GitHub Secrets — API keys and credentials are stored there and injected into the pipeline at runtime.\n\nWe also use GitHub Actions for code quality checks — linting, security scanning, and dependency audits.",
-        "bonus": "GitHub Actions has a marketplace with thousands of ready-made actions — you rarely need to write everything from scratch."
+        "bonus": "GitHub Actions has a marketplace with thousands of ready-made actions — you rarely need to write everything from scratch.",
+        "audio": "audio/courses/devops/en/q20.mp3"
     },
     {
         "id": "q21",
         "module": "Module 3 — CI/CD",
         "question": "Question 21. What is Jenkins and how is it different from GitHub Actions?",
         "answer": "Jenkins is a self-hosted CI/CD server. You install and manage it yourself.\n\nGitHub Actions is managed by GitHub — no server to maintain.\n\nJenkins is more flexible and can be customized heavily. It's been around for a long time and has a huge plugin ecosystem.\n\nGitHub Actions is easier to set up and integrates directly with GitHub. For most projects it's the faster choice.\n\nIn my experience we've used both. For new projects we prefer GitHub Actions. Jenkins is common in larger enterprises that need more control.",
-        "bonus": "Jenkins requires maintenance — updating plugins, managing agents, and ensuring high availability. GitHub Actions removes all of that overhead."
+        "bonus": "Jenkins requires maintenance — updating plugins, managing agents, and ensuring high availability. GitHub Actions removes all of that overhead.",
+        "audio": "audio/courses/devops/en/q21.mp3"
     },
     {
         "id": "q22",
         "module": "Module 3 — CI/CD",
         "question": "Question 22. What stages does a CI/CD pipeline usually have?",
         "answer": "A typical pipeline has these stages:\n\nFirst — code quality: lint checks and static analysis.\n\nSecond — tests: unit tests, integration tests, sometimes end-to-end tests.\n\nThird — build: compile the code or build the Docker image.\n\nFourth — publish: push the image to a registry or artifact to storage.\n\nFifth — deploy: update the running service in the target environment.\n\nFor production we add a manual approval step before deployment.",
-        "bonus": "Fast feedback is important — run the fastest checks first so developers know quickly if something is wrong."
+        "bonus": "Fast feedback is important — run the fastest checks first so developers know quickly if something is wrong.",
+        "audio": "audio/courses/devops/en/q22.mp3"
     },
     {
         "id": "q23",
         "module": "Module 3 — CI/CD",
         "question": "Question 23. How do you handle testing in CI/CD?",
         "answer": "All tests run automatically in the pipeline on every push.\n\nUnit tests run first — they are fast and catch most bugs. Integration tests run after the build. End-to-end tests run last because they are slowest.\n\nIf any test fails, the pipeline stops and does not deploy. The developer gets notified immediately.\n\nFor slow tests we run them in parallel to keep the pipeline fast.\n\nWe also run security scans and dependency audits as part of the pipeline.",
-        "bonus": "A pipeline that takes 30+ minutes loses its value — developers stop waiting for it and start merging without feedback. Keep pipelines fast."
+        "bonus": "A pipeline that takes 30+ minutes loses its value — developers stop waiting for it and start merging without feedback. Keep pipelines fast.",
+        "audio": "audio/courses/devops/en/q23.mp3"
     },
     {
         "id": "q24",
         "module": "Module 3 — CI/CD",
         "question": "Question 24. What deployment strategies do you know?",
         "answer": "Rolling deployment — gradually replaces old instances with new ones. Some users get the new version while others still get the old one.\n\nBlue/Green deployment — runs two identical environments. Traffic switches all at once from old to new. Easy to roll back — just switch traffic back.\n\nCanary deployment — sends a small percentage of traffic to the new version first. If it works well, gradually increase the percentage.\n\nWe use Blue/Green for critical services because rollback is instant. We use canary when we want to test a change on real traffic before full rollout.",
-        "bonus": "The right strategy depends on the risk level and how quickly you need to roll back if something goes wrong."
+        "bonus": "The right strategy depends on the risk level and how quickly you need to roll back if something goes wrong.",
+        "audio": "audio/courses/devops/en/q24.mp3"
     },
     {
         "id": "q25",
         "module": "Module 3 — CI/CD",
         "question": "Question 25. How do you handle rollbacks?",
         "answer": "The fastest rollback is to redeploy the previous Docker image. Since images are tagged and stored in the registry, we can always go back to any previous version.\n\nFor Blue/Green deployments rollback is instant — we just switch traffic back to the previous environment.\n\nFor database migrations we always write reversible migrations so we can roll back schema changes if needed.\n\nWe also keep the previous version running for a few minutes after deployment to make sure the new version is healthy before fully switching over.",
-        "bonus": "Rollback should be a one-command operation — if it takes more than a few minutes, your deployment process needs improvement."
+        "bonus": "Rollback should be a one-command operation — if it takes more than a few minutes, your deployment process needs improvement.",
+        "audio": "audio/courses/devops/en/q25.mp3"
     },
     {
         "id": "q26",
         "module": "Module 3 — CI/CD",
         "question": "Question 26. How do you manage secrets in CI/CD pipelines?",
         "answer": "Secrets are never stored in code or configuration files — they are stored in a secrets management service.\n\nFor GitHub Actions we use GitHub Secrets. The values are encrypted and injected as environment variables at runtime. The pipeline never prints them in logs.\n\nFor more advanced needs we use AWS Secrets Manager or HashiCorp Vault. The pipeline fetches secrets at runtime using a role or token.\n\nEach environment has its own secrets — dev, staging, and production credentials are always separate.",
-        "bonus": "Rotate secrets regularly — especially if a team member leaves or a service is compromised. Automated rotation is even better."
+        "bonus": "Rotate secrets regularly — especially if a team member leaves or a service is compromised. Automated rotation is even better.",
+        "audio": "audio/courses/devops/en/q26.mp3"
     },
     {
         "id": "q27",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 27. Which AWS services have you used?",
         "answer": "I've worked with many AWS services.\n\nFor compute: EC2 for virtual servers, Lambda for serverless functions, ECS for running containers.\n\nFor storage: S3 for files, RDS for relational databases, DynamoDB for NoSQL, ElastiCache for Redis.\n\nFor networking: VPC, Load Balancers, Route 53, CloudFront.\n\nFor operations: CloudWatch for monitoring, IAM for access control, Secrets Manager for secrets, ECR for Docker images.\n\nFor infrastructure: Terraform to provision everything as code.",
-        "bonus": "The key is knowing which service to use for which problem — not just knowing all the services exist."
+        "bonus": "The key is knowing which service to use for which problem — not just knowing all the services exist.",
+        "audio": "audio/courses/devops/en/q27.mp3"
     },
     {
         "id": "q28",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 28. EC2 vs Lambda vs ECS — when do you use each?",
         "answer": "EC2 is a virtual server. You manage the OS, scaling, and updates. Good for long-running processes, custom configurations, or when you need full control.\n\nLambda is serverless — you just deploy code and AWS runs it. Scales automatically and you pay only for what you use. Good for event-driven tasks, background jobs, and APIs with variable traffic.\n\nECS runs Docker containers. Good when you need containers but don't want to manage Kubernetes. Integrates well with other AWS services.\n\nWe use Lambda for simple functions and background tasks, ECS for containerized services, and EC2 when we need specific hardware or long-running processes.",
-        "bonus": "ECS with Fargate removes the need to manage EC2 instances — AWS handles the underlying infrastructure."
+        "bonus": "ECS with Fargate removes the need to manage EC2 instances — AWS handles the underlying infrastructure.",
+        "audio": "audio/courses/devops/en/q28.mp3"
     },
     {
         "id": "q29",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 29. How do you use Amazon S3?",
         "answer": "S3 is object storage for files — images, videos, backups, logs, and static assets.\n\nWe use private buckets by default and control access with IAM policies or presigned URLs.\n\nFor static websites and assets we use S3 with CloudFront as a CDN.\n\nFor large file uploads from users we generate presigned URLs — the client uploads directly to S3 without going through our servers.\n\nWe also use S3 lifecycle policies to automatically move old files to cheaper storage tiers or delete them.",
-        "bonus": "S3 is not a file system — it's object storage. There are no folders, only keys with slashes in the name that look like folders."
+        "bonus": "S3 is not a file system — it's object storage. There are no folders, only keys with slashes in the name that look like folders.",
+        "audio": "audio/courses/devops/en/q29.mp3"
     },
     {
         "id": "q30",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 30. What is a VPC?",
         "answer": "VPC — Virtual Private Cloud — is your private network inside AWS.\n\nYou define IP ranges, create subnets, and control what can reach what.\n\nPublic subnets have access to the internet. Private subnets do not — databases and internal services go here.\n\nSecurity groups act as firewalls — they control which ports and IPs can connect to each resource.\n\nWe put databases and sensitive services in private subnets. Only load balancers and bastion hosts go in public subnets.",
-        "bonus": "Never put a database in a public subnet — it should only be reachable from within the VPC."
+        "bonus": "Never put a database in a public subnet — it should only be reachable from within the VPC.",
+        "audio": "audio/courses/devops/en/q30.mp3"
     },
     {
         "id": "q31",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 31. What is a Load Balancer?",
         "answer": "A Load Balancer distributes incoming traffic across multiple servers or containers.\n\nThis improves availability — if one server fails, traffic goes to the others. It also improves performance — no single server gets overloaded.\n\nAWS has three types: Application Load Balancer for HTTP traffic, Network Load Balancer for TCP/UDP, and Classic Load Balancer which is older.\n\nWe use ALB for most web applications. It also handles SSL termination and can route traffic based on the URL path.",
-        "bonus": "Load balancers also do health checks — if a server stops responding, the load balancer stops sending traffic to it automatically."
+        "bonus": "Load balancers also do health checks — if a server stops responding, the load balancer stops sending traffic to it automatically.",
+        "audio": "audio/courses/devops/en/q31.mp3"
     },
     {
         "id": "q32",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 32. How does Auto Scaling work?",
         "answer": "Auto Scaling automatically adjusts the number of servers based on demand.\n\nYou set a minimum and maximum number of instances and define scaling policies — for example add a server when CPU goes above 70%, remove one when it drops below 30%.\n\nThis means you always have enough capacity during traffic spikes but don't pay for unused servers during quiet periods.\n\nFor Lambda, scaling is automatic — AWS handles it. For EC2 and ECS we configure Auto Scaling Groups.",
-        "bonus": "Always test your scaling policies — make sure the system scales up fast enough before users notice a slowdown."
+        "bonus": "Always test your scaling policies — make sure the system scales up fast enough before users notice a slowdown.",
+        "audio": "audio/courses/devops/en/q32.mp3"
     },
     {
         "id": "q33",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 33. What is Terraform?",
         "answer": "Terraform is an Infrastructure as Code tool. Instead of clicking in the AWS console, you define infrastructure in code — servers, networks, databases, and everything else.\n\nThe code is stored in Git, reviewed like application code, and applied automatically by the CI/CD pipeline.\n\nTerraform tracks the current state of infrastructure and only applies changes that are needed.\n\nThis makes infrastructure reproducible, auditable, and consistent across environments.",
-        "bonus": "Terraform works with many cloud providers — not just AWS. The same skills apply to GCP, Azure, and others."
+        "bonus": "Terraform works with many cloud providers — not just AWS. The same skills apply to GCP, Azure, and others.",
+        "audio": "audio/courses/devops/en/q33.mp3"
     },
     {
         "id": "q34",
         "module": "Module 4 — AWS & Infrastructure",
         "question": "Question 34. What is Infrastructure as Code?",
         "answer": "Infrastructure as Code means managing servers, networks, and other infrastructure using code instead of manual steps.\n\nThe main benefits are reproducibility — you can recreate the same infrastructure anywhere. Version control — you can see what changed and who changed it. Automation — infrastructure changes go through the same review process as application code.\n\nWe use Terraform for infrastructure and Ansible for configuration management.\n\nWith IaC, spinning up a new environment takes minutes instead of days.",
-        "bonus": "Manual infrastructure changes are dangerous — they're hard to track, hard to reproduce, and easy to get wrong. IaC removes all of that risk."
+        "bonus": "Manual infrastructure changes are dangerous — they're hard to track, hard to reproduce, and easy to get wrong. IaC removes all of that risk.",
+        "audio": "audio/courses/devops/en/q34.mp3"
     },
     {
         "id": "q35",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 35. How do you monitor infrastructure?",
         "answer": "We monitor at multiple levels — servers, containers, applications, and business metrics.\n\nFor infrastructure we track CPU, memory, disk, and network. For applications we track response time, error rate, and request count.\n\nWe use CloudWatch for AWS resources and set up dashboards to see everything in one place.\n\nAlerts notify the team when something goes wrong — via Slack or PagerDuty.\n\nGood monitoring means we know about problems before users report them.",
-        "bonus": "Don't just monitor technical metrics — also monitor business metrics like orders per minute or signups. These tell you if something is wrong even when servers look healthy."
+        "bonus": "Don't just monitor technical metrics — also monitor business metrics like orders per minute or signups. These tell you if something is wrong even when servers look healthy.",
+        "audio": "audio/courses/devops/en/q35.mp3"
     },
     {
         "id": "q36",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 36. How do you handle logging?",
         "answer": "Applications write logs with timestamps, log levels, and enough context to understand what happened.\n\nWe never read logs directly on servers in production — we send logs to a centralized system. We use CloudWatch Logs, ELK stack, or Datadog.\n\nIn a centralized system we can search across all services, filter by time or error level, and create alerts for specific patterns.\n\nWe use structured logging — JSON format — so logs are easy to parse and query.\n\nLog levels matter: ERROR for things that need immediate attention, WARN for potential problems, INFO for normal events.",
-        "bonus": "Always include a request ID in logs — it lets you trace a single request across multiple services in a microservices architecture."
+        "bonus": "Always include a request ID in logs — it lets you trace a single request across multiple services in a microservices architecture.",
+        "audio": "audio/courses/devops/en/q36.mp3"
     },
     {
         "id": "q37",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 37. How do you set up alerting?",
         "answer": "Alerts trigger when a metric crosses a threshold — for example error rate above 1%, CPU above 90%, or response time above 2 seconds.\n\nWe set up alerts in CloudWatch and connect them to Slack or PagerDuty so the team gets notified immediately.\n\nGood alerts are actionable — when an alert fires, it's clear what to do. Too many alerts cause alert fatigue and people start ignoring them.\n\nWe review alerts regularly and remove ones that aren't useful.",
-        "bonus": "Set different alert levels — warning for things to watch, critical for things that need immediate action. This helps prioritize."
+        "bonus": "Set different alert levels — warning for things to watch, critical for things that need immediate action. This helps prioritize.",
+        "audio": "audio/courses/devops/en/q37.mp3"
     },
     {
         "id": "q38",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 38. How do you use CloudWatch?",
         "answer": "CloudWatch is AWS's monitoring service. We use it for logs, metrics, and alarms.\n\nAll AWS services send metrics to CloudWatch automatically — EC2 CPU usage, Lambda invocations, RDS connections, and more.\n\nWe create dashboards to visualize key metrics and alarms that trigger when metrics cross thresholds.\n\nFor logs, CloudWatch Logs collects logs from all our services. We use CloudWatch Insights to query logs quickly.\n\nWe also use CloudWatch Events to trigger Lambda functions on a schedule.",
-        "bonus": "CloudWatch Logs Insights uses a SQL-like query language — very useful for searching through large volumes of logs quickly."
+        "bonus": "CloudWatch Logs Insights uses a SQL-like query language — very useful for searching through large volumes of logs quickly.",
+        "audio": "audio/courses/devops/en/q38.mp3"
     },
     {
         "id": "q39",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 39. How do you manage IAM and permissions?",
         "answer": "IAM — Identity and Access Management — controls who can access what in AWS.\n\nThe most important rule is least privilege — every user, role, and service gets only the permissions it needs and nothing more.\n\nWe use IAM roles for EC2 instances and Lambda functions instead of access keys. Roles are more secure because there are no long-lived credentials to rotate.\n\nWe never use the root account for daily operations. We create individual users and assign them to groups with the right permissions.\n\nWe audit IAM permissions regularly and remove unused access.",
-        "bonus": "Never hardcode AWS access keys in code or commit them to Git — use IAM roles or environment variables instead."
+        "bonus": "Never hardcode AWS access keys in code or commit them to Git — use IAM roles or environment variables instead.",
+        "audio": "audio/courses/devops/en/q39.mp3"
     },
     {
         "id": "q40",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 40. How do you handle network security?",
         "answer": "We follow the principle of least access — only open the ports and connections that are actually needed.\n\nSecurity groups act as firewalls at the instance level. We restrict inbound traffic to only the required ports and source IPs.\n\nDatabases go in private subnets — they are never directly accessible from the internet.\n\nWe use VPN or bastion hosts for admin access — no direct SSH from the internet.\n\nAll traffic between services uses HTTPS or TLS.",
-        "bonus": "Regularly scan for open ports and unused security group rules — over time security groups tend to accumulate unnecessary rules."
+        "bonus": "Regularly scan for open ports and unused security group rules — over time security groups tend to accumulate unnecessary rules.",
+        "audio": "audio/courses/devops/en/q40.mp3"
     },
     {
         "id": "q41",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 41. How does SSL/TLS work?",
         "answer": "SSL/TLS encrypts traffic between the client and server so it can't be read or modified in transit.\n\nIt uses a certificate that proves the server's identity. The certificate is issued by a trusted Certificate Authority.\n\nThe client and server negotiate encryption keys during the TLS handshake before any data is sent.\n\nFor AWS we use ACM — AWS Certificate Manager — which provides free certificates and handles renewal automatically.\n\nWe terminate TLS at the load balancer and use unencrypted connections inside the private network.",
-        "bonus": "Always use TLS 1.2 or higher — older versions have known vulnerabilities. Many compliance frameworks require this."
+        "bonus": "Always use TLS 1.2 or higher — older versions have known vulnerabilities. Many compliance frameworks require this.",
+        "audio": "audio/courses/devops/en/q41.mp3"
     },
     {
         "id": "q42",
         "module": "Module 5 — Monitoring & Security",
         "question": "Question 42. What is disaster recovery?",
         "answer": "Disaster recovery is a plan for what to do when something goes seriously wrong — a data center failure, a bad deployment, or data corruption.\n\nTwo key metrics: RPO — Recovery Point Objective — how much data can we afford to lose. RTO — Recovery Time Objective — how quickly do we need to be back online.\n\nWe take regular backups and test restoring from them. A backup you haven't tested is not a backup.\n\nFor critical systems we use multi-region deployments so a region failure doesn't take down the service.\n\nWe document the recovery process so anyone on the team can execute it under pressure.",
-        "bonus": "Run disaster recovery drills regularly — the worst time to figure out how to restore a backup is during an actual incident."
+        "bonus": "Run disaster recovery drills regularly — the worst time to figure out how to restore a backup is during an actual incident.",
+        "audio": "audio/courses/devops/en/q42.mp3"
     },
     {
         "id": "q43",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 43. What is high availability?",
         "answer": "High availability means the system keeps running even when individual components fail.\n\nThe key is removing single points of failure. Every critical component should have a redundant backup.\n\nFor servers we run multiple instances across different availability zones. If one zone goes down, the others keep running.\n\nFor databases we use Multi-AZ deployments — a standby replica in a different zone takes over automatically if the primary fails.\n\nLoad balancers distribute traffic and route around failed instances.",
-        "bonus": "High availability costs more — you're running multiple copies of everything. The question is always: what's the cost of downtime vs the cost of redundancy?"
+        "bonus": "High availability costs more — you're running multiple copies of everything. The question is always: what's the cost of downtime vs the cost of redundancy?",
+        "audio": "audio/courses/devops/en/q43.mp3"
     },
     {
         "id": "q44",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 44. What is Kubernetes?",
         "answer": "Kubernetes is a container orchestration platform. It manages running containers across a cluster of servers.\n\nIt handles scaling, load balancing, self-healing, and rolling deployments automatically.\n\nThe main concepts: Pods are groups of containers that run together. Deployments manage how pods are updated. Services expose pods to other services or the internet.\n\nFor AWS we use EKS — Elastic Kubernetes Service — which is a managed Kubernetes cluster.\n\nKubernetes is powerful but complex. For smaller teams, ECS or Lambda is often simpler and good enough.",
-        "bonus": "Kubernetes adds significant operational complexity. Only use it if you really need it — not just because it's popular."
+        "bonus": "Kubernetes adds significant operational complexity. Only use it if you really need it — not just because it's popular.",
+        "audio": "audio/courses/devops/en/q44.mp3"
     },
     {
         "id": "q45",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 45. Microservices vs Monolith from a DevOps perspective",
         "answer": "A monolith is one application — one deployment, one pipeline, one set of logs. Simple to operate.\n\nMicroservices split the application into many small services. Each has its own deployment, its own pipeline, and its own logs. Much more complex to operate.\n\nFor a small team a monolith is much easier. You don't need Kubernetes, service meshes, or distributed tracing.\n\nFor a large system where different parts need to scale independently, microservices make sense — but you need mature DevOps practices first.\n\nIn my experience teams often move to microservices too early — before they have the operational maturity to manage them.",
-        "bonus": "If your monolith is painful to deploy, the answer is usually better CI/CD — not microservices."
+        "bonus": "If your monolith is painful to deploy, the answer is usually better CI/CD — not microservices.",
+        "audio": "audio/courses/devops/en/q45.mp3"
     },
     {
         "id": "q46",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 46. How do you handle production incidents?",
         "answer": "First I stay calm and understand how serious the problem is.\n\nMy first priority is to restore service as quickly as possible — investigate later.\n\nI check monitoring, logs, and recent deployments. If a recent deployment caused the issue, I roll back immediately.\n\nI keep the team updated so everyone knows what's happening and who is working on what.\n\nAfter the incident I write a post-mortem — what happened, why, and what we'll do to prevent it next time. No blame, just facts and improvements.",
-        "bonus": "A blameless post-mortem is more valuable than finding someone to blame — the goal is to improve the system, not punish people."
+        "bonus": "A blameless post-mortem is more valuable than finding someone to blame — the goal is to improve the system, not punish people.",
+        "audio": "audio/courses/devops/en/q46.mp3"
     },
     {
         "id": "q47",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 47. How do you manage production deployments?",
         "answer": "All deployments go through the CI/CD pipeline — no manual deployments to production.\n\nFor production we require manual approval before the final step runs. This gives someone a chance to review what's being deployed.\n\nWe deploy during low-traffic hours when possible — not on Friday afternoons.\n\nAfter deployment we monitor for a few minutes before declaring success. We watch error rates, response times, and key business metrics.\n\nIf anything looks wrong we roll back immediately — we don't try to fix it in production under pressure.",
-        "bonus": "The deployment process should be boring. If deployments are exciting, that means they're too risky."
+        "bonus": "The deployment process should be boring. If deployments are exciting, that means they're too risky.",
+        "audio": "audio/courses/devops/en/q47.mp3"
     },
     {
         "id": "q48",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 48. How do you estimate DevOps tasks?",
         "answer": "First I make sure I understand the requirements and constraints. Infrastructure tasks often have hidden complexity — networking, security, and compliance requirements that aren't obvious upfront.\n\nI break the work into smaller parts — design, implementation, testing, documentation, and runbook.\n\nI add a buffer for unexpected problems. Infrastructure work often surprises you.\n\nFor large changes I build a proof of concept first to validate the approach before committing to a full implementation.\n\nI communicate early if estimates change — infrastructure surprises are common.",
-        "bonus": "Always include time for documentation and runbooks — infrastructure that only one person understands is a risk."
+        "bonus": "Always include time for documentation and runbooks — infrastructure that only one person understands is a risk.",
+        "audio": "audio/courses/devops/en/q48.mp3"
     },
     {
         "id": "q49",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 49. Why should we hire you?",
         "answer": "I have solid experience in cloud infrastructure, automation, and CI/CD pipelines.\n\nI've worked with AWS, Docker, Kubernetes, Terraform, and GitHub Actions on real production systems.\n\nI focus on automation and reliability — making deployments safer, infrastructure reproducible, and incidents less frequent.\n\nI work well with development teams — I understand their needs and help them ship faster without sacrificing stability.\n\nI'm also comfortable with security and monitoring — I don't just build things, I make sure they run well after deployment.",
-        "bonus": "Good DevOps is about culture as much as tools — I try to help teams collaborate better and learn from incidents."
+        "bonus": "Good DevOps is about culture as much as tools — I try to help teams collaborate better and learn from incidents.",
+        "audio": "audio/courses/devops/en/q49.mp3"
     },
     {
         "id": "q50",
         "module": "Module 6 — Architecture & Leadership",
         "question": "Question 50. What are your career goals?",
         "answer": "In the short term I want to keep improving my skills in Kubernetes, security, and infrastructure automation.\n\nI'm also interested in platform engineering — building internal tools and platforms that help development teams work faster and more independently.\n\nIn the long term I'd like to take on more technical leadership — designing infrastructure for larger systems and helping teams adopt better DevOps practices.\n\nMy goal is to work on systems that matter and keep improving both the technology and the processes around it.",
-        "bonus": "I'm also following the development of AI tools for infrastructure — things like AI-assisted incident response and automated runbook execution are exciting."
+        "bonus": "I'm also following the development of AI tools for infrastructure — things like AI-assisted incident response and automated runbook execution are exciting.",
+        "audio": "audio/courses/devops/en/q50.mp3"
     }
 ]

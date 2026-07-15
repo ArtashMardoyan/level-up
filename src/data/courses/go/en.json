@@ -4,349 +4,399 @@
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 1. Tell me about yourself",
         "answer": "I'm a backend developer who has spent the last several years writing Go in production, mostly on services that need to handle real concurrency and scale — API backends, data pipelines, and a few internal tools.\n\nI've worked with the standard library heavily rather than reaching for a big framework — net/http, encoding/json, context — and I'm comfortable with Go's concurrency model, using goroutines and channels to build things like worker pools and pipelines.\n\nI care about writing idiomatic Go — small interfaces, explicit error handling, and code that reads clearly rather than code that's clever. I've also spent time on the operational side — profiling with pprof, tracking down goroutine leaks, and making sure services shut down gracefully.\n\nRecently I've also been using AI tools like Claude Code in my day-to-day work, which speeds up refactors and helps me explore unfamiliar codebases faster.",
-        "bonus": "Go's simplicity is deceptive — the language itself is small, but writing really good Go takes discipline around error handling and concurrency that takes time to build."
+        "bonus": "Go's simplicity is deceptive — the language itself is small, but writing really good Go takes discipline around error handling and concurrency that takes time to build.",
+        "audio": "audio/courses/go/en/q1.mp3"
     },
     {
         "id": "q2",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 2. What are Go's basic types, and what does it mean for a variable to have a zero value?",
         "answer": "Go has the usual basic types — bool, string, the integer types like int, int32, and int64 and their unsigned versions, and the floating point types float32 and float64.\n\nGo is statically typed, but you rarely have to write the type out. With the colon-equal operator, Go infers the type from the value on the right-hand side at compile time. Once a variable has a type, it can't change.\n\nEvery type in Go also has a zero value — the default value a variable gets if you declare it without initializing it. Numbers default to zero, strings default to an empty string, booleans default to false, and pointers, slices, maps, channels, and interfaces default to nil.\n\nThis matters a lot in practice — a struct with no explicit initialization is still fully usable, just filled with zero values, so you rarely get an undefined or garbage value the way you might in some other languages.",
-        "bonus": "Zero values are one of the reasons Go code can skip a lot of explicit initialization — a struct literal with only some fields set still has valid, predictable zero values for the rest."
+        "bonus": "Zero values are one of the reasons Go code can skip a lot of explicit initialization — a struct literal with only some fields set still has valid, predictable zero values for the rest.",
+        "audio": "audio/courses/go/en/q2.mp3"
     },
     {
         "id": "q3",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 3. What are structs in Go, and how are they different from classes in object-oriented languages?",
         "answer": "A struct is a collection of fields grouped together under one type. You define it with the type keyword, followed by a name and the struct keyword with the field names and types inside.\n\nUnlike a class, a struct doesn't carry any built-in notion of inheritance or constructors. You attach behavior to a struct by defining methods on it — functions with a receiver, which is just the struct type written before the method name.\n\nThere's no class hierarchy in Go, so you don't get inheritance in the traditional sense. Instead, Go favors composition — embedding one struct inside another to reuse fields and methods, and interfaces to describe behavior without tying it to a specific type.\n\nIn practice this pushes you toward flatter, more explicit designs. Instead of a deep inheritance chain, you end up with small structs that compose together, which tends to be easier to reason about.",
-        "bonus": "Struct values are also comparable with the equals operator if every field is comparable, which is a nice thing you don't get for free with objects in a lot of other languages."
+        "bonus": "Struct values are also comparable with the equals operator if every field is comparable, which is a nice thing you don't get for free with objects in a lot of other languages.",
+        "audio": "audio/courses/go/en/q3.mp3"
     },
     {
         "id": "q4",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 4. How do interfaces work in Go, and what does it mean for them to be satisfied implicitly?",
         "answer": "An interface in Go is just a set of method signatures. A type satisfies an interface automatically if it implements all of those methods — there's no explicit declaration like implements in Java.\n\nThis is what people mean by implicit satisfaction. You can define an interface after the fact, and any existing type that happens to have the right methods already satisfies it, without ever being written with that interface in mind.\n\nThis makes interfaces in Go feel more like a contract discovered between packages than a contract declared upfront. A common pattern is to define small interfaces at the point where they're consumed, not where the concrete type is defined — the standard library's Reader and Writer interfaces are the classic examples, just one method each.\n\nBecause interfaces are implicit, they're also very cheap to introduce for testing — you can define a small interface just to mock a dependency in a test, without touching the real implementation at all.",
-        "bonus": "The Go proverb for this is 'accept interfaces, return structs' — functions should ask for the smallest interface they need as input, but return a concrete type so callers get all its capabilities."
+        "bonus": "The Go proverb for this is 'accept interfaces, return structs' — functions should ask for the smallest interface they need as input, but return a concrete type so callers get all its capabilities.",
+        "audio": "audio/courses/go/en/q4.mp3"
     },
     {
         "id": "q5",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 5. How does Go handle errors, and why doesn't it have exceptions?",
         "answer": "Go treats errors as regular values, not a separate control-flow mechanism. A function that can fail returns an error as its last return value, and the caller checks it explicitly right after the call.\n\nThis is a deliberate design choice. Exceptions in other languages let errors jump silently through many layers of code, which can hide exactly where and why something failed. In Go, error handling is visible at every call site, so it's harder to accidentally ignore a failure.\n\nThe tradeoff is verbosity — a lot of Go code has repeated blocks checking whether the error returned is not nil. Most Go developers accept that tradeoff because it forces you to think about failure at the point it can happen, rather than catching it somewhere far away with much less context.\n\nGo does have panic and recover for truly exceptional situations — programming errors like a nil pointer dereference or an out-of-bounds index — but those aren't meant to be used for expected, recoverable failures the way exceptions often are in other languages.",
-        "bonus": "A common idiom is wrapping errors with extra context using fmt.Errorf and the percent-w verb, which lets you build a chain of context while still letting callers unwrap and check the original error underneath."
+        "bonus": "A common idiom is wrapping errors with extra context using fmt.Errorf and the percent-w verb, which lets you build a chain of context while still letting callers unwrap and check the original error underneath.",
+        "audio": "audio/courses/go/en/q5.mp3"
     },
     {
         "id": "q6",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 6. What are pointers in Go, and when do you use them?",
         "answer": "A pointer holds the memory address of a value instead of the value itself. The ampersand operator gets the address of a variable, and the asterisk operator dereferences a pointer to get or set the value it points to.\n\nThe main reason to use a pointer is to let a function modify the caller's original value instead of working on a copy. Go passes everything by value by default, so without a pointer, a function that changes a struct's field is only changing its own local copy.\n\nPointers are also useful to avoid copying large structs around, since passing a pointer copies just the address rather than the whole value.\n\nThe tradeoff is that pointers introduce the possibility of nil — dereferencing a nil pointer panics at runtime. So the decision of whether a method or function should take a pointer or a value is really a decision about whether mutation and copy cost matter for that particular type.",
-        "bonus": "A common rule of thumb: if a struct is large, or if any of its methods need to mutate it, use a pointer receiver consistently across all of its methods rather than mixing pointer and value receivers on the same type."
+        "bonus": "A common rule of thumb: if a struct is large, or if any of its methods need to mutate it, use a pointer receiver consistently across all of its methods rather than mixing pointer and value receivers on the same type.",
+        "audio": "audio/courses/go/en/q6.mp3"
     },
     {
         "id": "q7",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 7. What's the difference between arrays and slices in Go?",
         "answer": "An array has a fixed size that's part of its type — an array of five integers is a completely different type from an array of six integers, and that size can't change after it's created.\n\nA slice is a small structure with a pointer to an underlying array, a length, and a capacity. Slices can grow, and most Go code uses slices instead of arrays because of that flexibility.\n\nWhen you append to a slice and it grows beyond its capacity, Go allocates a new, larger underlying array, copies the existing elements over, and returns a slice pointing at the new array. This is why appending to a slice you got as a function parameter doesn't always affect the caller's slice — if a new array gets allocated, the two slices are now pointing at different memory.\n\nBecause slices share an underlying array, taking a sub-slice of another slice can lead to subtle bugs if you're not careful — modifying one can affect the other if they still share the same backing array.",
-        "bonus": "If you know roughly how large a slice will grow, pre-allocating it with make and a capacity hint avoids repeated reallocation and copying as it grows."
+        "bonus": "If you know roughly how large a slice will grow, pre-allocating it with make and a capacity hint avoids repeated reallocation and copying as it grows.",
+        "audio": "audio/courses/go/en/q7.mp3"
     },
     {
         "id": "q8",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 8. How do maps work in Go?",
         "answer": "A map is Go's built-in hash table — a collection of key-value pairs where you look up a value by its key in roughly constant time.\n\nYou create one with make, specifying the key and value types, and access or set entries with square brackets, similar to array indexing.\n\nLooking up a key that doesn't exist returns the zero value for the value type, not an error — which is why Go gives you a second return value, a boolean, when you want to distinguish between a real zero value and a missing key.\n\nMaps aren't safe for concurrent use — if multiple goroutines read and write the same map without synchronization, that's a race condition and can crash the program. For concurrent access, you either protect the map with a mutex or use sync.Map, which is designed for that specific use case.",
-        "bonus": "Iteration order over a map is intentionally randomized in Go — this was a deliberate design decision so people don't accidentally write code that depends on an order that was never guaranteed."
+        "bonus": "Iteration order over a map is intentionally randomized in Go — this was a deliberate design decision so people don't accidentally write code that depends on an order that was never guaranteed.",
+        "audio": "audio/courses/go/en/q8.mp3"
     },
     {
         "id": "q9",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 9. How do defer, panic, and recover work together?",
         "answer": "Defer schedules a function call to run right before the surrounding function returns, regardless of how it returns — normally, or through a panic. It's most commonly used for cleanup, like closing a file or unlocking a mutex.\n\nPanic stops the normal execution of a function immediately and starts unwinding the call stack, running any deferred calls along the way, until either the program crashes or something recovers.\n\nRecover is called inside a deferred function, and it stops the panic from propagating further, letting the program continue running instead of crashing. Recover only has an effect when called directly inside a deferred function — calling it anywhere else does nothing.\n\nA typical pattern is a deferred function at the top of a goroutine or an HTTP handler that recovers from a panic, logs it, and returns a clean error response instead of taking down the whole process.",
-        "bonus": "Panic and recover aren't meant to replace normal error handling — they're for truly unexpected situations. Using panic for regular control flow, the way exceptions are used elsewhere, is considered bad style in Go."
+        "bonus": "Panic and recover aren't meant to replace normal error handling — they're for truly unexpected situations. Using panic for regular control flow, the way exceptions are used elsewhere, is considered bad style in Go.",
+        "audio": "audio/courses/go/en/q9.mp3"
     },
     {
         "id": "q10",
         "module": "Module 1 — Go Fundamentals",
         "question": "Question 10. How do you structure packages in a Go project?",
         "answer": "Go organizes code into packages, and every file in a directory belongs to the same package. Package names are usually short, lowercase, and describe what the package provides — not generic names like utils or common.\n\nA common layout is a cmd directory with one subdirectory per binary, an internal directory for code that shouldn't be imported by other projects, and top-level packages for things meant to be reusable, like a client library.\n\nGo enforces the internal directory convention at the compiler level — code inside internal can only be imported by code rooted at the parent of that internal directory, which is a clean way to expose a public API while keeping implementation details private.\n\nI try to keep package boundaries around behavior, not layers — a package for handling orders, not a package for all the models and another for all the handlers. That tends to keep related code together and avoids a lot of import cycles.",
-        "bonus": "Import cycles are a compile error in Go, not just a lint warning — if two packages try to import each other, the build fails immediately, which forces you to fix the dependency direction early."
+        "bonus": "Import cycles are a compile error in Go, not just a lint warning — if two packages try to import each other, the build fails immediately, which forces you to fix the dependency direction early.",
+        "audio": "audio/courses/go/en/q10.mp3"
     },
     {
         "id": "q11",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 11. What are goroutines, and how do they differ from OS threads?",
         "answer": "A goroutine is a lightweight function that runs concurrently, managed by the Go runtime rather than the operating system. You start one just by putting the word go in front of a function call.\n\nGoroutines are much cheaper than OS threads — they start with a small stack, often just a couple kilobytes, that grows and shrinks as needed, whereas an OS thread typically reserves a much larger, fixed-size stack. This is why it's normal to run thousands or even millions of goroutines in a single program.\n\nThe Go runtime schedules goroutines onto a much smaller number of OS threads, multiplexing them cooperatively. This scheduling happens in user space, which is faster than the operating system switching between threads.\n\nBecause goroutines are so cheap, the Go idiom is to use them freely for anything that can run independently — handling a request, processing an item from a queue — rather than treating concurrency as something to reach for only when necessary.",
-        "bonus": "Starting a goroutine doesn't guarantee it runs before the function that started it returns — if the main function exits, all goroutines are killed immediately, so you need some way to wait for them, like a WaitGroup or a channel."
+        "bonus": "Starting a goroutine doesn't guarantee it runs before the function that started it returns — if the main function exits, all goroutines are killed immediately, so you need some way to wait for them, like a WaitGroup or a channel.",
+        "audio": "audio/courses/go/en/q11.mp3"
     },
     {
         "id": "q12",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 12. What are channels, and how do you use them?",
         "answer": "A channel is a typed pipe that goroutines use to send and receive values safely, without needing an explicit lock. You create one with the make function and the chan keyword followed by the type it carries.\n\nSending a value onto a channel, and receiving from it, are the two basic operations. By default, channels are unbuffered, so a send blocks until another goroutine is ready to receive, and vice versa — this makes channels a natural synchronization point, not just a way to pass data.\n\nChannels fit Go's philosophy well, which is often summarized as 'don't communicate by sharing memory, share memory by communicating.' Instead of multiple goroutines reading and writing the same variable under a lock, they pass values to each other over a channel.\n\nA common pattern is a channel used as a pipeline — one goroutine produces values and sends them on a channel, another goroutine receives and processes them, possibly sending results onward to yet another channel.",
-        "bonus": "Closing a channel with the close function signals to receivers that no more values are coming — ranging over a channel with a for loop automatically stops once the channel is closed and drained."
+        "bonus": "Closing a channel with the close function signals to receivers that no more values are coming — ranging over a channel with a for loop automatically stops once the channel is closed and drained.",
+        "audio": "audio/courses/go/en/q12.mp3"
     },
     {
         "id": "q13",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 13. What does the select statement do, and when do you use it?",
         "answer": "Select lets a goroutine wait on multiple channel operations at once, and it proceeds with whichever one becomes ready first. If more than one is ready at the same time, Go picks one at random, which avoids starving any particular case.\n\nIt's the concurrency equivalent of a switch statement, but for channels instead of values. Each case in a select is a send or receive on a channel, and the code for the first ready case runs.\n\nA very common use is combining a work channel with a done or cancellation channel — the select waits on both, and if the cancellation channel fires first, the goroutine can stop working early instead of blocking forever on the work channel.\n\nAdding a default case makes the select non-blocking — if no channel is ready, the default case runs immediately instead of waiting, which is useful for polling a channel without blocking.",
-        "bonus": "select is also how you implement timeouts around channel operations — race a channel receive against time.After, and if the timer fires first, you know the operation took too long."
+        "bonus": "select is also how you implement timeouts around channel operations — race a channel receive against time.After, and if the timer fires first, you know the operation took too long.",
+        "audio": "audio/courses/go/en/q13.mp3"
     },
     {
         "id": "q14",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 14. What is sync.WaitGroup, and how do you use it?",
         "answer": "WaitGroup lets you wait for a collection of goroutines to finish before continuing. You call Add to say how many goroutines you're waiting for, each goroutine calls Done when it finishes, and the main goroutine calls Wait, which blocks until the count reaches zero.\n\nThe typical pattern is calling Add once for each goroutine you're about to launch, right before starting it, and using a deferred call to Done as the first line inside the goroutine, so Done gets called even if the goroutine panics or returns early.\n\nWaitGroup doesn't pass any data back — it just tells you when everything is done. If you need results from each goroutine, you usually combine it with a channel, or write results into a slice that's safe to access, like one protected by a mutex or pre-sized so each goroutine writes to its own index.\n\nA common mistake is calling Add inside the goroutine instead of before starting it — that creates a race, because Wait might see a count of zero and return before all the goroutines have even been counted.",
-        "bonus": "If you know the exact number of goroutines up front, call Add once with that total count rather than calling it repeatedly inside a loop right before each go statement — it reads more clearly and avoids off-by-one mistakes."
+        "bonus": "If you know the exact number of goroutines up front, call Add once with that total count rather than calling it repeatedly inside a loop right before each go statement — it reads more clearly and avoids off-by-one mistakes.",
+        "audio": "audio/courses/go/en/q14.mp3"
     },
     {
         "id": "q15",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 15. How does sync.Mutex work, and when do you need one?",
         "answer": "A Mutex protects shared data from being accessed by multiple goroutines at the same time. You call Lock before reading or writing the shared data, and Unlock when you're done — while a goroutine holds the lock, any other goroutine calling Lock blocks until it's released.\n\nYou need a mutex whenever more than one goroutine can read and write the same piece of memory, and at least one of those accesses is a write. Read-only access from multiple goroutines is safe without a lock, as long as nothing is writing at the same time.\n\nThe usual pattern is deferring the Unlock call right after Lock, so the lock always gets released, even if the function returns early or panics.\n\nGo also has sync.RWMutex, which allows any number of readers at the same time, but only one writer, and no readers while a writer holds the lock. It's a good choice when reads are much more frequent than writes.",
-        "bonus": "Holding a lock for as short a time as possible matters a lot for performance — do any expensive work outside the locked section if you can, and only lock around the actual shared-state access."
+        "bonus": "Holding a lock for as short a time as possible matters a lot for performance — do any expensive work outside the locked section if you can, and only lock around the actual shared-state access.",
+        "audio": "audio/courses/go/en/q15.mp3"
     },
     {
         "id": "q16",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 16. What causes race conditions in Go, and how do you detect them?",
         "answer": "A race condition happens when two or more goroutines access the same memory location at the same time, and at least one of those accesses is a write, without any synchronization between them. The result becomes unpredictable — it can depend on scheduling that varies from run to run.\n\nCommon causes are goroutines reading and writing a shared variable or map without a mutex, or a closure inside a loop that captures a loop variable incorrectly and ends up shared across goroutines.\n\nGo has a built-in race detector — running the program or its tests with the race flag enabled instruments the code to catch these issues at runtime and reports exactly where the conflicting accesses happened.\n\nI run tests with the race detector enabled in CI for anything that touches goroutines or shared state — it catches issues that are otherwise very hard to reproduce, since races don't always show up on every run.",
-        "bonus": "The race detector only catches races that actually happen during the run it's monitoring — it's not a static analyzer, so good test coverage of concurrent code paths matters for it to be effective."
+        "bonus": "The race detector only catches races that actually happen during the run it's monitoring — it's not a static analyzer, so good test coverage of concurrent code paths matters for it to be effective.",
+        "audio": "audio/courses/go/en/q16.mp3"
     },
     {
         "id": "q17",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 17. What is the context package used for?",
         "answer": "context.Context carries deadlines, cancellation signals, and request-scoped values across API boundaries and between goroutines. It's the standard way in Go to say 'stop what you're doing' to code that might be running concurrently.\n\nA context is usually created at the top of a request — a background context for the root, or one with a timeout or deadline attached, for anything that shouldn't be allowed to run forever. It gets passed as the first argument into every function that might need to respect cancellation, by convention.\n\nFunctions that do I/O or long-running work check the context's Done channel, or pass it down to things like an HTTP request or a database query, which know how to respect it and stop early if the context is cancelled.\n\nI also use context to carry request-scoped values, like a request ID for logging, though the standard advice is to use it sparingly for that — it shouldn't become a general-purpose way to pass around business data.",
-        "bonus": "Always pass a context as an explicit parameter, never store it inside a struct — that keeps the cancellation and deadline behavior visible at every call site instead of hidden as shared state."
+        "bonus": "Always pass a context as an explicit parameter, never store it inside a struct — that keeps the cancellation and deadline behavior visible at every call site instead of hidden as shared state.",
+        "audio": "audio/courses/go/en/q17.mp3"
     },
     {
         "id": "q18",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 18. How would you implement a worker pool in Go?",
         "answer": "A worker pool runs a fixed number of goroutines that pull work from a shared channel, instead of launching a new goroutine for every single task — which matters when you have far more tasks than you want running at once, like thousands of API calls you need to rate-limit.\n\nThe setup is a jobs channel that the main goroutine sends work into, and a fixed number of worker goroutines, each running a loop that ranges over the jobs channel and processes whatever it receives. Optionally, workers send results to a separate results channel.\n\nOnce all the work has been sent, closing the jobs channel signals the workers to stop looping once they've drained everything that's left, and a WaitGroup lets the main goroutine know when every worker has actually finished.\n\nThe main benefit is bounding concurrency — you control exactly how many tasks run at once, which protects downstream systems like databases or external APIs from being overwhelmed by unbounded goroutine creation.",
-        "bonus": "The right pool size usually depends on what the workers are waiting on — for I/O-bound work you can often run many more workers than CPU cores, since most of the time is spent waiting, not computing."
+        "bonus": "The right pool size usually depends on what the workers are waiting on — for I/O-bound work you can often run many more workers than CPU cores, since most of the time is spent waiting, not computing.",
+        "audio": "audio/courses/go/en/q18.mp3"
     },
     {
         "id": "q19",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 19. What's the difference between buffered and unbuffered channels?",
         "answer": "An unbuffered channel has no capacity — a send blocks until a receiver is ready, and a receive blocks until a sender is ready. This makes an unbuffered channel a direct synchronization point between two goroutines, not just a data pipe.\n\nA buffered channel, created with a capacity as the second argument to make, can hold a limited number of values without a receiver present. A send only blocks once the buffer is full, and a receive only blocks once the buffer is empty.\n\nUnbuffered channels are useful when you specifically want the sender and receiver to synchronize — for example a signal that says 'I'm done,' where you want the sender to know the receiver actually got it.\n\nBuffered channels are useful for decoupling a producer and consumer that run at slightly different paces, or for limiting concurrency — a buffered channel with a fixed capacity is a common way to implement a simple semaphore that allows at most that many things happening at once.",
-        "bonus": "A buffered channel isn't a substitute for a worker pool if the consumer is slow — the buffer just delays blocking, it doesn't remove the underlying bottleneck."
+        "bonus": "A buffered channel isn't a substitute for a worker pool if the consumer is slow — the buffer just delays blocking, it doesn't remove the underlying bottleneck.",
+        "audio": "audio/courses/go/en/q19.mp3"
     },
     {
         "id": "q20",
         "module": "Module 2 — Concurrency: Goroutines & Channels",
         "question": "Question 20. What are some common concurrency pitfalls in Go, and how do you avoid them?",
         "answer": "Goroutine leaks are probably the most common — starting a goroutine that blocks forever on a channel that never gets a value or a close, because whatever was supposed to signal it got removed or never ran. The fix is almost always making sure every goroutine has a clear path to finishing, usually tied to a context or a done channel.\n\nDeadlocks happen when goroutines are waiting on each other in a cycle — for example two goroutines each trying to send on a channel the other one is supposed to receive from, but never does because it's blocked doing the same thing.\n\nCapturing a loop variable incorrectly in a closure used to be a classic bug before Go 1.22 changed loop variable scoping — all goroutines started inside a loop would end up sharing the same underlying variable and see its final value, not the one from their own iteration.\n\nI also see race conditions from moving a value shared between goroutines through something too casual, like a plain map, without protecting it with a mutex — and that's the kind of bug the race detector is really good at catching before it reaches production.",
-        "bonus": "It's worth running go vet as part of CI too — it catches some concurrency mistakes statically, like passing a lock by value, which silently breaks the mutex."
+        "bonus": "It's worth running go vet as part of CI too — it catches some concurrency mistakes statically, like passing a lock by value, which silently breaks the mutex.",
+        "audio": "audio/courses/go/en/q20.mp3"
     },
     {
         "id": "q21",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 21. How does Go's garbage collector work?",
         "answer": "Go uses a concurrent, tri-color mark-and-sweep garbage collector. It runs alongside your program rather than stopping it completely, which keeps pause times short compared to older stop-the-world collectors.\n\nThe basic idea is that the collector marks objects that are still reachable from roots like global variables and goroutine stacks, and anything not marked is considered garbage and gets swept away, freeing that memory.\n\nGo's collector is designed to prioritize low latency over raw throughput — it trades a bit of extra CPU usage for much shorter pauses, which matters a lot for latency-sensitive services like APIs.\n\nYou can influence how aggressively it runs with the GOGC setting, which controls how much the heap is allowed to grow before a collection is triggered, and there's also a memory limit setting for capping absolute memory usage regardless of GOGC.",
-        "bonus": "Reducing allocations in the first place usually matters more than tuning the collector — a hot code path that avoids unnecessary heap allocations gives the garbage collector less work to do."
+        "bonus": "Reducing allocations in the first place usually matters more than tuning the collector — a hot code path that avoids unnecessary heap allocations gives the garbage collector less work to do.",
+        "audio": "audio/courses/go/en/q21.mp3"
     },
     {
         "id": "q22",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 22. What is escape analysis, and why does it matter?",
         "answer": "Escape analysis is a compile-time analysis the Go compiler does to decide whether a variable can be allocated on the stack, or whether it has to be allocated on the heap.\n\nA variable can stay on the stack if the compiler can prove its lifetime doesn't outlive the function it's created in. If a variable's address is returned, stored somewhere that outlives the function, or passed somewhere the compiler can't fully track, it escapes to the heap.\n\nStack allocation is much cheaper than heap allocation, since the stack is just a pointer bump, and it doesn't need to be garbage collected. So reducing unnecessary heap escapes is one of the more effective ways to make hot code paths faster.\n\nYou can see exactly what's escaping and why by building with the compiler's escape analysis flags, which print a report of which variables escape to the heap and why.",
-        "bonus": "Passing a pointer to a large struct doesn't automatically make it escape — the compiler can still keep it on the stack if it can prove the pointer never leaves the function's scope."
+        "bonus": "Passing a pointer to a large struct doesn't automatically make it escape — the compiler can still keep it on the stack if it can prove the pointer never leaves the function's scope.",
+        "audio": "audio/courses/go/en/q22.mp3"
     },
     {
         "id": "q23",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 23. What's the difference between the stack and the heap in Go, and how does Go manage them?",
         "answer": "The stack is memory tied to a single goroutine's execution — fast to allocate and free, since it's just growing or shrinking with function calls, and automatically cleaned up when a function returns.\n\nThe heap is shared memory that has to be managed explicitly by the garbage collector, since values there can outlive the function that created them and might be referenced from multiple places.\n\nUnlike languages where you explicitly choose stack or heap, in Go the compiler decides for you through escape analysis — you write normal code, and whether a value ends up on the stack or the heap depends on how it's used, not on any syntax you write.\n\nEach goroutine's stack also starts small, just a couple kilobytes, and grows automatically as needed, which is part of why goroutines are so cheap compared to OS threads with large fixed stacks.",
-        "bonus": "If a benchmark shows unexpectedly high allocations for a function that looks simple, escape analysis is usually the first place to look — something is forcing a value you'd expect to stay on the stack onto the heap instead."
+        "bonus": "If a benchmark shows unexpectedly high allocations for a function that looks simple, escape analysis is usually the first place to look — something is forcing a value you'd expect to stay on the stack onto the heap instead.",
+        "audio": "audio/courses/go/en/q23.mp3"
     },
     {
         "id": "q24",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 24. How do you profile a Go application with pprof?",
         "answer": "pprof is Go's built-in profiling tool, and it can capture CPU profiles, memory allocation profiles, goroutine counts, and more.\n\nFor a long-running service, we import the standard library's HTTP pprof package, which exposes profiling endpoints over HTTP — hitting one endpoint captures a CPU profile over a set duration, and another gives a memory snapshot.\n\nFor one-off analysis, like a benchmark or a CLI tool, we use the pprof package directly in code to write a profile to a file, then open it with the pprof tool, which gives an interactive command line or a web-based flame graph.\n\nThe flame graph view is usually the fastest way to spot where time or memory is actually going — wide bars at the top of the graph point straight at the function doing the most work.",
-        "bonus": "It's worth profiling under realistic load rather than locally with a single request — allocation and contention patterns often look completely different once there's real concurrency."
+        "bonus": "It's worth profiling under realistic load rather than locally with a single request — allocation and contention patterns often look completely different once there's real concurrency.",
+        "audio": "audio/courses/go/en/q24.mp3"
     },
     {
         "id": "q25",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 25. How do you write benchmarks in Go?",
         "answer": "Go's testing package supports benchmarks directly — a function named starting with Benchmark, taking a pointer to testing.B, in the same package as your tests.\n\nInside, you run the code you want to measure inside a loop that runs a set number of iterations determined by the testing framework — it adjusts that count automatically to run long enough to get a stable measurement.\n\nYou run benchmarks with a dedicated flag matching the benchmark names you want to run, and another flag to also report memory allocations per operation, which is often just as important as raw speed.\n\nI usually compare benchmarks before and after a change using a statistics tool built for this, which shows whether a difference is statistically significant or just noise — a single run can be misleading because of variance from other things happening on the machine.",
-        "bonus": "Watch out for the compiler optimizing away the very code you're trying to benchmark if the result is never used — assigning results to a package-level variable inside the benchmark prevents that."
+        "bonus": "Watch out for the compiler optimizing away the very code you're trying to benchmark if the result is never used — assigning results to a package-level variable inside the benchmark prevents that.",
+        "audio": "audio/courses/go/en/q25.mp3"
     },
     {
         "id": "q26",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 26. How do memory leaks happen in Go, given that it has garbage collection?",
         "answer": "Garbage collection prevents the classic memory leak of forgetting to free memory, but it can't help if something is still reachable and just never gets released — from the garbage collector's point of view, that memory is still in use.\n\nCommon causes: goroutines that never finish, each holding onto whatever they captured in their closure. A cache or map that keeps growing with no eviction policy or expiration. Slices that keep a reference to a much larger underlying array than needed, because a small sub-slice was taken from a huge one and the original array can't be collected as long as any part of it is referenced.\n\nTo find these, we take heap profiles with pprof at different points in time and compare them, looking at what's growing and tracing back through the profile to see what's holding onto it.\n\nThe fix is almost always the same shape — find what's holding a reference longer than it should, and either release it explicitly, add an expiration or size limit, or make sure a goroutine actually has a way to finish.",
-        "bonus": "A steadily growing goroutine count over time, even under steady load, is one of the easiest early warning signs of a goroutine leak."
+        "bonus": "A steadily growing goroutine count over time, even under steady load, is one of the easiest early warning signs of a goroutine leak.",
+        "audio": "audio/courses/go/en/q26.mp3"
     },
     {
         "id": "q27",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 27. What does GOMAXPROCS control?",
         "answer": "GOMAXPROCS sets the maximum number of OS threads that can execute Go code simultaneously — effectively how many CPU cores your program can use for goroutines running at the same time.\n\nBy default, it's set to the number of logical CPUs available to the process, which is usually the right setting, since it lets the runtime use all the available parallelism.\n\nYou might lower it in a containerized environment where the container has a CPU limit that's lower than what the host machine reports — Go didn't always account for that automatically, so setting GOMAXPROCS explicitly, or using a small library built for this, avoided the runtime scheduling more threads than the container actually gets to use.\n\nIt's important to remember GOMAXPROCS controls parallelism for CPU-bound work — goroutines blocked on I/O don't need a free thread to make progress in the same way, so raising it doesn't automatically speed up an I/O-bound service.",
-        "bonus": "Newer Go versions read container CPU limits automatically in a lot of cases, which reduced the need to manually tune this in Kubernetes — but it's still worth double-checking on older container runtimes."
+        "bonus": "Newer Go versions read container CPU limits automatically in a lot of cases, which reduced the need to manually tune this in Kubernetes — but it's still worth double-checking on older container runtimes.",
+        "audio": "audio/courses/go/en/q27.mp3"
     },
     {
         "id": "q28",
         "module": "Module 3 — Memory Management & Performance",
         "question": "Question 28. How do value and pointer receivers affect performance?",
         "answer": "A value receiver method operates on a copy of the struct, while a pointer receiver method operates on the original, through its address. For a small struct with just a few fields, the copy is cheap and the performance difference is negligible.\n\nFor a large struct, copying it on every method call adds up, especially in a hot path called frequently. A pointer receiver avoids that copy, since it just passes an address regardless of how large the struct is.\n\nBeyond raw copying cost, pointer receivers also matter for correctness whenever a method needs to mutate the struct — a value receiver method can't change the original struct that the caller sees, since it's working on its own copy.\n\nThe common guidance is to be consistent — if any method on a type needs a pointer receiver, use pointer receivers for all of its methods, so the type has one clear way of being used rather than mixing the two and creating confusion about whether a copy happened.",
-        "bonus": "Passing a large struct by value as a function argument has the same copying cost as a value receiver — the fix is the same, pass a pointer instead."
+        "bonus": "Passing a large struct by value as a function argument has the same copying cost as a value receiver — the fix is the same, pass a pointer instead.",
+        "audio": "audio/courses/go/en/q28.mp3"
     },
     {
         "id": "q29",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 29. How do you build an HTTP server or client with net/http?",
         "answer": "For a server, you register handlers on a mux, mapping a URL path to a function that takes a response writer and a request. Starting the server on a given address then begins listening and dispatching incoming requests to those handlers.\n\nA handler function writes the response by writing to the response writer, setting headers and a status code as needed, and reading the incoming request's body, query parameters, or headers from the request object.\n\nFor a client, the package's simple helper functions cover basic cases, but for anything with custom headers, timeouts, or reusable connections, we build a client explicitly and reuse it across requests, rather than creating a new one every time — the default client has no timeout at all, which is a common production bug.\n\nMiddleware in net/http is just a function that wraps a handler — takes a handler, returns a new handler that does something extra, like logging or authentication, before or after calling the original one.",
-        "bonus": "Always set a timeout explicitly on an HTTP client — a call with no timeout can hang a goroutine indefinitely if the remote server never responds."
+        "bonus": "Always set a timeout explicitly on an HTTP client — a call with no timeout can hang a goroutine indefinitely if the remote server never responds.",
+        "audio": "audio/courses/go/en/q29.mp3"
     },
     {
         "id": "q30",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 30. How does encoding/json work for marshaling and unmarshaling data?",
         "answer": "Marshaling takes a Go value and produces its JSON representation as bytes. Unmarshaling takes JSON bytes and fills in a Go value, usually a pointer to a struct.\n\nStruct fields need to be exported, meaning capitalized, for the JSON package to see them through reflection — an unexported field is invisible to marshaling and unmarshaling.\n\nStruct tags control how a field is named and behaves in JSON — a tag naming the field maps it to a lowercase key, and adding an omitempty option skips the field entirely if it's the zero value, which is common for optional fields.\n\nFor streaming large JSON payloads without loading everything into memory, the decoder and encoder types work directly on a reader or writer, decoding or encoding one JSON value at a time instead of requiring the whole payload up front.",
-        "bonus": "Unmarshaling into a generic interface with no fixed structure gives you a map with string keys and interface values for objects, and a slice of interface values for arrays — useful for dynamic data but you lose static typing."
+        "bonus": "Unmarshaling into a generic interface with no fixed structure gives you a map with string keys and interface values for objects, and a slice of interface values for arrays — useful for dynamic data but you lose static typing.",
+        "audio": "audio/courses/go/en/q30.mp3"
     },
     {
         "id": "q31",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 31. What are the Reader and Writer interfaces, and why are they so central to Go's standard library?",
         "answer": "The Reader interface defines a single method that reads bytes into a provided buffer and returns how many bytes were read. The Writer interface defines a method that takes a buffer of bytes and writes it out, returning how many bytes were written.\n\nBecause they're such small interfaces, an enormous number of types in the standard library implement them — files, network connections, HTTP request and response bodies, byte buffers, even compressors like gzip writers.\n\nThis means code written against Reader or Writer works with any of those concrete types without changes — a function that copies data from a reader to a writer works whether the source is a file, a network socket, or an in-memory buffer.\n\nThe io package builds a lot of useful functionality directly on top of these two interfaces — a copy function streams from a reader to a writer without loading everything into memory, and a tee reader lets you read from a reader while also writing everything read to another writer, like tapping a data pipe.",
-        "bonus": "Because Reader and Writer are so small and so widely implemented, wrapping one to add behavior — buffering, limiting, counting bytes — is one of the most common composition patterns in Go's own standard library."
+        "bonus": "Because Reader and Writer are so small and so widely implemented, wrapping one to add behavior — buffering, limiting, counting bytes — is one of the most common composition patterns in Go's own standard library.",
+        "audio": "audio/courses/go/en/q31.mp3"
     },
     {
         "id": "q32",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 32. How do Go modules work, and what are go.mod and go.sum for?",
         "answer": "A module is the unit of dependency versioning in Go — a collection of packages defined by a go.mod file at the root, which declares the module's own path, the Go version it targets, and the versions of its dependencies.\n\ngo.sum records cryptographic checksums for every dependency and its transitive dependencies, so Go can verify that what gets downloaded matches exactly what was recorded before, protecting against a dependency changing unexpectedly.\n\nGo modules use semantic versioning, and by default Go picks the minimum version that satisfies all the requirements across your dependency graph, rather than always grabbing the newest — this is called minimal version selection, and it favors reproducibility over always being on the latest.\n\nTooling commands add or update a dependency and its entry in go.mod, and a tidy command cleans up the file, adding anything that's actually used and removing anything that isn't.",
-        "bonus": "Vendoring copies all dependencies directly into the repository — useful in environments with no reliable network access to a module proxy during builds."
+        "bonus": "Vendoring copies all dependencies directly into the repository — useful in environments with no reliable network access to a module proxy during builds.",
+        "audio": "audio/courses/go/en/q32.mp3"
     },
     {
         "id": "q33",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 33. What do go build, go test, and go vet each do?",
         "answer": "go build compiles packages and their dependencies into a binary, without running anything — it's the standard way to check that code actually compiles and to produce an executable.\n\ngo test runs any function in the package matching the standard test naming convention, using the testing package, and reports which passed and failed. It also runs benchmarks and examples if you pass the right flags.\n\ngo vet examines source code for suspicious constructs that compile fine but are probably bugs — things like a format string that doesn't match its arguments in a print-style call, or a struct passed by value that contains a mutex, which silently breaks the lock.\n\nI run all three as part of CI on every pull request — build to catch compile errors, test with the race detector enabled for anything concurrent, and vet as a very cheap extra check that catches real bugs before they reach a human reviewer.",
-        "bonus": "Most editors and IDEs run go vet and the standard formatter automatically on save, so a lot of these issues get caught long before a pull request is even opened."
+        "bonus": "Most editors and IDEs run go vet and the standard formatter automatically on save, so a lot of these issues get caught long before a pull request is even opened.",
+        "audio": "audio/courses/go/en/q33.mp3"
     },
     {
         "id": "q34",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 34. What does Go's built-in testing package provide, and how do you use it?",
         "answer": "Testing is built directly into the standard library, so you don't need an external framework to write and run tests. A test file ends in _test.go, and test functions start with the word Test, taking a pointer to testing.T.\n\nInside a test, you call methods on that testing object to report failures — some report a failure but keep running the rest of the test, while others report a failure and stop the test immediately, which is useful when continuing doesn't make sense, like after a setup step fails.\n\nA run method lets you define subtests within a test function, each with its own name, which is what makes table-driven tests possible — you get a clear pass or fail report for each case, not just one combined result for the whole function.\n\nThe testing package also supports test helpers, setup and teardown through a main test entry point, and skipping tests conditionally, for example skipping a test that needs a real database connection when one isn't available.",
-        "bonus": "Running go test with the verbose flag shows the name and result of every test and subtest individually, which is very useful when a table-driven test has many cases and you need to see exactly which one failed."
+        "bonus": "Running go test with the verbose flag shows the name and result of every test and subtest individually, which is very useful when a table-driven test has many cases and you need to see exactly which one failed.",
+        "audio": "audio/courses/go/en/q34.mp3"
     },
     {
         "id": "q35",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 35. What are table-driven tests, and why are they common in Go?",
         "answer": "A table-driven test defines a slice of test cases — usually a small struct with inputs and expected outputs — and then loops over that slice, running the same test logic against every case.\n\nThis avoids copy-pasting nearly identical test functions for every input variation. Instead, adding a new test case is just adding one more entry to the slice, which keeps the actual test logic in one place.\n\nCombined with subtests inside the loop, each case becomes its own named test, so a failure clearly points to which specific case failed, with its own pass or fail status, instead of one big test function that just says something somewhere failed.\n\nThis pattern shows up constantly in the Go standard library's own tests, and it's one of the more visible idioms that separates typical Go test code from what you'd see in a lot of other languages.",
-        "bonus": "Naming each test case with a descriptive name field pays off — a failing subtest with a clear label is much easier to act on than one just numbered by position."
+        "bonus": "Naming each test case with a descriptive name field pays off — a failing subtest with a clear label is much easier to act on than one just numbered by position.",
+        "audio": "audio/courses/go/en/q35.mp3"
     },
     {
         "id": "q36",
         "module": "Module 4 — Standard Library & Tooling",
         "question": "Question 36. What is go generate, and how is code generation used in Go?",
         "answer": "go generate scans source files for specially formatted comments and runs whatever command each one specifies, before the actual build. It's not run automatically as part of go build — you invoke it explicitly, usually as a separate step in your build process.\n\nGo favors code generation over some of the more dynamic metaprogramming features found in other languages, since Go deliberately doesn't have reflection-heavy tricks or macros in the same way. Generating code keeps everything statically typed and checkable by the compiler, at the cost of needing an extra step to keep the generated code up to date.\n\nCommon uses are generating mock implementations of interfaces for testing, generating boilerplate for enums with a string conversion method, or generating protocol buffer or gRPC bindings from a schema file.\n\nI usually check the generated files into the repository rather than generating them fresh on every build, so anyone can read the code without needing to run the generator, and CI can verify the checked-in output still matches what generation would produce.",
-        "bonus": "A quick CI check — running the generator and then diffing against the checked-in files — catches the case where someone edited a source file that generated code but forgot to regenerate it."
+        "bonus": "A quick CI check — running the generator and then diffing against the checked-in files — catches the case where someone edited a source file that generated code but forgot to regenerate it.",
+        "audio": "audio/courses/go/en/q36.mp3"
     },
     {
         "id": "q37",
         "module": "Module 5 — Testing & Idiomatic Go",
         "question": "Question 37. What are some idiomatic error handling patterns in Go?",
         "answer": "Wrapping errors with extra context is one of the most common — using the standard formatting function with a special wrapping verb adds information about what was happening when the error occurred, while still preserving the original error underneath so it can be inspected later.\n\nOne standard library function checks whether an error, or any error it wraps, matches a specific sentinel error — useful for cases like checking if a database call failed because a record simply wasn't found, versus some other kind of failure.\n\nA related function does something similar but for pulling out a specific error type, when you need access to fields on a custom error struct, not just a plain identity check.\n\nSentinel errors — a plain exported error value, defined once and returned by name — work well for a small, fixed set of expected failure conditions. For a larger, more descriptive error, a custom error type with its own fields is usually clearer than trying to encode everything into a string.",
-        "bonus": "Comparing errors with the equals operator or a switch on the error string is fragile the moment a message changes — the dedicated error-checking functions exist specifically so error identity doesn't depend on exact wording."
+        "bonus": "Comparing errors with the equals operator or a switch on the error string is fragile the moment a message changes — the dedicated error-checking functions exist specifically so error identity doesn't depend on exact wording.",
+        "audio": "audio/courses/go/en/q37.mp3"
     },
     {
         "id": "q38",
         "module": "Module 5 — Testing & Idiomatic Go",
         "question": "Question 38. What are some of the naming and style conventions that make Go code idiomatic?",
         "answer": "Go favors short, clear names — especially for local variables with a small scope, like a single letter for a loop index or err for an error. Longer, more descriptive names are reserved for things with a bigger scope, like exported functions and package-level variables.\n\nPackage names are short, lowercase, and singular, without underscores — and a good package name doesn't need to be repeated inside every function it exports, since callers already see it as a prefix.\n\nGetter methods don't use a Get prefix in Go — a method that returns a struct's name field is just called Name, not GetName. Interface names describing a single method are often just that method name plus 'er,' like Reader or Writer.\n\nFormatting isn't really a matter of personal style at all — the standard formatter enforces one canonical layout, so there's no debate over brace placement or indentation, and every Go codebase ends up looking structurally similar.",
-        "bonus": "The Effective Go and Go Code Review Comments documents are worth reading once end to end — a lot of what looks like 'just convention' in real Go code traces back directly to guidance written there."
+        "bonus": "The Effective Go and Go Code Review Comments documents are worth reading once end to end — a lot of what looks like 'just convention' in real Go code traces back directly to guidance written there.",
+        "audio": "audio/courses/go/en/q38.mp3"
     },
     {
         "id": "q39",
         "module": "Module 5 — Testing & Idiomatic Go",
         "question": "Question 39. How do you approach interface design in Go?",
         "answer": "The Go proverb is that the bigger the interface, the weaker the abstraction — so I try to keep interfaces small, often just one or two methods, describing only the behavior a consumer actually needs.\n\nInterfaces are usually defined where they're consumed, not next to the concrete type that implements them. A function that needs to read some bytes should ask for a Reader, not a concrete file type, even if it's only ever called with a file today — that keeps the function testable and reusable with any other reader.\n\nI avoid designing interfaces speculatively, for types that might need multiple implementations someday. Since Go interfaces are satisfied implicitly, you can always introduce one later, once there's an actual second implementation or a real testing need — designing it too early just adds an abstraction that has to be maintained without a payoff.\n\nWhen a package does need to expose a broader interface, it's often built by combining several small, single-purpose interfaces — a combined reader, writer, and closer interface in the standard library is exactly that, a composition of three separate single-method interfaces.",
-        "bonus": "A good signal that an interface is well designed is that a caller can trivially write a fake implementation of it for a test, without needing to fake out ten unrelated methods."
+        "bonus": "A good signal that an interface is well designed is that a caller can trivially write a fake implementation of it for a test, without needing to fake out ten unrelated methods.",
+        "audio": "audio/courses/go/en/q39.mp3"
     },
     {
         "id": "q40",
         "module": "Module 5 — Testing & Idiomatic Go",
         "question": "Question 40. What's the difference between struct embedding and inheritance?",
         "answer": "Struct embedding places one struct's type, unnamed, inside another struct. The outer struct automatically gets access to the embedded struct's fields and methods, as if they were promoted up to the outer type directly.\n\nThis looks similar to inheritance at first, but the mechanics are different. There's no is-a relationship or polymorphism through a base type — the outer struct simply has a copy of, or a pointer to, the embedded struct, and Go forwards field and method access for convenience.\n\nBecause there's no real subtype relationship, you can't pass the outer struct somewhere that expects the embedded type directly, the way you could pass a subclass where a base class is expected in a language with real inheritance. If you need that kind of substitutability, you reach for an interface instead.\n\nI use embedding mainly for reuse — sharing common fields or behavior, like an embedded logger or a common base with an identifier and timestamps — not to model a hierarchy of related types.",
-        "bonus": "If two embedded types both have a method with the same name, calling it on the outer struct is a compile error unless you call it explicitly through one of the embedded fields — Go doesn't try to resolve that ambiguity for you."
+        "bonus": "If two embedded types both have a method with the same name, calling it on the outer struct is a compile error unless you call it explicitly through one of the embedded fields — Go doesn't try to resolve that ambiguity for you.",
+        "audio": "audio/courses/go/en/q40.mp3"
     },
     {
         "id": "q41",
         "module": "Module 5 — Testing & Idiomatic Go",
         "question": "Question 41. Walk me through building a table-driven test in detail, including edge cases and subtests.",
         "answer": "I start by defining a struct for a single test case — a name for the case, the input values, the expected output, and often an expected error, if the function under test can fail.\n\nThen I build a slice of those structs, one entry per scenario I want to cover — typical inputs, boundary values like an empty string or a zero, and cases that should return an error.\n\nI loop over the slice, and for each case I start a subtest using the case's name, so the subtest report shows the case name in the output — this makes a failure immediately identifiable instead of forcing me to add print statements to figure out which input broke.\n\nInside each subtest, I run the actual function and compare against the expected result. For anything beyond simple equality, I use a comparison helper that gives a readable diff instead of just true or false — especially useful for comparing structs or slices.",
-        "bonus": "It's worth deliberately including at least one case that exercises the error path, not just happy-path inputs — error handling logic that's never actually tested tends to be where real bugs hide."
+        "bonus": "It's worth deliberately including at least one case that exercises the error path, not just happy-path inputs — error handling logic that's never actually tested tends to be where real bugs hide.",
+        "audio": "audio/courses/go/en/q41.mp3"
     },
     {
         "id": "q42",
         "module": "Module 5 — Testing & Idiomatic Go",
         "question": "Question 42. What testing strategies do you use for code with external dependencies, like a database or an API?",
         "answer": "For any dependency I want to mock, I make sure the code depends on a small interface, not a concrete client — that's what makes swapping in a fake implementation for a test possible in the first place.\n\nFor simple cases, I write a small hand-written fake that implements the interface directly in the test file — often that's clearer than a generated mock, especially for an interface with just one or two methods.\n\nFor more complex interfaces, I use a mocking library or generate mocks with a code generation tool, which saves time when there are many methods or many test cases that each need slightly different mock behavior.\n\nFor something like a database, I lean toward integration tests against a real, disposable instance — often a container started just for the test run — rather than mocking the database entirely, since a lot of real bugs live in the actual SQL and how it behaves against a real engine, not in the calling code.",
-        "bonus": "A test HTTP server is great for testing code that calls an external API — it spins up a real local server your code talks to over an actual network connection, without needing to mock the HTTP client itself."
+        "bonus": "A test HTTP server is great for testing code that calls an external API — it spins up a real local server your code talks to over an actual network connection, without needing to mock the HTTP client itself.",
+        "audio": "audio/courses/go/en/q42.mp3"
     },
     {
         "id": "q43",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 43. Why is Go a popular choice for building microservices?",
         "answer": "Go compiles to a single static binary with no runtime dependency to install on the target machine, which makes deployment simple — you build once and copy the binary, or bake it into a minimal container image with almost nothing else in it.\n\nIts concurrency model handles the kind of workload microservices usually have — lots of concurrent network requests — efficiently, without needing a large thread pool or an async framework layered on top of the language.\n\nFast startup time and low memory usage compared to some other languages also matter a lot in a microservices environment, where you might be running many small services and scaling them up and down frequently.\n\nThe standard library already covers most of what a typical service needs — HTTP, JSON, TLS, context propagation — so a lot of services can be built without pulling in a heavy framework, which keeps the dependency footprint and attack surface small.",
-        "bonus": "A minimal container image built from a Go binary can end up just a few megabytes — a real advantage for fast deploys and fast autoscaling."
+        "bonus": "A minimal container image built from a Go binary can end up just a few megabytes — a real advantage for fast deploys and fast autoscaling.",
+        "audio": "audio/courses/go/en/q43.mp3"
     },
     {
         "id": "q44",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 44. How do you implement graceful shutdown in a Go service?",
         "answer": "When a service receives a termination signal, typically sent by an orchestrator during a deploy or scale-down, we don't want to drop in-flight requests immediately.\n\nWe catch that signal explicitly instead of letting the default behavior kill the process right away. Once caught, we stop accepting new connections — the HTTP server type has a shutdown method that does exactly this, refusing new requests while letting existing ones finish.\n\nWe pass a context with a timeout into that shutdown call, so it waits for in-flight requests up to a limit, and then forces a shutdown if something is taking too long, rather than hanging forever.\n\nBefore returning from the process, we also close other resources cleanly — database connection pools, message queue consumers, background goroutines — usually by cancelling a shared context that all of them are listening on.",
-        "bonus": "It's worth testing graceful shutdown deliberately, not just assuming it works — sending a termination signal during a load test and checking that in-flight requests still get a proper response instead of a connection reset."
+        "bonus": "It's worth testing graceful shutdown deliberately, not just assuming it works — sending a termination signal during a load test and checking that in-flight requests still get a proper response instead of a connection reset.",
+        "audio": "audio/courses/go/en/q44.mp3"
     },
     {
         "id": "q45",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 45. How do you approach structured logging in Go?",
         "answer": "Structured logging means writing log entries as key-value pairs, usually serialized as JSON, instead of a free-form text message — this makes logs easy to search, filter, and parse in a centralized logging system.\n\nGo's standard library added a structured logging package specifically for this, giving you structured fields, log levels, and different output handlers built in, without needing an external logging library for basic structured logging needs.\n\nI attach consistent fields across a service — a request ID, the service name, and relevant identifiers like a user or order ID — so a single request's logs can be traced across every log line it produced, and across services if the request ID is propagated through calls.\n\nLog levels matter too — error for things that need attention, warn for things worth watching, info for normal significant events, and debug for detailed information you'd only want during active troubleshooting, not in a noisy production log stream.",
-        "bonus": "Passing a logger through context, or attaching request-scoped fields to a logger instance at the start of a request, avoids having to manually pass the request ID into every single log call by hand."
+        "bonus": "Passing a logger through context, or attaching request-scoped fields to a logger instance at the start of a request, avoids having to manually pass the request ID into every single log call by hand.",
+        "audio": "audio/courses/go/en/q45.mp3"
     },
     {
         "id": "q46",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 46. How do you handle dependency injection in Go, since there's no built-in DI framework?",
         "answer": "Go doesn't have annotations or a container-based DI framework built into the language, so the most common pattern is just passing dependencies explicitly through constructor-style functions — a function that takes a database connection, a logger, and any other dependency, and returns a struct holding them.\n\nDependencies are almost always expressed as interfaces in the struct's fields, not concrete types, so tests can substitute a fake or mock implementation without needing a DI framework to swap anything.\n\nFor larger applications with a lot of dependencies to wire together, some teams do use a dependency injection generator, which produces the wiring code at compile time based on a set of provider functions — this avoids the reflection-based runtime wiring you'd see in some other languages' DI frameworks.\n\nIn my experience, plain constructor functions cover the vast majority of cases well, and I'd only reach for a generator like that once the dependency graph gets large enough that wiring it by hand becomes genuinely tedious and error-prone.",
-        "bonus": "Because Go's DI is usually just passing interfaces into constructors, there's very little magic involved — you can always trace exactly where a dependency came from just by reading the code, without needing to understand a framework's internals."
+        "bonus": "Because Go's DI is usually just passing interfaces into constructors, there's very little magic involved — you can always trace exactly where a dependency came from just by reading the code, without needing to understand a framework's internals.",
+        "audio": "audio/courses/go/en/q46.mp3"
     },
     {
         "id": "q47",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 47. What does a production-grade Go service look like, beyond just the business logic?",
         "answer": "It has explicit configuration, validated at startup — required environment variables checked immediately, so the service fails fast with a clear error instead of crashing unpredictably later during a request.\n\nIt exposes health and readiness endpoints, so an orchestrator like Kubernetes knows whether the service is alive and whether it's ready to receive traffic — those are often two different checks, since a service can be running but not yet ready, for example while warming up a cache.\n\nIt handles graceful shutdown, sets sensible timeouts on every outgoing HTTP call and database query, and has structured logging with enough context to debug an incident after the fact.\n\nAnd it's been through actual load testing, not just unit tests — verifying it behaves reasonably under real concurrency, not just correctly for a single request in isolation.",
-        "bonus": "A surprising number of production incidents trace back to a missing timeout somewhere — a call with no timeout can turn one slow dependency into an outage for the whole service."
+        "bonus": "A surprising number of production incidents trace back to a missing timeout somewhere — a call with no timeout can turn one slow dependency into an outage for the whole service.",
+        "audio": "audio/courses/go/en/q47.mp3"
     },
     {
         "id": "q48",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 48. How do you approach observability in a Go service?",
         "answer": "Observability rests on three pillars — logs, metrics, and traces — and a Go service in production should have all three, not just logs.\n\nFor metrics, we instrument the service with a metrics client library, exposing counters and histograms for things like request count, error rate, and latency, scraped by a metrics system and visualized on a dashboard.\n\nFor tracing, especially in a system made of multiple services, we propagate a trace context through requests using an observability standard like OpenTelemetry, so a single request's path across several services shows up as one connected trace, which is much faster for debugging latency issues than piecing it together from separate logs.\n\nStructured logs tie it together — with the trace and request ID attached to every log line, you can jump from a metric spike, to the trace that shows which service was slow, to the exact logs from that specific request.",
-        "bonus": "Dashboards and alerts should be built before you need them during an incident — trying to figure out the right metric to look at while something is actively on fire is a bad time to start."
+        "bonus": "Dashboards and alerts should be built before you need them during an incident — trying to figure out the right metric to look at while something is actively on fire is a bad time to start.",
+        "audio": "audio/courses/go/en/q48.mp3"
     },
     {
         "id": "q49",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 49. What architecture trade-offs come up often when designing Go services, and how do you make those decisions?",
         "answer": "Monolith versus microservices comes up early on almost every project. A single well-structured Go binary with clear internal package boundaries is often the right starting point — it's simpler to deploy, test, and reason about, and Go's package system gives you real internal boundaries without needing separate services to enforce them.\n\nSynchronous versus asynchronous processing is another common one — a request that triggers slow, non-critical work is often better handled by acknowledging quickly and pushing the work onto a queue, processed by a separate worker, rather than making the caller wait for it.\n\nConsistency versus availability trade-offs show up whenever a service depends on multiple data stores or downstream services — deciding whether to fail a request if a non-critical dependency is down, or to degrade gracefully and continue with reduced functionality.\n\nI try to make these decisions based on the actual scale and team size a system has today, not the scale it might have someday — introducing microservices or complex async pipelines before there's a real need for them usually costs more in operational complexity than it saves.",
-        "bonus": "I've mentored engineers moving into Go from other languages, and the trade-off conversation that comes up most is convincing people that a well-organized monolith isn't a step backward — it's often the more mature choice for a team that isn't at microservices scale yet."
+        "bonus": "I've mentored engineers moving into Go from other languages, and the trade-off conversation that comes up most is convincing people that a well-organized monolith isn't a step backward — it's often the more mature choice for a team that isn't at microservices scale yet.",
+        "audio": "audio/courses/go/en/q49.mp3"
     },
     {
         "id": "q50",
         "module": "Module 6 — Architecture & Production Go",
         "question": "Question 50. What are your career goals, and why should we hire you for this Go role?",
         "answer": "I want to keep deepening my knowledge of Go's runtime and performance characteristics — I enjoy the kind of work where you profile a service, find a real bottleneck, and fix it with a measurable improvement, and I'd like to keep doing more of that.\n\nI'm also interested in growing into more of a technical leadership role — helping a team establish good conventions around error handling, testing, and service structure, and mentoring engineers who are newer to Go's idioms.\n\nFor this role specifically, I bring solid hands-on experience with Go's concurrency model, the standard library, and running Go services in production — things like graceful shutdown, observability, and diagnosing issues with pprof and the race detector under real load.\n\nBeyond the technical skills, I care about writing code that the rest of the team can read and maintain confidently, not just code that works for me today — and I think that focus on clarity and idiomatic style is exactly what makes a Go codebase stay healthy as it grows.",
-        "bonus": "I've also been using AI coding tools like Claude Code to speed up exploration of unfamiliar codebases and catch issues earlier, and I think using them well is becoming a real part of being productive as a senior engineer."
+        "bonus": "I've also been using AI coding tools like Claude Code to speed up exploration of unfamiliar codebases and catch issues earlier, and I think using them well is becoming a real part of being productive as a senior engineer.",
+        "audio": "audio/courses/go/en/q50.mp3"
     }
 ]

@@ -24,13 +24,13 @@ automatic, invisible fallback so nothing breaks when an MP3 is missing.
 - **`src/data/audio.js`** — `audioUrl(key)` concatenates `VITE_S3_BUCKET_URL`
   with the per-question S3 key from the course data (null when there's no key).
 - **`scripts/generate-audio.mjs`** — OpenAI TTS generator (reads `.env`). Writes
-  **one** MP3 per question (the question and answer read back to back) to a
-  throwaway staging dir `public/audio/courses/<id>/<lang>/<qid>.mp3`, created on
-  demand (not committed, gitignored). The app never reads this folder.
+  **one** MP3 per question (the question and answer read back to back) to a local
+  staging dir `public/audio/courses/<id>/<lang>/<qid>.mp3`, created on demand.
+  Kept locally as a cache but **gitignored** — the app never reads this folder.
 - **`scripts/upload-audio.mjs`** — `aws s3 sync --delete` the staging dir to
   `$S3_BUCKET` (so obsolete S3 objects, e.g. the old per-phase files, are
-  removed), then stamps each file's S3 key into the course JSON. Once uploaded,
-  the staging dir can be deleted freely — S3 + the JSON keys are the source of truth.
+  removed), then stamps each file's S3 key into the course JSON. The staging dir
+  stays as a local cache; S3 + the JSON keys are the source of truth.
 
 ## How it's wired
 
@@ -104,11 +104,13 @@ node scripts/generate-audio.mjs --lang en nodejs        # English only
 aws sso login --profile vyb-dev            # if the SSO session expired
 node scripts/upload-audio.mjs backend nodejs
 
-# 3. The staging dir is throwaway — delete it once uploaded.
-rm -rf public/audio
-
-# 4. Commit the changed course JSONs (the stamped `audio` keys) + push.
+# 3. Commit the changed course JSONs (the stamped `audio` keys) + push.
 ```
+
+The staging dir (`public/audio/`) is kept locally as a cache but is **gitignored**
+(`public/audio/courses/**/*.mp3`), so the MP3s never enter the repo — S3 + the
+JSON keys stay the source of truth. Delete it freely if you want the space back;
+`generate-audio.mjs` will just re-fetch from OpenAI (or skip if keys are stamped).
 
 Naming (staging + S3 key): `{courseId}/{lang}/{questionId}.mp3`. Course ids live
 in `src/data/courses.js`; languages are `en` and `ru`.
@@ -120,14 +122,21 @@ the old objects). To **change the model/voice**: `--model` / `--voice` flags
 
 ## Coverage (which courses have MP3)
 
-Only these have generated+uploaded audio; everything else falls back to speech.
-Update this table when you generate more.
+A question falls back to speech only if its key is missing. Update this table
+when coverage changes.
 
-| Course  | en | ru |
-|---------|----|----|
-| backend | ✅ | ✅ |
-| nodejs  | ✅ | —  |
-| others  | —  | —  |
+| Course   | en | ru |
+|----------|----|----|
+| backend  | ✅  | ✅  |
+| nodejs   | ✅  | ✅  |
+| devops   | ✅  | ✅  |
+| frontend | ✅  | ✅  |
+| go       | ✅  | ✅  |
+| nextjs   | ✅  | ✅  |
+| qa       | ✅  | ✅  |
+| react    | ✅  | ✅  |
+
+All 8 courses have full en+ru audio (one MP3 per question).
 
 ## Changing where audio is served from
 
