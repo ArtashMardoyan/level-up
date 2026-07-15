@@ -16,7 +16,15 @@ function formatTime(seconds) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-export default function CoursePlayer({ onActiveChange, startRequest, questions, courseId, onClose, voices }) {
+export default function CoursePlayer({
+  onActiveChange,
+  startRequest,
+  courseTitle,
+  questions,
+  courseId,
+  onClose,
+  voices
+}) {
   const { language, t } = useLanguage()
   const { currentTime, duration, canSeek, rate } = useAudioPlayer()
   const moduleNames = useMemo(() => {
@@ -64,6 +72,14 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
 
   // Stop playback when the player unmounts so nothing keeps running in the background.
   useEffect(() => () => audioPlayer.stop(), [])
+
+  // Clear the lock-screen metadata when the player unmounts.
+  useEffect(
+    () => () => {
+      if ('mediaSession' in navigator) navigator.mediaSession.metadata = null
+    },
+    []
+  )
 
   // Drive the shared service: it plays a local MP3 when one exists and otherwise
   // reads the text via speech — the component neither knows nor cares which.
@@ -141,6 +157,28 @@ export default function CoursePlayer({ onActiveChange, startRequest, questions, 
     setPaused(false)
     onClose()
   }
+
+  // Lock-screen / control-center metadata (iOS, Android, macOS). It surfaces for
+  // the MP3 path (the <audio> element); the speech fallback has no media session,
+  // which is fine. Artwork uses the deploy base so paths resolve under /level-up/.
+  useEffect(() => {
+    if (!('mediaSession' in navigator) || !currentItem) return
+    const base = import.meta.env.BASE_URL
+    navigator.mediaSession.metadata = new MediaMetadata({
+      artwork: [
+        { src: `${base}icon-192.png`, type: 'image/png', sizes: '192x192' },
+        { src: `${base}icon-512.png`, type: 'image/png', sizes: '512x512' }
+      ],
+      album: courseTitle || 'Interview Prep',
+      artist: 'Level Up — Interview Prep',
+      title: currentItem.question
+    })
+    navigator.mediaSession.setActionHandler('play', handlePlayPause)
+    navigator.mediaSession.setActionHandler('pause', handlePlayPause)
+    navigator.mediaSession.setActionHandler('previoustrack', currentIndex > 0 ? handlePrev : null)
+    navigator.mediaSession.setActionHandler('nexttrack', currentIndex < scopedList.length - 1 ? handleNext : null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentItem, courseTitle, currentIndex, scopedList.length])
 
   return (
     <div className="player-bar">

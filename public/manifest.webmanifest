@@ -1,0 +1,23 @@
+{
+  "name": "Level Up — Interview Prep",
+  "short_name": "Level Up",
+  "description": "Structured question banks to sharpen your developer interview fundamentals.",
+  "start_url": "/level-up/",
+  "display": "standalone",
+  "background_color": "#090a0e",
+  "theme_color": "#090a0e",
+  "icons": [
+    {
+      "src": "/level-up/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/level-up/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

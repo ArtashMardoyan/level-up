@@ -327,6 +327,11 @@ Layout intent per element:
 - **CoursePlayer transport** — on desktop the `Q n of N` label is absolutely positioned at the
   row's right; on mobile it wraps to a centered line of its own beneath the transport buttons.
 
+## App icons + iPhone lock-screen artwork
+See **`ICONS_AND_LOCKSCREEN.md`** and the **`assets/`** folder. Bolder favicon/app-icon set
+(SVG + PNGs + web manifest) plus the `navigator.mediaSession.metadata` wiring so the Level Up
+logo + question title show on the iPhone lock screen while a question plays in the background.
+
 ## Files
 - `Level Up.dc.html` — the design reference (open in a browser to view; toggle the
   Dictionary tab, and click any course card to see the course / quiz / interview / player screens).
