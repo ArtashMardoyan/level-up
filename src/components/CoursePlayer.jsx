@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
-import { SkipForward, RotateCcw, SkipBack, Repeat, Pause, Play } from 'lucide-react'
+import { SkipForward, SkipBack, Repeat, Pause, Play } from 'lucide-react'
 
 import { audioUrl } from '../data/audio'
 import { resolveVoice } from '../hooks/useSpeech'
@@ -137,12 +137,6 @@ export default function CoursePlayer({
     setPaused(false)
   }
 
-  const handleRestart = () => {
-    setCurrentIndex(0)
-    setPlaying(true)
-    setPaused(false)
-  }
-
   const handlePrev = () => {
     // Read the live position from the service (avoids a stale closure when this
     // runs from a lock-screen action handler).
@@ -220,6 +214,9 @@ export default function CoursePlayer({
           ✕
         </button>
       </div>
+      <div className="player-status">
+        {currentItem ? t('playerStatusQuestion', { total: scopedList.length, n: currentIndex + 1 }) : ''}
+      </div>
       <div className="player-title">{currentItem ? currentItem.question : t('nothingToPlay')}</div>
       <div className="player-progress">
         <span className="player-time">{formatTime(currentTime)}</span>
@@ -237,44 +234,36 @@ export default function CoursePlayer({
         <span className="player-time">{formatTime(duration)}</span>
       </div>
       <div className="player-controls">
-        <div className="player-controls-main">
-          <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
-            <RotateCcw aria-hidden="true" size={17} />
-          </button>
-          <button aria-label={t('previous')} disabled={!currentItem} className="player-btn" onClick={handlePrev}>
-            <SkipBack aria-hidden="true" size={18} />
-          </button>
-          <button
-            className="player-btn player-btn-main"
-            aria-label={t('playPause')}
-            onClick={handlePlayPause}
-            disabled={!currentItem}
-          >
-            {playing && !paused ? <Pause aria-hidden="true" size={20} /> : <Play aria-hidden="true" size={20} />}
-          </button>
-          <button
-            disabled={currentIndex >= scopedList.length - 1}
-            aria-label={t('next')}
-            className="player-btn"
-            onClick={handleNext}
-          >
-            <SkipForward aria-hidden="true" size={18} />
-          </button>
-          <button className="player-btn player-speed" aria-label={t('speed')} onClick={cycleSpeed}>
-            {rate}×
-          </button>
-          <button
-            className={'player-btn' + (repeat ? ' active' : '')}
-            onClick={() => setRepeat((v) => !v)}
-            aria-label={t('playerRepeat')}
-            aria-pressed={repeat}
-          >
-            <Repeat aria-hidden="true" size={17} />
-          </button>
-        </div>
-        <span className="player-status">
-          {currentItem ? t('playerStatusQuestion', { total: scopedList.length, n: currentIndex + 1 }) : ''}
-        </span>
+        <button className="player-btn player-speed" aria-label={t('speed')} onClick={cycleSpeed}>
+          {rate}×
+        </button>
+        <button aria-label={t('previous')} disabled={!currentItem} className="player-btn" onClick={handlePrev}>
+          <SkipBack aria-hidden="true" size={18} />
+        </button>
+        <button
+          className="player-btn player-btn-main"
+          aria-label={t('playPause')}
+          onClick={handlePlayPause}
+          disabled={!currentItem}
+        >
+          {playing && !paused ? <Pause aria-hidden="true" size={20} /> : <Play aria-hidden="true" size={20} />}
+        </button>
+        <button
+          disabled={currentIndex >= scopedList.length - 1}
+          aria-label={t('next')}
+          className="player-btn"
+          onClick={handleNext}
+        >
+          <SkipForward aria-hidden="true" size={18} />
+        </button>
+        <button
+          className={'player-btn' + (repeat ? ' active' : '')}
+          onClick={() => setRepeat((v) => !v)}
+          aria-label={t('playerRepeat')}
+          aria-pressed={repeat}
+        >
+          <Repeat aria-hidden="true" size={17} />
+        </button>
       </div>
     </div>
   )
