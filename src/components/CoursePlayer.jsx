@@ -8,6 +8,9 @@ import { audioPlayer } from '../services/audioPlayer'
 import { useAudioPlayer } from '../hooks/useAudioPlayer'
 
 const SPEEDS = [0.75, 1, 1.25, 1.5]
+// "Back" restarts the current question if you're past this many seconds into it
+// (like Spotify / Yandex Music); before it, "back" goes to the previous question.
+const RESTART_BACK_SEC = 3
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return '0:00'
@@ -141,8 +144,17 @@ export default function CoursePlayer({
   }
 
   const handlePrev = () => {
-    setCurrentIndex((i) => Math.max(0, i - 1))
-    setPaused(false)
+    // Read the live position from the service (avoids a stale closure when this
+    // runs from a lock-screen action handler).
+    const position = audioPlayer.getSnapshot().currentTime
+    if (position > RESTART_BACK_SEC) {
+      audioPlayer.seek(0) // restart the current question from the beginning
+    } else if (currentIndex > 0) {
+      setCurrentIndex((i) => i - 1)
+      setPaused(false)
+    } else {
+      audioPlayer.seek(0) // already the first question → just restart it
+    }
   }
 
   const handleNext = () => {
@@ -188,7 +200,7 @@ export default function CoursePlayer({
     })
     navigator.mediaSession.setActionHandler('play', handlePlayPause)
     navigator.mediaSession.setActionHandler('pause', handlePlayPause)
-    navigator.mediaSession.setActionHandler('previoustrack', currentIndex > 0 ? handlePrev : null)
+    navigator.mediaSession.setActionHandler('previoustrack', handlePrev)
     navigator.mediaSession.setActionHandler('nexttrack', currentIndex < scopedList.length - 1 ? handleNext : null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentItem, courseTitle, currentIndex, scopedList.length])
@@ -229,7 +241,7 @@ export default function CoursePlayer({
           <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
             <RotateCcw aria-hidden="true" size={17} />
           </button>
-          <button disabled={currentIndex === 0} aria-label={t('previous')} className="player-btn" onClick={handlePrev}>
+          <button aria-label={t('previous')} disabled={!currentItem} className="player-btn" onClick={handlePrev}>
             <SkipBack aria-hidden="true" size={18} />
           </button>
           <button
