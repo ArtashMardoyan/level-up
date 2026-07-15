@@ -39,8 +39,15 @@ export default function AccountMenu({ toggleTheme, theme }) {
     const handleOutsideClick = (e) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false)
     }
+    // Close on page scroll (non-capturing → scrolling inside the panel, which
+    // doesn't bubble to window, keeps it open).
+    const closeOnScroll = () => setOpen(false)
     document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
+    window.addEventListener('scroll', closeOnScroll)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      window.removeEventListener('scroll', closeOnScroll)
+    }
   }, [open])
 
   const setTheme = (next) => {
