@@ -1,6 +1,7 @@
 import Logo from './Logo'
 import AccountMenu from './AccountMenu'
 import GlobalSearch from './GlobalSearch'
+import NotificationBell from './NotificationBell'
 import { useLanguage } from '../hooks/useLanguage'
 
 export default function AppHeader({ onSelectQuestion, toggleTheme, courses, onHome, theme }) {
@@ -14,7 +15,10 @@ export default function AppHeader({ onSelectQuestion, toggleTheme, courses, onHo
           <span className="brand-name">Level Up</span>
         </button>
         <GlobalSearch onSelectQuestion={onSelectQuestion} courses={courses} />
-        <AccountMenu toggleTheme={toggleTheme} theme={theme} />
+        <div className="header-cluster">
+          <NotificationBell />
+          <AccountMenu toggleTheme={toggleTheme} theme={theme} />
+        </div>
       </div>
     </header>
   )

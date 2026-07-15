@@ -25,7 +25,8 @@
 </helmet>
 <div style="--minw: {{ minw }}; --glow: {{ glow }}; --bg:#090a0e; --surface:rgba(255,255,255,0.025); --surface-hover:rgba(255,255,255,0.045); --control:rgba(255,255,255,0.04); --control-2:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.07); --border-2:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.1); --hairline:rgba(255,255,255,0.06); --hairline-2:rgba(255,255,255,0.08); --text:#f3f5f9; --text-2:#868da0; --text-3:#5c6377; --header-bg:rgba(9,10,14,0.72); --panel-bg:rgba(13,14,19,0.9); --panel-solid:#14161d; {{ themeOverride }} transition: background .25s ease, color .25s ease; min-height: 100vh; font-family: 'Manrope', sans-serif; color: var(--text); background: radial-gradient(1100px 560px at 82% -12%, rgba(129,140,248,0.12), transparent 60%), radial-gradient(900px 480px at -5% 108%, rgba(34,211,238,0.07), transparent 55%), var(--bg);">
 
-  <header style="position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 12px clamp(14px, 4vw, 26px); background: var(--header-bg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);">
+  <header style="position: sticky; top: 0; z-index: 20; padding: 12px clamp(14px, 4vw, 28px); background: var(--header-bg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);">
+   <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; max-width: 1160px; margin: 0 auto; width: 100%;">
     <div onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 9px; flex-shrink: 0; cursor: pointer;">
       <div style="width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>
@@ -33,9 +34,41 @@
       <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; color: var(--text);">Level Up</span>
     </div>
 
-    <div style="position: relative; flex: 1 1 200px; max-width: 460px;">
-      <svg style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-3);" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" placeholder="Search all courses…" style="width: 100%; height: 42px; padding: 0 14px 0 42px; border-radius: 11px; border: 1px solid var(--border-2); background: var(--control); color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" />
+    <button onClick="{{ openSearch }}" aria-label="Search" style="display: flex; align-items: center; gap: 10px; flex: 1 1 200px; max-width: 620px; height: 42px; padding: 0 10px 0 14px; border-radius: 11px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-3); cursor: pointer; font-family: 'Manrope', sans-serif; text-align: left;" style-hover="border-color: var(--border-strong); background: var(--control-2);">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <span style="flex: 1; min-width: 0; font-size: 14.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Search courses, questions, terms…</span>
+      <kbd style="flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3); padding: 3px 7px; border-radius: 7px; border: 1px solid var(--border-2); background: var(--hairline);">⌘K</kbd>
+    </button>
+
+    <div style="position: relative; flex-shrink: 0; margin-left: auto;">
+      <button onClick="{{ toggleNotif }}" aria-label="Notifications" style="position: relative; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="color: var(--text); background: var(--control-2);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}">
+          <span style="position: absolute; top: 7px; right: 8px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px; background: #fb7185; border: 2px solid var(--panel-solid); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; line-height: 11px; display: flex; align-items: center; justify-content: center;">{{ unreadCount }}</span>
+        </sc-if>
+      </button>
+      <div style="display: {{ notifDisplay }}; position: absolute; right: 0; top: 50px; z-index: 50; width: 328px; border-radius: 16px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 18px 44px rgba(0,0,0,0.5); overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--hairline);">
+          <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14.5px; color: var(--text);">Notifications</span>
+          <button onClick="{{ markAllRead }}" style="background: none; border: none; cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 600; color: #818cf8; padding: 0;" style-hover="color: var(--text);">Mark all read</button>
+        </div>
+        <div style="max-height: 340px; overflow-y: auto;">
+          <sc-for list="{{ notifications }}" as="n" hint-placeholder-count="3">
+            <div style="display: flex; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--hairline); background: {{ n.bg }};">
+              <span style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: {{ n.accent }}; background: {{ n.tint }}; border: 1px solid {{ n.border }};">{{ n.iconEl }}</span>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 2px;">{{ n.title }}</div>
+                <div style="font-size: 12.5px; color: var(--text-2); line-height: 1.45;">{{ n.body }}</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); margin-top: 5px;">{{ n.time }}</div>
+              </div>
+              <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ true }}">
+                <span style="width: 7px; height: 7px; flex-shrink: 0; margin-top: 5px; border-radius: 50%; background: #fb7185;"></span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ closeNotif }}" style="width: 100%; padding: 12px; background: none; border: none; border-top: 1px solid var(--hairline); cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--text-2);" style-hover="color: var(--text); background: var(--surface-hover);">View all activity</button>
+      </div>
     </div>
 
     <div style="position: relative; flex-shrink: 0;">
@@ -103,7 +136,40 @@
         </sc-if>
       </div>
     </div>
+   </div>
   </header>
+
+  <div style="display: {{ searchDisplay }}; position: fixed; inset: 0; z-index: 100; background: rgba(4,5,8,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: clamp(56px,11vh,120px) 16px 20px; overflow-y: auto;" onClick="{{ backdropClose }}">
+    <div style="width: min(640px, 100%); margin: 0 auto; border-radius: 18px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 30px 80px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; max-height: min(70vh, 620px);">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--hairline); flex-shrink: 0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3); flex-shrink: 0;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input ref="{{ searchRef }}" value="{{ searchQuery }}" onInput="{{ onSearchInput }}" placeholder="Search courses, questions, terms…" style="flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 16px;" />
+        <kbd onClick="{{ closeSearch }}" style="cursor: pointer; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3); padding: 4px 8px; border-radius: 7px; border: 1px solid var(--border-2); background: var(--hairline);">Esc</kbd>
+      </div>
+      <div onClick="{{ pickResult }}" style="overflow-y: auto; padding: 6px 8px 10px; flex: 1;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); padding: 10px 11px 4px;">{{ searchHint }}</div>
+        <sc-for list="{{ searchGroups }}" as="group" hint-placeholder-count="2">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 12px 11px 5px;">{{ group.label }}</div>
+          <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="3">
+            <a href="#" data-kind="{{ item.kind }}" data-key="{{ item.key }}" style="display: flex; align-items: center; gap: 13px; padding: 9px 11px; border-radius: 11px; text-decoration: none; color: inherit;" style-hover="background: var(--surface-hover);">
+              <span style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: {{ item.accent }}; background: {{ item.tint }}; border: 1px solid {{ item.border }};">{{ item.iconEl }}</span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 14.5px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.title }}</span>
+                <span style="display: block; font-size: 12.5px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.sub }}</span>
+              </span>
+              <span style="flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3);">{{ item.badge }}</span>
+            </a>
+          </sc-for>
+        </sc-for>
+        <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 40px 20px; text-align: center;">
+            <div style="font-size: 14.5px; color: var(--text-2);">No matches for "{{ searchQuery }}"</div>
+            <div style="font-size: 13px; color: var(--text-3); margin-top: 6px;">Try a course name, a keyword, or a term.</div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
 
   <main style="display: {{ homeDisplay }}; max-width: 1160px; margin: 0 auto; padding: clamp(30px, 5vw, 52px) clamp(16px, 4vw, 28px) 90px; animation: lu-rise 0.5s ease both;">
     <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.22em; color: #818cf8; text-transform: uppercase; margin-bottom: 14px;">Interview Prep · 8 paths</div>
@@ -386,6 +452,59 @@
       </a>
 
     </div>
+
+    <footer style="margin-top: 64px; padding-top: 36px; border-top: 1px solid var(--border);">
+      <div style="display: flex; flex-wrap: wrap; gap: 40px 56px; justify-content: space-between;">
+        <div style="max-width: 300px; min-width: 220px;">
+          <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 12px;">
+            <div style="width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>
+            </div>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: -0.01em; color: var(--text);">Level Up</span>
+          </div>
+          <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-2); margin: 0 0 16px;">Structured question banks and daily drills to sharpen the fundamentals that come up in real interviews.</p>
+          <div style="display: flex; gap: 9px;">
+            <a href="#" aria-label="GitHub" style="width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center;" style-hover="color: var(--text); background: var(--control-2);"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg></a>
+            <a href="#" aria-label="X" style="width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center;" style-hover="color: var(--text); background: var(--control-2);"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2h3.3l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2l7.7-8.8L1.5 2h6.8l4.7 6.2L18.2 2zm-1.2 18h1.8L7.1 3.9H5.2L17 20z"/></svg></a>
+            <a href="#" aria-label="Telegram" style="width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center;" style-hover="color: var(--text); background: var(--control-2);"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.5 20c-.2 1.1-.9 1.4-1.8.9l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-4.9L17.6 6c.4-.3-.1-.5-.6-.2L5.9 12.7l-4.8-1.5c-1-.3-1-1 .2-1.5l18.7-7.2c.9-.3 1.6.2 1.3 1.8z"/></svg></a>
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 40px 56px;">
+          <div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;">Practice</div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">All courses</a>
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Dictionary</a>
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Daily challenge</a>
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Saved questions</a>
+            </div>
+          </div>
+          <div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;">Resources</div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Study guide</a>
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Roadmaps</a>
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Changelog</a>
+            </div>
+          </div>
+          <div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;">Company</div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">About</a>
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Contact</a>
+              <a href="#" style="font-size: 13.5px; color: var(--text-2); text-decoration: none;" style-hover="color: var(--text);">Feedback</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; margin-top: 40px; padding: 22px 0 8px; border-top: 1px solid var(--hairline);">
+        <span style="font-size: 12.5px; color: var(--text-3);">© 2026 Level Up · Made for interview practice</span>
+        <div style="display: flex; gap: 20px;">
+          <a href="#" style="font-size: 12.5px; color: var(--text-3); text-decoration: none;" style-hover="color: var(--text);">Privacy</a>
+          <a href="#" style="font-size: 12.5px; color: var(--text-3); text-decoration: none;" style-hover="color: var(--text);">Terms</a>
+        </div>
+      </div>
+    </footer>
   </main>
 
   <main style="display: {{ courseDisplay }}; max-width: 900px; margin: 0 auto; padding: clamp(24px, 4vw, 44px) clamp(16px, 4vw, 28px) 150px; animation: lu-rise 0.4s ease both;">
@@ -647,6 +766,21 @@ const DICT = {
 };
 const DICT_BY_TITLE = { "Today's Challenge": 'todaysChallenge', 'Sentence of the Day': 'sentenceOfTheDay', 'Vocabulary': 'vocabulary', 'Pronunciation': 'pronunciation', 'Interview Phrases': 'interviewPhrases', 'Grammar Fixes': 'grammarFixes', 'Leadership': 'leadership', 'Words to Use More Often': 'wordsToUseMore' };
 
+const COURSES = [
+  { title: 'Backend Developer', sub: 'Node.js, APIs, databases, AWS & infrastructure', accent: '#fbbf24', count: 51 },
+  { title: 'Frontend Developer', sub: 'React, browser internals, performance', accent: '#c084fc', count: 50 },
+  { title: 'DevOps Engineer', sub: 'CI/CD, containers, cloud infrastructure', accent: '#38bdf8', count: 50 },
+  { title: 'QA Engineer', sub: 'Testing strategy, automation, bug reports', accent: '#fb7185', count: 50 },
+  { title: 'Node.js', sub: 'Runtime internals, streams, npm ecosystem', accent: '#4ade80', count: 50 },
+  { title: 'Go', sub: 'Goroutines, channels, standard library', accent: '#22d3ee', count: 50 },
+  { title: 'React', sub: 'Hooks, state management, component patterns', accent: '#818cf8', count: 50 },
+  { title: 'Next.js', sub: 'SSR/SSG, App Router, API routes', accent: '#e2e8f0', count: 50 },
+];
+const svgIcon = (html) => React.createElement('span', { style: { display: 'flex' }, dangerouslySetInnerHTML: { __html: html } });
+const ICON_COURSE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3.5 7v10L12 22l8.5-5V7L12 2z"/><path d="m3.5 7 8.5 5 8.5-5M12 22V12"/></svg>';
+const ICON_QUESTION = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4"/><path d="M12 17h.01"/></svg>';
+const ICON_TERM = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.5 8 5 6 5v12c2 0 4.5.5 6 1.5 1.5-1 4-1.5 6-1.5V5c-2 0-4.5.5-6 1.5z"/><path d="M12 6.5V19"/></svg>';
+
 class Component extends DCLogic {
   state = {
     screen: 'home',
@@ -670,7 +804,21 @@ class Component extends DCLogic {
     theme: 'dark',
     lang: 'en',
     loggedIn: false,
+    searchOpen: false,
+    query: '',
+    notifOpen: false,
+    notifRead: new Set(),
   };
+
+  componentDidMount() {
+    this._onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.openSearchNow(); }
+      else if (e.key === 'Escape' && this.state.searchOpen) { this.setState({ searchOpen: false }); }
+    };
+    window.addEventListener('keydown', this._onKey);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._onKey); }
+  openSearchNow() { this.setState({ searchOpen: true }, () => setTimeout(() => this._searchEl && this._searchEl.focus(), 30)); }
 
   renderVals() {
     const s = this.state;
@@ -731,8 +879,56 @@ class Component extends DCLogic {
     const dLearned = dcat.items.filter((it) => s.dictLearned.has(it.id)).length;
     const dSingle = dcat.items[0] || {};
 
+    const tint = (c) => 'color-mix(in oklab, ' + c + ' 15%, transparent)';
+    const bord = (c) => 'color-mix(in oklab, ' + c + ' 32%, transparent)';
+    const q = (s.query || '').trim().toLowerCase();
+    const searchGroups = [];
+
+    const courseList = q ? COURSES.filter((c) => (c.title + ' ' + c.sub).toLowerCase().includes(q)) : COURSES;
+    const courseItems = courseList.slice(0, 6).map((c) => ({ kind: 'course', key: c.title, title: c.title, sub: c.sub, badge: c.count + ' Q', accent: c.accent, tint: tint(c.accent), border: bord(c.accent), iconEl: svgIcon(ICON_COURSE) }));
+    if (courseItems.length) searchGroups.push({ label: 'Courses', items: courseItems });
+
+    const qList = q ? QUESTIONS.filter((x) => (x.question + ' ' + x.module + ' ' + x.answer).toLowerCase().includes(q)) : QUESTIONS.slice(0, 3);
+    const qItems = qList.slice(0, 6).map((x) => ({ kind: 'question', key: x.id, title: x.question, sub: x.module + ' · Node.js', badge: '', accent: '#818cf8', tint: tint('#818cf8'), border: bord('#818cf8'), iconEl: svgIcon(ICON_QUESTION) }));
+    if (qItems.length) searchGroups.push({ label: q ? 'Questions' : 'Popular questions', items: qItems });
+
+    if (q) {
+      const terms = [];
+      Object.keys(DICT).forEach((catKey) => { const cat = DICT[catKey]; cat.items.forEach((it) => terms.push({ catKey, cat, it })); });
+      const tItems = terms.filter((t) => Object.values(t.it).join(' ').toLowerCase().includes(q)).slice(0, 6).map((t) => ({
+        kind: 'term', key: t.catKey,
+        title: t.it.en || t.it.wrong || t.it.instead || '',
+        sub: t.it.ru || t.it.right || t.it.tryThis || t.it.example || '',
+        badge: t.cat.title, accent: t.cat.accent, tint: tint(t.cat.accent), border: bord(t.cat.accent), iconEl: svgIcon(ICON_TERM),
+      }));
+      if (tItems.length) searchGroups.push({ label: 'Dictionary', items: tItems });
+    }
+
     return {
       minw, glow,
+      searchDisplay: s.searchOpen ? 'block' : 'none',
+      searchQuery: s.query,
+      searchGroups,
+      searchHint: q ? searchGroups.length + (searchGroups.length === 1 ? ' group' : ' groups') : 'Jump to anything',
+      noResults: !!q && searchGroups.length === 0,
+      searchRef: (el) => { this._searchEl = el; },
+      openSearch: () => this.openSearchNow(),
+      closeSearch: () => this.setState({ searchOpen: false }),
+      backdropClose: (e) => { if (e.target === e.currentTarget) this.setState({ searchOpen: false }); },
+      onSearchInput: (e) => this.setState({ query: e.target.value }),
+      pickResult: (e) => {
+        const a = e.target.closest('a'); if (!a) return; e.preventDefault();
+        const kind = a.dataset.kind, key = a.dataset.key;
+        if (kind === 'course') {
+          const co = COURSES.find((c) => c.title === key) || COURSES[0];
+          this.setState({ screen: 'course', mode: 'list', openId: QUESTIONS[0].id, playerOpen: false, courseIcon: '', course: { title: co.title, sub: co.sub, accent: co.accent, count: co.count }, searchOpen: false, query: '' });
+        } else if (kind === 'question') {
+          const co = COURSES[0];
+          this.setState({ screen: 'course', mode: 'list', openId: key, playerOpen: false, courseIcon: '', course: { title: co.title, sub: co.sub, accent: co.accent, count: co.count }, searchOpen: false, query: '' });
+        } else if (kind === 'term') {
+          this.setState({ screen: 'dict', dictCat: key, dictIcon: '', searchOpen: false, query: '' });
+        }
+      },
       homeDisplay: s.screen === 'home' ? 'block' : 'none',
       courseDisplay: s.screen === 'course' ? 'block' : 'none',
       playerDisplay: s.screen === 'course' && s.playerOpen ? 'flex' : 'none',
@@ -781,6 +977,27 @@ class Component extends DCLogic {
       dictHasRu: !!dSingle.ru, dictHasExpl: !!dSingle.explanation,
       themeOverride: light ? '--bg:#eef0f5;--surface:rgba(20,25,45,0.04);--surface-hover:rgba(20,25,45,0.065);--control:rgba(20,25,45,0.05);--control-2:rgba(20,25,45,0.06);--border:rgba(20,25,45,0.1);--border-2:rgba(20,25,45,0.13);--border-strong:rgba(20,25,45,0.15);--hairline:rgba(20,25,45,0.08);--hairline-2:rgba(20,25,45,0.11);--text:#181b24;--text-2:#55607a;--text-3:#97a0b3;--header-bg:rgba(255,255,255,0.82);--panel-bg:rgba(248,249,252,0.92);--panel-solid:#ffffff;' : '',
       settingsDisplay: s.settingsOpen ? 'block' : 'none',
+      ...(() => {
+        const NOTIFS = [
+          { id: 'streak', accent: '#fbbf24', title: 'Streak milestone', body: '5 days in a row — keep the momentum going!', time: '2h ago', iconHtml: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s4 4 4 8a4 4 0 0 1-8 0c0-1.5.5-2.5.5-2.5S8 10 9 11c0-3 3-5 3-9z"/></svg>' },
+          { id: 'daily', accent: '#818cf8', title: "Today's Challenge is ready", body: 'A new speaking goal is waiting in your Dictionary.', time: '5h ago', iconHtml: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>' },
+          { id: 'course', accent: '#4ade80', title: 'New questions added', body: '4 fresh questions in the Node.js Streams module.', time: 'Yesterday', iconHtml: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3.5 7v10L12 22l8.5-5V7L12 2z"/><path d="M12 22V12"/></svg>' },
+        ];
+        const tintN = (c) => 'color-mix(in oklab, ' + c + ' 15%, transparent)';
+        const bordN = (c) => 'color-mix(in oklab, ' + c + ' 32%, transparent)';
+        const notifications = NOTIFS.map((n) => {
+          const unread = !s.notifRead.has(n.id);
+          return { ...n, unread, tint: tintN(n.accent), border: bordN(n.accent), bg: unread ? 'var(--surface-hover)' : 'transparent', iconEl: svgIcon(n.iconHtml) };
+        });
+        const unreadCount = notifications.filter((n) => n.unread).length;
+        return {
+          notifications, unreadCount, hasUnread: unreadCount > 0,
+          notifDisplay: s.notifOpen ? 'block' : 'none',
+          toggleNotif: () => this.setState((st) => ({ notifOpen: !st.notifOpen, settingsOpen: false })),
+          closeNotif: () => this.setState({ notifOpen: false }),
+          markAllRead: () => this.setState({ notifRead: new Set(NOTIFS.map((n) => n.id)) }),
+        };
+      })(),
       profileReviewed: s.reviewed.size, profileSaved: s.favorites.size, streak: 5,
       loggedIn: s.loggedIn, loggedOut: !s.loggedIn,
       signIn: () => this.setState({ loggedIn: true }),
