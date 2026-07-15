@@ -1323,6 +1323,11 @@ footer {
 .player-btn:hover:not(:disabled) {
   color: var(--text);
 }
+.player-btn.active {
+  color: var(--active-text);
+  background: var(--active-bg);
+  border-color: color-mix(in oklab, var(--brand) 40%, transparent);
+}
 .player-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
