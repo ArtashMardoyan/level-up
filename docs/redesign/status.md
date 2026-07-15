@@ -34,6 +34,10 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       line under the transport. (`@media (max-width: 560px)` in `index.css`.)
 - [x] **Dropdown UX** — notification/account close on outside click **and** page scroll
       (non-capturing, so the notification list's own scroll keeps it open).
+- [x] **Player transport redesign** — `Q n of N` status moved to a mono eyebrow above the title;
+      one centered row of 5 (speed · prev · play · next · repeat), 40px squares; no restart button
+      (prev restarts the current question when >3s in, else goes back — Spotify-style); repeat loops
+      the current question. `DictionaryPlayer` aligned to the same structure.
 - [x] **App icons + lock screen** — bolder favicon/app-icon set (`public/*.png/.svg`) + PWA
       `manifest.webmanifest` + `<head>` tags; `CoursePlayer` sets `navigator.mediaSession.metadata`
       so the logo + question title show on the iPhone lock screen while an MP3 plays. Icon/manifest

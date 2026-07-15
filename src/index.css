@@ -1294,31 +1294,24 @@ footer {
   cursor: not-allowed;
 }
 .player-controls {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   margin-top: 12px;
-}
-.player-controls-main {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
 }
 .player-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--border-strong);
-  border-radius: 10px;
+  border-radius: 11px;
   background: var(--control-2);
   color: var(--text-2);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 .player-btn:hover:not(:disabled) {
   color: var(--text);
@@ -1343,27 +1336,22 @@ footer {
 }
 .player-speed {
   width: auto;
-  min-width: 38px;
+  min-width: 44px;
   padding: 0 10px;
   font-family: var(--font-mono);
   font-size: 13px;
 }
+/* Status is a mono eyebrow above the title. */
 .player-status {
   font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--text-3);
-  white-space: nowrap;
+  margin-bottom: 6px;
 }
-.player-controls > .player-status {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-@media (max-width: 480px) {
-  .player-controls-main {
-    gap: 10px;
-  }
+.player-top .player-status {
+  margin-bottom: 0;
 }
 
 /* ── Header cluster (notifications + account) ─────────────────── */
@@ -1834,18 +1822,5 @@ footer {
     right: 10px;
     left: auto;
     width: min(340px, calc(100vw - 20px));
-  }
-  /* Player: the "Q n of N" status wraps to its own centered line under the buttons. */
-  .player-controls {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .player-controls > .player-status {
-    position: static;
-    transform: none;
-    order: 1;
-    flex-basis: 100%;
-    text-align: center;
-    margin-top: 2px;
   }
 }

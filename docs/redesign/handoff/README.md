@@ -208,9 +208,26 @@ Centered card (radius 18): mono `QUESTION n OF total` `#818cf8`, big question (S
 answer sits under a hairline divider.
 
 ### Audio player → `src/components/CoursePlayer.jsx` (`.player-bar`)
-Fixed bottom bar, `rgba(13,14,19,0.9)` + blur, top border hairline. Rows: title + `✕` close;
-time / seek track (fill `#818cf8`) / duration; transport (restart, prev, **play** = 48px indigo
-gradient, next, `1×` speed). Toggled by the `🔊 Listen` chip.
+Fixed bottom bar, `rgba(13,14,19,0.9)` + blur, top border hairline. Rows, top → bottom:
+1. **Meta row:** module `<select>` (left) + `✕` close (right).
+2. **Status eyebrow:** `Q n of N` in mono 10.5px, uppercase, `--text-3` — sits ABOVE the title
+   (not in the control row).
+3. **Title:** current question, 13.5px 600, ellipsised to one line.
+4. **Seek row:** current time / seek track (fill `#818cf8`) / duration.
+5. **Transport — one centered row of 5 controls** (`.player-controls`, `justify-content:center`,
+   `gap`), in this order so **play sits dead-centre** (2 left · play · 2 right):
+   `speed` · `prev` · **`play/pause`** (48px indigo gradient) · `next` · `repeat`.
+   - Secondary controls (`speed` pill showing `0.75×–1.5×`, `repeat` toggle) are the same 40px
+     square size as prev/next — NOT pulled to the bar edges.
+   - `repeat` active state = indigo tint (`rgba(129,140,248,0.18)` bg, `#b9c1ff` fg, indigo border).
+   - No standalone **restart** button — `prev` restarts the current question when >3s in, else goes
+     to the previous one (Spotify-style).
+Toggled by the `🔊 Listen` chip. Speed cycles `[0.75, 1, 1.25, 1.5]`; play/pause swaps its glyph.
+
+### Device preview toggle (reference-only helper — do NOT ship)
+The reference file has a small **Desktop / Mobile** switcher pinned bottom-**right** (out of the
+player's way); Mobile renders the app inside a 390px iPhone frame. It's a preview aid for viewing
+the responsive layout — it is not part of the product UI and has no place in the React app.
 
 ### Also restyle
 - **`src/components/AppHeader.jsx`** / `Logo` / `GlobalSearch` / `SettingsPanel` / `NotificationBell` — the shared header
@@ -307,16 +324,14 @@ The reference now includes an explicit mobile breakpoint. Add these rules to `sr
   .lu-actions     { margin-left: auto; }                  /* bell + account pushed to right edge */
 
   /* Notifications popover: pin to the viewport's right edge, not the bell wrapper */
-  .lu-notif { position: fixed; top: 124px; right: 10px; left: auto;
-              width: min(340px, calc(100vw - 20px)); }
-
-  /* Audio player transport: "Q n of N" status wraps onto its own centered line
-     under the buttons instead of overlapping them at right:0 */
-  .lu-pcontrols { flex-wrap: wrap; gap: 10px; }
-  .lu-pstatus   { position: static; transform: none; order: 1;
-                  flex-basis: 100%; text-align: center; margin-top: 2px; }
+  .notif-menu { position: fixed; top: 124px; right: 10px; left: auto;
+                width: min(340px, calc(100vw - 20px)); }
 }
 ```
+> Real app class names: `.lu-search-wrap` → `.header-search-zone`, `.lu-actions` →
+> `.header-cluster`, `.lu-notif` → `.notif-menu` (already applied in `src/index.css`).
+> The audio player needs **no** mobile rule now — the transport is one row of five 40px controls
+> with the `Q n of N` status moved above the title, so it fits 390px without wrapping.
 Layout intent per element:
 - **Header** — three flex children (logo / search / actions). On mobile the search wrapper
   reorders below (`order:3; flex-basis:100%`) so row 1 is **logo left + icons right**
@@ -324,8 +339,8 @@ Layout intent per element:
 - **NotificationBell popover** — on desktop it's `position:absolute` off the bell; on mobile it
   overflowed the narrow viewport, so switch to `position:fixed` pinned 10px from the right edge,
   124px from top (just under the header).
-- **CoursePlayer transport** — on desktop the `Q n of N` label is absolutely positioned at the
-  row's right; on mobile it wraps to a centered line of its own beneath the transport buttons.
+- **CoursePlayer transport** — the `Q n of N` label lives above the title (mono eyebrow), and the
+  five transport controls stay on one centered row on mobile too — no wrap needed.
 
 ## App icons + iPhone lock-screen artwork
 See **`ICONS_AND_LOCKSCREEN.md`** and the **`assets/`** folder. Bolder favicon/app-icon set

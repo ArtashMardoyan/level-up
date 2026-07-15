@@ -103,40 +103,37 @@ export default function DictionaryPlayer({ onActiveChange, startRequest, onClose
   return (
     <div className="player-bar">
       <div className="player-top">
-        <span className="player-status">{t('listen')}</span>
+        <span className="player-status">
+          {currentItem ? t('dictionaryPlayerStatus', { total: items.length, n: currentIndex + 1 }) : t('listen')}
+        </span>
         <button aria-label={t('playerCloseAria')} className="player-close" onClick={handleClose}>
           ✕
         </button>
       </div>
       <div className="player-title">{currentItem ? currentItem.primary : t('nothingToPlay')}</div>
       <div className="player-controls">
-        <div className="player-controls-main">
-          <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
-            <RotateCcw aria-hidden="true" size={17} />
-          </button>
-          <button disabled={currentIndex === 0} aria-label={t('previous')} className="player-btn" onClick={handlePrev}>
-            <SkipBack aria-hidden="true" size={18} />
-          </button>
-          <button
-            className="player-btn player-btn-main"
-            onClick={() => setPlaying((p) => !p)}
-            aria-label={t('playPause')}
-            disabled={!currentItem}
-          >
-            {playing ? <Pause aria-hidden="true" size={20} /> : <Play aria-hidden="true" size={20} />}
-          </button>
-          <button
-            disabled={currentIndex >= items.length - 1}
-            aria-label={t('next')}
-            className="player-btn"
-            onClick={handleNext}
-          >
-            <SkipForward aria-hidden="true" size={18} />
-          </button>
-        </div>
-        <span className="player-status">
-          {currentItem ? t('dictionaryPlayerStatus', { total: items.length, n: currentIndex + 1 }) : ''}
-        </span>
+        <button aria-label={t('restart')} onClick={handleRestart} disabled={!currentItem} className="player-btn">
+          <RotateCcw aria-hidden="true" size={17} />
+        </button>
+        <button disabled={currentIndex === 0} aria-label={t('previous')} className="player-btn" onClick={handlePrev}>
+          <SkipBack aria-hidden="true" size={18} />
+        </button>
+        <button
+          className="player-btn player-btn-main"
+          onClick={() => setPlaying((p) => !p)}
+          aria-label={t('playPause')}
+          disabled={!currentItem}
+        >
+          {playing ? <Pause aria-hidden="true" size={20} /> : <Play aria-hidden="true" size={20} />}
+        </button>
+        <button
+          disabled={currentIndex >= items.length - 1}
+          aria-label={t('next')}
+          className="player-btn"
+          onClick={handleNext}
+        >
+          <SkipForward aria-hidden="true" size={18} />
+        </button>
       </div>
     </div>
   )
