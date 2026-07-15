@@ -4,7 +4,7 @@
 // staging dir, named to match the S3 key:
 // public/audio/courses/{courseId}/{lang}/{questionId}.mp3. Then
 // `upload-audio.mjs` pushes these to S3 and records their keys in the course
-// JSON. See docs/audio-playback.md. Safe to run incrementally.
+// JSON. See docs/audio/overview.md. Safe to run incrementally.
 //
 // Usage:
 //   node scripts/generate-audio.mjs [options] [course ...]

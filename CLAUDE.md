@@ -57,14 +57,14 @@ Question schema (per entry in a course JSON file):
   "question": "…?",
   "answer": "Paragraphs separated with \\n\\n.",
   "bonus": "Optional; omit the field if there isn't one.",
-  "audio": { "question": "audio/courses/nodejs/en/q1-question.mp3", "answer": "audio/courses/nodejs/en/q1-answer.mp3" }
+  "audio": "audio/courses/nodejs/en/q1.mp3"
 }
 ```
 
 - `id` must be unique and stable within the file — favorites and reviewed-progress in `localStorage` are keyed by it.
 - `module` groups questions under collapsible headers; use the exact same string for every question in a module.
 - Answer text is also read aloud via text-to-speech — prefer wording that pronounces well (avoid heavy symbols/abbreviations).
-- `audio` is optional and **script-managed** (`scripts/upload-audio.mjs` stamps it after uploading MP3s) — don't hand-edit. Each value is an S3 object key; a phase present means that track plays a pre-generated MP3, absent means browser speech. See `docs/audio-playback.md`.
+- `audio` is optional and **script-managed** (`scripts/upload-audio.mjs` stamps it after uploading MP3s) — don't hand-edit. It's a single S3 object key for one MP3 per question (the question and answer read back to back); present means a pre-generated MP3 plays, absent means browser speech. See `docs/audio/overview.md`.
 
 **State**: no state library. Per-course favorites/reviewed progress live in `useReviewState` (localStorage, keyed by course id). Theme (`useTheme`) and TTS voice (`useSpeech`) are global and also persisted. `PrepView` holds all in-course UI state (mode, search, collapsed modules, player).
 

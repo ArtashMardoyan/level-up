@@ -6,5 +6,5 @@ dist
 .env.local
 .env.*.local
 
-# Generated interview audio — lives in S3, not git (see docs/audio-playback.md)
+# Generated interview audio — lives in S3, not git (see docs/audio/overview.md)
 public/audio/courses/**/*.mp3

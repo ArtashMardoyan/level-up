@@ -28,7 +28,7 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
 - [x] **Audio — one MP3 per question** (question+answer together), single `audio` key string.
       Generated + uploaded for **all 8 courses, en+ru** (OpenAI TTS → S3). Player has one
       continuous seekable track; speech fallback only when a key is missing. See
-      `docs/audio-playback.md`.
+      `docs/audio/overview.md`.
 - [x] **Mobile ≤560px breakpoint** — search drops to its own full-width row; notifications
       popover pinned to the viewport edge (`position: fixed`); player status wraps to a centered
       line under the transport. (`@media (max-width: 560px)` in `index.css`.)
