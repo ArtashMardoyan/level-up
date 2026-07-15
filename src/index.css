@@ -4,7 +4,7 @@
 
 /* ── Design tokens ─────────────────────────────────────────────
    :root = light theme, [data-theme="dark"] = dark theme (the primary
-   look). Values come from the design handoff (docs/design_handoff_level_up). */
+   look). Values come from the design handoff (docs/redesign/handoff). */
 :root {
   color-scheme: light;
   --bg: #eef0f5;
