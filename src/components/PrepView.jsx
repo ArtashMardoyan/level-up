@@ -164,6 +164,7 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
           }}
           onActiveChange={setPlayerActiveId}
           startRequest={playerStartRequest}
+          courseTitle={course.title}
           questions={questions}
           courseId={course.id}
           voices={voices}
