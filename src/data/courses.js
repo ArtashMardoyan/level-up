@@ -1,132 +1,35 @@
-import qaQuestions from './courses/qa/en.json'
-import goQuestions from './courses/go/en.json'
-import ruGoQuestions from './courses/go/ru.json'
-import ruQaQuestions from './courses/qa/ru.json'
-import reactQuestions from './courses/react/en.json'
-import devopsQuestions from './courses/devops/en.json'
-import nodejsQuestions from './courses/nodejs/en.json'
-import nextjsQuestions from './courses/nextjs/en.json'
-import ruReactQuestions from './courses/react/ru.json'
-import ruDevopsQuestions from './courses/devops/ru.json'
-import ruNodejsQuestions from './courses/nodejs/ru.json'
-import ruNextjsQuestions from './courses/nextjs/ru.json'
-import frontendQuestions from './courses/frontend/en.json'
-import ruBackendQuestions from './courses/backend/ru.json'
-import ruFrontendQuestions from './courses/frontend/ru.json'
-import backendSeniorQuestions from './courses/backend/en.json'
+import { coursesFull } from '../services/endpoints'
 
-export const COURSES = [
-  {
-    subtitle: 'NodeJS, APIs, databases, AWS & infrastructure',
-    questions: backendSeniorQuestions,
-    title: 'Backend Developer',
-    accent: '#fbbf24',
-    id: 'backend',
-    emoji: '🛠️'
-  },
-  {
-    subtitle: 'React, browser internals, performance',
-    questions: frontendQuestions,
-    title: 'Frontend Developer',
-    accent: '#c084fc',
-    id: 'frontend',
-    emoji: '🎨'
-  },
-  {
-    subtitle: 'CI/CD, containers, cloud infrastructure',
-    questions: devopsQuestions,
-    title: 'DevOps Engineer',
-    accent: '#38bdf8',
-    id: 'devops',
-    emoji: '⚙️'
-  },
-  {
-    subtitle: 'Testing strategy, automation, bug reports',
-    questions: qaQuestions,
-    title: 'QA Engineer',
-    accent: '#fb7185',
-    emoji: '🔍',
-    id: 'qa'
-  },
-  {
-    subtitle: 'Runtime internals, streams, npm ecosystem',
-    questions: nodejsQuestions,
-    accent: '#4ade80',
-    title: 'NodeJS',
-    id: 'nodejs',
-    emoji: '🟢'
-  },
-  {
-    subtitle: 'Goroutines, channels, standard library',
-    questions: goQuestions,
-    accent: '#22d3ee',
-    title: 'Go',
-    emoji: '🐹',
-    id: 'go'
-  },
-  {
-    subtitle: 'Hooks, state management, component patterns',
-    questions: reactQuestions,
-    accent: '#818cf8',
-    title: 'React',
-    id: 'react',
-    emoji: '⚛️'
-  },
-  {
-    subtitle: 'SSR/SSG, App Router, API routes',
-    questions: nextjsQuestions,
-    accent: '#e2e8f0',
-    title: 'Next.js',
-    id: 'nextjs',
-    emoji: '▲'
+// The backend is the single source of course content. Normalization keeps the
+// human key as the UI `id` (course slug, question ref) so URLs stay `#go/q1`
+// and localStorage/icons keep working, while the real uuid is stashed on
+// `uuid` for progress API calls.
+function normalizeQuestion(q) {
+  return {
+    question: q.question,
+    module: q.module,
+    answer: q.answer,
+    bonus: q.bonus,
+    audio: q.audio,
+    uuid: q.id,
+    id: q.ref
   }
-]
-
-export function getCourse(id) {
-  return COURSES.find((c) => c.id === id) || null
 }
 
-const RU_QUESTIONS = {
-  frontend: ruFrontendQuestions,
-  backend: ruBackendQuestions,
-  nextjs: ruNextjsQuestions,
-  nodejs: ruNodejsQuestions,
-  devops: ruDevopsQuestions,
-  react: ruReactQuestions,
-  qa: ruQaQuestions,
-  go: ruGoQuestions
-}
-
-function mergeQuestions(enQuestions, ruQuestions) {
-  if (!ruQuestions?.length) return enQuestions
-  const ruById = new Map(ruQuestions.map((q) => [q.id, q]))
-  return enQuestions.map((q) => {
-    const ru = ruById.get(q.id)
-    if (!ru) return q
-    const merged = { ...q, question: ru.question || q.question, answer: ru.answer || q.answer }
-    if (q.bonus && ru.bonus) merged.bonus = ru.bonus
-    // Audio is per-language: use the ru keys, or none (don't inherit en audio).
-    if (ru.audio) merged.audio = ru.audio
-    else delete merged.audio
-    return merged
-  })
-}
-
-const localizedCoursesCache = new Map()
-
-export function getLocalizedCourses(language) {
-  if (language === 'en') return COURSES
-  let localized = localizedCoursesCache.get(language)
-  if (!localized) {
-    localized = COURSES.map((course) => ({
-      ...course,
-      questions: mergeQuestions(course.questions, RU_QUESTIONS[course.id])
-    }))
-    localizedCoursesCache.set(language, localized)
+function normalizeCourse(course) {
+  return {
+    questions: (course.questions || []).map(normalizeQuestion),
+    subtitle: course.subtitle,
+    accent: course.accent,
+    title: course.title,
+    emoji: course.emoji,
+    id: course.slug,
+    uuid: course.id
   }
-  return localized
 }
 
-export function getLocalizedCourse(id, language) {
-  return getLocalizedCourses(language).find((course) => course.id === id) || null
+// Fetch every course with its questions (localized to `language`) in one call.
+export async function fetchCourses(language) {
+  const data = await coursesFull(language)
+  return (data || []).map(normalizeCourse)
 }

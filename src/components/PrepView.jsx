@@ -21,7 +21,7 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
         .map((c) => ({ icon: <CourseIcon courseId={c.id} emoji={c.emoji} />, label: c.title, id: c.id })),
     [courses]
   )
-  const { toggleFavorite, markReviewed, state } = useReviewState(course.id)
+  const { markManyReviewed, toggleFavorite, markReviewed, state } = useReviewState(course.id, questions)
   const [search, setSearch] = useState('')
   const [mode, setMode] = useState('list')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
@@ -64,8 +64,8 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
     const next = !allOpen
     setAllOpen(next)
     // Opening every card counts as reviewing them (QuestionCard only reports
-    // opens the user makes directly).
-    if (next) filtered.forEach((item) => markReviewed(item.id))
+    // opens the user makes directly). One batched update instead of N.
+    if (next) markManyReviewed(filtered.map((item) => item.id))
   }
 
   const showModuleLabels = !term

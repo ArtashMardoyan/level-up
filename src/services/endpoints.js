@@ -14,3 +14,12 @@ export const usersGet = (id) => apiGet(`/users/${id}`)
 export const usersUpdate = (payload) => apiPatch('/users', payload)
 export const usersCreate = (payload) => apiPost('/users', payload)
 export const usersList = (page = 1, limit = 10) => apiGet(`/users?page=${page}&limit=${limit}`)
+
+// Courses (public content)
+export const coursesFull = (lang) => apiGet(`/courses/full?lang=${lang}`)
+
+// Progress (per-user, auth required)
+export const progressSummary = () => apiGet('/progress/summary')
+export const progressBulk = (payload) => apiPost('/progress/bulk', payload)
+export const courseProgress = (courseId) => apiGet(`/courses/${courseId}/progress`)
+export const progressUpsert = (questionId, payload) => apiPatch(`/questions/${questionId}/progress`, payload)

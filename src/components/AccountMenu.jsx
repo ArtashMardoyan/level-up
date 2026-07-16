@@ -4,38 +4,35 @@ import { LogOut, LogIn, Moon, User, Sun } from 'lucide-react'
 import AuthDialog from './AuthDialog'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
+import { progressSummary } from '../services/endpoints'
 
 // Placeholder streak until a backend endpoint exists for it.
 const DEMO_STREAK = 5
-
-// Sum reviewed / favorited items across every course + the dictionary. These
-// counts are real (read from localStorage) even without an account.
-function readTotals() {
-  let reviewed = 0
-  let saved = 0
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (!key || !key.startsWith('interviewPrepState:')) continue
-      const parsed = JSON.parse(localStorage.getItem(key))
-      if (Array.isArray(parsed?.reviewed)) reviewed += parsed.reviewed.length
-      if (Array.isArray(parsed?.favorites)) saved += parsed.favorites.length
-    }
-  } catch {
-    // ignore parse/read failures
-  }
-  return { reviewed, saved }
-}
 
 export default function AccountMenu({ toggleTheme, theme }) {
   const { setLanguage, language, t } = useLanguage()
   const { logout, user } = useAuth()
   const [open, setOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
+  const [totals, setTotals] = useState({ reviewed: 0, saved: 0 })
   const wrapRef = useRef(null)
 
   const signedIn = !!user
   const displayName = user?.name || ''
+
+  // Real reviewed/favorite totals for the account, fetched when the menu opens.
+  useEffect(() => {
+    if (!open || !signedIn) return
+    let active = true
+    progressSummary()
+      .then((data) => {
+        if (active) setTotals({ reviewed: data?.totalReviewed || 0, saved: data?.totalFavorites || 0 })
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [open, signedIn])
 
   useEffect(() => {
     if (!open) return
@@ -61,8 +58,6 @@ export default function AccountMenu({ toggleTheme, theme }) {
     setOpen(false)
     setAuthOpen(true)
   }
-
-  const totals = open ? readTotals() : { reviewed: 0, saved: 0 }
 
   return (
     <div className="account-wrap" ref={wrapRef}>

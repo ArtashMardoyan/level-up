@@ -10,8 +10,11 @@ export const STRINGS = {
     footer: 'Сделано для подготовки к собеседованиям · работает полностью офлайн',
     homeEyebrow: 'Подготовка к собеседованиям · {n} треков',
     homeHeading: 'Выберите свой путь обучения',
+    coursesError: 'Не удалось загрузить курсы',
+    coursesLoading: 'Загрузка курсов…',
     tabDictionary: 'Словарь',
     tabCourses: 'Курсы',
+    retry: 'Повторить',
     // AppHeader
     brandAria: 'Level Up — все курсы',
     logoAria: 'Логотип Level Up',
@@ -193,8 +196,11 @@ export const STRINGS = {
     footer: 'Made for interview practice · works fully offline',
     homeEyebrow: 'Interview Prep · {n} paths',
     homeHeading: 'Choose Your Learning Path',
+    coursesError: 'Failed to load courses',
+    coursesLoading: 'Loading courses…',
     tabDictionary: 'Dictionary',
     tabCourses: 'Courses',
+    retry: 'Retry',
     // AppHeader
     brandAria: 'Level Up — all courses',
     logoAria: 'Level Up logo',
