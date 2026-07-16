@@ -17,6 +17,7 @@ export const usersList = (page = 1, limit = 10) => apiGet(`/users?page=${page}&l
 
 // Courses (public content)
 export const coursesFull = (lang) => apiGet(`/courses/full?lang=${lang}`)
+export const coursesVersion = () => apiGet('/courses/version')
 
 // Progress (per-user, auth required)
 export const progressSummary = () => apiGet('/progress/summary')
