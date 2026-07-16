@@ -8,6 +8,7 @@ import QuestionCard from './QuestionCard'
 import CoursePlayer from './CoursePlayer'
 import PageSwitcher from './PageSwitcher'
 import InterviewMode from './InterviewMode'
+import { scoreMatch } from '../utils/fuzzy'
 import { useLanguage } from '../hooks/useLanguage'
 import { useReviewState } from '../hooks/useReviewState'
 
@@ -45,19 +46,21 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
     })
   }
 
-  const term = search.toLowerCase().trim()
+  const term = search.trim()
 
+  // Each entry is { item, ranges } — ranges highlight the matched question text.
+  // Fuzzy-match on the question (highlightable) with an answer/bonus substring
+  // fallback; sort best-first while searching, keep source order otherwise.
   const filtered = useMemo(() => {
-    return questions.filter((item) => {
-      const matches =
-        !term ||
-        item.question.toLowerCase().includes(term) ||
-        item.answer.toLowerCase().includes(term) ||
-        (item.bonus && item.bonus.toLowerCase().includes(term))
-      if (!matches) return false
-      if (favoritesOnly && !state.favorites.includes(item.id)) return false
-      return true
-    })
+    const pool = favoritesOnly ? questions.filter((item) => state.favorites.includes(item.id)) : questions
+    if (!term) return pool.map((item) => ({ ranges: [], item }))
+    return pool
+      .map((item) => {
+        const m = scoreMatch(term, item.question, item.answer + ' ' + (item.bonus || ''))
+        return m ? { ranges: m.ranges, score: m.score, item } : null
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.score - a.score)
   }, [questions, term, favoritesOnly, state.favorites])
 
   const toggleAllOpen = () => {
@@ -65,7 +68,7 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
     setAllOpen(next)
     // Opening every card counts as reviewing them (QuestionCard only reports
     // opens the user makes directly). One batched update instead of N.
-    if (next) markManyReviewed(filtered.map((item) => item.id))
+    if (next) markManyReviewed(filtered.map((f) => f.item.id))
   }
 
   const showModuleLabels = !term
@@ -123,8 +126,8 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
 
           <div>
             {filtered.length === 0 && <p className="empty">{t('noMatches')}</p>}
-            {filtered.map((item, index) => {
-              const showLabel = showModuleLabels && item.module !== filtered[index - 1]?.module
+            {filtered.map(({ ranges, item }, index) => {
+              const showLabel = showModuleLabels && item.module !== filtered[index - 1]?.item.module
               const isCollapsed = showModuleLabels && collapsedModules.has(item.module)
               return (
                 <div key={item.id}>
@@ -144,6 +147,7 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
                       quizMode={mode === 'quiz'}
                       onOpen={markReviewed}
                       forceOpen={allOpen}
+                      highlight={ranges}
                       item={item}
                     />
                   )}
