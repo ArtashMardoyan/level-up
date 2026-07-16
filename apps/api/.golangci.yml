@@ -6,7 +6,8 @@ formatters:
     - goimports     # organizes imports into 3 groups (stdlib / external / internal)
   settings:
     goimports:
-      local-prefixes: level-up-backend
+      local-prefixes:
+        - level-up-backend
     gofumpt:
       module-path: level-up-backend
       extra-rules: true
