@@ -18,9 +18,9 @@ npm run build     # production build to dist/
 npm run preview   # preview the production build locally
 npm run lint      # ESLint (flat config, eslint.config.mjs)
 npm run lint:fix  # auto-fix lint + formatting
-
-node scripts/validate-translations.mjs [course ...]  # check each <course>/ru.json against its en.json
 ```
+
+Course content and the audio/translation pipeline now live in the `level-up-backend` repo (JSON seed data + `scripts/*.mjs`). This app fetches content from the backend API.
 
 There are no tests configured.
 
@@ -36,7 +36,7 @@ Enforced by ESLint (flat config, `eslint.config.mjs`) — most violations auto-f
 
 ## What this is
 
-A React 18 + Vite SPA for practicing interview questions across multiple course tracks (Backend, Frontend, DevOps, QA, Node.js, Go, React, Next.js). No backend, no external requests — all content ships as local JSON and user state lives in `localStorage`.
+A React 18 + Vite SPA for practicing interview questions across multiple course tracks (Backend, Frontend, DevOps, QA, Node.js, Go, React, Next.js). Course content is fetched from the `level-up-backend` API (`GET /courses/full`). Per-user progress (reviewed/favorites) syncs to the backend when signed in; anonymous visitors fall back to `localStorage`. `VITE_API_URL` sets the API base (Pages build injects the App Runner URL).
 
 Deployed to GitHub Pages via `.github/workflows/deploy.yml` on every push to `master`. `vite.config.js` sets `base: '/level-up/'` to match the Pages URL — keep that in mind for any absolute asset paths.
 
@@ -46,27 +46,11 @@ Deployed to GitHub Pages via `.github/workflows/deploy.yml` on every push to `ma
 
 **Routing** is hash-based (`useHashRoute`): `#<courseId>` or `#<courseId>/<questionId>`. `App.jsx` switches between the course picker (`CourseSelect`) and the course view (`PrepView`) based on the hash; the last-visited course is persisted and restored on fresh visits. Global search results navigate by setting a `#course/question` hash, and `PrepView` scrolls to and expands the `jumpToId` question.
 
-**Content pipeline**: `src/data/courses.js` is the registry — it imports per-course JSON from `src/data/courses/<id>/en.json` (and `<id>/ru.json` for the Russian overlay, merged by question id) and exports `COURSES` (id, title, subtitle, emoji, questions). This folder-per-course/file-per-language layout mirrors the audio layout in S3 (`audio/courses/<id>/<lang>/…`). A course with zero questions renders as "Coming soon" on the landing page. To add a course: create `src/data/courses/<id>/en.json` (plus `ru.json`) and register it in `courses.js`.
+**Content pipeline**: `src/data/courses.js` (`fetchCourses`) calls the backend `GET /courses/full?lang=` and normalizes each course/question so the UI keeps using human ids — a course's `id` is its `slug` (`go`), a question's `id` is its `ref` (`q1`) — while the backend uuid rides along on `uuid` for progress API calls. `useCourses` wraps this with per-language caching + loading/error state. A course with zero questions renders as "Coming soon". Content itself (JSON + audio/translation scripts) is authored in the `level-up-backend` repo, not here.
 
-Question schema (per entry in a course JSON file):
+Each question the app renders: `{ id: <ref "q1">, uuid, module, question, answer, bonus?, audio? }`. `audio` is a single S3 object key resolved to a URL by `src/data/audio.js` (`audioUrl` = `VITE_S3_BUCKET_URL` + key); present → a pre-generated MP3 plays, absent → browser speech.
 
-```json
-{
-  "id": "q1",
-  "module": "Module 1 — Some Topic",
-  "question": "…?",
-  "answer": "Paragraphs separated with \\n\\n.",
-  "bonus": "Optional; omit the field if there isn't one.",
-  "audio": "audio/courses/nodejs/en/q1.mp3"
-}
-```
-
-- `id` must be unique and stable within the file — favorites and reviewed-progress in `localStorage` are keyed by it.
-- `module` groups questions under collapsible headers; use the exact same string for every question in a module.
-- Answer text is also read aloud via text-to-speech — prefer wording that pronounces well (avoid heavy symbols/abbreviations).
-- `audio` is optional and **script-managed** (`scripts/upload-audio.mjs` stamps it after uploading MP3s) — don't hand-edit. It's a single S3 object key for one MP3 per question (the question and answer read back to back); present means a pre-generated MP3 plays, absent means browser speech. See `docs/audio/overview.md`.
-
-**State**: no state library. Per-course favorites/reviewed progress live in `useReviewState` (localStorage, keyed by course id). Theme (`useTheme`) and TTS voice (`useSpeech`) are global and also persisted. `PrepView` holds all in-course UI state (mode, search, collapsed modules, player).
+**State**: no state library. `useReviewState(courseId, questions)` is auth-aware — signed-in users read/write progress via the backend API (mapping `ref` ↔ `uuid` at the boundary), anonymous users use `localStorage` (keyed by course slug + question ref); on first sign-in `App.jsx` migrates any local progress to the backend once. Theme (`useTheme`) and TTS voice (`useSpeech`) are global and persisted. `PrepView` holds all in-course UI state (mode, search, collapsed modules, player).
 
 **Text-to-speech** is built on the browser `speechSynthesis` API (`useSpeech` for voice selection, `CoursePlayer` for the auto-playing course-wide player). Per-question read-aloud is routed through `CoursePlayer` rather than ad-hoc utterances.
 
