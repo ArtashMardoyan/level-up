@@ -63,6 +63,14 @@
   --glow-2: rgba(34, 211, 238, 0.07);
 }
 
+/* Horizontal-scroll guard: one wide child must never make the whole page
+   scroll sideways (the #1 mobile "content cut off at the right edge" bug). */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -523,6 +531,41 @@ select.plain-btn {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
   gap: 18px;
   margin-top: 30px;
+}
+
+/* Loading skeletons (shimmer) — shown while async backend data loads. Shells
+   reuse the real layout so nothing shifts when data arrives. */
+@keyframes lu-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%);
+  background-size: 200% 100%;
+  animation: lu-shimmer 1.4s ease infinite;
+  border-radius: 7px;
+}
+.skel-card {
+  cursor: default;
+}
+.skel-tile {
+  display: block;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+}
+.skel-line {
+  display: block;
+  height: 13px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
 }
 .course-card {
   position: relative;

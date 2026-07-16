@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; }
+  html, body { margin: 0; overflow-x: hidden; max-width: 100%; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -21,6 +21,7 @@
   a:hover { color: #c3ccff; }
   input::placeholder { color: #626a7e; }
   @keyframes lu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes lu-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   @media (max-width: 560px) {
     .lu-search-wrap { order: 3 !important; flex-basis: 100% !important; }
     .lu-actions { margin-left: auto !important; }
@@ -29,7 +30,7 @@
   }
 </style>
 </helmet>
-<div style="--minw: {{ minw }}; --glow: {{ glow }}; --bg:#090a0e; --surface:rgba(255,255,255,0.025); --surface-hover:rgba(255,255,255,0.045); --control:rgba(255,255,255,0.04); --control-2:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.07); --border-2:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.1); --hairline:rgba(255,255,255,0.06); --hairline-2:rgba(255,255,255,0.08); --text:#f3f5f9; --text-2:#868da0; --text-3:#5c6377; --header-bg:rgba(9,10,14,0.72); --panel-bg:rgba(13,14,19,0.9); --panel-solid:#14161d; {{ themeOverride }} transition: background .25s ease, color .25s ease; min-height: 100vh; font-family: 'Manrope', sans-serif; color: var(--text); background: radial-gradient(1100px 560px at 82% -12%, rgba(129,140,248,0.12), transparent 60%), radial-gradient(900px 480px at -5% 108%, rgba(34,211,238,0.07), transparent 55%), var(--bg);">
+<div style="--minw: {{ minw }}; --glow: {{ glow }}; --bg:#090a0e; --surface:rgba(255,255,255,0.025); --surface-hover:rgba(255,255,255,0.045); --control:rgba(255,255,255,0.04); --control-2:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.07); --border-2:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.1); --hairline:rgba(255,255,255,0.06); --hairline-2:rgba(255,255,255,0.08); --text:#f3f5f9; --text-2:#868da0; --text-3:#5c6377; --header-bg:rgba(9,10,14,0.72); --panel-bg:rgba(13,14,19,0.9); --panel-solid:#14161d; {{ themeOverride }} transition: background .25s ease, color .25s ease; min-height: 100vh; overflow-x: hidden; font-family: 'Manrope', sans-serif; color: var(--text); background: radial-gradient(1100px 560px at 82% -12%, rgba(129,140,248,0.12), transparent 60%), radial-gradient(900px 480px at -5% 108%, rgba(34,211,238,0.07), transparent 55%), var(--bg);">
 
   <header style="position: sticky; top: 0; z-index: 20; padding: 12px clamp(14px, 4vw, 28px); background: var(--header-bg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);">
    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; max-width: 1160px; margin: 0 auto; width: 100%;">
@@ -500,6 +501,23 @@
 
     </div>
 
+    <div style="display: {{ homeSkelDisplay }}; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--minw)), 1fr)); gap: 18px; margin-top: 30px;">
+      <sc-for list="{{ skelCards }}" as="n" hint-placeholder-count="6">
+        <div style="padding: 24px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+            <div style="width: 62px; height: 22px; border-radius: 8px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+          </div>
+          <div style="width: 58%; height: 19px; border-radius: 7px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="width: 100%; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+            <div style="width: 80%; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+          </div>
+          <div style="width: 40%; height: 12px; border-radius: 6px; margin-top: 4px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+        </div>
+      </sc-for>
+    </div>
+
     <footer style="margin-top: 64px; padding-top: 36px; border-top: 1px solid var(--border);">
       <div style="display: flex; flex-wrap: wrap; gap: 40px 56px; justify-content: space-between;">
         <div style="max-width: 300px; min-width: 220px;">
@@ -592,6 +610,15 @@
       </div>
       <button onClick="{{ toggleFavOnly }}" style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 8px 15px; border-radius: 11px; border: 1px solid var(--border); cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ favBg }}; color: {{ favColor }};">★ Favorites</button>
       <button onClick="{{ togglePlayer }}" style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 8px 15px; border-radius: 11px; border: 1px solid var(--border); cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ playerBg }}; color: {{ playerColor }};">🔊 Listen</button>
+    </div>
+
+    <div style="display: {{ courseSkelDisplay }};">
+      <sc-for list="{{ skelRows }}" as="n" hint-placeholder-count="5">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 10px;">
+          <div style="flex: 1; height: 15px; border-radius: 7px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+          <div style="width: 18px; height: 18px; border-radius: 6px; background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%); background-size: 200% 100%; animation: lu-shimmer 1.4s ease infinite;"></div>
+        </div>
+      </sc-for>
     </div>
 
     <div style="display: {{ listDisplay }};">
@@ -887,6 +914,8 @@ class Component extends DCLogic {
     notifOpen: false,
     notifRead: new Set(),
     device: 'desktop',
+    loading: true,
+    courseLoading: false,
     inIframe: (typeof location !== 'undefined') && new URLSearchParams(location.search).has('embed'),
   };
 
@@ -897,11 +926,13 @@ class Component extends DCLogic {
       else if (e.key === 'Escape' && this.state.authOpen) { this.setState({ authOpen: false }); }
     };
     window.addEventListener('keydown', this._onKey);
+    // simulate initial backend fetch of courses/dictionary
+    this._loadT = setTimeout(() => this.setState({ loading: false }), 1100);
     const base = window.location.href;
     const sep = base.includes('?') ? '&' : '?';
     this._embedUrl = base.includes('embed=1') ? base : base + sep + 'embed=1';
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this._onKey); }
+  componentWillUnmount() { window.removeEventListener('keydown', this._onKey); clearTimeout(this._loadT); clearTimeout(this._courseT); }
   openSearchNow() { this.setState({ searchOpen: true }, () => setTimeout(() => this._searchEl && this._searchEl.focus(), 30)); }
 
   renderVals() {
@@ -1014,11 +1045,15 @@ class Component extends DCLogic {
         }
       },
       homeDisplay: s.screen === 'home' ? 'block' : 'none',
+      homeSkelDisplay: s.loading ? 'grid' : 'none',
+      courseSkelDisplay: (s.courseLoading && s.mode !== 'interview') ? 'block' : 'none',
+      skelCards: [1, 2, 3, 4, 5, 6],
+      skelRows: [1, 2, 3, 4, 5],
       courseDisplay: s.screen === 'course' ? 'block' : 'none',
       playerDisplay: s.screen === 'course' && s.playerOpen ? 'flex' : 'none',
       // home tabs
-      coursesDisplay: onCourses ? 'grid' : 'none',
-      dictDisplay: onCourses ? 'none' : 'grid',
+      coursesDisplay: (onCourses && !s.loading) ? 'grid' : 'none',
+      dictDisplay: (!onCourses && !s.loading) ? 'grid' : 'none',
       coursesBg: act(onCourses).bg, coursesColor: act(onCourses).col,
       dictBg: act(!onCourses).bg, dictColor: act(!onCourses).col,
       selectCourses: () => this.setState({ tab: 'courses' }),
@@ -1037,7 +1072,7 @@ class Component extends DCLogic {
       interviewBg: act(s.mode === 'interview').bg, interviewColor: act(s.mode === 'interview').col,
       favBg: act(s.favoritesOnly).bg, favColor: act(s.favoritesOnly).col,
       playerBg: act(s.playerOpen).bg, playerColor: act(s.playerOpen).col,
-      listDisplay: s.mode === 'interview' ? 'none' : 'block',
+      listDisplay: (s.mode === 'interview' || s.courseLoading) ? 'none' : 'block',
       interviewDisplay: s.mode === 'interview' ? 'block' : 'none',
       questions,
       // interview
@@ -1146,7 +1181,9 @@ class Component extends DCLogic {
         const span = a.querySelector('span');
         const accent = span ? getComputedStyle(span).color : '#4ade80';
         const m = (span ? span.textContent : '').match(/\d+/);
-        this.setState({ screen: 'course', mode: 'list', openId: QUESTIONS[0].id, playerOpen: false, courseIcon: a.querySelector('svg')?.outerHTML || '',
+        clearTimeout(this._courseT);
+        this._courseT = setTimeout(() => this.setState({ courseLoading: false }), 800);
+        this.setState({ screen: 'course', mode: 'list', courseLoading: true, openId: QUESTIONS[0].id, playerOpen: false, courseIcon: a.querySelector('svg')?.outerHTML || '',
           course: { title: a.querySelector('h3')?.textContent || 'Course', sub: a.querySelector('p')?.textContent || '', accent, count: m ? m[0] : 50 } });
       },
       goHome: () => this.setState({ screen: 'home' }),

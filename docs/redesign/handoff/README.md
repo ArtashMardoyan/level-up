@@ -1,6 +1,14 @@
 # Handoff: Level Up — Landing (Courses + Dictionary)
 
 ## Changelog
+- **2026-07-16** — Added **loading skeletons** (shimmer) for the course/dictionary grids and the
+  course question list, driven by async backend fetches. See **Loading states (backend data)**.
+- **2026-07-16** — Added **full-bleed media artwork** (`media-art-192/512.png`) for CarPlay /
+  lock screen. The rounded home-screen icons showed white corners inside CarPlay's tile;
+  the media session now uses edge-to-edge gradient art. See `ICONS_AND_LOCKSCREEN.md`.
+- **2026-07-16** — Added global **horizontal-scroll guard** (`html,body{overflow-x:hidden;max-width:100%}`)
+  to `index.css`. Fixes the mobile "content cut off at the right edge / sideways scroll" report
+  on iPhone. See **Mobile responsive** section.
 - **2026-07-16** — Added **Auth modal** (login / signup / registration). The header
   account "Sign in" now opens a modal instead of instantly logging in. See
   **Auth (login / signup)** section below. Files: `AppHeader.jsx` / new `AuthModal.jsx`.
@@ -324,6 +332,15 @@ tab/segment uses `rgba(129,140,248,0.18)`/`#b9c1ff` in dark and `rgba(99,102,241
 The reference now includes an explicit mobile breakpoint. Add these rules to `src/index.css`
 (the base layout is otherwise fluid). Verify at ~390px.
 
+> **Horizontal-scroll guard (required).** The #1 mobile bug is a single wide child (a fixed bar,
+> a `100vw` element, an un-wrapped row) forcing the whole page to scroll sideways — content gets
+> cut off at the right edge. Add this global guard so it can never happen:
+> ```css
+> html, body { overflow-x: hidden; max-width: 100%; }
+> ```
+> The reference already ships this. If your deployed build still scrolls sideways, your build is
+> **stale** — redeploy from the latest source and confirm this rule is present.
+
 ```css
 @media (max-width: 560px) {
   /* Header: search drops to its own full-width row below logo + icons */
@@ -348,6 +365,42 @@ Layout intent per element:
   124px from top (just under the header).
 - **CoursePlayer transport** — the `Q n of N` label lives above the title (mono eyebrow), and the
   five transport controls stay on one centered row on mobile too — no wrap needed.
+
+## Loading states (backend data)
+Courses, dictionary entries, and questions now come from the **backend** (async), so every list
+has a real loading state. The reference implements shimmer **skeletons** — never a spinner or a
+blank screen, and never a layout jump when data arrives (skeletons match the final layout).
+
+**Shimmer primitive** — one reusable style; apply it to any grey block:
+```css
+@keyframes lu-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, var(--control) 25%, var(--control-2) 50%, var(--control) 75%);
+  background-size: 200% 100%;
+  animation: lu-shimmer 1.4s ease infinite;
+  border-radius: 7px;
+}
+```
+
+**Where it goes**
+- **Course / Dictionary grid** (home): while `courses`/`dictionary` are loading, render **6** skeleton
+  cards using the *same* grid (`repeat(auto-fill, minmax(min(100%,330px),1fr))`, `gap:18px`). Each
+  card mirrors the real one: 48×48 icon block + a small meta pill (top row), a ~58%-width title bar,
+  two body lines (100% + 80%), and a 40%-width footer bar. Same `padding:24px; border-radius:16px;
+  background:var(--surface); border:1px solid var(--border)` shell so nothing shifts on load.
+- **Course question list**: while a course's questions load, render **5** skeleton rows — each the
+  question-card shell (`padding:16px 18px; border-radius:14px; --surface` + `--border`) with a
+  flex-1 title bar + an 18×18 trailing block. Hidden in Interview mode.
+- **Dictionary table**: same idea — a few skeleton rows matching the table row height.
+
+**Wiring**
+- Gate each grid/list on its own loading flag (`loading` for home, `courseLoading` per course).
+  Show the skeleton **only** while that flag is true; swap to real data when the fetch resolves.
+- Keep skeleton counts small (5–6) — enough to fill the first viewport, not the whole list.
+- On fetch **error**, show a short retry row (not a skeleton). The reference doesn't mock errors;
+  add a `--text-2` message + a small “Retry” button styled like the ghost buttons.
+- The reference simulates the fetch with a timer (~1.1s home, ~0.8s course) purely so the skeleton
+  is visible — replace with your real `fetch`/query state (`isLoading` from React Query/SWR/etc.).
 
 ## App icons + iPhone lock-screen artwork
 See **`ICONS_AND_LOCKSCREEN.md`** and the **`assets/`** folder. Bolder favicon/app-icon set

@@ -14,6 +14,7 @@ import { useAuthState, useAuth } from './hooks/useAuth'
 import { LanguageContext } from './i18n/LanguageContext'
 import { getDictionaryCategory } from './data/dictionary'
 import DictionarySelect from './components/DictionarySelect'
+import CourseGridSkeleton from './components/CourseGridSkeleton'
 import { useLanguageState, useLanguage } from './hooks/useLanguage'
 import DictionaryCategoryPage from './components/DictionaryCategoryPage'
 
@@ -153,7 +154,7 @@ function AppContent() {
           {isDictionary ? (
             <DictionarySelect onSelect={(id) => navigate('dictionary', id)} />
           ) : status === 'loading' ? (
-            <p className="empty">{t('coursesLoading')}</p>
+            <CourseGridSkeleton />
           ) : status === 'error' ? (
             <div className="empty">
               <p>{t('coursesError')}</p>

@@ -17,8 +17,10 @@ Copy from `assets/` → the app's `public/` folder (Vite serves `public/` at `/`
 public/favicon.svg          (replaces the old one — bolder chevrons)
 public/favicon-32.png       (PNG fallback for old browsers)
 public/apple-touch-icon.png (180×180, full-bleed — iOS rounds the corners itself)
-public/icon-192.png         (192×192, rounded — manifest + media artwork)
-public/icon-512.png         (512×512, rounded — manifest + media artwork)
+public/icon-192.png         (192×192, rounded — manifest home-screen icon)
+public/icon-512.png         (512×512, rounded — manifest home-screen icon)
+public/media-art-192.png    (192×192, FULL-BLEED — media/CarPlay artwork, no transparent corners)
+public/media-art-512.png    (512×512, FULL-BLEED — media/CarPlay artwork, no transparent corners)
 public/manifest.webmanifest
 ```
 
@@ -48,8 +50,8 @@ useEffect(() => {
     artist: 'Level Up — Interview Prep',
     album: courseTitle ?? 'Interview Prep',
     artwork: [
-      { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/media-art-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/media-art-512.png', sizes: '512x512', type: 'image/png' },
     ],
   })
   navigator.mediaSession.setActionHandler('play', handlePlayPause)
@@ -65,6 +67,12 @@ useEffect(() => {
 Optional: mirror the same block in `DictionaryPlayer.jsx` for dictionary audio.
 
 ### Notes
+- **CarPlay / lock-screen artwork must be full-bleed.** The home-screen icons (`icon-*.png`) have
+  rounded corners with transparent pixels — good for a home screen, but CarPlay/iOS drop that
+  artwork into their *own* rounded tile, so the transparent corners show through as white spots.
+  The media session therefore uses `media-art-*.png` (indigo gradient filling the whole square,
+  no transparency, chevron centered); the system masks the corners itself. Don't point the
+  `artwork` array at the rounded `icon-*.png` files.
 - Lock-screen artwork appears only for the **MP3** path (the `<audio>` element). Tracks that fall
   back to `SpeechSynthesis` have no media session — expected, no action needed.
 - The play/pause state on the lock screen follows the `<audio>` element automatically; the action
