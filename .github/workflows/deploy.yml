@@ -24,6 +24,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # Backend base URL baked into the build (Vite inlines VITE_ vars).
+          # Override via repo variable if the API URL changes.
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://iypxepsbm3.us-east-2.awsapprunner.com' }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

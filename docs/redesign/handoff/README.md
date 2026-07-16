@@ -1,5 +1,12 @@
 # Handoff: Level Up — Landing (Courses + Dictionary)
 
+## Changelog
+- **2026-07-16** — Added **Auth modal** (login / signup / registration). The header
+  account "Sign in" now opens a modal instead of instantly logging in. See
+  **Auth (login / signup)** section below. Files: `AppHeader.jsx` / new `AuthModal.jsx`.
+- Earlier: global search palette, notifications, footer, mobile breakpoint, app icons
+  + iPhone lock-screen artwork (see respective sections).
+
 ## Overview
 Redesign of the "Level Up" interview-prep home screen. One screen with a segmented
 tab switch between two grids of cards: **Courses** (learning tracks) and
@@ -346,6 +353,30 @@ Layout intent per element:
 See **`ICONS_AND_LOCKSCREEN.md`** and the **`assets/`** folder. Bolder favicon/app-icon set
 (SVG + PNGs + web manifest) plus the `navigator.mediaSession.metadata` wiring so the Level Up
 logo + question title show on the iPhone lock screen while a question plays in the background.
+
+### Auth (login / signup) → new `src/components/AuthModal.jsx` (+ `AppHeader.jsx`)
+The account button's **Sign in** opens a centered modal overlay (not a one-click login).
+- **Overlay:** `position: fixed; inset: 0; z-index: 120`, `rgba(4,5,8,0.68)` + `blur(7px)`;
+  click on backdrop or `Esc` closes. Card `width: min(410px,100%)`, radius 20, `--panel-solid`
+  + `--border-strong`, `padding: 26px`.
+- **Header row:** indigo gradient logo tile (44×, radius 13) + `✕` close button (34×, `--control`).
+- **Title/sub:** swap by mode — login: “Welcome back” / “Sign in to sync your streak & progress”;
+  signup: “Create your account” / “Start tracking your interview prep”.
+- **Tabs:** segmented Log in / Sign up (same segmented-control style as the theme switch;
+  active = `rgba(129,140,248,0.18)`/`#b9c1ff` dark).
+- **Fields:** Name (signup only), Email, Password. Labels are mono 10.5px uppercase `--text-3`;
+  inputs `--control` bg + `--border-2`, radius 11, focus border `#818cf8`.
+- **Validation (client-side):** valid email regex; password ≥ 6 chars; name required on signup.
+  Errors render inline in `#f87171` above the submit button.
+- **Submit:** indigo-gradient full-width button (“Sign in” / “Create account”). On success sets
+  `loggedIn`, stores `{ name, email }`, closes modal. Login derives a display name from the
+  email local-part when no name is on file.
+- **Mode switch link:** under the button — “Don't have an account? **Sign up**” / “Already have an
+  account? **Log in**”.
+- **Logged-in state:** header avatar + settings panel show the user's initial and name/email
+  from stored `user`. **Sign out** clears `user` and `loggedIn`.
+- **Production note:** wire submit to the real auth endpoint; keep the validation and the
+  derived-initial/name display. `user` shape: `{ name: string, email: string }`.
 
 ## Files
 - `Level Up.dc.html` — the design reference (open in a browser to view; toggle the

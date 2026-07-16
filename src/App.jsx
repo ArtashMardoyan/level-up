@@ -5,6 +5,8 @@ import PrepView from './components/PrepView'
 import { useSpeech } from './hooks/useSpeech'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
+import { useAuthState } from './hooks/useAuth'
+import { AuthContext } from './auth/AuthContext'
 import { useHashRoute } from './hooks/useHashRoute'
 import CourseSelect from './components/CourseSelect'
 import { LanguageContext } from './i18n/LanguageContext'
@@ -110,10 +112,13 @@ function AppContent() {
 
 export default function App() {
   const languageState = useLanguageState()
+  const authState = useAuthState()
 
   return (
     <LanguageContext.Provider value={languageState}>
-      <AppContent />
+      <AuthContext.Provider value={authState}>
+        <AppContent />
+      </AuthContext.Provider>
     </LanguageContext.Provider>
   )
 }

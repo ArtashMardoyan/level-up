@@ -3,6 +3,8 @@ dist
 .DS_Store
 .idea
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 
