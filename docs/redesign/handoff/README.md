@@ -6,9 +6,18 @@
 - **2026-07-16** — Added **full-bleed media artwork** (`media-art-192/512.png`) for CarPlay /
   lock screen. The rounded home-screen icons showed white corners inside CarPlay's tile;
   the media session now uses edge-to-edge gradient art. See `ICONS_AND_LOCKSCREEN.md`.
-- **2026-07-16** — Added global **horizontal-scroll guard** (`html,body{overflow-x:hidden;max-width:100%}`)
+- **2026-07-16** — **Compact course player.** Collapsed the bottom bar from 5 rows to 3: the
+  question title + a `Q n/N` chip + `✕` share one head row, then the seek row, then the
+  transport row. Removed the module `<select>` — the player plays the whole course. See
+  **Audio player**.
+- **2026-07-16** — **Fixed the sticky header.** The scroll guard must use `overflow-x: clip`,
+  **not** `hidden`: `hidden` on `html,body` establishes a scroll container and breaks
+  `position: sticky`, so the header stopped sticking. `clip` blocks sideways scroll without a
+  scroll container, so the header stays sticky.
+- **2026-07-16** — Added global **horizontal-scroll guard** (`html,body{overflow-x:clip;max-width:100%}`)
   to `index.css`. Fixes the mobile "content cut off at the right edge / sideways scroll" report
-  on iPhone. See **Mobile responsive** section.
+  on iPhone. See **Mobile responsive** section. (Originally shipped as `hidden`; changed to
+  `clip` — see the sticky-header entry above.)
 - **2026-07-16** — Added **Auth modal** (login / signup / registration). The header
   account "Sign in" now opens a modal instead of instantly logging in. See
   **Auth (login / signup)** section below. Files: `AppHeader.jsx` / new `AuthModal.jsx`.
@@ -48,7 +57,9 @@ pixel-close using the codebase's own libraries.
     "Compact" density uses `250px` instead of `330px`.
 
 #### Header
-- `position: sticky; top: 0; z-index: 20`
+- `position: sticky; top: 0; z-index: 20` (stays fixed while scrolling). **Caveat:** the
+  horizontal-scroll guard must use `overflow-x: clip` on `html,body`, not `hidden` — `hidden`
+  creates a scroll container that breaks this `sticky`. See the **Mobile responsive** guard note.
 - `background: rgba(9,10,14,0.72)`, `backdrop-filter: blur(14px)`,
   `border-bottom: 1px solid rgba(255,255,255,0.07)`
 - Inner row: `display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; max-width: 1160px; margin: 0 auto`; padding `12px clamp(14px,4vw,28px)`.
@@ -223,13 +234,14 @@ Centered card (radius 18): mono `QUESTION n OF total` `#818cf8`, big question (S
 answer sits under a hairline divider.
 
 ### Audio player → `src/components/CoursePlayer.jsx` (`.player-bar`)
-Fixed bottom bar, `rgba(13,14,19,0.9)` + blur, top border hairline. Rows, top → bottom:
-1. **Meta row:** module `<select>` (left) + `✕` close (right).
-2. **Status eyebrow:** `Q n of N` in mono 10.5px, uppercase, `--text-3` — sits ABOVE the title
-   (not in the control row).
-3. **Title:** current question, 13.5px 600, ellipsised to one line.
-4. **Seek row:** current time / seek track (fill `#818cf8`) / duration.
-5. **Transport — one centered row of 5 controls** (`.player-controls`, `justify-content:center`,
+Fixed bottom bar, `rgba(13,14,19,0.9)` + blur, top border hairline. **Compact 3-row layout**
+(`.player-head` · `.player-progress` · `.player-controls`), top → bottom:
+1. **Head row** (`.player-head`, one flex row): **title** (current question, 13.5px 600,
+   `flex:1`, ellipsised to one line) · **`Q n/N` chip** (mono 10.5px uppercase `--text-3`,
+   `flex-shrink:0`) · **`✕` close** (right). There is **no module `<select>`** — the player
+   plays the whole course in order.
+2. **Seek row:** current time / seek track (fill `#818cf8`) / duration.
+3. **Transport — one centered row of 5 controls** (`.player-controls`, `justify-content:center`,
    `gap`), in this order so **play sits dead-centre** (2 left · play · 2 right):
    `speed` · `prev` · **`play/pause`** (48px indigo gradient) · `next` · `repeat`.
    - Secondary controls (`speed` pill showing `0.75×–1.5×`, `repeat` toggle) are the same 40px
@@ -336,10 +348,12 @@ The reference now includes an explicit mobile breakpoint. Add these rules to `sr
 > a `100vw` element, an un-wrapped row) forcing the whole page to scroll sideways — content gets
 > cut off at the right edge. Add this global guard so it can never happen:
 > ```css
-> html, body { overflow-x: hidden; max-width: 100%; }
+> html, body { overflow-x: clip; max-width: 100%; }
 > ```
-> The reference already ships this. If your deployed build still scrolls sideways, your build is
-> **stale** — redeploy from the latest source and confirm this rule is present.
+> **Use `clip`, not `hidden`.** `overflow-x: hidden` on `html,body` establishes a scroll container
+> and breaks the sticky header (`position: sticky` stops working); `clip` blocks sideways scroll
+> **without** a scroll container, so the header stays sticky. If your deployed build still scrolls
+> sideways, redeploy from the latest source and confirm this rule is present.
 
 ```css
 @media (max-width: 560px) {
@@ -354,8 +368,8 @@ The reference now includes an explicit mobile breakpoint. Add these rules to `sr
 ```
 > Real app class names: `.lu-search-wrap` → `.header-search-zone`, `.lu-actions` →
 > `.header-cluster`, `.lu-notif` → `.notif-menu` (already applied in `src/index.css`).
-> The audio player needs **no** mobile rule now — the transport is one row of five 40px controls
-> with the `Q n of N` status moved above the title, so it fits 390px without wrapping.
+> The audio player needs **no** mobile rule now — it's 3 compact rows (head / seek / transport)
+> with the `Q n/N` chip on the head row next to the title, so it fits 390px without wrapping.
 Layout intent per element:
 - **Header** — three flex children (logo / search / actions). On mobile the search wrapper
   reorders below (`order:3; flex-basis:100%`) so row 1 is **logo left + icons right**
@@ -363,8 +377,8 @@ Layout intent per element:
 - **NotificationBell popover** — on desktop it's `position:absolute` off the bell; on mobile it
   overflowed the narrow viewport, so switch to `position:fixed` pinned 10px from the right edge,
   124px from top (just under the header).
-- **CoursePlayer transport** — the `Q n of N` label lives above the title (mono eyebrow), and the
-  five transport controls stay on one centered row on mobile too — no wrap needed.
+- **CoursePlayer** — 3 compact rows; the `Q n/N` chip sits on the head row next to the title, and
+  the five transport controls stay on one centered row on mobile too — no wrap needed.
 
 ## Loading states (backend data)
 Courses, dictionary entries, and questions now come from the **backend** (async), so every list
