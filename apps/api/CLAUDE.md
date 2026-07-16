@@ -55,6 +55,15 @@ rejects any revoked jti. The middleware sets `shared.ContextUserKey` (user.User)
 2. Add a goose migration under `migrations/`
 3. Wire repo → service → handler in `cmd/server/main.go`, then `handler.RegisterRoutes(r, jwtMiddleware)`
 
+## Content & audio pipeline
+
+Course content is bundled JSON in `internal/seed/data/` (`courses.json` + `<course>/{en,ru}.json`) — the single source of truth. `cmd/seed` loads it into the DB with deterministic UUIDv5 ids (same content → same ids in every env). Question `audio` is a single S3 object key; MP3s live in S3, not git.
+
+Node tooling in `scripts/` (built-in modules only — no `npm install`; reads `.env`):
+- `validate-translations.mjs [course ...]` — check each `<course>/ru.json` against `en.json`.
+- `generate-audio.mjs [--lang en,ru] [--force] [course ...]` — OpenAI TTS → MP3s in `audio/` (gitignored staging). Needs `OPENAI_API_KEY`.
+- `upload-audio.mjs [course ...]` — sync `audio/` → S3 (`S3_BUCKET`/`S3_REGION`/`AWS_PROFILE`) and stamp keys into the seed JSON. Re-run `cmd/seed` afterward to load new keys.
+
 ## Code style
 
 Separate logical steps inside functions with a blank line (validate → build → persist → return). `gofumpt` forbids blank lines at the start/end of a block but allows them in the middle.

@@ -6,3 +6,7 @@
 __debug_bin*
 bin/
 tmp/
+
+# Generated interview audio — local staging for upload; lives in S3, not git
+# (see docs/audio/overview.md). Regenerate with scripts/generate-audio.mjs.
+audio/
