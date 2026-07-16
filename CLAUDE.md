@@ -10,6 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Run `npm run lint` before finishing any change** and fix what it reports (`npm run lint:fix` handles most of it). Prefer fixing code to satisfy a rule over disabling the rule.
 
+**Keep the redesign docs in sync with the UI.** When you change any UI (layout, components, or `src/index.css`), update `docs/redesign/status.md` and `docs/redesign/handoff/README.md` in the **same commit**. These docs are the design source of truth the mockup/prototype is built from; a stale spec is exactly what caused the sticky-header confusion (docs said one thing, code did another).
+
 ## Commands
 
 ```bash
