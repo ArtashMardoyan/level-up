@@ -1,5 +1,5 @@
+import { Search } from 'lucide-react'
 import { createPortal } from 'react-dom'
-import { HelpCircle, Search } from 'lucide-react'
 import { useEffect, useState, useMemo, useRef } from 'react'
 
 import CourseIcon from './CourseIcon'
@@ -47,7 +47,16 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
   const availableCourses = useMemo(() => courses.filter((c) => c.questions?.length > 0), [courses])
 
   const questionIndex = useMemo(
-    () => availableCourses.flatMap((c) => c.questions.map((q) => ({ ...q, courseTitle: c.title, courseId: c.id }))),
+    () =>
+      availableCourses.flatMap((c) =>
+        c.questions.map((q) => ({
+          ...q,
+          courseAccent: c.accent,
+          courseTitle: c.title,
+          courseEmoji: c.emoji,
+          courseId: c.id
+        }))
+      ),
     [availableCourses]
   )
 
@@ -98,10 +107,10 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
     )
       .slice(0, MAX_PER_GROUP)
       .map(({ entry: q, m }) => ({
-        icon: <HelpCircle aria-hidden="true" size={18} />,
+        icon: <CourseIcon courseId={q.courseId} emoji={q.courseEmoji} size={18} />,
         onPick: () => onSelectQuestion(q.courseId, q.id),
         sub: q.module + ' · ' + q.courseTitle,
-        accent: '#818cf8',
+        accent: q.courseAccent || '#818cf8',
         title: q.question,
         kind: 'question',
         ranges: m.ranges,
