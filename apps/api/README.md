@@ -98,6 +98,21 @@ Mirror the `go-first-api` pattern — create `internal/modules/<name>/` with
 Auth/JWT is not wired yet — it lands with the first protected module, following
 the `go-first-api` `internal/modules/auth` + `infrastructure/middleware` pattern.
 
+## API documentation (Postman)
+
+`postman/` holds the importable collection and environments:
+
+- `level-up-backend.postman_collection.json` — requests grouped by module (Auth, Health, Users). Collection-level Bearer `{{accessToken}}`; public routes set `noauth`. The chain **Create User → Login → …→ Logout** populates env vars via test scripts.
+- `level-up-backend.local.postman_environment.json` / `.prod.postman_environment.json` — `API_URL` + `accessToken` / `userId` / `userEmail` / `userName`.
+
+Import the collection once in Postman, then push updates with:
+
+```bash
+POSTMAN_API_KEY=PMAK-... POSTMAN_COLLECTION_UID=<uid> ./scripts/sync-postman.sh
+```
+
+Both values are also read from `.env`. Keep the collection current whenever routes change.
+
 ## Deployment
 
 Container image → **AWS ECR** → **App Runner**, talking to **RDS PostgreSQL**.

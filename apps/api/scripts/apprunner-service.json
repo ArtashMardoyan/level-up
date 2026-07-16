@@ -7,6 +7,7 @@
       "ImageConfiguration": {
         "Port": "3000",
         "RuntimeEnvironmentVariables": {
+          "JWT_SECRET": "__JWT_SECRET__",
           "DB_HOST": "level-up-backend-db.cls020emml3r.us-east-2.rds.amazonaws.com",
           "DB_PORT": "5432",
           "DB_NAME": "levelup",

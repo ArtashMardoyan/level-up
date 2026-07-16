@@ -16,9 +16,8 @@ AWS_REGION="${AWS_REGION:-us-east-2}"
 AWS_PROFILE="${AWS_PROFILE:-vyb-dev}"
 ECR_REGISTRY="${ECR_REGISTRY:-813021164486.dkr.ecr.us-east-2.amazonaws.com}"
 ECR_REPO="${ECR_REPO:-level-up-backend}"
-# Set these after the App Runner service is created (see the deploy doc):
-SERVICE_ARN="${SERVICE_ARN:-}"
-SERVICE_URL="${SERVICE_URL:-}"
+SERVICE_ARN="${SERVICE_ARN:-arn:aws:apprunner:us-east-2:813021164486:service/level-up-backend/644ec0493c08485e82f25b91588a7e2c}"
+SERVICE_URL="${SERVICE_URL:-https://iypxepsbm3.us-east-2.awsapprunner.com}"
 
 REPO="${ECR_REGISTRY}/${ECR_REPO}"
 SHA="$(git rev-parse --short HEAD)"

@@ -1,0 +1,331 @@
+{
+	"info": {
+		"_postman_id": "b1a7c0de-1e2f-4a3b-9c4d-5e6f7a8b9c0d",
+		"name": "07.1 Level Up Backend",
+		"description": "Gin + GORM + PostgreSQL REST API for the Level Up project.\n\nRequests within each folder are ordered by method: GET → POST → PATCH → DELETE (matching the Go handlers).\n\nFirst-run setup (the chain populates env vars via test scripts):\n1. **Users > Create User** — random email/name (saved to `userEmail`), password `test1234`, captures `userId`.\n2. **Auth > Login** — logs in with `userEmail` / `test1234`, captures `accessToken` (+ `userId`).\n3. Everything else inherits the collection-level Bearer auth automatically.\n4. **Auth > Logout** — revokes the token server-side and clears `accessToken`.\n\nResponse format:\n```\n// success\n{ \"data\": {} }\n// error\n{ \"error\": \"...\" }\n```\nPaginated success: `{ \"data\": { \"items\": [], \"meta\": { \"page\": 1, \"limit\": 10, \"total\": 100 } } }`. DELETE / Logout return 204 with no body.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "API_URL",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Retrieve Me",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.id) {",
+									"    pm.environment.set('userId', res.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/auth/me",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						},
+						"description": "Return the currently authenticated user. `data` is the user object directly."
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"pm.test('login ok', () => pm.expect(pm.response.code).to.eql(200));",
+									"if (res.data && res.data.accessToken) {",
+									"    pm.environment.set('accessToken', res.data.accessToken);",
+									"    pm.environment.set('userId', res.data.user.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"test1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/auth/login",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticate and receive a JWT. Saves `accessToken` and `userId` to the environment."
+					}
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('logout ok', () => pm.expect(pm.response.code).to.eql(204));",
+									"pm.environment.set('accessToken', '');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/auth/logout",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Revoke the current token server-side (adds its jti to the denylist). Returns 204 and clears `accessToken`."
+					}
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Ping",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/ping",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"ping"
+							]
+						},
+						"description": "Liveness — returns { \"data\": \"pong\" } with HTTP 200 when the server is up. Public."
+					}
+				},
+				{
+					"name": "Ready",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/ready",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"ready"
+							]
+						},
+						"description": "Readiness — pings the database. 200 { \"data\": \"ready\" } when reachable, 503 otherwise. Public."
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/users?page=1&limit=10",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Paginated list of users. limit max 100 (otherwise defaults to 10)."
+					}
+				},
+				{
+					"name": "Retrieve a User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/users/{{userId}}",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Fetch a single user by ID."
+					}
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set('userEmail', pm.variables.replaceIn('{{$randomEmail}}'));",
+									"pm.environment.set('userName', pm.variables.replaceIn('{{$randomFullName}}'));"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.id) {",
+									"    pm.environment.set('userId', res.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{userName}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"test1234\",\n    \"age\": 25\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Public registration. Fields: name (min 2), email, password (min 8), age (min 1). Saves `userId`."
+					}
+				},
+				{
+					"name": "Update User (self)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"age\": 31\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Update the authenticated user (id taken from the token, not the URL). Fields optional: name (min 2), age (min 1)."
+					}
+				},
+				{
+					"name": "Delete User (self)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/users",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Delete the authenticated user. Returns 204."
+					}
+				}
+			]
+		}
+	]
+}

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"time"
 
 	"level-up-backend/internal/config"
 	"level-up-backend/internal/infrastructure/database"
@@ -12,6 +13,7 @@ import (
 	"level-up-backend/internal/modules/health"
 	"level-up-backend/internal/modules/user"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
@@ -47,6 +49,13 @@ func main() {
 	jwtMiddleware := middleware.JWT(userRepo, revokedRepo, cfg.JWT.Secret)
 
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     cfg.CORS.Origins,
+		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 	r.Use(func(c *gin.Context) {
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 1<<20)
 		c.Next()

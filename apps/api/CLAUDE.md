@@ -11,6 +11,8 @@ Architecture and conventions mirror the sibling project `go-first-api`.
 
 **Run `golangci-lint run` before finishing a change** and fix what it reports (`golangci-lint fmt` handles formatting).
 
+**Keep the Postman collection in sync.** Whenever you add, remove, or change a route (method, path, body, or query params), update `postman/level-up-backend.postman_collection.json` in the same change. Folders are ordered alphabetically (Auth, Health, Users); requests within a folder by method GET → POST → PATCH → DELETE.
+
 ## Commands
 
 ```bash

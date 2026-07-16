@@ -5,6 +5,19 @@
 Архитектура: `App Runner (контейнер из ECR) → по интернету (SSL) → RDS PostgreSQL`.
 Миграции goose накатываются автоматически при старте контейнера.
 
+## Что развёрнуто (актуально)
+
+| Ресурс | Значение |
+|---|---|
+| **URL API** | https://iypxepsbm3.us-east-2.awsapprunner.com |
+| **App Runner** | `level-up-backend` · ARN `arn:aws:apprunner:us-east-2:813021164486:service/level-up-backend/644ec0493c08485e82f25b91588a7e2c` |
+| **ECR** | `813021164486.dkr.ecr.us-east-2.amazonaws.com/level-up-backend` |
+| **RDS** | `level-up-backend-db` · БД `levelup` · юзер `postgres` · SSL required |
+| **IAM роль** | `AppRunnerECRAccessRole-gofirstapi` (переиспользована) |
+
+Env-переменные (`JWT_SECRET`, `DB_*`) заданы в конфиге App Runner-сервиса.
+Первичное создание БД + сервиса делает `./scripts/finish-deploy.sh` (берёт значения из `.env.prod`).
+
 > Это тот же паттерн, что и в `go-first-api`. Ресурсы для `level-up-backend`
 > создаются **один раз** (шаги 1–3), дальше выкат — одной командой `make deploy`.
 
