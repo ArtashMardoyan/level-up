@@ -84,6 +84,11 @@ func Load() (Config, error) {
 		sslMode = "disable"
 	}
 
+	addr := os.Getenv("SERVER_ADDR")
+	if addr == "" {
+		addr = ":3000"
+	}
+
 	return Config{
 		DB: DBConfig{
 			Host:     os.Getenv("DB_HOST"),
@@ -95,6 +100,6 @@ func Load() (Config, error) {
 		},
 		JWT:    JWTConfig{Secret: secret},
 		CORS:   CORSConfig{Origins: corsOrigins()},
-		Server: ServerConfig{Addr: ":3000"},
+		Server: ServerConfig{Addr: addr},
 	}, nil
 }

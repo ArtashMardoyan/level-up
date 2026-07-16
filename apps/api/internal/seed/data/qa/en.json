@@ -1,0 +1,402 @@
+[
+    {
+        "id": "q1",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 1. Tell me about yourself",
+        "answer": "I'm a QA engineer with experience in manual and automated testing.\n\nI've worked on web and mobile applications — testing APIs, UI, and end-to-end flows. I've written automation with Playwright, Cypress, and Selenium, and built CI/CD integrations so tests run automatically on every deployment.\n\nI work closely with developers and product managers — catching bugs early saves a lot of time and money.\n\nRecently I've started using AI tools to help write test cases and generate test data faster.",
+        "bonus": "Good QA is not just about finding bugs — it's about preventing them by being involved early in the development process.",
+        "audio": "audio/courses/qa/en/q1.mp3"
+    },
+    {
+        "id": "q2",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 2. What is the difference between QA, QC, and testing?",
+        "answer": "Testing is the activity — running tests, finding bugs, checking if the software works.\n\nQC — Quality Control — focuses on the product. It's about checking that the final product meets requirements. Testing is part of QC.\n\nQA — Quality Assurance — focuses on the process. It's about improving how software is built so that quality is built in, not just checked at the end.\n\nIn practice QA engineers do all three — we write tests, check quality, and help improve development processes.",
+        "bonus": "Shift-left testing means involving QA earlier — in requirements and design — so bugs are caught before they are even coded.",
+        "audio": "audio/courses/qa/en/q2.mp3"
+    },
+    {
+        "id": "q3",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 3. What is the software testing lifecycle?",
+        "answer": "The testing lifecycle runs alongside the development lifecycle.\n\nFirst we analyze requirements — understanding what needs to be built and identifying risks.\n\nThen we plan testing — what to test, how, and with what tools.\n\nNext we design test cases — specific scenarios that verify the software works correctly.\n\nThen we execute tests and log bugs.\n\nAfter fixes we do regression testing — making sure nothing broke.\n\nFinally we close the cycle with a test summary report.",
+        "bonus": "The earlier you find a bug, the cheaper it is to fix. A bug found in requirements costs much less than one found in production.",
+        "audio": "audio/courses/qa/en/q3.mp3"
+    },
+    {
+        "id": "q4",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 4. What is the difference between functional and non-functional testing?",
+        "answer": "Functional testing checks that the software does what it's supposed to do — the features work correctly.\n\nExamples: login works, payment processes, data saves correctly.\n\nNon-functional testing checks how the software behaves — performance, security, usability, reliability.\n\nExamples: the page loads in under 2 seconds, the system handles 1000 users at once, the API is secure.\n\nBoth are important. Functional bugs break features. Non-functional issues affect user experience and security.",
+        "bonus": "Performance testing is often overlooked until production — it's better to run load tests in staging before release.",
+        "audio": "audio/courses/qa/en/q4.mp3"
+    },
+    {
+        "id": "q5",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 5. What is the difference between black box, white box, and grey box testing?",
+        "answer": "Black box testing — the tester doesn't know the internal code. Tests are based on requirements and expected behavior. Most manual testing is black box.\n\nWhite box testing — the tester knows the internal code and writes tests based on it. Unit tests and code coverage analysis are white box.\n\nGrey box testing — the tester has some knowledge of the internal structure. API testing is a good example — you know the endpoints and data models but not the implementation details.",
+        "bonus": "Most QA engineers do grey box testing — they understand the system architecture without reading every line of code.",
+        "audio": "audio/courses/qa/en/q5.mp3"
+    },
+    {
+        "id": "q6",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 6. What makes a good bug report?",
+        "answer": "A good bug report has everything a developer needs to reproduce and fix the bug.\n\nIt includes: a clear title, steps to reproduce, expected result, actual result, environment details, and severity.\n\nScreenshots or screen recordings are very helpful.\n\nThe steps to reproduce should be exact — what you clicked, what data you entered, in what order.\n\nA vague bug report wastes everyone's time. A clear one gets fixed faster.",
+        "bonus": "Always check if the bug is reproducible before reporting it. And search for existing reports — duplicate bugs are common.",
+        "audio": "audio/courses/qa/en/q6.mp3"
+    },
+    {
+        "id": "q7",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 7. What is test coverage?",
+        "answer": "Test coverage measures how much of the application is covered by tests.\n\nCode coverage measures what percentage of lines of code are executed during tests. 80% is often used as a target.\n\nRequirements coverage measures what percentage of requirements have test cases.\n\nHigh code coverage doesn't guarantee quality — you can have 100% coverage but miss important edge cases.\n\nWe focus on covering the most important and risky parts of the application.",
+        "bonus": "Test coverage is a useful metric but not a goal — the goal is to have confidence that the software works, not to hit a number.",
+        "audio": "audio/courses/qa/en/q7.mp3"
+    },
+    {
+        "id": "q8",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 8. What is regression testing?",
+        "answer": "Regression testing checks that new changes haven't broken existing functionality.\n\nEvery time a developer makes a change, there's a risk of breaking something that worked before. Regression tests catch this.\n\nManually running all regression tests before every release is slow. That's why we automate them — regression is one of the best candidates for automation.\n\nWe run automated regression tests in the CI/CD pipeline on every pull request.",
+        "bonus": "The regression suite should be fast enough to give feedback quickly — if it takes hours, developers stop waiting for it.",
+        "audio": "audio/courses/qa/en/q8.mp3"
+    },
+    {
+        "id": "q9",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 9. What is the difference between verification and validation?",
+        "answer": "Verification asks: are we building the product right? It checks that the software meets the specification — reviews, inspections, and static analysis.\n\nValidation asks: are we building the right product? It checks that the software meets the user's actual needs — testing with real users, acceptance testing.\n\nSimple way to remember: verification is internal, validation is external.\n\nBoth are important — you can build exactly what was specified but still build the wrong thing.",
+        "bonus": "User acceptance testing (UAT) is the final validation — the customer confirms the product does what they actually need.",
+        "audio": "audio/courses/qa/en/q9.mp3"
+    },
+    {
+        "id": "q10",
+        "module": "Module 1 — QA Fundamentals",
+        "question": "Question 10. How do you prioritize what to test?",
+        "answer": "Not everything can be tested with the same depth — we prioritize based on risk and business impact.\n\nFirst we test core functionality — the features users use most. If payment processing breaks, that's critical. If a footer link is wrong, that's low priority.\n\nWe also prioritize based on what recently changed — new features and recent bug fixes need more attention.\n\nWe use risk-based testing — focus more on areas that are complex, frequently changed, or have had bugs before.\n\nTime is always limited — good prioritization means the most important things are tested first.",
+        "bonus": "Work with the product team to understand business priorities — QA should test what matters most to the business, not just what's easiest to test.",
+        "audio": "audio/courses/qa/en/q10.mp3"
+    },
+    {
+        "id": "q11",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 11. What test design techniques do you use?",
+        "answer": "Equivalence partitioning — divide inputs into groups where all values should behave the same. Test one value from each group instead of testing every possible value.\n\nBoundary value analysis — test at the edges of valid ranges. Bugs often hide at boundaries — if the limit is 100, test 99, 100, and 101.\n\nDecision table testing — for complex business rules with multiple conditions and outcomes.\n\nState transition testing — for systems that move through different states, like an order going from pending to paid to shipped.\n\nWe combine these techniques — no single technique covers everything.",
+        "bonus": "Exploratory testing is also important — structured techniques catch known cases, but exploration finds unexpected bugs.",
+        "audio": "audio/courses/qa/en/q11.mp3"
+    },
+    {
+        "id": "q12",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 12. What is equivalence partitioning?",
+        "answer": "Equivalence partitioning means dividing inputs into groups where all values in the group should produce the same result.\n\nInstead of testing every possible input — which is impossible — you test one representative value from each group.\n\nFor example a field that accepts ages 18-65: valid group is 18-65, invalid groups are below 18 and above 65. You test one value from each group — say 30, 10, and 70.\n\nThis reduces the number of tests while still covering the important cases.",
+        "bonus": "Combine equivalence partitioning with boundary value analysis — test the edges of each partition, not just one value from the middle.",
+        "audio": "audio/courses/qa/en/q12.mp3"
+    },
+    {
+        "id": "q13",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 13. What is boundary value analysis?",
+        "answer": "Boundary value analysis tests at the edges of valid input ranges — because bugs often hide there.\n\nIf a field accepts values from 1 to 100, you test: 0 (just below min), 1 (min), 2 (just above min), 99 (just below max), 100 (max), 101 (just above max).\n\nThis is more effective than testing random values in the middle of a range.\n\nIt works for numbers, string lengths, dates, and any other input with defined limits.",
+        "bonus": "Boundary value analysis is one of the most effective techniques — a high percentage of bugs are found at or near boundaries.",
+        "audio": "audio/courses/qa/en/q13.mp3"
+    },
+    {
+        "id": "q14",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 14. What is exploratory testing?",
+        "answer": "Exploratory testing is unscripted testing where the tester explores the application using their experience and intuition.\n\nInstead of following predefined test cases, you learn about the application while testing it. You follow interesting paths, try unusual inputs, and look for unexpected behavior.\n\nIt's very effective for finding bugs that scripted tests miss — especially usability issues and edge cases.\n\nWe use exploratory testing alongside scripted tests — not instead of them.\n\nA good exploratory testing session is time-boxed — for example 2 hours focused on a specific feature.",
+        "bonus": "Document what you explored during exploratory sessions — even if you don't find bugs, the notes help plan future test cases.",
+        "audio": "audio/courses/qa/en/q14.mp3"
+    },
+    {
+        "id": "q15",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 15. What are positive and negative test cases?",
+        "answer": "Positive test cases check that the system works correctly when given valid inputs — the happy path.\n\nFor example: login with correct credentials, place an order with all required fields filled.\n\nNegative test cases check how the system handles invalid inputs and unexpected situations.\n\nFor example: login with wrong password, submit a form with empty required fields, enter letters in a number field.\n\nBoth are important. Many bugs are found in negative cases because developers often focus on the happy path.",
+        "bonus": "Don't forget edge cases — what happens with very long text, special characters, negative numbers, or zero values.",
+        "audio": "audio/courses/qa/en/q15.mp3"
+    },
+    {
+        "id": "q16",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 16. How do you write good test cases?",
+        "answer": "A good test case has a clear title that describes what's being tested, preconditions, step-by-step actions, and an expected result.\n\nTest cases should be independent — one test should not depend on another.\n\nThey should be reproducible — anyone should be able to run them and get the same result.\n\nKeep test cases focused — each test checks one thing. Long tests that check many things are hard to maintain and hard to debug when they fail.\n\nUpdate test cases when requirements change — outdated tests are misleading.",
+        "bonus": "Write test cases for the tester who will run them next year, not for yourself today — clarity and completeness matter.",
+        "audio": "audio/courses/qa/en/q16.mp3"
+    },
+    {
+        "id": "q17",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 17. What is a test plan?",
+        "answer": "A test plan is a document that describes the testing approach for a project or release.\n\nIt includes: scope of testing, what will and won't be tested, testing types, environments, tools, schedule, resources, and risks.\n\nA test plan helps the whole team understand what testing will happen and when.\n\nFor large projects it's a formal document. For smaller projects it can be a simple list of what will be tested and how.\n\nThe test plan should be reviewed and updated as the project changes.",
+        "bonus": "A test plan doesn't need to be a 50-page document — a clear one-page summary is often more useful and actually gets read.",
+        "audio": "audio/courses/qa/en/q17.mp3"
+    },
+    {
+        "id": "q18",
+        "module": "Module 2 — Test Design & Techniques",
+        "question": "Question 18. What is smoke testing and sanity testing?",
+        "answer": "Smoke testing is a quick check to verify that the basic functions of a build work before investing more time in testing.\n\nIt's like turning on a device to see if it turns on before doing anything else. If the smoke test fails, you send the build back — no point testing further.\n\nSanity testing is a narrow, focused test to check that a specific bug fix or feature works correctly after a change.\n\nSmoke testing is broad and shallow. Sanity testing is narrow and deep.",
+        "bonus": "Automate your smoke tests — they should run in minutes after every deployment to give fast feedback.",
+        "audio": "audio/courses/qa/en/q18.mp3"
+    },
+    {
+        "id": "q19",
+        "module": "Module 3 — API Testing",
+        "question": "Question 19. How do you test APIs?",
+        "answer": "API testing checks that the API endpoints return correct responses for different inputs.\n\nWe test the happy path — valid requests with expected responses. We test negative cases — invalid inputs, missing fields, wrong types. We test edge cases — empty arrays, very large values, special characters.\n\nWe check the status code, response body, headers, and response time.\n\nFor manual API testing we use Postman. For automated API tests we use tools like Playwright, Supertest, or RestAssured.\n\nAPI tests are faster and more stable than UI tests — we try to test as much as possible at the API level.",
+        "bonus": "API testing finds bugs faster and more reliably than UI testing — the same functionality can be tested with one API call instead of many UI interactions.",
+        "audio": "audio/courses/qa/en/q19.mp3"
+    },
+    {
+        "id": "q20",
+        "module": "Module 3 — API Testing",
+        "question": "Question 20. What HTTP status codes do you work with most?",
+        "answer": "200 OK — request succeeded.\n201 Created — resource was created successfully.\n400 Bad Request — invalid input from the client.\n401 Unauthorized — not authenticated.\n403 Forbidden — authenticated but not allowed.\n404 Not Found — resource doesn't exist.\n422 Unprocessable Entity — validation failed.\n500 Internal Server Error — something went wrong on the server.\n\nIn testing I verify the status code is correct for each scenario — not just that the request doesn't fail.",
+        "bonus": "The difference between 401 and 403 is important — 401 means you're not logged in, 403 means you're logged in but don't have permission.",
+        "audio": "audio/courses/qa/en/q20.mp3"
+    },
+    {
+        "id": "q21",
+        "module": "Module 3 — API Testing",
+        "question": "Question 21. How do you test authentication and authorization?",
+        "answer": "For authentication I test: valid credentials work, invalid credentials are rejected, expired tokens are rejected, and missing tokens return 401.\n\nFor authorization I test: each role can access only what they're supposed to. I try to access resources that belong to another user — the API should return 403. I try to access admin endpoints as a regular user.\n\nI also test token expiration and refresh token flows.\n\nAuthorization testing is critical — bugs here can expose other users' data.",
+        "bonus": "Always test horizontal access control — can user A access user B's data? This is a very common security vulnerability.",
+        "audio": "audio/courses/qa/en/q21.mp3"
+    },
+    {
+        "id": "q22",
+        "module": "Module 3 — API Testing",
+        "question": "Question 22. How do you test APIs with Postman?",
+        "answer": "Postman lets you create and organize API requests, save them in collections, and add tests.\n\nI create a collection for each service with requests for every endpoint. I use environment variables for base URLs, tokens, and IDs so the same collection works in dev, staging, and production.\n\nI write tests in Postman using JavaScript — checking status codes, response structure, and specific values.\n\nFor regression I run the whole collection with Newman — Postman's command line tool — which can run in the CI/CD pipeline.",
+        "bonus": "Postman environments are very useful — switch between dev, staging, and production with one click without changing the requests.",
+        "audio": "audio/courses/qa/en/q22.mp3"
+    },
+    {
+        "id": "q23",
+        "module": "Module 3 — API Testing",
+        "question": "Question 23. What is contract testing?",
+        "answer": "Contract testing verifies that two services — a consumer and a provider — agree on how they communicate.\n\nInstead of running full integration tests that require both services to be running, contract tests check that the API response matches what the consumer expects.\n\nPact is the most popular tool for contract testing.\n\nThis is especially useful in microservices — when a service changes its API, contract tests immediately show which other services will break.\n\nContract tests are faster and more reliable than integration tests for checking API compatibility.",
+        "bonus": "Contract testing is most valuable in microservices where many teams own different services — it prevents breaking changes from going unnoticed.",
+        "audio": "audio/courses/qa/en/q23.mp3"
+    },
+    {
+        "id": "q24",
+        "module": "Module 3 — API Testing",
+        "question": "Question 24. How do you test error handling in APIs?",
+        "answer": "I test all the ways a request can be invalid — missing required fields, wrong data types, values out of range, duplicate entries.\n\nI check that the API returns the correct error code and a helpful error message that explains what's wrong.\n\nI also test what happens when the server has a problem — like the database is unavailable. The API should return 500 with a generic error, not expose internal details.\n\nGood error handling makes the API much easier to use and debug.",
+        "bonus": "Error messages should be helpful for developers but not expose sensitive information like stack traces or database details.",
+        "audio": "audio/courses/qa/en/q24.mp3"
+    },
+    {
+        "id": "q25",
+        "module": "Module 3 — API Testing",
+        "question": "Question 25. What is performance testing for APIs?",
+        "answer": "Performance testing checks how the API behaves under load.\n\nLoad testing — send many requests at the same time and measure response time and error rate.\n\nStress testing — push beyond normal limits to find the breaking point.\n\nSpike testing — sudden large increase in traffic to see how the API handles it.\n\nWe use tools like k6 or Locust for API performance testing.\n\nPerformance tests are important — an API that works fine with 10 users might fail with 1000.",
+        "bonus": "Always run performance tests in staging before release — production performance tests can affect real users.",
+        "audio": "audio/courses/qa/en/q25.mp3"
+    },
+    {
+        "id": "q26",
+        "module": "Module 4 — Test Automation",
+        "question": "Question 26. What is the testing pyramid?",
+        "answer": "The testing pyramid describes the ideal distribution of different test types.\n\nAt the bottom — unit tests. Many, fast, cheap. Test individual functions and components in isolation.\n\nIn the middle — integration tests. Fewer, slower. Test how components work together.\n\nAt the top — end-to-end tests. Few, slow, expensive. Test complete user flows through the whole system.\n\nThe pyramid says: more unit tests, fewer E2E tests.\n\nIn reality many teams have an inverted pyramid — too many slow E2E tests and not enough fast unit tests.",
+        "bonus": "E2E tests are the most expensive to write, run, and maintain. They also have the highest failure rate due to flakiness. Use them sparingly.",
+        "audio": "audio/courses/qa/en/q26.mp3"
+    },
+    {
+        "id": "q27",
+        "module": "Module 4 — Test Automation",
+        "question": "Question 27. What automation tools have you used?",
+        "answer": "For UI automation: Playwright and Cypress for web applications. Both are modern, fast, and have great developer experience.\n\nFor API automation: Postman with Newman, Supertest for NodeJS APIs, RestAssured for Java.\n\nFor mobile: Appium for cross-platform mobile testing.\n\nFor performance: k6 and JMeter.\n\nPlaywright is my preferred tool for web UI automation — it's fast, reliable, and supports multiple browsers.\n\nPlaywright is becoming the industry standard for modern web testing — it's faster, supports multiple browsers natively, and handles modern web applications better than Selenium.",
+        "bonus": "Choose automation tools based on your team's tech stack — a tool your developers know is easier to maintain than one only QA knows.",
+        "audio": "audio/courses/qa/en/q27.mp3"
+    },
+    {
+        "id": "q28",
+        "module": "Module 4 — Test Automation",
+        "question": "Question 28. What is the Page Object Model?",
+        "answer": "Page Object Model is a design pattern for organizing UI test automation code.\n\nEach page of the application has a corresponding class — the page object. It contains the locators for elements on that page and methods for interacting with them.\n\nTest scripts use the page objects instead of directly using selectors.\n\nThis makes tests easier to read and maintain — when the UI changes, you update the page object in one place, not every test that uses it.",
+        "bonus": "Page objects should contain only UI interactions, not test logic or assertions. Keep them clean and focused.",
+        "audio": "audio/courses/qa/en/q28.mp3"
+    },
+    {
+        "id": "q29",
+        "module": "Module 4 — Test Automation",
+        "question": "Question 29. How do you handle flaky tests?",
+        "answer": "Flaky tests are tests that sometimes pass and sometimes fail for no clear reason. They destroy trust in the test suite.\n\nCommon causes: timing issues, test data conflicts, external dependencies, and environment problems.\n\nTo fix them: add proper waits instead of fixed delays, isolate test data so tests don't interfere with each other, mock external services, and make tests independent.\n\nIf a flaky test can't be fixed immediately, quarantine it — move it out of the main suite so it doesn't block CI/CD.\n\nFlaky tests should be treated seriously — a test suite you don't trust is worse than no tests.",
+        "bonus": "Track flaky tests over time — if a test fails more than 5% of the time without code changes, it needs fixing.",
+        "audio": "audio/courses/qa/en/q29.mp3"
+    },
+    {
+        "id": "q30",
+        "module": "Module 4 — Test Automation",
+        "question": "Question 30. How do you integrate automation into CI/CD?",
+        "answer": "Automated tests run automatically in the pipeline on every pull request and merge.\n\nFast tests — unit and API tests — run first. If they fail, the pipeline stops immediately. Slower E2E tests run after.\n\nFor production deployments we run the full test suite including regression tests.\n\nFailed tests block deployment — we don't deploy broken code.\n\nTest results are reported in the pull request so developers can see failures immediately without leaving GitHub.",
+        "bonus": "Parallel test execution is important for keeping the pipeline fast — running tests in parallel can cut execution time significantly.",
+        "audio": "audio/courses/qa/en/q30.mp3"
+    },
+    {
+        "id": "q31",
+        "module": "Module 4 — Test Automation",
+        "question": "Question 31. What is test data management?",
+        "answer": "Test data management is about having the right data available for tests to run reliably.\n\nTests should create their own data and clean up after — not depend on data left by other tests.\n\nFor API tests we create test users and resources via API calls in the test setup. After the test we delete them.\n\nFor sensitive data we use anonymized copies of production data, not real user data.\n\nIn CI/CD we use a test database that gets reset between test runs.\n\nBad test data management causes flaky tests and data conflicts.",
+        "bonus": "Never run tests against production data — even read-only tests can cause problems if they trigger unexpected side effects.",
+        "audio": "audio/courses/qa/en/q31.mp3"
+    },
+    {
+        "id": "q32",
+        "module": "Module 4 — Test Automation",
+        "question": "Question 32. How do you choose what to automate?",
+        "answer": "Not everything should be automated — automation has a cost.\n\nGood candidates for automation: tests that run frequently, regression tests, tests with many data combinations, and tests that are boring to run manually.\n\nPoor candidates: tests that change frequently, one-time exploratory tests, and tests that require visual judgment.\n\nWe automate stable, high-value tests first — core user flows and regression.\n\nThe ROI of automation comes over time — a test that runs 100 times pays for the time to write it.",
+        "bonus": "If a feature is still being designed and changes every week, don't automate it yet — you'll rewrite the test as many times as the feature changes.",
+        "audio": "audio/courses/qa/en/q32.mp3"
+    },
+    {
+        "id": "q33",
+        "module": "Module 5 — Mobile & Security Testing",
+        "question": "Question 33. How do you test mobile applications?",
+        "answer": "Mobile testing has unique challenges — different devices, screen sizes, OS versions, and network conditions.\n\nFor manual testing we test on real devices and emulators. We cover the most popular device and OS combinations.\n\nWe test different network conditions — 4G, 3G, and offline. We test battery usage and memory consumption for performance.\n\nFor automated UI testing we use Appium or the native testing frameworks — XCUITest for iOS and Espresso for Android.\n\nWe also test app behavior when interrupted — calls, notifications, battery low alerts.",
+        "bonus": "Testing on real devices is important — emulators don't catch all issues, especially around performance and hardware interactions.",
+        "audio": "audio/courses/qa/en/q33.mp3"
+    },
+    {
+        "id": "q34",
+        "module": "Module 5 — Mobile & Security Testing",
+        "question": "Question 34. What is cross-browser testing?",
+        "answer": "Cross-browser testing checks that the application works correctly in different browsers — Chrome, Firefox, Safari, and Edge.\n\nBrowsers render HTML and CSS differently and have different JavaScript implementations. A feature that works in Chrome might look broken in Safari.\n\nFor manual testing we check the most important pages in each browser.\n\nFor automated testing Playwright supports multiple browsers out of the box — you can run the same tests in Chrome, Firefox, and Safari.\n\nWe prioritize based on analytics — test in the browsers our users actually use.",
+        "bonus": "Mobile browsers are also important — Safari on iOS and Chrome on Android have different behaviors than their desktop versions.",
+        "audio": "audio/courses/qa/en/q34.mp3"
+    },
+    {
+        "id": "q35",
+        "module": "Module 5 — Mobile & Security Testing",
+        "question": "Question 35. What is security testing?",
+        "answer": "Security testing looks for vulnerabilities that attackers could exploit.\n\nCommon tests: SQL injection — can malicious input manipulate the database. XSS — can scripts be injected into pages that affect other users. Authentication bypass — can you access things without logging in. Authorization issues — can you access other users' data.\n\nWe use OWASP Top 10 as a checklist of the most common web security vulnerabilities.\n\nFor automated scanning we use tools like OWASP ZAP or Burp Suite.\n\nSecurity testing requires a security mindset — think like an attacker.\n\nWe also verify security headers like Content-Security-Policy, X-Frame-Options, and HSTS — these are easy to check but often missed.",
+        "bonus": "Security testing should be part of every release, not a one-time activity — new features can introduce new vulnerabilities.",
+        "audio": "audio/courses/qa/en/q35.mp3"
+    },
+    {
+        "id": "q36",
+        "module": "Module 5 — Mobile & Security Testing",
+        "question": "Question 36. What is SQL injection and how do you test for it?",
+        "answer": "SQL injection is when an attacker puts SQL code in an input field and the server executes it.\n\nFor example entering ' OR '1'='1 in a login field might bypass authentication if the input is not sanitized.\n\nTo test for it I try common SQL injection payloads in every input field — forms, URL parameters, and headers.\n\nIf the application returns database errors or behaves unexpectedly, it's vulnerable.\n\nThe fix is parameterized queries — never build SQL strings by concatenating user input.",
+        "bonus": "SQL injection is in the OWASP Top 10 every year — it's one of the most dangerous and most common vulnerabilities.",
+        "audio": "audio/courses/qa/en/q36.mp3"
+    },
+    {
+        "id": "q37",
+        "module": "Module 5 — Mobile & Security Testing",
+        "question": "Question 37. What is accessibility testing?",
+        "answer": "Accessibility testing checks that the application can be used by people with disabilities — visual, hearing, motor, or cognitive.\n\nWe check that images have alt text, forms have labels, buttons have descriptive text, and the page can be navigated with a keyboard.\n\nFor automated checks we use tools like axe or Lighthouse accessibility audit.\n\nFor manual testing we use a screen reader — VoiceOver on Mac or NVDA on Windows — to experience the application as a visually impaired user would.\n\nAccessibility is also a legal requirement in many countries.",
+        "bonus": "Good accessibility often improves usability for everyone — clear labels and good keyboard navigation help all users.",
+        "audio": "audio/courses/qa/en/q37.mp3"
+    },
+    {
+        "id": "q38",
+        "module": "Module 5 — Mobile & Security Testing",
+        "question": "Question 38. What is usability testing?",
+        "answer": "Usability testing checks how easy the application is to use for real users.\n\nWe observe real users completing tasks — not telling them how to do it, just watching.\n\nWe look for confusion, hesitation, errors, and frustration. If users struggle with something, it's a usability problem even if it works technically.\n\nUsability testing can be done with just 5 users — research shows you find most usability issues with a small group.\n\nFeedback from usability testing is often more valuable than bug reports because it reveals fundamental design problems.",
+        "bonus": "Usability testing doesn't need a lab or special tools — a video call with a user sharing their screen is enough to find most issues.",
+        "audio": "audio/courses/qa/en/q38.mp3"
+    },
+    {
+        "id": "q39",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 39. How do you work with developers?",
+        "answer": "Good QA-developer collaboration is essential. We're on the same team — both trying to ship quality software.\n\nI get involved early — in planning and requirements — so I can ask questions and catch unclear requirements before coding starts.\n\nWhen I find a bug I write a clear report with steps to reproduce. I try to help developers understand the issue, not just report it.\n\nFor complex bugs I pair with developers to investigate together.\n\nI also review pull requests — not just for bugs but also for testability.",
+        "bonus": "The best QA engineers make developers want to work with them — by being helpful, clear, and constructive, not adversarial.",
+        "audio": "audio/courses/qa/en/q39.mp3"
+    },
+    {
+        "id": "q40",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 40. How do you work in an Agile team?",
+        "answer": "In Agile, QA is involved throughout the sprint — not just at the end.\n\nI participate in sprint planning to understand what's being built and start planning tests. I review acceptance criteria and add testability notes.\n\nDuring the sprint I test features as they're completed — not all at once at the end.\n\nI join daily standups and report testing progress and blockers.\n\nAt the end of the sprint I make sure everything that's done is actually tested and working.\n\nContinuous testing throughout the sprint avoids the last-minute rush.",
+        "bonus": "Three Amigos — developer, QA, and product manager reviewing a story together before development starts — is a very effective technique for catching issues early.",
+        "audio": "audio/courses/qa/en/q40.mp3"
+    },
+    {
+        "id": "q41",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 41. How do you estimate QA tasks?",
+        "answer": "First I understand what needs to be tested — scope, complexity, and risk level.\n\nI break it down: test case design, test execution, bug reporting and retesting, automation if needed.\n\nI consider dependencies — is the feature ready to test? Is the environment stable? Is test data available?\n\nFor new complex features I add buffer for exploratory testing and unexpected issues.\n\nI communicate early if estimates change — testing often takes longer than expected, especially when bugs are found.",
+        "bonus": "Factor in time for retesting after bug fixes — a feature that had 10 bugs needs significantly more testing time than one that had none.",
+        "audio": "audio/courses/qa/en/q41.mp3"
+    },
+    {
+        "id": "q42",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 42. How do you handle time pressure when asked to reduce testing?",
+        "answer": "This is a common situation — release deadline is approaching and there's no time to test everything.\n\nI explain the risks clearly — which areas are not tested and what could go wrong. The decision about acceptable risk should be made by the team, not just QA.\n\nI prioritize ruthlessly — test the most critical flows and the most recently changed code first.\n\nI document what was not tested so the team knows what risks were accepted.\n\nI never just say 'okay' and reduce testing silently — risk must be transparent.",
+        "bonus": "Shipping untested code is sometimes the right business decision — but it should be a conscious, informed decision, not a hidden one.",
+        "audio": "audio/courses/qa/en/q42.mp3"
+    },
+    {
+        "id": "q43",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 43. How do you mentor junior QA engineers?",
+        "answer": "I create an environment where asking questions is encouraged — there are no stupid questions in QA.\n\nI start by pairing with them on real tasks — reviewing test cases together, explaining my thinking as I explore a feature.\n\nI give them tasks that are challenging but achievable, and review their work with constructive feedback.\n\nI help them develop a testing mindset — not just following scripts but thinking about what could go wrong.\n\nThe goal is to help them become independent testers who can work without supervision.",
+        "bonus": "The best way to learn QA is to do it — give juniors real tasks early, with appropriate support and review.",
+        "audio": "audio/courses/qa/en/q43.mp3"
+    },
+    {
+        "id": "q44",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 44. How do you handle a production bug?",
+        "answer": "First I reproduce the bug and understand its impact — how many users are affected, what data is at risk, how severe is it.\n\nI communicate immediately to the team — developers, product, and support if needed.\n\nI document everything I find — steps to reproduce, environment, logs, screenshots.\n\nAfter the fix is deployed I verify it's resolved and check for regressions — sometimes a fix breaks something else.\n\nI add a test case to the regression suite so the same bug can't happen again undetected.",
+        "bonus": "After a production bug ask: why didn't our tests catch this? Use the answer to improve the test suite.",
+        "audio": "audio/courses/qa/en/q44.mp3"
+    },
+    {
+        "id": "q45",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 45. What metrics do you use to measure QA effectiveness?",
+        "answer": "Bug detection rate — how many bugs are found before production vs after. More bugs found early means QA is effective.\n\nTest coverage — what percentage of requirements and code is covered by tests.\n\nDefect escape rate — bugs that reach production. Lower is better.\n\nTest execution time — how long the test suite takes to run. Slow suites block development.\n\nFlaky test rate — how many tests fail intermittently. High flakiness means low confidence in results.\n\nMetrics help identify where to improve — but they should inform decisions, not be gamed.\n\nWe also track MTTD — Mean Time To Detect — how quickly we find issues, and MTTR — Mean Time To Resolve — how quickly they get fixed.",
+        "bonus": "Be careful with coverage metrics — 100% code coverage doesn't mean 100% quality. Focus on metrics that actually reflect user impact.",
+        "audio": "audio/courses/qa/en/q45.mp3"
+    },
+    {
+        "id": "q46",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 46. How do you use AI in QA work?",
+        "answer": "AI helps me work faster on repetitive tasks.\n\nFor test case generation I describe the feature and ask AI to suggest test cases. I always review and improve them — AI misses context-specific scenarios.\n\nFor test data I use AI to generate realistic test data — names, addresses, edge case values.\n\nFor exploratory testing AI helps me think of scenarios I might miss — I describe the feature and ask what could go wrong.\n\nFor automation AI helps write boilerplate code — page objects, test setup, and utility functions.\n\nAI is a tool that makes me faster — it doesn't replace QA judgment.",
+        "bonus": "AI-generated test cases are a starting point, not a final answer — always review them with your knowledge of the system and business requirements.",
+        "audio": "audio/courses/qa/en/q46.mp3"
+    },
+    {
+        "id": "q47",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 47. What is shift-left testing?",
+        "answer": "Shift-left means moving testing earlier in the development process.\n\nInstead of testing only after development is complete, QA gets involved in requirements, design, and planning.\n\nThis catches problems when they're cheapest to fix — a misunderstood requirement found in planning takes minutes to fix. The same problem found in production takes days.\n\nPractical shift-left activities: reviewing requirements for testability, writing acceptance criteria before development, and reviewing designs for potential issues.\n\nShift-left requires QA to be a partner in development, not a gatekeeper at the end.",
+        "bonus": "Shift-left doesn't mean removing the testing phase — it means adding testing activities throughout the whole process.",
+        "audio": "audio/courses/qa/en/q47.mp3"
+    },
+    {
+        "id": "q48",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 48. What is continuous testing?",
+        "answer": "Continuous testing means automated tests run continuously throughout development — on every code change, not just before release.\n\nWhen a developer pushes code, tests run automatically and results are available in minutes. Problems are caught immediately, not days later.\n\nContinuous testing is only possible with good automation — you can't run thousands of manual tests on every commit.\n\nIt requires the right balance of test types — enough unit and API tests to give fast feedback, with E2E tests for critical flows.\n\nContinuous testing is a key part of CI/CD — it's what makes frequent deployments safe.",
+        "bonus": "The goal is fast feedback — if tests take 2 hours, developers won't wait for results. Aim for the main test suite to complete in under 15 minutes.",
+        "audio": "audio/courses/qa/en/q48.mp3"
+    },
+    {
+        "id": "q49",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 49. Why should we hire you?",
+        "answer": "I have solid QA experience covering manual testing, API testing, and test automation.\n\nI've worked in Agile teams and I understand how to integrate quality throughout the development process, not just at the end.\n\nI'm good at finding bugs that matter — I focus on risk and business impact, not just checking boxes.\n\nI can write automation that actually helps — maintainable, reliable tests that run in CI/CD and give the team confidence to ship.\n\nI work well with developers and product teams — quality is a team effort and I try to make that collaboration effective.",
+        "bonus": "I'm also comfortable with the process side — test planning, metrics, and helping teams improve their quality practices over time.",
+        "audio": "audio/courses/qa/en/q49.mp3"
+    },
+    {
+        "id": "q50",
+        "module": "Module 6 — QA Leadership & Process",
+        "question": "Question 50. What are your career goals?",
+        "answer": "In the short term I want to keep growing my automation skills — especially in API testing and performance testing.\n\nI'm also interested in getting deeper into security testing — it's an area where QA can add a lot of value that's often overlooked.\n\nIn the long term I'd like to move toward a QA lead role — helping build testing strategies, mentoring other testers, and working with teams to improve their overall quality culture.\n\nMy goal is to work on products where quality actually matters to users and where QA is valued as part of the team.",
+        "bonus": "I'm also following how AI is changing QA — AI-powered testing tools are evolving fast and I want to stay ahead of that.",
+        "audio": "audio/courses/qa/en/q50.mp3"
+    }
+]

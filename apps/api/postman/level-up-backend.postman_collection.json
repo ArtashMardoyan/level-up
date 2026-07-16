@@ -20,6 +20,16 @@
 			"key": "API_URL",
 			"value": "http://localhost:3000",
 			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "go",
+			"type": "string"
+		},
+		{
+			"key": "questionId",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"item": [
@@ -132,6 +142,197 @@
 							]
 						},
 						"description": "Revoke the current token server-side (adds its jti to the denylist). Returns 204 and clears `accessToken`."
+					}
+				}
+			]
+		},
+		{
+			"name": "Courses",
+			"item": [
+				{
+					"name": "List Courses",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses?lang=en",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en"
+								}
+							]
+						},
+						"description": "Public. List all courses with metadata and questionCount, ordered by sortOrder. `lang` is accepted for parity but does not change the list payload."
+					}
+				},
+				{
+					"name": "All Courses (full)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/full?lang=en",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"full"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en"
+								}
+							]
+						},
+						"description": "Public. All courses with their localized questions in one payload (used by the frontend for the grid + global search). Each course has id(uuid)+slug; each question id(uuid)+ref."
+					}
+				},
+				{
+					"name": "Retrieve a Course",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.questions && res.data.questions.length) {",
+									"    pm.environment.set('questionId', res.data.questions[0].id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/{{courseId}}?lang=en",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en"
+								}
+							]
+						},
+						"description": "Public. Fetch a course with all its questions localized to `lang` (default en, falls back to English per field). Saves the first question id to `questionId`."
+					}
+				},
+				{
+					"name": "Course Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/{{courseId}}/progress",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}",
+								"progress"
+							]
+						},
+						"description": "Auth required. The current user's reviewed and favorite question ids for this course."
+					}
+				},
+				{
+					"name": "Progress Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/progress/summary",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"progress",
+								"summary"
+							]
+						},
+						"description": "Auth required. Aggregate reviewed/favorite totals for the current user, plus per-course counts."
+					}
+				},
+				{
+					"name": "Bulk Progress",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewedIds\": [\"{{questionId}}\"],\n    \"favoriteIds\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/progress/bulk",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"progress",
+								"bulk"
+							]
+						},
+						"description": "Auth required. Idempotently mark many questions reviewed/favorite by id (used for \"expand all\" and the initial localStorage migration). Returns 204."
+					}
+				},
+				{
+					"name": "Upsert Question Progress",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewed\": true,\n    \"favorite\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/questions/{{questionId}}/progress",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}",
+								"progress"
+							]
+						},
+						"description": "Auth required. Upsert the current user's progress for one question by id. Omitted fields are left unchanged, so reviewed and favorite toggle independently."
 					}
 				}
 			]

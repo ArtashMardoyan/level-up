@@ -10,6 +10,7 @@ import (
 	"level-up-backend/internal/infrastructure/database"
 	"level-up-backend/internal/infrastructure/middleware"
 	"level-up-backend/internal/modules/auth"
+	"level-up-backend/internal/modules/course"
 	"level-up-backend/internal/modules/health"
 	"level-up-backend/internal/modules/user"
 
@@ -41,10 +42,13 @@ func main() {
 
 	userRepo := user.NewRepository(db)
 	revokedRepo := auth.NewRevokedTokenRepository(db)
+	courseRepo := course.NewCourseRepository(db)
+	progressRepo := course.NewProgressRepository(db)
 
 	userHandler := user.NewHandler(user.NewService(userRepo))
 	authHandler := auth.NewHandler(auth.NewService(userRepo, revokedRepo, cfg.JWT.Secret))
 	healthHandler := health.NewHandler(db)
+	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo))
 
 	jwtMiddleware := middleware.JWT(userRepo, revokedRepo, cfg.JWT.Secret)
 
@@ -64,6 +68,7 @@ func main() {
 	healthHandler.RegisterRoutes(r)
 	authHandler.RegisterRoutes(r, jwtMiddleware)
 	userHandler.RegisterRoutes(r, jwtMiddleware)
+	courseHandler.RegisterRoutes(r, jwtMiddleware)
 
 	log.Fatal(r.Run(cfg.Server.Addr))
 }

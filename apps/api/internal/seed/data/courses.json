@@ -1,0 +1,66 @@
+[
+    {
+        "slug": "backend",
+        "title": "Backend Developer",
+        "subtitle": "NodeJS, APIs, databases, AWS & infrastructure",
+        "emoji": "🛠️",
+        "accent": "#fbbf24",
+        "sortOrder": 1
+    },
+    {
+        "slug": "frontend",
+        "title": "Frontend Developer",
+        "subtitle": "React, browser internals, performance",
+        "emoji": "🎨",
+        "accent": "#c084fc",
+        "sortOrder": 2
+    },
+    {
+        "slug": "devops",
+        "title": "DevOps Engineer",
+        "subtitle": "CI/CD, containers, cloud infrastructure",
+        "emoji": "⚙️",
+        "accent": "#38bdf8",
+        "sortOrder": 3
+    },
+    {
+        "slug": "qa",
+        "title": "QA Engineer",
+        "subtitle": "Testing strategy, automation, bug reports",
+        "emoji": "🔍",
+        "accent": "#fb7185",
+        "sortOrder": 4
+    },
+    {
+        "slug": "nodejs",
+        "title": "NodeJS",
+        "subtitle": "Runtime internals, streams, npm ecosystem",
+        "emoji": "🟢",
+        "accent": "#4ade80",
+        "sortOrder": 5
+    },
+    {
+        "slug": "go",
+        "title": "Go",
+        "subtitle": "Goroutines, channels, standard library",
+        "emoji": "🐹",
+        "accent": "#22d3ee",
+        "sortOrder": 6
+    },
+    {
+        "slug": "react",
+        "title": "React",
+        "subtitle": "Hooks, state management, component patterns",
+        "emoji": "⚛️",
+        "accent": "#818cf8",
+        "sortOrder": 7
+    },
+    {
+        "slug": "nextjs",
+        "title": "Next.js",
+        "subtitle": "SSR/SSG, App Router, API routes",
+        "emoji": "▲",
+        "accent": "#e2e8f0",
+        "sortOrder": 8
+    }
+]
