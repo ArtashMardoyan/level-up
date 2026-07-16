@@ -567,15 +567,6 @@ select.plain-btn {
     animation: none;
   }
 }
-
-/* Search match highlight (fuzzy search). */
-mark.hl {
-  padding: 0 1px;
-  border-radius: 3px;
-  background: color-mix(in oklab, #818cf8 32%, transparent);
-  color: inherit;
-  font-weight: 600;
-}
 .course-card {
   position: relative;
   isolation: isolate;
@@ -1541,6 +1532,10 @@ footer {
 }
 .cmdk-row:hover {
   background: var(--surface-hover);
+}
+.cmdk-row.active {
+  background: var(--surface-hover);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, #818cf8 42%, transparent);
 }
 .cmdk-tile,
 .notif-tile {

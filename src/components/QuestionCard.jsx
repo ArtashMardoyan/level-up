@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { ChevronDown, Volume2, Check, Star } from 'lucide-react'
 
-import Highlight from './Highlight'
 import { useLanguage } from '../hooks/useLanguage'
 
 export default function QuestionCard({
@@ -9,7 +8,6 @@ export default function QuestionCard({
   isFavorite,
   isReviewed,
   forceOpen,
-  highlight,
   quizMode,
   autoOpen,
   onOpen,
@@ -74,7 +72,7 @@ export default function QuestionCard({
       <button onClick={handleToggle} className="q-header">
         <div className="q-header-row">
           <span className="q-title">
-            <Highlight text={item.question} ranges={highlight} />
+            {item.question}
             {isReviewed && <Check aria-hidden="true" className="check" size={15} />}
           </span>
           <span

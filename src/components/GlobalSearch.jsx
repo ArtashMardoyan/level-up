@@ -2,7 +2,6 @@ import { createPortal } from 'react-dom'
 import { HelpCircle, Search } from 'lucide-react'
 import { useEffect, useState, useMemo, useRef } from 'react'
 
-import Highlight from './Highlight'
 import CourseIcon from './CourseIcon'
 import { scoreMatch } from '../utils/fuzzy'
 import DictionaryIcon from './DictionaryIcon'
@@ -15,7 +14,10 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
   const { t } = useLanguage()
   const [open, setOpen] = useState(false)
   const [term, setTerm] = useState('')
+  const [active, setActive] = useState(0)
+  const [prevTerm, setPrevTerm] = useState('')
   const inputRef = useRef(null)
+  const activeRef = useRef(null)
 
   // Open with ⌘K / Ctrl+K anywhere; close with Esc.
   useEffect(() => {
@@ -50,6 +52,13 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
   )
 
   const query = term.trim()
+
+  // Reset the keyboard cursor to the top whenever the query changes (adjust
+  // during render, per the codebase convention).
+  if (prevTerm !== term) {
+    setPrevTerm(term)
+    setActive(0)
+  }
 
   const groups = useMemo(() => {
     const out = []
@@ -124,6 +133,20 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
     return out
   }, [query, availableCourses, questionIndex, onSelectQuestion, t])
 
+  // Flatten across groups so ↑/↓ move one cursor over every row; tag each item
+  // with its flat index for the active highlight.
+  const flatItems = useMemo(() => {
+    const flat = []
+    groups.forEach((group) => group.items.forEach((item) => ((item.index = flat.length), flat.push(item))))
+    return flat
+  }, [groups])
+  const activeIndex = flatItems.length ? Math.min(active, flatItems.length - 1) : 0
+
+  // Keep the active row in view as the cursor moves.
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [activeIndex])
+
   const noResults = !!query && groups.length === 0
 
   const pick = (onPick) => {
@@ -146,6 +169,19 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
               <div className="cmdk-input-row">
                 <Search className="cmdk-input-icon" aria-hidden="true" size={20} />
                 <input
+                  onKeyDown={(e) => {
+                    if (!flatItems.length) return
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault()
+                      setActive((a) => (Math.min(a, flatItems.length - 1) + 1) % flatItems.length)
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault()
+                      setActive((a) => (Math.min(a, flatItems.length - 1) + flatItems.length - 1) % flatItems.length)
+                    } else if (e.key === 'Enter') {
+                      e.preventDefault()
+                      pick(flatItems[activeIndex].onPick)
+                    }
+                  }}
                   onChange={(e) => setTerm(e.target.value)}
                   aria-label={t('globalSearchAria')}
                   placeholder={t('searchTrigger')}
@@ -165,14 +201,18 @@ export default function GlobalSearch({ onSelectQuestion, courses }) {
                   <div key={group.label}>
                     <div className="cmdk-group-label">{group.label}</div>
                     {group.items.map((item, i) => (
-                      <button onClick={() => pick(item.onPick)} key={item.kind + ':' + i} className="cmdk-row">
+                      <button
+                        className={'cmdk-row' + (item.index === activeIndex ? ' active' : '')}
+                        ref={item.index === activeIndex ? activeRef : null}
+                        onMouseEnter={() => setActive(item.index)}
+                        onClick={() => pick(item.onPick)}
+                        key={item.kind + ':' + i}
+                      >
                         <span style={{ '--row-accent': item.accent }} className="cmdk-tile">
                           {item.icon}
                         </span>
                         <span className="cmdk-row-text">
-                          <span className="cmdk-row-title">
-                            <Highlight ranges={item.ranges} text={item.title} />
-                          </span>
+                          <span className="cmdk-row-title">{item.title}</span>
                           <span className="cmdk-row-sub">{item.sub}</span>
                         </span>
                         {item.badge && <span className="cmdk-row-badge">{item.badge}</span>}

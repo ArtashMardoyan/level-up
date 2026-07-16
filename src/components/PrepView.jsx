@@ -126,7 +126,7 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
 
           <div>
             {filtered.length === 0 && <p className="empty">{t('noMatches')}</p>}
-            {filtered.map(({ ranges, item }, index) => {
+            {filtered.map(({ item }, index) => {
               const showLabel = showModuleLabels && item.module !== filtered[index - 1]?.item.module
               const isCollapsed = showModuleLabels && collapsedModules.has(item.module)
               return (
@@ -147,7 +147,6 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
                       quizMode={mode === 'quiz'}
                       onOpen={markReviewed}
                       forceOpen={allOpen}
-                      highlight={ranges}
                       item={item}
                     />
                   )}
