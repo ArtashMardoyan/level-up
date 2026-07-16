@@ -30,14 +30,19 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       continuous seekable track; speech fallback only when a key is missing. See
       `docs/audio/overview.md`.
 - [x] **Mobile ≤560px breakpoint** — search drops to its own full-width row; notifications
-      popover pinned to the viewport edge (`position: fixed`); player status wraps to a centered
-      line under the transport. (`@media (max-width: 560px)` in `index.css`.)
+      popover pinned to the viewport edge (`position: fixed`). Horizontal-scroll guard uses
+      `overflow-x: clip` on `html,body` (not `hidden`, which would break the sticky header).
+      (`@media (max-width: 560px)` in `index.css`.)
 - [x] **Dropdown UX** — notification/account close on outside click **and** page scroll
       (non-capturing, so the notification list's own scroll keeps it open).
-- [x] **Player transport redesign** — `Q n of N` status moved to a mono eyebrow above the title;
-      one centered row of 5 (speed · prev · play · next · repeat), 40px squares; no restart button
+- [x] **Compact player (3 rows)** — head row: question **title** + a `Q n/N` **chip** (mono,
+      right of the title — **not** an eyebrow above it) + `✕`; then the seek row; then one centered
+      row of 5 controls (speed · prev · play · next · repeat, 40px squares). No restart button
       (prev restarts the current question when >3s in, else goes back — Spotify-style); repeat loops
-      the current question. `DictionaryPlayer` aligned to the same structure.
+      the current question. **No module `<select>`** — plays the whole course.
+      `DictionaryPlayer` aligned to the same structure.
+- [x] **Sticky header** — `.app-header { position: sticky; top: 0 }`. The scroll guard uses
+      `overflow-x: clip` (not `hidden`, which creates a scroll container and breaks `sticky`).
 - [x] **App icons + lock screen** — bolder favicon/app-icon set (`public/*.png/.svg`) + PWA
       `manifest.webmanifest` + `<head>` tags; `CoursePlayer` sets `navigator.mediaSession.metadata`
       so the logo + question title show on the iPhone lock screen while an MP3 plays. Icon/manifest
