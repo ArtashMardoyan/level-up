@@ -10,6 +10,10 @@ type QuestionDTO struct {
 	Audio    string `json:"audio,omitempty"`
 }
 
+type VersionDTO struct {
+	Version string `json:"version"`
+}
+
 type CourseListItemDTO struct {
 	ID            string `json:"id"`
 	Slug          string `json:"slug"`

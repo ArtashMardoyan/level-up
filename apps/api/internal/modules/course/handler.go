@@ -2,6 +2,7 @@ package course
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"level-up-backend/internal/modules/user"
@@ -21,6 +22,7 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) RegisterRoutes(r *gin.Engine, auth gin.HandlerFunc) {
 	courses := r.Group("/courses")
 	courses.GET("", h.ListCourses)
+	courses.GET("/version", h.ContentVersion)
 	courses.GET("/full", h.ListCoursesFull)
 	courses.GET("/:id", h.GetCourse)
 	courses.GET("/:id/progress", auth, h.GetCourseProgress)
@@ -43,8 +45,33 @@ func (h *Handler) ListCourses(c *gin.Context) {
 	shared.OK(c, courses)
 }
 
+func (h *Handler) ContentVersion(c *gin.Context) {
+	version, err := h.service.ContentVersion(c.Request.Context())
+	if err != nil {
+		shared.Error(c, http.StatusInternalServerError, "failed to fetch version")
+		return
+	}
+
+	c.Header("Cache-Control", "no-cache")
+
+	shared.OK(c, VersionDTO{Version: version})
+}
+
 func (h *Handler) ListCoursesFull(c *gin.Context) {
 	lang := c.DefaultQuery("lang", defaultLang)
+
+	// Content-version ETag: skip rebuilding the (heavy) payload when the client
+	// already holds the current version. Falls through to a normal response if
+	// the version lookup fails.
+	if version, err := h.service.ContentVersion(c.Request.Context()); err == nil {
+		etag := fmt.Sprintf(`W/"%s-%s"`, version, lang)
+		c.Header("ETag", etag)
+		c.Header("Cache-Control", "public, max-age=0, must-revalidate")
+		if c.GetHeader("If-None-Match") == etag {
+			c.Status(http.StatusNotModified)
+			return
+		}
+	}
 
 	courses, err := h.service.ListCoursesFull(c.Request.Context(), lang)
 	if err != nil {

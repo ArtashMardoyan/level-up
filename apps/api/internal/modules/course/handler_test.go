@@ -26,6 +26,10 @@ func (s *stubCourseRepo) CountQuestionsByCourse(context.Context) (map[string]int
 	return map[string]int{s.course.ID: len(s.questions)}, nil
 }
 
+func (*stubCourseRepo) ContentVersion(context.Context) (string, error) {
+	return "test-version", nil
+}
+
 func (s *stubCourseRepo) FindCourseBySlug(_ context.Context, slug string) (course.Course, error) {
 	if slug == s.course.Slug {
 		return s.course, nil

@@ -12,6 +12,7 @@ type CourseProgressStat struct {
 type CourseRepository interface {
 	FindAllCourses(ctx context.Context) ([]Course, error)
 	CountQuestionsByCourse(ctx context.Context) (map[string]int, error)
+	ContentVersion(ctx context.Context) (string, error)
 	FindCourseBySlug(ctx context.Context, slug string) (Course, error)
 	FindQuestionsByCourse(ctx context.Context, courseID string) ([]Question, error)
 	FindQuestionByID(ctx context.Context, id string) (Question, error)

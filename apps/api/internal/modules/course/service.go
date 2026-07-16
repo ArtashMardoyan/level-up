@@ -52,6 +52,10 @@ func (s *Service) ListCourses(ctx context.Context) ([]CourseListItemDTO, error) 
 	return items, nil
 }
 
+func (s *Service) ContentVersion(ctx context.Context) (string, error) {
+	return s.courses.ContentVersion(ctx)
+}
+
 func (s *Service) ListCoursesFull(ctx context.Context, lang string) ([]CourseDetailDTO, error) {
 	courses, err := s.courses.FindAllCourses(ctx)
 	if err != nil {

@@ -45,6 +45,22 @@ func (r *gormCourseRepository) CountQuestionsByCourse(ctx context.Context) (map[
 	return counts, nil
 }
 
+// ContentVersion returns an opaque token that changes whenever any course,
+// question or translation is updated (used for ETag / client cache validation).
+func (r *gormCourseRepository) ContentVersion(ctx context.Context) (string, error) {
+	var version string
+
+	row := r.db.WithContext(ctx).Raw(`
+		SELECT COALESCE(to_char(max(m), 'YYYYMMDDHH24MISSUS'), '') FROM (
+			SELECT max("updatedAt") AS m FROM courses
+			UNION ALL SELECT max("updatedAt") FROM questions
+			UNION ALL SELECT max("updatedAt") FROM question_translations
+		) t`).Row()
+	err := row.Scan(&version)
+
+	return version, err
+}
+
 func (r *gormCourseRepository) FindCourseBySlug(ctx context.Context, slug string) (Course, error) {
 	var course Course
 

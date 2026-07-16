@@ -203,6 +203,27 @@
 					}
 				},
 				{
+					"name": "Content Version",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/version",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"version"
+							]
+						},
+						"description": "Public. Opaque content version (max updatedAt across courses/questions/translations). Clients gate their cached content on this; also exposed as the ETag on /courses/full."
+					}
+				},
+				{
 					"name": "Retrieve a Course",
 					"event": [
 						{
