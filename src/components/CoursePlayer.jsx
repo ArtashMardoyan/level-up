@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { SkipForward, SkipBack, Repeat, Pause, Play } from 'lucide-react'
 
 import { audioUrl } from '../data/audio'
@@ -30,15 +30,6 @@ export default function CoursePlayer({
 }) {
   const { language, t } = useLanguage()
   const { currentTime, duration, canSeek, rate } = useAudioPlayer()
-  const moduleNames = useMemo(() => {
-    const seen = []
-    for (const item of questions) {
-      if (!seen.includes(item.module)) seen.push(item.module)
-    }
-    return seen
-  }, [questions])
-
-  const [selectedModule, setSelectedModule] = useState('all')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [paused, setPaused] = useState(false)
@@ -54,19 +45,13 @@ export default function CoursePlayer({
     setPrevStartRequest(startRequest)
     const idx = startRequest ? questions.findIndex((q) => q.id === startRequest.id) : -1
     if (idx !== -1) {
-      setSelectedModule('all')
       setCurrentIndex(idx)
       setPlaying(true)
       setPaused(false)
     }
   }
 
-  const scopedList = useMemo(
-    () => (selectedModule === 'all' ? questions : questions.filter((q) => q.module === selectedModule)),
-    [questions, selectedModule]
-  )
-
-  const currentItem = scopedList[currentIndex] || null
+  const currentItem = questions[currentIndex] || null
 
   useEffect(() => {
     document.body.classList.add('player-open')
@@ -115,7 +100,7 @@ export default function CoursePlayer({
         if (repeatRef.current) {
           // Repeat the same question: bump the tick so the effect replays it.
           setReplayTick((n) => n + 1)
-        } else if (currentIndex + 1 < scopedList.length) {
+        } else if (currentIndex + 1 < questions.length) {
           setCurrentIndex((i) => i + 1)
         } else {
           setPlaying(false)
@@ -129,13 +114,7 @@ export default function CoursePlayer({
       voice,
       id
     })
-  }, [playing, paused, currentIndex, currentItem, courseId, scopedList.length, voices, language, replayTick])
-
-  const handleModuleChange = (value) => {
-    setSelectedModule(value)
-    setCurrentIndex(0)
-    setPaused(false)
-  }
+  }, [playing, paused, currentIndex, currentItem, courseId, questions.length, voices, language, replayTick])
 
   const handlePrev = () => {
     // Read the live position from the service (avoids a stale closure when this
@@ -152,7 +131,7 @@ export default function CoursePlayer({
   }
 
   const handleNext = () => {
-    setCurrentIndex((i) => Math.min(scopedList.length - 1, i + 1))
+    setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))
     setPaused(false)
   }
 
@@ -195,29 +174,21 @@ export default function CoursePlayer({
     navigator.mediaSession.setActionHandler('play', handlePlayPause)
     navigator.mediaSession.setActionHandler('pause', handlePlayPause)
     navigator.mediaSession.setActionHandler('previoustrack', handlePrev)
-    navigator.mediaSession.setActionHandler('nexttrack', currentIndex < scopedList.length - 1 ? handleNext : null)
+    navigator.mediaSession.setActionHandler('nexttrack', currentIndex < questions.length - 1 ? handleNext : null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentItem, courseTitle, currentIndex, scopedList.length])
+  }, [currentItem, courseTitle, currentIndex, questions.length])
 
   return (
     <div className="player-bar">
-      <div className="player-top">
-        <select onChange={(e) => handleModuleChange(e.target.value)} value={selectedModule} className="plain-btn">
-          <option value="all">{t('allModules')}</option>
-          {moduleNames.map((m) => (
-            <option value={m} key={m}>
-              {m}
-            </option>
-          ))}
-        </select>
+      <div className="player-head">
+        <span className="player-title">{currentItem ? currentItem.question : t('nothingToPlay')}</span>
+        <span className="player-status">
+          {currentItem ? t('playerStatusQuestion', { total: questions.length, n: currentIndex + 1 }) : ''}
+        </span>
         <button aria-label={t('playerCloseAria')} className="player-close" onClick={handleClose}>
           ✕
         </button>
       </div>
-      <div className="player-status">
-        {currentItem ? t('playerStatusQuestion', { total: scopedList.length, n: currentIndex + 1 }) : ''}
-      </div>
-      <div className="player-title">{currentItem ? currentItem.question : t('nothingToPlay')}</div>
       <div className="player-progress">
         <span className="player-time">{formatTime(currentTime)}</span>
         <input
@@ -249,7 +220,7 @@ export default function CoursePlayer({
           {playing && !paused ? <Pause aria-hidden="true" size={20} /> : <Play aria-hidden="true" size={20} />}
         </button>
         <button
-          disabled={currentIndex >= scopedList.length - 1}
+          disabled={currentIndex >= questions.length - 1}
           aria-label={t('next')}
           className="player-btn"
           onClick={handleNext}
