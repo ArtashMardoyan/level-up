@@ -82,7 +82,7 @@
 
     <div style="position: relative; flex-shrink: 0;">
       <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
-        <button onClick="{{ toggleSettings }}" aria-label="Account" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border-2); background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14.5px; letter-spacing: -0.02em; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 10px rgba(99,102,241,0.35);">A</button>
+        <button onClick="{{ toggleSettings }}" aria-label="Account" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border-2); background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14.5px; letter-spacing: -0.02em; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 10px rgba(99,102,241,0.35);">{{ userInitial }}</button>
       </sc-if>
       <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
         <button onClick="{{ toggleSettings }}" aria-label="Account" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="color: var(--text); background: var(--control-2);"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button>
@@ -91,10 +91,10 @@
         <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
           <div>
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-              <div style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center;">A</div>
+              <div style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center;">{{ userInitial }}</div>
               <div style="min-width: 0;">
-                <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; color: var(--text);">Artash</div>
-                <div style="font-size: 12.5px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Backend track · preparing</div>
+                <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; color: var(--text);">{{ userName }}</div>
+                <div style="font-size: 12.5px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ userSub }}</div>
               </div>
             </div>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
@@ -177,6 +177,43 @@
             <div style="font-size: 13px; color: var(--text-3); margin-top: 6px;">Try a course name, a keyword, or a term.</div>
           </div>
         </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: {{ authDisplay }}; position: fixed; inset: 0; z-index: 120; align-items: flex-start; justify-content: center; background: rgba(4,5,8,0.68); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); padding: clamp(48px,10vh,110px) 16px 24px; overflow-y: auto;" onClick="{{ authBackdropClose }}">
+    <div style="width: min(410px, 100%); border-radius: 20px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 30px 80px rgba(0,0,0,0.6); overflow: hidden;">
+      <div style="padding: 26px 26px 22px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+          <div style="width: 44px; height: 44px; border-radius: 13px; background: linear-gradient(150deg, #818cf8, #6366f1); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(99,102,241,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></div>
+          <button onClick="{{ closeAuth }}" aria-label="Close" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="color: var(--text); background: var(--control-2);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: -0.02em; margin: 0; color: var(--text);">{{ authTitle }}</h2>
+        <p style="margin: 6px 0 20px; font-size: 13.5px; color: var(--text-2); line-height: 1.5;">{{ authSub }}</p>
+
+        <div style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--control); border: 1px solid var(--border); margin-bottom: 18px;">
+          <button data-val="login" onClick="{{ setAuthMode }}" style="flex: 1; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 9px; border-radius: 8px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ loginTab.bg }}; color: {{ loginTab.col }};">Log in</button>
+          <button data-val="signup" onClick="{{ setAuthMode }}" style="flex: 1; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 9px; border-radius: 8px; border: none; cursor: pointer; transition: background .16s ease, color .16s ease; background: {{ signupTab.bg }}; color: {{ signupTab.col }};">Sign up</button>
+        </div>
+
+        <form onSubmit="{{ submitAuth }}">
+          <div style="display: {{ authNameDisplay }}; margin-bottom: 12px;">
+            <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;">Name</label>
+            <input value="{{ authName }}" onInput="{{ onAuthName }}" placeholder="Jane Developer" style="width: 100%; box-sizing: border-box; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" style-focus="border-color: #818cf8;" />
+          </div>
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;">Email</label>
+            <input type="email" value="{{ authEmail }}" onInput="{{ onAuthEmail }}" placeholder="you@example.com" style="width: 100%; box-sizing: border-box; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" style-focus="border-color: #818cf8;" />
+          </div>
+          <div style="margin-bottom: 14px;">
+            <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;">Password</label>
+            <input type="password" value="{{ authPassword }}" onInput="{{ onAuthPassword }}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" style-focus="border-color: #818cf8;" />
+          </div>
+          <div style="display: {{ authErrDisplay }}; font-size: 12.5px; color: #f87171; margin-bottom: 13px;">{{ authError }}</div>
+          <button type="submit" style="width: 100%; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; padding: 13px; border-radius: 12px; border: none; cursor: pointer; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; box-shadow: 0 4px 16px rgba(99,102,241,0.4);">{{ authCta }}</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-2);">{{ authSwitchText }} <a href="#" onClick="{{ switchAuthMode }}" style="color: #818cf8; font-weight: 600; text-decoration: none;">{{ authSwitchCta }}</a></div>
       </div>
     </div>
   </div>
@@ -838,6 +875,13 @@ class Component extends DCLogic {
     theme: 'dark',
     lang: 'en',
     loggedIn: false,
+    user: null,
+    authOpen: false,
+    authMode: 'login',
+    authName: '',
+    authEmail: '',
+    authPassword: '',
+    authError: '',
     searchOpen: false,
     query: '',
     notifOpen: false,
@@ -850,6 +894,7 @@ class Component extends DCLogic {
     this._onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.openSearchNow(); }
       else if (e.key === 'Escape' && this.state.searchOpen) { this.setState({ searchOpen: false }); }
+      else if (e.key === 'Escape' && this.state.authOpen) { this.setState({ authOpen: false }); }
     };
     window.addEventListener('keydown', this._onKey);
     const base = window.location.href;
@@ -1050,8 +1095,44 @@ class Component extends DCLogic {
       })(),
       profileReviewed: s.reviewed.size, profileSaved: s.favorites.size, streak: 5,
       loggedIn: s.loggedIn, loggedOut: !s.loggedIn,
-      signIn: () => this.setState({ loggedIn: true }),
-      signOut: () => this.setState({ loggedIn: false, settingsOpen: false }),
+      userName: (s.user && s.user.name) || 'Artash',
+      userInitial: (((s.user && s.user.name) || 'Artash').trim()[0] || 'A').toUpperCase(),
+      userSub: (s.user && s.user.email) || 'Backend track · preparing',
+      openAuth: () => this.setState({ authOpen: true, settingsOpen: false, authMode: 'login', authError: '', authPassword: '' }),
+      closeAuth: () => this.setState({ authOpen: false }),
+      authBackdropClose: (e) => { if (e.target === e.currentTarget) this.setState({ authOpen: false }); },
+      authDisplay: s.authOpen ? 'flex' : 'none',
+      authMode: s.authMode,
+      isLogin: s.authMode === 'login',
+      isSignup: s.authMode === 'signup',
+      authError: s.authError,
+      authErrDisplay: s.authError ? 'block' : 'none',
+      authNameDisplay: s.authMode === 'signup' ? 'block' : 'none',
+      authTitle: s.authMode === 'login' ? 'Welcome back' : 'Create your account',
+      authSub: s.authMode === 'login' ? 'Sign in to sync your streak & progress' : 'Start tracking your interview prep',
+      authCta: s.authMode === 'login' ? 'Sign in' : 'Create account',
+      authSwitchText: s.authMode === 'login' ? "Don't have an account?" : 'Already have an account?',
+      authSwitchCta: s.authMode === 'login' ? 'Sign up' : 'Log in',
+      authName: s.authName, authEmail: s.authEmail, authPassword: s.authPassword,
+      loginTab: act(s.authMode === 'login'), signupTab: act(s.authMode === 'signup'),
+      setAuthMode: (e) => this.setState({ authMode: e.currentTarget.dataset.val, authError: '' }),
+      switchAuthMode: () => this.setState((st) => ({ authMode: st.authMode === 'login' ? 'signup' : 'login', authError: '' })),
+      onAuthName: (e) => this.setState({ authName: e.target.value }),
+      onAuthEmail: (e) => this.setState({ authEmail: e.target.value }),
+      onAuthPassword: (e) => this.setState({ authPassword: e.target.value }),
+      submitAuth: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const st = this.state;
+        const email = st.authEmail.trim();
+        const okEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+        if (!okEmail) { this.setState({ authError: 'Enter a valid email address' }); return; }
+        if (st.authPassword.length < 6) { this.setState({ authError: 'Password must be at least 6 characters' }); return; }
+        if (st.authMode === 'signup' && !st.authName.trim()) { this.setState({ authError: 'Enter your name' }); return; }
+        const name = st.authMode === 'signup' ? st.authName.trim() : (email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase()));
+        this.setState({ loggedIn: true, user: { name, email }, authOpen: false, authPassword: '', authError: '' });
+      },
+      signIn: () => this.setState({ authOpen: true, settingsOpen: false, authMode: 'login', authError: '', authPassword: '' }),
+      signOut: () => this.setState({ loggedIn: false, user: null, settingsOpen: false }),
       themeDark: act(s.theme === 'dark'), themeLight: act(s.theme === 'light'),
       langEn: act(s.lang === 'en'), langRu: act(s.lang === 'ru'),
       toggleSettings: () => this.setState((st) => ({ settingsOpen: !st.settingsOpen })),

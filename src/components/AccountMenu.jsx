@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from 'react'
 import { LogOut, LogIn, Moon, User, Sun } from 'lucide-react'
 
+import AuthDialog from './AuthDialog'
+import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
 
-// UI-only account block. There is no auth/DB yet — `signedIn` is a local demo
-// toggle so the signed-in design can be previewed; wire it to real auth later.
-// Placeholder identity until a backend exists:
-const DEMO_NAME = 'Artash'
+// Placeholder streak until a backend endpoint exists for it.
 const DEMO_STREAK = 5
 
 // Sum reviewed / favorited items across every course + the dictionary. These
@@ -30,9 +29,13 @@ function readTotals() {
 
 export default function AccountMenu({ toggleTheme, theme }) {
   const { setLanguage, language, t } = useLanguage()
+  const { logout, user } = useAuth()
   const [open, setOpen] = useState(false)
-  const [signedIn, setSignedIn] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
   const wrapRef = useRef(null)
+
+  const signedIn = !!user
+  const displayName = user?.name || ''
 
   useEffect(() => {
     if (!open) return
@@ -54,6 +57,11 @@ export default function AccountMenu({ toggleTheme, theme }) {
     if (theme !== next) toggleTheme()
   }
 
+  const openAuth = () => {
+    setOpen(false)
+    setAuthOpen(true)
+  }
+
   const totals = open ? readTotals() : { reviewed: 0, saved: 0 }
 
   return (
@@ -64,16 +72,16 @@ export default function AccountMenu({ toggleTheme, theme }) {
         aria-label={t('accountAria')}
         aria-expanded={open}
       >
-        {signedIn ? DEMO_NAME.charAt(0) : <User aria-hidden="true" strokeWidth={1.9} size={19} />}
+        {signedIn ? displayName.charAt(0) : <User aria-hidden="true" strokeWidth={1.9} size={19} />}
       </button>
 
       {open && (
         <div className="account-menu">
           {signedIn ? (
             <div className="account-profile">
-              <span className="account-avatar signed">{DEMO_NAME.charAt(0)}</span>
+              <span className="account-avatar signed">{displayName.charAt(0)}</span>
               <span className="account-identity">
-                <span className="account-name">{DEMO_NAME}</span>
+                <span className="account-name">{displayName}</span>
                 <span className="account-sub">{t('accountSubtitle')}</span>
               </span>
             </div>
@@ -106,7 +114,7 @@ export default function AccountMenu({ toggleTheme, theme }) {
             </div>
           ) : (
             <>
-              <button onClick={() => setSignedIn(true)} className="account-signin">
+              <button className="account-signin" onClick={openAuth}>
                 <LogIn aria-hidden="true" size={16} /> {t('accountSignIn')}
               </button>
               <p className="account-hint">{t('accountSignInHint')}</p>
@@ -150,12 +158,14 @@ export default function AccountMenu({ toggleTheme, theme }) {
           </div>
 
           {signedIn && (
-            <button onClick={() => setSignedIn(false)} className="account-signout">
+            <button className="account-signout" onClick={logout}>
               <LogOut aria-hidden="true" size={16} /> {t('accountSignOut')}
             </button>
           )}
         </div>
       )}
+
+      <AuthDialog onClose={() => setAuthOpen(false)} open={authOpen} />
     </div>
   )
 }
