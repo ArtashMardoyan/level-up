@@ -16,6 +16,7 @@ const (
 	TypeReviewMilestone Type = "review_milestone"
 	TypeStreak          Type = "streak"
 	TypeNewQuestions    Type = "new_questions"
+	TypeDaily           Type = "daily"
 )
 
 type Notification struct {

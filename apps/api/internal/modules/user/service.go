@@ -27,6 +27,7 @@ var streakMilestones = map[int]bool{3: true, 7: true, 14: true, 30: true, 100: t
 type Notifier interface {
 	NotifyWelcome(ctx context.Context, userID string) error
 	NotifyStreak(ctx context.Context, userID string, days int) error
+	NotifyDaily(ctx context.Context, userID string) error
 }
 
 type Service struct {
@@ -216,8 +217,14 @@ func (s *Service) RecordActivity(ctx context.Context, userID, tz string) error {
 		return err
 	}
 
-	if s.notifier != nil && streakMilestones[u.CurrentStreak] {
-		_ = s.notifier.NotifyStreak(ctx, userID, u.CurrentStreak)
+	// Reaching here means it's the user's first activity of a new local day (the
+	// same-day case returned early above), so surface today's daily challenge and,
+	// if the streak just hit a milestone, celebrate it. Best-effort.
+	if s.notifier != nil {
+		_ = s.notifier.NotifyDaily(ctx, userID)
+		if streakMilestones[u.CurrentStreak] {
+			_ = s.notifier.NotifyStreak(ctx, userID, u.CurrentStreak)
+		}
 	}
 
 	return nil

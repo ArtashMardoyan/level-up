@@ -112,7 +112,15 @@ Effort: medium. Touches `internal/seed` + a fan-out insert. No migration. Runs o
 
 ---
 
-## Phase 4 — `daily` (Today's Challenge) — biggest, infra decision needed
+## Phase 4 — `daily` (Today's Challenge) — 4a ✅ DONE (2026-07-17); 4b deferred
+
+> **4a shipped:** `user.Service.RecordActivity` emits a `daily` notification on the user's first
+> qualifying activity of a new local day. It reuses the streak's "new day" signal — the same-day
+> path returns early, so reaching the emit branch *is* "first activity today", giving free dedupe
+> (no scheduler, no extra query). Backend-only; the frontend already maps the `daily` type. **4b**
+> (a scheduled morning push to all users, which would need stored per-user timezones + a cron /
+> EventBridge trigger) remains deferred.
+
 
 **Goal:** a daily "Today's Challenge is ready" notification.
 

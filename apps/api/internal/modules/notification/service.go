@@ -87,3 +87,9 @@ func (s *Service) NotifyStreak(ctx context.Context, userID string, days int) err
 
 	return err
 }
+
+func (s *Service) NotifyDaily(ctx context.Context, userID string) error {
+	_, err := s.Create(ctx, userID, TypeDaily, Params{})
+
+	return err
+}

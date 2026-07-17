@@ -79,6 +79,32 @@ func seedUser(t *testing.T) *user.User {
 	}
 }
 
+// spyNotifier counts notification emissions for assertions.
+type spyNotifier struct{ welcome, streak, daily int }
+
+func (s *spyNotifier) NotifyWelcome(context.Context, string) error     { s.welcome++; return nil }
+func (s *spyNotifier) NotifyStreak(context.Context, string, int) error { s.streak++; return nil }
+func (s *spyNotifier) NotifyDaily(context.Context, string) error       { s.daily++; return nil }
+
+func TestRecordActivityEmitsDailyOncePerDay(t *testing.T) {
+	spy := &spyNotifier{}
+	repo := newStubUserRepo(seedUser(t))
+	svc := user.NewService(repo, spy)
+
+	if err := svc.RecordActivity(t.Context(), "user-1", "UTC"); err != nil {
+		t.Fatalf("RecordActivity: %v", err)
+	}
+	if spy.daily != 1 {
+		t.Fatalf("first activity of the day should emit 1 daily, got %d", spy.daily)
+	}
+
+	// Same-day activity is a no-op: no second daily.
+	_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
+	if spy.daily != 1 {
+		t.Fatalf("same-day activity must not re-emit daily, got %d", spy.daily)
+	}
+}
+
 func TestRecordActivityStreak(t *testing.T) {
 	dateDaysAgo := func(n int) *time.Time {
 		y, m, d := time.Now().UTC().AddDate(0, 0, -n).Date()
