@@ -59,7 +59,7 @@ rejects any revoked jti. The middleware sets `shared.ContextUserKey` (user.User)
 
 Course content is bundled JSON in `internal/seed/data/` (`courses.json` + `<course>/{en,ru}.json`) — the single source of truth. `cmd/seed` loads it into the DB with deterministic UUIDv5 ids (same content → same ids in every env). Question `audio` is a single S3 object key; MP3s live in S3, not git.
 
-Content read endpoints support version-based client caching (`GET /courses/version` + ETag/304 on `/courses/full`) — see `docs/content-caching.md`.
+Content read endpoints support version-based client caching (`GET /courses/version` + ETag/304 on `/courses/full`) — see `docs/caching/overview.md`.
 
 Node tooling in `scripts/` (built-in modules only — no `npm install`; reads `.env`):
 - `validate-translations.mjs [course ...]` — check each `<course>/ru.json` against `en.json`.
@@ -104,7 +104,7 @@ DB_SSLMODE   — "disable" locally, "require" on AWS RDS (default: disable)
 
 ## Deployment
 
-Container → ECR → App Runner → RDS PostgreSQL (region us-east-2, AWS profile vyb-dev). goose migrations run on container start. See `docs/001-deploy-aws-apprunner-rds.md`. Deploy with `make deploy` after `aws sso login --profile vyb-dev`.
+Container → ECR → App Runner → RDS PostgreSQL (region us-east-2, AWS profile vyb-dev). goose migrations run on container start. See `docs/deployment/overview.md`. Deploy with `make deploy` after `aws sso login --profile vyb-dev`.
 
 ## Dependency direction
 

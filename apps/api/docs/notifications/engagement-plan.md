@@ -1,7 +1,7 @@
 # Planning doc — engagement features (streak, activity screen, new_questions, daily)
 
 Status: **planning**. Cross-repo: `level-up-backend` (Go/Gin) + `level-up` (React).
-Builds on the notifications module (`docs/notifications.md`). Ship in phases; each phase is
+Builds on the notifications module (`docs/notifications/overview.md`). Ship in phases; each phase is
 independently deployable and reviewable.
 
 ## Context

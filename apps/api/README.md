@@ -117,7 +117,7 @@ Both values are also read from `.env`. Keep the collection current whenever rout
 
 Container image → **AWS ECR** → **App Runner**, talking to **RDS PostgreSQL**.
 goose migrations run automatically on container start. See
-[`docs/001-deploy-aws-apprunner-rds.md`](docs/001-deploy-aws-apprunner-rds.md).
+[`docs/deployment/overview.md`](docs/deployment/overview.md).
 
 ```bash
 aws sso login --profile vyb-dev
