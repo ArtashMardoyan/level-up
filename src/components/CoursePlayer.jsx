@@ -74,7 +74,10 @@ export default function CoursePlayer({
   // Clear the lock-screen metadata when the player unmounts.
   useEffect(
     () => () => {
-      if ('mediaSession' in navigator) navigator.mediaSession.metadata = null
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null
+        navigator.mediaSession.playbackState = 'none'
+      }
     },
     []
   )
@@ -144,6 +147,20 @@ export default function CoursePlayer({
     setPaused((p) => !p)
   }
 
+  // Explicit (non-toggling) transport for the lock-screen / control-center
+  // actions. iOS decides which action to dispatch from `playbackState`, and a
+  // single toggle handler misfires whenever that state drifts (it dispatches
+  // "pause" again and the toggle resumes). Idempotent handlers pause when asked
+  // to pause and play when asked to play, regardless of what the OS believes.
+  const handleMediaPlay = () => {
+    setPlaying(true)
+    setPaused(false)
+  }
+
+  const handleMediaPause = () => {
+    setPaused(true)
+  }
+
   const cycleSpeed = () => {
     const next = SPEEDS[(SPEEDS.indexOf(rate) + 1) % SPEEDS.length]
     audioPlayer.setRate(next)
@@ -171,12 +188,19 @@ export default function CoursePlayer({
       artist: 'Level Up — Interview Prep',
       title: currentItem.question
     })
-    navigator.mediaSession.setActionHandler('play', handlePlayPause)
-    navigator.mediaSession.setActionHandler('pause', handlePlayPause)
+    navigator.mediaSession.setActionHandler('play', handleMediaPlay)
+    navigator.mediaSession.setActionHandler('pause', handleMediaPause)
     navigator.mediaSession.setActionHandler('previoustrack', handlePrev)
     navigator.mediaSession.setActionHandler('nexttrack', currentIndex < questions.length - 1 ? handleNext : null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentItem, courseTitle, currentIndex, questions.length])
+
+  // Keep the OS media controls in sync with real playback state so iOS shows the
+  // right button and dispatches the matching play/pause action.
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return
+    navigator.mediaSession.playbackState = playing ? (paused ? 'paused' : 'playing') : 'none'
+  }, [playing, paused])
 
   return (
     <div className="player-bar">
