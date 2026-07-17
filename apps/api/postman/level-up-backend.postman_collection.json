@@ -404,6 +404,107 @@
 			]
 		},
 		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "List Notifications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.items && res.data.items.length) {",
+									"    pm.environment.set('notificationId', res.data.items[0].id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications?page=1&limit=10",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Paginated notifications for the authenticated user, newest first. Each item: { id, userId, type, params, read, createdAt }. Captures the first id into {{notificationId}}."
+					}
+				},
+				{
+					"name": "Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/unread-count",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"unread-count"
+							]
+						},
+						"description": "Unread notification count for the authenticated user: { \"data\": { \"count\": n } }."
+					}
+				},
+				{
+					"name": "Mark All Read",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/read",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"read"
+							]
+						},
+						"description": "Mark every notification for the caller as read. 204, no body."
+					}
+				},
+				{
+					"name": "Mark One Read",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/{{notificationId}}/read",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"{{notificationId}}",
+								"read"
+							]
+						},
+						"description": "Mark one notification read. 204 on success, 404 if it is missing or owned by another user."
+					}
+				}
+			]
+		},
+		{
 			"name": "Users",
 			"item": [
 				{

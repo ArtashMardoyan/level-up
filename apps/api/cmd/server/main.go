@@ -12,6 +12,7 @@ import (
 	"level-up-backend/internal/modules/auth"
 	"level-up-backend/internal/modules/course"
 	"level-up-backend/internal/modules/health"
+	"level-up-backend/internal/modules/notification"
 	"level-up-backend/internal/modules/user"
 
 	"github.com/gin-contrib/cors"
@@ -44,11 +45,15 @@ func main() {
 	revokedRepo := auth.NewRevokedTokenRepository(db)
 	courseRepo := course.NewCourseRepository(db)
 	progressRepo := course.NewProgressRepository(db)
+	notificationRepo := notification.NewRepository(db)
 
-	userHandler := user.NewHandler(user.NewService(userRepo))
+	notificationService := notification.NewService(notificationRepo)
+
+	userHandler := user.NewHandler(user.NewService(userRepo, notificationService))
 	authHandler := auth.NewHandler(auth.NewService(userRepo, revokedRepo, cfg.JWT.Secret))
 	healthHandler := health.NewHandler(db)
-	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo))
+	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo, notificationService))
+	notificationHandler := notification.NewHandler(notificationService)
 
 	jwtMiddleware := middleware.JWT(userRepo, revokedRepo, cfg.JWT.Secret)
 
@@ -69,6 +74,7 @@ func main() {
 	authHandler.RegisterRoutes(r, jwtMiddleware)
 	userHandler.RegisterRoutes(r, jwtMiddleware)
 	courseHandler.RegisterRoutes(r, jwtMiddleware)
+	notificationHandler.RegisterRoutes(r, jwtMiddleware)
 
 	log.Fatal(r.Run(cfg.Server.Addr))
 }

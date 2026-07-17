@@ -16,12 +16,20 @@ var (
 	ErrWrongPassword = errors.New("current password is incorrect")
 )
 
-type Service struct {
-	repo Repository
+// Notifier lets the user service emit a welcome notification on sign-up without
+// depending on the notification package (notification.Service satisfies it).
+// Best-effort: a nil notifier or an error never blocks registration.
+type Notifier interface {
+	NotifyWelcome(ctx context.Context, userID string) error
 }
 
-func NewService(repo Repository) *Service {
-	return &Service{repo: repo}
+type Service struct {
+	repo     Repository
+	notifier Notifier
+}
+
+func NewService(repo Repository, notifier Notifier) *Service {
+	return &Service{repo: repo, notifier: notifier}
 }
 
 func (s *Service) FindAll(ctx context.Context, q shared.PaginationQuery) (shared.PaginatedResult[User], error) {
@@ -77,6 +85,11 @@ func (s *Service) Create(ctx context.Context, dto CreateDTO) (User, error) {
 
 	if err := s.repo.Create(ctx, &u); err != nil {
 		return User{}, err
+	}
+
+	// Welcome the new account. Best-effort: a failure here must not fail sign-up.
+	if s.notifier != nil {
+		_ = s.notifier.NotifyWelcome(ctx, u.ID)
 	}
 
 	return u, nil

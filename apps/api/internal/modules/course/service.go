@@ -15,13 +15,25 @@ var (
 	ErrQuestionNotFound = errors.New("question not found")
 )
 
+// reviewMilestones are the reviewed-count thresholds that emit a notification
+// (only when the count lands exactly on one, so each fires once).
+var reviewMilestones = map[int]bool{10: true, 25: true, 50: true, 100: true}
+
+// Notifier lets the course service emit a milestone notification without
+// depending on the notification package (notification.Service satisfies it).
+// Best-effort: a nil notifier or an error never blocks the progress save.
+type Notifier interface {
+	NotifyReviewMilestone(ctx context.Context, userID string, count int) error
+}
+
 type Service struct {
 	courses  CourseRepository
 	progress ProgressRepository
+	notifier Notifier
 }
 
-func NewService(courses CourseRepository, progress ProgressRepository) *Service {
-	return &Service{courses: courses, progress: progress}
+func NewService(courses CourseRepository, progress ProgressRepository, notifier Notifier) *Service {
+	return &Service{courses: courses, progress: progress, notifier: notifier}
 }
 
 func (s *Service) ListCourses(ctx context.Context) ([]CourseListItemDTO, error) {
@@ -145,6 +157,8 @@ func (s *Service) UpsertProgress(ctx context.Context, userID, questionID string,
 		p = UserQuestionProgress{UserID: userID, QuestionID: questionID}
 	}
 
+	wasReviewed := p.Reviewed
+
 	if dto.Reviewed != nil {
 		p.Reviewed = *dto.Reviewed
 		if p.Reviewed && p.ReviewedAt == nil {
@@ -166,7 +180,30 @@ func (s *Service) UpsertProgress(ctx context.Context, userID, questionID string,
 		return ProgressStateDTO{}, err
 	}
 
+	// On a not-reviewed -> reviewed transition, notify when the user's total
+	// reviewed lands on a milestone. Best-effort: never fail the save for it.
+	if s.notifier != nil && !wasReviewed && p.Reviewed {
+		if total, err := s.reviewedCount(ctx, userID); err == nil && reviewMilestones[total] {
+			_ = s.notifier.NotifyReviewMilestone(ctx, userID, total)
+		}
+	}
+
 	return ProgressStateDTO{QuestionID: questionID, Reviewed: p.Reviewed, Favorite: p.Favorite}, nil
+}
+
+// reviewedCount sums the user's reviewed questions across all courses.
+func (s *Service) reviewedCount(ctx context.Context, userID string) (int, error) {
+	stats, err := s.progress.SummaryByUser(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	total := 0
+	for _, stat := range stats {
+		total += stat.Reviewed
+	}
+
+	return total, nil
 }
 
 func (s *Service) BulkUpsert(ctx context.Context, userID string, dto BulkProgressDTO) error {

@@ -80,7 +80,7 @@ func seedUser(t *testing.T) *user.User {
 
 func TestUpdateFields(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
-	svc := user.NewService(repo)
+	svc := user.NewService(repo, nil)
 
 	got, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{
 		Name:  "New Name",
@@ -104,7 +104,7 @@ func TestUpdateEmailTaken(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
 	// A different account already owns the target email.
 	repo.byEmail["taken@example.com"] = user.User{ID: "user-2", Email: "taken@example.com"}
-	svc := user.NewService(repo)
+	svc := user.NewService(repo, nil)
 
 	_, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{Email: "taken@example.com"})
 	if !errors.Is(err, user.ErrEmailTaken) {
@@ -114,7 +114,7 @@ func TestUpdateEmailTaken(t *testing.T) {
 
 func TestUpdatePasswordWrongCurrent(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
-	svc := user.NewService(repo)
+	svc := user.NewService(repo, nil)
 
 	_, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{
 		CurrentPassword: "wrong-password",
@@ -127,7 +127,7 @@ func TestUpdatePasswordWrongCurrent(t *testing.T) {
 
 func TestUpdatePasswordSuccess(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
-	svc := user.NewService(repo)
+	svc := user.NewService(repo, nil)
 
 	if _, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{
 		CurrentPassword: "current-password",
