@@ -32,8 +32,12 @@ func (s *Service) ListByUser(
 	return shared.NewPaginatedResult(items, total, q), nil
 }
 
-func (s *Service) UnreadCount(ctx context.Context, userID string) (int64, error) {
-	return s.repo.CountUnread(ctx, userID)
+func (s *Service) UnseenCount(ctx context.Context, userID string) (int64, error) {
+	return s.repo.CountUnseen(ctx, userID)
+}
+
+func (s *Service) MarkAllSeen(ctx context.Context, userID string) error {
+	return s.repo.MarkAllSeen(ctx, userID)
 }
 
 func (s *Service) MarkAllRead(ctx context.Context, userID string) error {

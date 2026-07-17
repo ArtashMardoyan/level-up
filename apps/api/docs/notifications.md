@@ -9,8 +9,11 @@ notifications stay language-agnostic.
 
 Standard module layout (entity / params / repository (+gorm) / service / handler).
 
-- **`Notification`** (`entity.go`): `{ id, userId, type, params, read, createdAt, updatedAt }`.
+- **`Notification`** (`entity.go`): `{ id, userId, type, params, seen, read, createdAt, updatedAt }`.
   `id` is a UUID assigned in `BeforeCreate`.
+- **Two states (Facebook-style):** `seen` = surfaced to the user (opening the list clears the
+  badge); `read` = acted on (clicking a row or "mark all read"). **Reading implies seen** — the
+  read paths set both. The badge counts **unseen**; the per-row "new" dot is driven by **unread**.
 - **`Params`** (`params.go`): `map[string]any` with `Scan`/`Value`, stored in a `jsonb`
   column and returned to the client as a JSON object. No extra dependency.
 - **`Type`**: `welcome`, `review_milestone` (more reserved for later:
@@ -18,16 +21,18 @@ Standard module layout (entity / params / repository (+gorm) / service / handler
 
 Table: `migrations/00008_create_notifications.sql` — `notifications` with a
 `("userId","createdAt" DESC)` index and `userId → users(id) ON DELETE CASCADE`
-(deleting an account removes its notifications).
+(deleting an account removes its notifications). `migrations/00010_add_seen_to_notifications.sql`
+adds the `seen` column (backfilling `seen = read` for existing rows).
 
 ## Endpoints (JWT-protected, scoped to the caller)
 
 | Method | Path | Result |
 |---|---|---|
 | GET | `/notifications?page&limit` | Paginated feed, newest first (`{ data: { items, meta } }`) |
-| GET | `/notifications/unread-count` | `{ data: { count } }` — cheap badge fetch |
-| PATCH | `/notifications/read` | Mark all read (204) |
-| PATCH | `/notifications/:id/read` | Mark one read (204; **404** if missing or another user's) |
+| GET | `/notifications/unseen-count` | `{ data: { count } }` — badge (unseen) |
+| PATCH | `/notifications/seen` | Mark all **seen** — clears the badge, does not touch read (204) |
+| PATCH | `/notifications/read` | Mark all **read** (and seen) (204) |
+| PATCH | `/notifications/:id/read` | Mark one read (and seen) (204; **404** if missing or another user's) |
 
 ## Generators (event-driven, best-effort)
 

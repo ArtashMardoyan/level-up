@@ -21,7 +21,8 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) RegisterRoutes(r *gin.Engine, auth gin.HandlerFunc) {
 	notifications := r.Group("/notifications", auth)
 	notifications.GET("", h.List)
-	notifications.GET("/unread-count", h.UnreadCount)
+	notifications.GET("/unseen-count", h.UnseenCount)
+	notifications.PATCH("/seen", h.MarkAllSeen)
 	notifications.PATCH("/read", h.MarkAllRead)
 	notifications.PATCH("/:id/read", h.MarkRead)
 }
@@ -48,20 +49,35 @@ func (h *Handler) List(c *gin.Context) {
 	shared.OK(c, result)
 }
 
-func (h *Handler) UnreadCount(c *gin.Context) {
+func (h *Handler) UnseenCount(c *gin.Context) {
 	caller, ok := contextUser(c)
 	if !ok {
 		shared.Error(c, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
-	count, err := h.service.UnreadCount(c.Request.Context(), caller.ID)
+	count, err := h.service.UnseenCount(c.Request.Context(), caller.ID)
 	if err != nil {
 		shared.Error(c, http.StatusInternalServerError, "failed to count notifications")
 		return
 	}
 
 	shared.OK(c, gin.H{"count": count})
+}
+
+func (h *Handler) MarkAllSeen(c *gin.Context) {
+	caller, ok := contextUser(c)
+	if !ok {
+		shared.Error(c, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if err := h.service.MarkAllSeen(c.Request.Context(), caller.ID); err != nil {
+		shared.Error(c, http.StatusInternalServerError, "failed to update notifications")
+		return
+	}
+
+	shared.NoContent(c)
 }
 
 func (h *Handler) MarkAllRead(c *gin.Context) {

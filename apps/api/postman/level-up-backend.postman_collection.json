@@ -448,21 +448,39 @@
 					}
 				},
 				{
-					"name": "Unread Count",
+					"name": "Unseen Count",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{API_URL}}/notifications/unread-count",
+							"raw": "{{API_URL}}/notifications/unseen-count",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
 								"notifications",
-								"unread-count"
+								"unseen-count"
 							]
 						},
-						"description": "Unread notification count for the authenticated user: { \"data\": { \"count\": n } }."
+						"description": "Unseen notification count for the authenticated user (drives the badge): { \"data\": { \"count\": n } }."
+					}
+				},
+				{
+					"name": "Mark All Seen",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/seen",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"seen"
+							]
+						},
+						"description": "Mark every notification for the caller as seen (clears the badge; does not mark read). Called when the list is opened. 204, no body."
 					}
 				},
 				{
@@ -480,7 +498,7 @@
 								"read"
 							]
 						},
-						"description": "Mark every notification for the caller as read. 204, no body."
+						"description": "Mark every notification for the caller as read (also marks them seen). 204, no body."
 					}
 				},
 				{

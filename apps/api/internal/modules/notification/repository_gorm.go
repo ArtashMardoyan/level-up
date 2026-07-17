@@ -45,28 +45,35 @@ func (r *gormRepository) FindByUser(
 	return items, total, nil
 }
 
-func (r *gormRepository) CountUnread(ctx context.Context, userID string) (int64, error) {
+func (r *gormRepository) CountUnseen(ctx context.Context, userID string) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&Notification{}).
-		Where(`"userId" = ? AND "read" = ?`, userID, false).
+		Where(`"userId" = ? AND "seen" = ?`, userID, false).
 		Count(&count).Error
 
 	return count, err
+}
+
+func (r *gormRepository) MarkAllSeen(ctx context.Context, userID string) error {
+	return r.db.WithContext(ctx).
+		Model(&Notification{}).
+		Where(`"userId" = ? AND "seen" = ?`, userID, false).
+		Update("seen", true).Error
 }
 
 func (r *gormRepository) MarkAllRead(ctx context.Context, userID string) error {
 	return r.db.WithContext(ctx).
 		Model(&Notification{}).
 		Where(`"userId" = ? AND "read" = ?`, userID, false).
-		Update("read", true).Error
+		Updates(map[string]any{"read": true, "seen": true}).Error
 }
 
 func (r *gormRepository) MarkRead(ctx context.Context, userID, id string) (int64, error) {
 	res := r.db.WithContext(ctx).
 		Model(&Notification{}).
 		Where(`"id" = ? AND "userId" = ?`, id, userID).
-		Update("read", true)
+		Updates(map[string]any{"read": true, "seen": true})
 
 	return res.RowsAffected, res.Error
 }

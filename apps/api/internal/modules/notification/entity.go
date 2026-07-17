@@ -22,7 +22,10 @@ type Notification struct {
 	UserID string `json:"userId" gorm:"column:userId"`
 	Type   Type   `json:"type"`
 	Params Params `json:"params" gorm:"type:jsonb"`
-	Read   bool   `json:"read"`
+	// Seen = surfaced to the user (badge cleared when the list is opened);
+	// Read = acted on (row clicked or "mark all read"). Reading implies seen.
+	Seen bool `json:"seen"`
+	Read bool `json:"read"`
 }
 
 func (n *Notification) BeforeCreate(_ *gorm.DB) error {

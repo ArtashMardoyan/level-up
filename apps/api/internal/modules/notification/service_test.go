@@ -38,10 +38,10 @@ func (r *stubRepo) FindByUser(
 	return out, int64(len(out)), nil
 }
 
-func (r *stubRepo) CountUnread(_ context.Context, userID string) (int64, error) {
+func (r *stubRepo) CountUnseen(_ context.Context, userID string) (int64, error) {
 	var count int64
 	for _, n := range r.items {
-		if n.UserID == userID && !n.Read {
+		if n.UserID == userID && !n.Seen {
 			count++
 		}
 	}
@@ -49,10 +49,21 @@ func (r *stubRepo) CountUnread(_ context.Context, userID string) (int64, error) 
 	return count, nil
 }
 
+func (r *stubRepo) MarkAllSeen(_ context.Context, userID string) error {
+	for i := range r.items {
+		if r.items[i].UserID == userID {
+			r.items[i].Seen = true
+		}
+	}
+
+	return nil
+}
+
 func (r *stubRepo) MarkAllRead(_ context.Context, userID string) error {
 	for i := range r.items {
 		if r.items[i].UserID == userID {
 			r.items[i].Read = true
+			r.items[i].Seen = true
 		}
 	}
 
@@ -63,6 +74,7 @@ func (r *stubRepo) MarkRead(_ context.Context, userID, id string) (int64, error)
 	for i := range r.items {
 		if r.items[i].ID == id && r.items[i].UserID == userID {
 			r.items[i].Read = true
+			r.items[i].Seen = true
 			return 1, nil
 		}
 	}
@@ -70,7 +82,7 @@ func (r *stubRepo) MarkRead(_ context.Context, userID, id string) (int64, error)
 	return 0, nil
 }
 
-func TestNotifyWelcomeAndUnreadCount(t *testing.T) {
+func TestNotifyWelcomeAndUnseenCount(t *testing.T) {
 	repo := &stubRepo{}
 	svc := notification.NewService(repo)
 
@@ -78,16 +90,36 @@ func TestNotifyWelcomeAndUnreadCount(t *testing.T) {
 		t.Fatalf("NotifyWelcome: %v", err)
 	}
 
-	count, err := svc.UnreadCount(t.Context(), "user-1")
+	count, err := svc.UnseenCount(t.Context(), "user-1")
 	if err != nil {
-		t.Fatalf("UnreadCount: %v", err)
+		t.Fatalf("UnseenCount: %v", err)
 	}
 	if count != 1 {
-		t.Fatalf("expected 1 unread, got %d", count)
+		t.Fatalf("expected 1 unseen, got %d", count)
 	}
 
 	if repo.items[0].Type != notification.TypeWelcome {
 		t.Errorf("expected welcome type, got %q", repo.items[0].Type)
+	}
+}
+
+// Seen and read are distinct: opening the list marks everything seen (badge
+// clears) but leaves read untouched.
+func TestMarkAllSeenDoesNotMarkRead(t *testing.T) {
+	repo := &stubRepo{}
+	svc := notification.NewService(repo)
+	_ = svc.NotifyWelcome(t.Context(), "user-1")
+
+	if err := svc.MarkAllSeen(t.Context(), "user-1"); err != nil {
+		t.Fatalf("MarkAllSeen: %v", err)
+	}
+
+	count, _ := svc.UnseenCount(t.Context(), "user-1")
+	if count != 0 {
+		t.Fatalf("expected 0 unseen after mark-all-seen, got %d", count)
+	}
+	if repo.items[0].Read {
+		t.Error("mark-all-seen must not mark read")
 	}
 }
 
@@ -118,9 +150,12 @@ func TestMarkAllRead(t *testing.T) {
 		t.Fatalf("MarkAllRead: %v", err)
 	}
 
-	count, _ := svc.UnreadCount(t.Context(), "user-1")
+	count, _ := svc.UnseenCount(t.Context(), "user-1")
 	if count != 0 {
-		t.Fatalf("expected 0 unread after mark-all, got %d", count)
+		t.Fatalf("expected 0 unseen after mark-all-read, got %d", count)
+	}
+	if !repo.items[0].Read {
+		t.Error("mark-all-read must mark read")
 	}
 }
 
