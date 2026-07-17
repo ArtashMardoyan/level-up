@@ -71,7 +71,7 @@ func newTestRouter(repo course.CourseRepository) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 
 	r := gin.New()
-	handler := course.NewHandler(course.NewService(repo, stubProgressRepo{}, nil))
+	handler := course.NewHandler(course.NewService(repo, stubProgressRepo{}, nil, nil))
 	handler.RegisterRoutes(r, func(*gin.Context) {})
 
 	return r

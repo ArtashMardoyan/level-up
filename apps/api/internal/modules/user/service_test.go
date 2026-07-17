@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"level-up-backend/internal/modules/user"
 	"level-up-backend/internal/shared"
@@ -76,6 +77,69 @@ func seedUser(t *testing.T) *user.User {
 		Age:      30,
 		Password: string(hashed),
 	}
+}
+
+func TestRecordActivityStreak(t *testing.T) {
+	dateDaysAgo := func(n int) *time.Time {
+		y, m, d := time.Now().UTC().AddDate(0, 0, -n).Date()
+		dt := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+		return &dt
+	}
+
+	t.Run("first activity starts streak at 1", func(t *testing.T) {
+		repo := newStubUserRepo(seedUser(t))
+		svc := user.NewService(repo, nil)
+
+		if err := svc.RecordActivity(t.Context(), "user-1", "UTC"); err != nil {
+			t.Fatalf("RecordActivity: %v", err)
+		}
+		if repo.saved.CurrentStreak != 1 {
+			t.Fatalf("want streak 1, got %d", repo.saved.CurrentStreak)
+		}
+	})
+
+	t.Run("active yesterday increments", func(t *testing.T) {
+		u := seedUser(t)
+		u.CurrentStreak, u.LongestStreak, u.LastActiveOn = 1, 1, dateDaysAgo(1)
+		repo := newStubUserRepo(u)
+		svc := user.NewService(repo, nil)
+
+		_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
+		if repo.saved.CurrentStreak != 2 {
+			t.Fatalf("want streak 2, got %d", repo.saved.CurrentStreak)
+		}
+	})
+
+	t.Run("same day is a no-op", func(t *testing.T) {
+		u := seedUser(t)
+		u.CurrentStreak, u.LongestStreak, u.LastActiveOn = 5, 5, dateDaysAgo(0)
+		repo := newStubUserRepo(u)
+		svc := user.NewService(repo, nil)
+
+		_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
+		if repo.saved != nil {
+			t.Fatal("same-day activity must not write")
+		}
+		current, _, _ := svc.Streak(t.Context(), "user-1")
+		if current != 5 {
+			t.Fatalf("want streak 5, got %d", current)
+		}
+	})
+
+	t.Run("gap resets to 1 but keeps longest", func(t *testing.T) {
+		u := seedUser(t)
+		u.CurrentStreak, u.LongestStreak, u.LastActiveOn = 9, 9, dateDaysAgo(3)
+		repo := newStubUserRepo(u)
+		svc := user.NewService(repo, nil)
+
+		_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
+		if repo.saved.CurrentStreak != 1 {
+			t.Fatalf("want streak reset to 1, got %d", repo.saved.CurrentStreak)
+		}
+		if repo.saved.LongestStreak != 9 {
+			t.Fatalf("want longest 9 kept, got %d", repo.saved.LongestStreak)
+		}
+	})
 }
 
 func TestUpdateFields(t *testing.T) {

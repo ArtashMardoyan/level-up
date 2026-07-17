@@ -81,3 +81,9 @@ func (s *Service) NotifyReviewMilestone(ctx context.Context, userID string, coun
 
 	return err
 }
+
+func (s *Service) NotifyStreak(ctx context.Context, userID string, days int) error {
+	_, err := s.Create(ctx, userID, TypeStreak, Params{"days": days})
+
+	return err
+}

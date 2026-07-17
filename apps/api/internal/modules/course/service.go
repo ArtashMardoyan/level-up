@@ -26,14 +26,23 @@ type Notifier interface {
 	NotifyReviewMilestone(ctx context.Context, userID string, count int) error
 }
 
+// StreakService records daily activity and reads the streak, without coupling to
+// the user package (user.Service satisfies it). Best-effort; a nil service is a
+// no-op so tests can pass nil.
+type StreakService interface {
+	RecordActivity(ctx context.Context, userID, tz string) error
+	Streak(ctx context.Context, userID string) (current, longest int, err error)
+}
+
 type Service struct {
 	courses  CourseRepository
 	progress ProgressRepository
 	notifier Notifier
+	streak   StreakService
 }
 
-func NewService(courses CourseRepository, progress ProgressRepository, notifier Notifier) *Service {
-	return &Service{courses: courses, progress: progress, notifier: notifier}
+func NewService(courses CourseRepository, progress ProgressRepository, notifier Notifier, streak StreakService) *Service {
+	return &Service{courses: courses, progress: progress, notifier: notifier, streak: streak}
 }
 
 func (s *Service) ListCourses(ctx context.Context) ([]CourseListItemDTO, error) {
@@ -180,11 +189,17 @@ func (s *Service) UpsertProgress(ctx context.Context, userID, questionID string,
 		return ProgressStateDTO{}, err
 	}
 
-	// On a not-reviewed -> reviewed transition, notify when the user's total
-	// reviewed lands on a milestone. Best-effort: never fail the save for it.
-	if s.notifier != nil && !wasReviewed && p.Reviewed {
-		if total, err := s.reviewedCount(ctx, userID); err == nil && reviewMilestones[total] {
-			_ = s.notifier.NotifyReviewMilestone(ctx, userID, total)
+	// A not-reviewed -> reviewed transition is a qualifying daily activity and may
+	// hit a reviewed-count milestone. Both are best-effort: never fail the save.
+	if !wasReviewed && p.Reviewed {
+		if s.streak != nil {
+			_ = s.streak.RecordActivity(ctx, userID, dto.Timezone)
+		}
+
+		if s.notifier != nil {
+			if total, err := s.reviewedCount(ctx, userID); err == nil && reviewMilestones[total] {
+				_ = s.notifier.NotifyReviewMilestone(ctx, userID, total)
+			}
 		}
 	}
 
@@ -272,6 +287,13 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProgressSummaryDT
 		summary.ByCourse[stat.CourseID] = CourseProgressCountDTO{
 			Reviewed:  stat.Reviewed,
 			Favorites: stat.Favorites,
+		}
+	}
+
+	if s.streak != nil {
+		if current, longest, err := s.streak.Streak(ctx, userID); err == nil {
+			summary.CurrentStreak = current
+			summary.LongestStreak = longest
 		}
 	}
 

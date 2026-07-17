@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	_ "time/tzdata" // embed the tz database so time.LoadLocation works in the container
 
 	"level-up-backend/internal/config"
 	"level-up-backend/internal/infrastructure/database"
@@ -48,11 +49,12 @@ func main() {
 	notificationRepo := notification.NewRepository(db)
 
 	notificationService := notification.NewService(notificationRepo)
+	userService := user.NewService(userRepo, notificationService)
 
-	userHandler := user.NewHandler(user.NewService(userRepo, notificationService))
+	userHandler := user.NewHandler(userService)
 	authHandler := auth.NewHandler(auth.NewService(userRepo, revokedRepo, cfg.JWT.Secret))
 	healthHandler := health.NewHandler(db)
-	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo, notificationService))
+	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo, notificationService, userService))
 	notificationHandler := notification.NewHandler(notificationService)
 
 	jwtMiddleware := middleware.JWT(userRepo, revokedRepo, cfg.JWT.Secret)

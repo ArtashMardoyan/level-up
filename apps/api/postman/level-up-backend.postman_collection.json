@@ -335,7 +335,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"reviewed\": true,\n    \"favorite\": true\n}",
+							"raw": "{\n    \"reviewed\": true,\n    \"favorite\": true,\n    \"timezone\": \"Asia/Yerevan\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

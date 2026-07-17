@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"time"
 
 	"level-up-backend/internal/shared"
 
@@ -16,11 +17,16 @@ var (
 	ErrWrongPassword = errors.New("current password is incorrect")
 )
 
-// Notifier lets the user service emit a welcome notification on sign-up without
+// streakMilestones fire a streak notification when currentStreak lands exactly
+// on one of these day counts.
+var streakMilestones = map[int]bool{3: true, 7: true, 14: true, 30: true, 100: true}
+
+// Notifier lets the user service emit notifications (welcome, streak) without
 // depending on the notification package (notification.Service satisfies it).
-// Best-effort: a nil notifier or an error never blocks registration.
+// Best-effort: a nil notifier or an error never blocks the parent operation.
 type Notifier interface {
 	NotifyWelcome(ctx context.Context, userID string) error
+	NotifyStreak(ctx context.Context, userID string, days int) error
 }
 
 type Service struct {
@@ -154,4 +160,75 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	}
 
 	return s.repo.Delete(ctx, id)
+}
+
+// localToday returns the user's current calendar date, pinned to UTC midnight so
+// it round-trips cleanly through a DATE column regardless of driver tz handling.
+func localToday(tz string) time.Time {
+	loc, err := time.LoadLocation(tz)
+	if err != nil || tz == "" {
+		loc = time.UTC
+	}
+
+	y, m, d := time.Now().In(loc).Date()
+
+	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+}
+
+func sameDay(a, b time.Time) bool {
+	ay, am, ad := a.Date()
+	by, bm, bd := b.Date()
+
+	return ay == by && am == bm && ad == bd
+}
+
+// RecordActivity advances the user's streak for a qualifying action (a reviewed
+// question), using `tz` (IANA name from the client) for the day boundary. Same
+// day → no-op; the local yesterday → +1; a gap → reset to 1. Fires a streak
+// notification on a milestone. Best-effort: callers ignore the error.
+func (s *Service) RecordActivity(ctx context.Context, userID, tz string) error {
+	u, err := s.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	today := localToday(tz)
+	if u.LastActiveOn != nil {
+		if sameDay(*u.LastActiveOn, today) {
+			return nil
+		}
+
+		if sameDay(*u.LastActiveOn, today.AddDate(0, 0, -1)) {
+			u.CurrentStreak++
+		} else {
+			u.CurrentStreak = 1
+		}
+	} else {
+		u.CurrentStreak = 1
+	}
+
+	u.LastActiveOn = &today
+	if u.CurrentStreak > u.LongestStreak {
+		u.LongestStreak = u.CurrentStreak
+	}
+
+	if err := s.repo.Save(ctx, &u); err != nil {
+		return err
+	}
+
+	if s.notifier != nil && streakMilestones[u.CurrentStreak] {
+		_ = s.notifier.NotifyStreak(ctx, userID, u.CurrentStreak)
+	}
+
+	return nil
+}
+
+// Streak returns the user's current and longest streak (0/0 if unknown).
+func (s *Service) Streak(ctx context.Context, userID string) (current, longest int, err error) {
+	u, err := s.FindByID(ctx, userID)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return u.CurrentStreak, u.LongestStreak, nil
 }

@@ -14,6 +14,7 @@ type Type string
 const (
 	TypeWelcome         Type = "welcome"
 	TypeReviewMilestone Type = "review_milestone"
+	TypeStreak          Type = "streak"
 )
 
 type Notification struct {

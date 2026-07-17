@@ -39,6 +39,9 @@ type CourseDetailDTO struct {
 type UpsertProgressDTO struct {
 	Reviewed *bool `json:"reviewed" binding:"omitempty"`
 	Favorite *bool `json:"favorite" binding:"omitempty"`
+	// Timezone (IANA, e.g. Asia/Yerevan) sent by the client so the streak day
+	// boundary is computed in the user's local time. Optional; falls back to UTC.
+	Timezone string `json:"timezone" binding:"omitempty"`
 }
 
 type BulkProgressDTO struct {
@@ -65,5 +68,7 @@ type CourseProgressCountDTO struct {
 type ProgressSummaryDTO struct {
 	TotalReviewed  int                               `json:"totalReviewed"`
 	TotalFavorites int                               `json:"totalFavorites"`
+	CurrentStreak  int                               `json:"currentStreak"`
+	LongestStreak  int                               `json:"longestStreak"`
 	ByCourse       map[string]CourseProgressCountDTO `json:"byCourse"`
 }

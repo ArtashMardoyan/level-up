@@ -34,7 +34,18 @@ Effort: small, frontend-only, no migration.
 
 ---
 
-## Phase 2 — Real streak (backend + frontend)
+## Phase 2 — Real streak (backend + frontend) — ✅ DONE (2026-07-17)
+
+> Shipped simpler than drafted below: timezone is **not** stored on `users` — the client sends
+> its IANA timezone with the review upsert (`UpsertProgressDTO.timezone`) and the backend computes
+> the day boundary from that (fallback UTC), embedding `time/tzdata`. Streak lives on `users`
+> (`currentStreak`/`longestStreak`/`lastActiveOn`, migration `00011`), updated in
+> `user.Service.RecordActivity` (called from `course.UpsertProgress` via a `StreakService`
+> interface), surfaced in `/progress/summary` (`currentStreak`/`longestStreak`), and milestones
+> (3/7/14/30/100) emit a `streak` notification. Frontend replaced `DEMO_STREAK` in `AccountMenu`
+> + `ProfilePage`. The stored-timezone + auto-sync approach below is deferred to when Phase 4b
+> (scheduled daily) actually needs a server-side timezone.
+
 
 **Goal:** replace `DEMO_STREAK` everywhere with a real consecutive-day streak, and generate
 `streak` notifications at milestones.
