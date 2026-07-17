@@ -311,6 +311,16 @@ Sits left of the account button in the header cluster.
   "New questions added" (`#4ade80`, hexagon). Wire to the app's real activity feed; "Mark all read" clears unread.
 - Opening the bell closes the settings panel (and vice-versa) — one popover at a time.
 
+**Wired to the backend (2026-07-17):** the bell now reads real per-user notifications, not the
+seed. `endpoints.js` gains `notificationsList` / `notificationsUnreadCount` /
+`notificationsMarkAllRead` / `notificationsMarkRead`. The badge comes from `unread-count`
+(fetched on mount + when the user changes); the list loads on open; a row click marks that one
+read and "Mark all read" clears the rest (both optimistic). The server sends a `type` + `params`
+(no localized text) — `NotificationBell` maps `type` → icon/accent/i18n key and interpolates
+params, with relative time via `Intl.RelativeTimeFormat`. Auth-gated: guests get a sign-in hint.
+Types emitted today: `welcome`, `review_milestone`; `streak`/`daily`/`new_questions` are mapped
+but reserved. Backend: `level-up-backend` `docs/notifications.md`.
+
 ### Footer → `src/components/AppFooter.jsx` (home view, inside the content column)
 Replaces the old "works fully offline" line (the app is no longer offline-only).
 - `margin-top: 64px; padding-top: 36px; border-top: 1px solid --border`. Two rows.

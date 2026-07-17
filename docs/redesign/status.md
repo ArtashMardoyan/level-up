@@ -18,8 +18,13 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       course screen, interview mode, dictionary (table + single), players. (`index.css` rewrite.)
 - [x] **Account block** — `AccountMenu` (avatar → dropdown: Guest / signed-in profile + stats +
       Theme/Language). UI-only, local demo toggle; real auth later.
-- [x] **Notifications** — `NotificationBell` (badge + dropdown, 3 seed items, mark-all-read).
-      Static feed; wire to real data later.
+- [x] **Notifications** — `NotificationBell` **wired to the backend API**: badge from
+      `GET /notifications/unread-count`, dropdown list from `GET /notifications` (auth-gated),
+      per-row + mark-all read via `PATCH /notifications/:id/read` / `/read`. Server sends
+      `type` + `params`; the client maps type → icon/accent/i18n and renders relative time via
+      `Intl.RelativeTimeFormat`. Guests see a sign-in hint. Types today: `welcome`,
+      `review_milestone` (streak/daily/new_questions reserved). See `endpoints.js`
+      (`notifications*`) + backend `docs/notifications.md`.
 - [x] **Command palette (⌘K)** — `GlobalSearch` trigger + portal overlay, filters Courses /
       Questions / Dictionary, navigates on select.
 - [x] **Rich footer** — `AppFooter` (brand + social + link columns + bottom bar), home only.

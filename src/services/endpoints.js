@@ -19,6 +19,12 @@ export const usersList = (page = 1, limit = 10) => apiGet(`/users?page=${page}&l
 export const coursesFull = (lang) => apiGet(`/courses/full?lang=${lang}`)
 export const coursesVersion = () => apiGet('/courses/version')
 
+// Notifications (per-user, auth required)
+export const notificationsList = (page = 1, limit = 10) => apiGet(`/notifications?page=${page}&limit=${limit}`)
+export const notificationsUnreadCount = () => apiGet('/notifications/unread-count')
+export const notificationsMarkAllRead = () => apiPatch('/notifications/read')
+export const notificationsMarkRead = (id) => apiPatch(`/notifications/${id}/read`)
+
 // Progress (per-user, auth required)
 export const progressSummary = () => apiGet('/progress/summary')
 export const progressBulk = (payload) => apiPost('/progress/bulk', payload)
