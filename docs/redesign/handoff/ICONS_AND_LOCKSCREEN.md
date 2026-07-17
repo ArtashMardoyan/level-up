@@ -64,6 +64,10 @@ useEffect(() => {
     'nexttrack',
     currentIndex < scopedList.length - 1 ? handleNext : null
   )
+  // iOS shows ±10s skip buttons for an <audio> element by default; nulling the
+  // seek actions makes it fall back to the prev/next track buttons instead.
+  navigator.mediaSession.setActionHandler('seekbackward', null)
+  navigator.mediaSession.setActionHandler('seekforward', null)
 }, [currentItem, courseTitle, currentIndex, scopedList.length])
 
 // Keep the OS controls in sync so iOS shows the right button and dispatches the
