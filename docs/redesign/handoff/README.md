@@ -3,20 +3,14 @@
 > **Reference only — not shipped.** This folder is the design source of truth
 > (spec + prototype), not production code. `Level Up.dc.html` and `support.js` are a
 > browser-only design reference; the app is built from `src/` and `vite build` never
-> bundles anything under `docs/`. Recreate this design in the React codebase — don't
-> ship these files. Kept here by convention (`docs/<feature>/…`); `CLAUDE.md` treats
-> `README.md` + `status.md` as the design source of truth and requires updating them in
-> the same commit as any UI change.
+> bundles anything under `docs/`. Implementation status lives in `docs/redesign/status.md`.
 
 ## Changelog
-- **2026-07-17** — **Implemented** the **User Profile screen** (`ProfilePage.jsx`) + **Edit profile
-  modal** (`EditProfileDialog.jsx`) in React, wired to real data. Reached via `#profile` from the
-  account dropdown (the avatar+name row is now a clickable link + a **View profile** button).
-  Identity/stats/course-progress/saved-questions are **real** (`useAuth().user`, `/progress/summary`
-  `byCourse`); streak + recent-activity are clearly-marked placeholders. The **backend was extended**
-  so the modal fully persists: `PATCH /users` now accepts `email`, `bio`, `track`, and a
-  `currentPassword`/`newPassword` change (was `{ name, age }` only); `User` gained `bio`+`track`
-  (goose migration `00007`). See **Profile & edit** below.
+- **2026-07-17** — **Fix: profile identity card squashed on mobile.** The code had
+  `.profile-identity-body { min-width: 0 }`; the reference uses `min-width: 200px`. With `0` the
+  flex-wrap never triggers, the Edit button stays in-row, and the bio wraps one word per line.
+  Restore `min-width: 200px` (see **Profile & edit** → Identity card). Optional column-stack
+  hardening for ≤400px added there too.
 - **2026-07-16** — Added **User Profile screen** + **Edit profile modal**. New `screen: 'profile'`
   reachable from the account dropdown (“View profile”). See **Profile & edit** below.
 - **2026-07-16** — Fixed **sticky header not sticking**: root cause was `html, body { overflow-x: hidden }`
@@ -311,19 +305,6 @@ Sits left of the account button in the header cluster.
   "New questions added" (`#4ade80`, hexagon). Wire to the app's real activity feed; "Mark all read" clears unread.
 - Opening the bell closes the settings panel (and vice-versa) — one popover at a time.
 
-**Wired to the backend (2026-07-17):** the bell now reads real per-user notifications, not the
-seed, with a Facebook-style **seen vs read** split. `endpoints.js` gains `notificationsList` /
-`notificationsUnseenCount` / `notificationsMarkAllSeen` / `notificationsMarkAllRead` /
-`notificationsMarkRead`. The **badge = unseen count** (fetched on mount + user change) and clears
-on open via `mark-all-seen` (opening = seen; **does not** mark read). The **per-row "new" dot =
-unread**, cleared by a row click (`mark one read`) or "Mark all read". The list loads on open. The
-server sends `type` + `params` (no localized text) — `NotificationBell` maps `type` →
-icon/accent/i18n key and interpolates params, with relative time via `Intl.RelativeTimeFormat`.
-Auth-gated: guests get a sign-in hint. The type→meta map + `relativeTime` live in the shared
-`src/data/notifications.js` (reused by the profile Recent-activity block). Types emitted today:
-`welcome`, `review_milestone`; `streak`/`daily`/`new_questions` are mapped but reserved. Backend:
-`level-up-backend` `docs/notifications/overview.md`.
-
 ### Footer → `src/components/AppFooter.jsx` (home view, inside the content column)
 Replaces the old "works fully offline" line (the app is no longer offline-only).
 - `margin-top: 64px; padding-top: 36px; border-top: 1px solid --border`. Two rows.
@@ -414,6 +395,16 @@ hover highlight) and navigates to the profile, plus an explicit **View profile**
 - **Identity card** — 88px gradient avatar (initials), name (H1), a `TRACK track` mono pill +
   email, bio paragraph, and an **Edit profile** button (top-right; pencil icon). Soft radial
   accent glow top-right, gated by the `--glow` density flag.
+  - **⚠️ Mobile wrap (critical):** the card is `display: flex; flex-wrap: wrap`, and the text
+    column **must** be `flex: 1; min-width: 200px`. The `min-width` is what forces the row to
+    overflow and wrap the Edit button / text onto their own lines on a phone. If the text column
+    is `min-width: 0` it collapses to near-zero, the row never overflows, the Edit button stays
+    inline, and the bio wraps **one word per line** (the bug seen on the deployed profile).
+    Do not set the text column to `min-width: 0`.
+  - Optional hardening for very narrow (≤400px), in the `@media (max-width: 560px)` block:
+    `.profile-identity { flex-direction: column; align-items: flex-start; }`,
+    shrink the avatar to 64px, and make `.profile-edit-btn` full-width
+    (`order: 3; align-self: stretch; justify-content: center;`).
 - **Stat row** — 3 cards: 🔥 day streak / reviewed / ★ saved (reuse the account-menu totals:
   `progressSummary()` → reviewed & favorites; streak is the demo placeholder for now).
 - **Course progress** + **Recent activity** in a 2-up responsive grid (`minmax(280px,1fr)`).
@@ -432,23 +423,6 @@ hover highlight) and navigates to the profile, plus an explicit **View profile**
   (`{ name, email, bio, track }`) and close. Cancel / ✕ / backdrop / Esc all dismiss.
 - **Production:** wire Save to the profile update endpoint; theme & language still live in the
   account dropdown (unchanged). `user` shape extended: `{ name, email, bio, track }`.
-
-**Implemented (2026-07-17):** `ProfilePage.jsx` + `EditProfileDialog.jsx`, `#profile` route in
-`App.jsx`, `onViewProfile` threaded `App → AppHeader → AccountMenu`, `updateUser` added to
-`useAuth` so the header + identity card stay in sync after a save.
-- **Real data:** name/email/initial from `useAuth().user`; reviewed/saved totals + per-course
-  **Course progress** and **Saved questions** (per-course favourite counts) from `/progress/summary`
-  (`byCourse` keyed by course uuid); **Achievements** derived from the real reviewed/saved/streak
-  numbers. **Placeholders** (marked): 🔥 streak (`DEMO_STREAK`) and **Recent activity** (tagged
-  “Preview” — no activity-feed backend). Photo upload is a UI placeholder (initials fallback kept).
-- **`user` shape** is now `{ id, name, email, age, bio, track }`.
-- **Backend extended** (`level-up-backend`): `User` gained `bio`+`track` (goose migration
-  `00007_add_bio_track_to_users.sql`); `PATCH /users` `UpdateDTO` accepts `email`
-  (`omitempty,email`, uniqueness-checked → 409 `ErrEmailTaken`), `bio`/`track`, and
-  `currentPassword`+`newPassword` (`omitempty,min=8` — bcrypt-verified current, wrong → 401
-  `ErrWrongPassword`). Entity is returned directly, so `authMe`/`login`/`update` now include
-  `bio`+`track`. **Password min is 8** (matches signup), not 6.
-- **Delete account** calls `usersDelete()` behind `window.confirm`, then `logout()` + routes home.
 
 ## Loading states (backend data)
 Courses, dictionary entries, and questions now come from the **backend** (async), so every list
