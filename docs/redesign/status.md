@@ -26,12 +26,12 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       Server sends `type` + `params`; the client maps type → icon/accent/i18n and renders relative
       time via `Intl.RelativeTimeFormat`. Guests see a sign-in hint. The profile **Recent activity**
       block reuses the same feed (`src/data/notifications.js`). Types today: `welcome`,
-      `review_milestone` (streak/daily/new_questions reserved). See backend `docs/notifications.md`.
+      `review_milestone` (streak/daily/new_questions reserved). See backend `docs/notifications/overview.md`.
 - [x] **Activity screen** (`#activity`, `ActivityPage.jsx`) — full notifications feed with
       "Load more" pagination, per-row + mark-all read, mark-all-seen on open (clears the badge).
       Reached from the bell's "View all activity" and the profile's "See all". Reuses the shared
       `notificationMeta`/`relativeTime`. Roadmap for the rest (real streak, new_questions, daily):
-      backend `docs/engagement-features-plan.md`.
+      backend `docs/notifications/engagement-plan.md`.
 - [x] **Command palette (⌘K)** — `GlobalSearch` trigger + portal overlay, filters Courses /
       Questions / Dictionary, navigates on select.
 - [x] **Rich footer** — `AppFooter` (brand + social + link columns + bottom bar), home only.
@@ -84,7 +84,7 @@ player, in dark + light themes.
       `/progress/summary` (no more `DEMO_STREAK`). The backend counts consecutive days with a
       reviewed question, with the day boundary in the **user's timezone** (the client sends its
       IANA tz on the review upsert). Milestones (3/7/14/30/100) emit a `streak` notification.
-      Roadmap: backend `docs/engagement-features-plan.md`.
+      Roadmap: backend `docs/notifications/engagement-plan.md`.
 
 ## Not wired (intentional, backend later)
 Footer links (most are placeholders); the reference's "glow on/off" and "compact density"

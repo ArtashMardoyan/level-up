@@ -322,7 +322,7 @@ icon/accent/i18n key and interpolates params, with relative time via `Intl.Relat
 Auth-gated: guests get a sign-in hint. The type→meta map + `relativeTime` live in the shared
 `src/data/notifications.js` (reused by the profile Recent-activity block). Types emitted today:
 `welcome`, `review_milestone`; `streak`/`daily`/`new_questions` are mapped but reserved. Backend:
-`level-up-backend` `docs/notifications.md`.
+`level-up-backend` `docs/notifications/overview.md`.
 
 ### Footer → `src/components/AppFooter.jsx` (home view, inside the content column)
 Replaces the old "works fully offline" line (the app is no longer offline-only).
