@@ -42,9 +42,14 @@ wired in `cmd/server/main.go`). A `nil` notifier is a no-op, so tests pass `nil`
   exactly on `10 / 25 / 50 / 100` (params `{ count }`). The bulk-migrate path does not
   fire, so importing local progress on first sign-in never spams.
 
+## Frontend
+
+Wired in the `level-up` repo (2026-07-17): `NotificationBell` reads the badge from
+`unread-count`, the list from `GET /notifications`, and marks read via the PATCH routes.
+The client maps `type` → icon/accent/localized text (params interpolated) and formats time
+with `Intl.RelativeTimeFormat`. See that repo's `docs/redesign/handoff/README.md` → Notifications.
+
 ## Not yet built (deferred)
 
-- Frontend wiring — `NotificationBell` still renders a static seed; swapping it to
-  `GET /notifications` + `unread-count` + mark-read is a separate frontend task.
 - Generators that need global fan-out (new questions on reseed) or a scheduler
   (daily challenge, streak) — reserved types exist; no producers yet.
