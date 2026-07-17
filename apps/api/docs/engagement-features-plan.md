@@ -1,0 +1,152 @@
+# Planning doc — engagement features (streak, activity screen, new_questions, daily)
+
+Status: **planning**. Cross-repo: `level-up-backend` (Go/Gin) + `level-up` (React).
+Builds on the notifications module (`docs/notifications.md`). Ship in phases; each phase is
+independently deployable and reviewable.
+
+## Context
+
+We have a per-user notifications feed with a seen/read model, wired to the bell and the profile.
+Three notification types are **reserved but not generated** (`streak`, `daily`, `new_questions`),
+and streak is still a hard-coded `DEMO_STREAK = 5` placeholder in the UI. This doc plans the four
+features that make the feed (and the profile) fully real, plus a dedicated activity screen.
+
+Recommended order (low risk → high infra): **Phase 1 Activity screen → Phase 2 Streak →
+Phase 3 new_questions → Phase 4 daily**.
+
+---
+
+## Phase 1 — "View all activity" screen (frontend only) — ✅ DONE (2026-07-17)
+
+**Goal:** the bell's "View all activity" and the profile's Recent-activity open a full feed screen.
+
+- **Route:** hash `#activity` (same pattern as `#profile`). `App.jsx` branches
+  `courseId === 'activity'` → `<ActivityPage>`. Thread nav from `NotificationBell` ("View all
+  activity" → `navigate('activity')`) and optionally a "See all" on the profile block.
+- **`ActivityPage.jsx`:** full-width `<main>` (~720px), back-home, title, the full notifications
+  list with **pagination** ("Load more" using `notificationsList(page, limit)` + `meta.total`).
+  Rows reuse the shared `notificationMeta` + `relativeTime` (`src/data/notifications.js`); a row
+  click marks read; a "Mark all read" action. On open → `mark-all-seen` (clears the badge).
+- **API:** already exists — no backend change. Auth-gated; guests get a sign-in prompt.
+- **Docs/i18n:** add activity-screen strings (en+ru); update `status.md` + handoff README.
+
+Effort: small, frontend-only, no migration.
+
+---
+
+## Phase 2 — Real streak (backend + frontend)
+
+**Goal:** replace `DEMO_STREAK` everywhere with a real consecutive-day streak, and generate
+`streak` notifications at milestones.
+
+**Definition (decisions — confirm on review):**
+- A **day = the user's local calendar day** (not UTC). We store instants in UTC but the streak
+  boundary is computed in the user's timezone, so a late-night review counts as *their* today.
+- A day **counts** when the user marks ≥1 question reviewed (`UpsertProgress` reviewed
+  transition — the existing hook we use for `review_milestone`).
+- **currentStreak** = consecutive counting days ending today or yesterday (a gap resets to 1 on
+  the next active day). **longestStreak** tracked too.
+
+**Timezone plumbing:** add `timezone TEXT NOT NULL DEFAULT 'UTC'` (IANA, e.g. `Asia/Yerevan`) to
+`users`. The frontend auto-syncs it: on app load / login, if
+`Intl.DateTimeFormat().resolvedOptions().timeZone` differs from `user.timezone`, it PATCHes
+`/users { timezone }` (extend `UpdateDTO`; invisible to the user). Backend embeds the tz database
+via a blank `import _ "time/tzdata"` so `time.LoadLocation` works in the scratch/Alpine image.
+
+**Storage (O(1), no scan):** add to `users`: `currentStreak int`, `longestStreak int`,
+`lastActiveOn date NULL` (migration `00011`, alongside `timezone`). Update rule in the review
+hook: compute `today := time.Now().In(loc)` where `loc` = the user's timezone (fallback UTC);
+compare its date with `lastActiveOn` (stored as the user-local date) — same day → no-op; the
+user-local yesterday → `currentStreak++`; older/null → `currentStreak = 1`; then
+`lastActiveOn = today`, bump `longestStreak`. Best-effort, never fails the progress save.
+
+**Surface to the client:** add `currentStreak` (+`longestStreak`) to `ProgressSummaryDTO`
+(`GET /progress/summary`) — both `AccountMenu` and `ProfilePage` already fetch it. Frontend
+replaces `DEMO_STREAK` in `AccountMenu.jsx` + `ProfilePage.jsx` with `summary.currentStreak`.
+
+**Notification:** when `currentStreak` crosses a threshold (`3/7/14/30/100`), emit a `streak`
+notification (params `{ days }`) via the existing `Notifier` pattern. Update `notifStreakBody`
+to be param-based (`{days}`).
+
+**Backfill:** start everyone at 0 (streaks begin fresh) — simplest and honest. (Deriving from
+historic `reviewedAt` is possible but out of scope.)
+
+Effort: medium. Migration + service hook + DTO + 2 frontend swaps. No scheduler.
+
+---
+
+## Phase 3 — `new_questions` generator (backend, reseed)
+
+**Goal:** when a reseed adds genuinely new questions, notify every user.
+
+- **Detect new:** `internal/seed` already upserts via `OnConflict … Create`; use `RowsAffected`
+  per question to count **newly inserted** rows (0 on a no-op reseed → no spam). Aggregate the
+  new count (optionally per course).
+- **Fan-out:** after seeding, if `newCount > 0`, insert one `new_questions` notification per
+  existing user (params `{ count }`), via a batch insert. `cmd/seed` gains access to the user +
+  notification repos (constructed from `db`).
+- **Frontend:** make `notifNewQuestionsBody` param-based (`{count} new questions added`).
+- **Guard/log:** print how many users were notified; skip cleanly when `newCount = 0`.
+
+Effort: medium. Touches `internal/seed` + a fan-out insert. No migration. Runs offline via
+`cmd/seed`, not on every request.
+
+---
+
+## Phase 4 — `daily` (Today's Challenge) — biggest, infra decision needed
+
+**Goal:** a daily "Today's Challenge is ready" notification.
+
+App Runner has **no built-in scheduler**, so a true global cron is infra work. Two options:
+
+- **4a (recommended MVP, no infra):** *lazy per-user* — the first time a user is active on a new
+  UTC day (piggyback the streak hook), ensure a `daily` notification for today exists (dedupe by
+  `type='daily' + DATE(createdAt)`). No scheduler; notification appears as they start using the
+  app that day.
+- **4b (proper, later):** a scheduled job (external cron / EventBridge → an internal endpoint, or
+  a `cmd/daily` run by a scheduler) that emits the daily notification to all users each morning.
+
+Recommend shipping **4a** now and leaving **4b** as a documented follow-up. Confirm on review.
+Dedupe is essential either way so a user never gets two dailies in a day.
+
+Effort: small (4a) once the streak/activity hook exists; large (4b, infra).
+
+---
+
+## Cross-cutting: time & timezone
+- **Store UTC, display local.** All timestamps persist as UTC (`TIMESTAMPTZ`); the client renders
+  every date in the **user's local timezone** — relative via `Intl.RelativeTimeFormat`, absolute
+  via `Intl.DateTimeFormat(language)` (both default to the browser tz, which is the user's).
+  No raw UTC strings are ever shown.
+- **Day-boundary logic** (streak, daily dedupe) is computed in the **user's timezone** (stored
+  `users.timezone`, auto-synced from the client), never in UTC. Backend embeds `time/tzdata`.
+
+## Cross-cutting conventions
+
+- **Backend:** goose migrations on startup; sentinel errors; `shared.OK/Error`; best-effort
+  notification generators (never fail the parent op); `go test` + `golangci-lint` green; keep
+  Postman + `docs/` in sync.
+- **Frontend:** `npm run lint`/`build` green; tokens-only styling both themes; i18n en+ru; update
+  `docs/redesign/status.md` + handoff README in the same commit.
+- **Deploy:** phases with a migration (2) or reseed (3) need a backend redeploy; frontend pushes
+  auto-deploy to Pages. **Never commit/push without explicit instruction.**
+
+## Verification per phase
+
+- **P1:** open `#activity`, paginate, mark read, badge clears on open (dark+light, ~390px).
+- **P2:** review on consecutive UTC days → `currentStreak` grows in profile/account; milestone
+  emits a `streak` notification; unit test the day-transition logic (same/next/gap day).
+- **P3:** seed with a new question locally → all users get one `new_questions`; no-op reseed →
+  none. E2E against local Postgres.
+- **P4a:** first activity on a new day creates exactly one `daily`; second activity same day
+  creates none.
+
+## Open decisions to confirm
+1. Store UTC, display in the **user's timezone**; streak/daily day-boundaries use the user's tz
+   (stored `users.timezone`, auto-synced from the client). **Confirmed by user.**
+2. Streak counting action = **reviewed a question** (vs any progress/app-open). Default: reviewed.
+3. Streak milestone thresholds: **3/7/14/30/100**.
+4. Daily = **4a lazy MVP** now, 4b scheduler later. Default: 4a. Daily dedupe key uses the
+   user-local day.
+5. Backfill streak = **0 for everyone**. Default: yes.
+6. Daily dedupe by user-local day (from #1).
