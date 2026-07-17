@@ -511,7 +511,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"age\": 31\n}",
+							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"email\": \"{{userEmail}}\",\n    \"age\": 31,\n    \"bio\": \"Backend engineer preparing for interviews.\",\n    \"track\": \"Backend\",\n    \"currentPassword\": \"\",\n    \"newPassword\": \"\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	ErrNotFound   = errors.New("user not found")
-	ErrEmailTaken = errors.New("email already in use")
+	ErrNotFound      = errors.New("user not found")
+	ErrEmailTaken    = errors.New("email already in use")
+	ErrWrongPassword = errors.New("current password is incorrect")
 )
 
 type Service struct {
@@ -81,7 +82,7 @@ func (s *Service) Create(ctx context.Context, dto CreateDTO) (User, error) {
 	return u, nil
 }
 
-func (s *Service) Update(ctx context.Context, id string, dto UpdateDTO) (User, error) {
+func (s *Service) Update(ctx context.Context, id string, dto *UpdateDTO) (User, error) {
 	u, err := s.FindByID(ctx, id)
 	if err != nil {
 		return User{}, err
@@ -93,6 +94,38 @@ func (s *Service) Update(ctx context.Context, id string, dto UpdateDTO) (User, e
 
 	if dto.Age > 0 {
 		u.Age = dto.Age
+	}
+
+	// Email is unique: reject a change that collides with a different account.
+	if dto.Email != "" && dto.Email != u.Email {
+		existing, err := s.repo.FindByEmail(ctx, dto.Email)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return User{}, err
+		}
+		if err == nil && existing.ID != id {
+			return User{}, ErrEmailTaken
+		}
+
+		u.Email = dto.Email
+	}
+
+	// Bio and Track are free-text: the edit form always sends them, so assign
+	// directly (an empty value is a deliberate clear, not "unset").
+	u.Bio = dto.Bio
+	u.Track = dto.Track
+
+	// Password change requires the current password to match.
+	if dto.NewPassword != "" {
+		if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(dto.CurrentPassword)); err != nil {
+			return User{}, ErrWrongPassword
+		}
+
+		hashed, err := bcrypt.GenerateFromPassword([]byte(dto.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			return User{}, err
+		}
+
+		u.Password = string(hashed)
 	}
 
 	if err := s.repo.Save(ctx, &u); err != nil {

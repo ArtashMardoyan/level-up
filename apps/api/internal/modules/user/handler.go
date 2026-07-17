@@ -93,10 +93,20 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	u, err := h.service.Update(c.Request.Context(), caller.ID, dto)
+	u, err := h.service.Update(c.Request.Context(), caller.ID, &dto)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
 			shared.Error(c, http.StatusNotFound, "user not found")
+			return
+		}
+
+		if errors.Is(err, ErrEmailTaken) {
+			shared.Error(c, http.StatusConflict, err.Error())
+			return
+		}
+
+		if errors.Is(err, ErrWrongPassword) {
+			shared.Error(c, http.StatusUnauthorized, err.Error())
 			return
 		}
 

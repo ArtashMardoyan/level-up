@@ -13,6 +13,8 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"    gorm:"uniqueIndex"`
 	Age      int    `json:"age"`
+	Bio      string `json:"bio"`
+	Track    string `json:"track"`
 	Status   Status `json:"status"   gorm:"default:activated"`
 	Password string `json:"-"`
 }
