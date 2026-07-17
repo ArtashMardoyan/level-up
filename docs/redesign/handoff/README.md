@@ -1,5 +1,13 @@
 # Handoff: Level Up — Landing (Courses + Dictionary)
 
+> **Reference only — not shipped.** This folder is the design source of truth
+> (spec + prototype), not production code. `Level Up.dc.html` and `support.js` are a
+> browser-only design reference; the app is built from `src/` and `vite build` never
+> bundles anything under `docs/`. Recreate this design in the React codebase — don't
+> ship these files. Kept here by convention (`docs/<feature>/…`); `CLAUDE.md` treats
+> `README.md` + `status.md` as the design source of truth and requires updating them in
+> the same commit as any UI change.
+
 ## Changelog
 - **2026-07-17** — **Implemented** the **User Profile screen** (`ProfilePage.jsx`) + **Edit profile
   modal** (`EditProfileDialog.jsx`) in React, wired to real data. Reached via `#profile` from the
