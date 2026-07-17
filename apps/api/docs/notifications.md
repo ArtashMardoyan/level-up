@@ -36,7 +36,10 @@ never breaks the parent operation, and the dependency is inverted (the producing
 module declares its own tiny `Notifier` interface; `notification.Service` satisfies it,
 wired in `cmd/server/main.go`). A `nil` notifier is a no-op, so tests pass `nil`.
 
-- **`welcome`** — `user.Service.Create` (sign-up) → one welcome notification.
+- **`welcome`** — `user.Service.Create` (sign-up) → one welcome notification. Accounts that
+  predate the feature are covered by a one-time backfill migration
+  (`00009_backfill_welcome_notifications.sql`), which inserts a welcome for every user without
+  one, dated to their account-creation time. So **every** user has a welcome, old or new.
 - **`review_milestone`** — `course.Service.UpsertProgress`, on a not-reviewed →
   reviewed transition, counts the user's total reviewed and fires when it lands
   exactly on `10 / 25 / 50 / 100` (params `{ count }`). The bulk-migrate path does not
