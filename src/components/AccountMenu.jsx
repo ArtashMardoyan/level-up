@@ -6,15 +6,12 @@ import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
 import { progressSummary } from '../services/endpoints'
 
-// Placeholder streak until a backend endpoint exists for it.
-const DEMO_STREAK = 5
-
 export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
   const { setLanguage, language, t } = useLanguage()
   const { logout, user } = useAuth()
   const [open, setOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
-  const [totals, setTotals] = useState({ reviewed: 0, saved: 0 })
+  const [totals, setTotals] = useState({ reviewed: 0, streak: 0, saved: 0 })
   const wrapRef = useRef(null)
 
   const signedIn = !!user
@@ -26,7 +23,12 @@ export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
     let active = true
     progressSummary()
       .then((data) => {
-        if (active) setTotals({ reviewed: data?.totalReviewed || 0, saved: data?.totalFavorites || 0 })
+        if (active)
+          setTotals({
+            reviewed: data?.totalReviewed || 0,
+            saved: data?.totalFavorites || 0,
+            streak: data?.currentStreak || 0
+          })
       })
       .catch(() => {})
     return () => {
@@ -102,7 +104,7 @@ export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
             <>
               <div className="account-stats">
                 <span className="account-stat">
-                  <span className="account-stat-value amber">🔥{DEMO_STREAK}</span>
+                  <span className="account-stat-value amber">🔥{totals.streak}</span>
                   <span className="account-stat-label">{t('accountStatStreak')}</span>
                 </span>
                 <span className="account-stat">

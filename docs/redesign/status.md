@@ -80,6 +80,13 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
 and mobile (390, device-emulated): home / course / dictionary / palette / notifications / footer /
 player, in dark + light themes.
 
+- [x] **Real streak** — `AccountMenu` + `ProfilePage` now show `currentStreak` from
+      `/progress/summary` (no more `DEMO_STREAK`). The backend counts consecutive days with a
+      reviewed question, with the day boundary in the **user's timezone** (the client sends its
+      IANA tz on the review upsert). Milestones (3/7/14/30/100) emit a `streak` notification.
+      Roadmap: backend `docs/engagement-features-plan.md`.
+
 ## Not wired (intentional, backend later)
-Real auth/user, notification feed, streak, footer links (most are placeholders); the reference's
-"glow on/off" and "compact density" design-tool props.
+Footer links (most are placeholders); the reference's "glow on/off" and "compact density"
+design-tool props. Notification generators still pending: `new_questions` (reseed fan-out) and
+`daily` (see the engagement plan).

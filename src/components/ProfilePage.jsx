@@ -7,9 +7,6 @@ import EditProfileDialog from './EditProfileDialog'
 import { notificationMeta, relativeTime } from '../data/notifications'
 import { notificationsList, progressSummary, usersDelete } from '../services/endpoints'
 
-// Placeholder streak until a backend endpoint exists for it (mirrors AccountMenu).
-const DEMO_STREAK = 5
-
 // Achievements are derived from the real reviewed/saved/streak numbers — each
 // entry unlocks once its threshold is met, so the row only ever shows earned badges.
 function earnedAchievements(reviewed, saved, streak, t) {
@@ -72,6 +69,7 @@ export default function ProfilePage({ onNavigate, courses }) {
   const initial = displayName.charAt(0).toUpperCase()
   const reviewed = summary?.totalReviewed || 0
   const saved = summary?.totalFavorites || 0
+  const streak = summary?.currentStreak || 0
   const byCourse = summary?.byCourse || {}
 
   const withQuestions = courses.filter((c) => c.questions?.length > 0)
@@ -84,7 +82,7 @@ export default function ProfilePage({ onNavigate, courses }) {
     .filter((row) => row.saved > 0)
     .sort((a, b) => b.saved - a.saved)
 
-  const achievements = earnedAchievements(reviewed, saved, DEMO_STREAK, t)
+  const achievements = earnedAchievements(reviewed, saved, streak, t)
 
   const onDelete = () => {
     if (!window.confirm(t('profileDeleteConfirm'))) return
@@ -134,7 +132,7 @@ export default function ProfilePage({ onNavigate, courses }) {
           <span className="profile-stat-icon amber">
             <Flame aria-hidden="true" size={20} />
           </span>
-          <span className="profile-stat-value">{DEMO_STREAK}</span>
+          <span className="profile-stat-value">{loading ? '—' : streak}</span>
           <span className="profile-stat-label">{t('profileStatStreakLabel')}</span>
         </div>
         <div className="profile-stat">

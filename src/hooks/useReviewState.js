@@ -8,6 +8,10 @@ import { courseProgress, progressUpsert, progressBulk } from '../services/endpoi
 // using localStorage exactly as before. `questions` carries both ids so we can
 // translate ref <-> uuid at the API boundary.
 
+// The client's IANA timezone, sent with review upserts so the backend computes
+// the streak's day boundary in the user's local time (not UTC).
+const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
 function storageKey(courseId) {
   return 'interviewPrepState:' + courseId
 }
@@ -107,7 +111,7 @@ export function useReviewState(courseId, questions) {
       setState(next)
       if (signedIn) {
         const uuid = uuidByRef.get(id)
-        if (uuid) progressUpsert(uuid, { reviewed: !isReviewed }).catch(() => {})
+        if (uuid) progressUpsert(uuid, { timezone: clientTimezone, reviewed: !isReviewed }).catch(() => {})
       } else {
         saveLocal(courseId, next)
       }
@@ -122,7 +126,7 @@ export function useReviewState(courseId, questions) {
       setState(next)
       if (signedIn) {
         const uuid = uuidByRef.get(id)
-        if (uuid) progressUpsert(uuid, { reviewed: true }).catch(() => {})
+        if (uuid) progressUpsert(uuid, { timezone: clientTimezone, reviewed: true }).catch(() => {})
       } else {
         saveLocal(courseId, next)
       }
