@@ -192,6 +192,10 @@ export default function CoursePlayer({
     navigator.mediaSession.setActionHandler('pause', handleMediaPause)
     navigator.mediaSession.setActionHandler('previoustrack', handlePrev)
     navigator.mediaSession.setActionHandler('nexttrack', currentIndex < questions.length - 1 ? handleNext : null)
+    // iOS shows ±10s skip buttons for an <audio> element by default; nulling the
+    // seek actions makes it fall back to the prev/next track buttons instead.
+    navigator.mediaSession.setActionHandler('seekbackward', null)
+    navigator.mediaSession.setActionHandler('seekforward', null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentItem, courseTitle, currentIndex, questions.length])
 
