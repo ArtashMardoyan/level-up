@@ -43,6 +43,14 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       `DictionaryPlayer` aligned to the same structure.
 - [x] **Sticky header** — `.app-header { position: sticky; top: 0 }`. The scroll guard uses
       `overflow-x: clip` (not `hidden`, which creates a scroll container and breaks `sticky`).
+- [x] **User Profile screen + Edit modal** — `ProfilePage.jsx` (identity card, stat row,
+      per-course progress, saved-questions counts, achievements, danger zone) reached via `#profile`
+      from `AccountMenu` (clickable profile row + View profile). `EditProfileDialog.jsx` saves
+      name/email/bio/track + password change via `PATCH /users`; `updateUser` in `useAuth` keeps the
+      header in sync. Real data from `useAuth().user` + `/progress/summary`; streak + recent-activity
+      are marked placeholders. **Backend extended**: `User.bio`/`track` (migration `00007`),
+      `PATCH /users` now takes email/bio/track/current+new password (409 on email clash, 401 on wrong
+      password). See `docs/redesign/handoff/README.md` → "Profile & edit".
 - [x] **App icons + lock screen** — bolder favicon/app-icon set (`public/*.png/.svg`) + PWA
       `manifest.webmanifest` + `<head>` tags; `CoursePlayer` sets `navigator.mediaSession.metadata`
       so the logo + question title show on the iPhone lock screen while an MP3 plays. Icon/manifest

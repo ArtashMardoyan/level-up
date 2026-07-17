@@ -1,23 +1,30 @@
 # Handoff: Level Up — Landing (Courses + Dictionary)
 
 ## Changelog
+- **2026-07-17** — **Implemented** the **User Profile screen** (`ProfilePage.jsx`) + **Edit profile
+  modal** (`EditProfileDialog.jsx`) in React, wired to real data. Reached via `#profile` from the
+  account dropdown (the avatar+name row is now a clickable link + a **View profile** button).
+  Identity/stats/course-progress/saved-questions are **real** (`useAuth().user`, `/progress/summary`
+  `byCourse`); streak + recent-activity are clearly-marked placeholders. The **backend was extended**
+  so the modal fully persists: `PATCH /users` now accepts `email`, `bio`, `track`, and a
+  `currentPassword`/`newPassword` change (was `{ name, age }` only); `User` gained `bio`+`track`
+  (goose migration `00007`). See **Profile & edit** below.
+- **2026-07-16** — Added **User Profile screen** + **Edit profile modal**. New `screen: 'profile'`
+  reachable from the account dropdown (“View profile”). See **Profile & edit** below.
+- **2026-07-16** — Fixed **sticky header not sticking**: root cause was `html, body { overflow-x: hidden }`
+  (`src/index.css` ~line 72), which creates a scroll-container and breaks `position: sticky`.
+  Changed `hidden` → **`clip`** — horizontal-scroll guard still holds, sticky works again.
+  Header stays **`position: sticky`** (line 246) by design — that was never the problem.
+- **2026-07-16** — Player is **compact** (3 rows): question title + `Q n/N` chip + ✕ on one row,
+  then seek bar, then transport. The module `<select>` was removed — the whole course plays.
 - **2026-07-16** — Added **loading skeletons** (shimmer) for the course/dictionary grids and the
   course question list, driven by async backend fetches. See **Loading states (backend data)**.
 - **2026-07-16** — Added **full-bleed media artwork** (`media-art-192/512.png`) for CarPlay /
   lock screen. The rounded home-screen icons showed white corners inside CarPlay's tile;
   the media session now uses edge-to-edge gradient art. See `ICONS_AND_LOCKSCREEN.md`.
-- **2026-07-16** — **Compact course player.** Collapsed the bottom bar from 5 rows to 3: the
-  question title + a `Q n/N` chip + `✕` share one head row, then the seek row, then the
-  transport row. Removed the module `<select>` — the player plays the whole course. See
-  **Audio player**.
-- **2026-07-16** — **Fixed the sticky header.** The scroll guard must use `overflow-x: clip`,
-  **not** `hidden`: `hidden` on `html,body` establishes a scroll container and breaks
-  `position: sticky`, so the header stopped sticking. `clip` blocks sideways scroll without a
-  scroll container, so the header stays sticky.
-- **2026-07-16** — Added global **horizontal-scroll guard** (`html,body{overflow-x:clip;max-width:100%}`)
+- **2026-07-16** — Added global **horizontal-scroll guard** (`html,body{overflow-x:hidden;max-width:100%}`)
   to `index.css`. Fixes the mobile "content cut off at the right edge / sideways scroll" report
-  on iPhone. See **Mobile responsive** section. (Originally shipped as `hidden`; changed to
-  `clip` — see the sticky-header entry above.)
+  on iPhone. See **Mobile responsive** section.
 - **2026-07-16** — Added **Auth modal** (login / signup / registration). The header
   account "Sign in" now opens a modal instead of instantly logging in. See
   **Auth (login / signup)** section below. Files: `AppHeader.jsx` / new `AuthModal.jsx`.
@@ -48,7 +55,8 @@ pixel-close using the codebase's own libraries.
 ### Home (single screen, two tab views)
 - **Purpose:** user picks a learning track (Courses) or a practice module (Dictionary).
 - **Layout:**
-  - Sticky top **header** (blurred), full width.
+  - Sticky top **header** (blurred), full width. `position: sticky; top: 0`. NB: keep
+    `html, body { overflow-x: clip }` (not `hidden`) or a scroll-container forms and sticky breaks.
   - Centered content column: `max-width: 1160px`, horizontal padding
     `clamp(16px, 4vw, 28px)`, top padding `clamp(30px, 5vw, 52px)`.
   - Eyebrow → H1 → subtitle → tab switch → card grid.
@@ -57,9 +65,7 @@ pixel-close using the codebase's own libraries.
     "Compact" density uses `250px` instead of `330px`.
 
 #### Header
-- `position: sticky; top: 0; z-index: 20` (stays fixed while scrolling). **Caveat:** the
-  horizontal-scroll guard must use `overflow-x: clip` on `html,body`, not `hidden` — `hidden`
-  creates a scroll container that breaks this `sticky`. See the **Mobile responsive** guard note.
+- `position: sticky; top: 0; z-index: 20` (requires `html,body { overflow-x: clip }`, not `hidden`)
 - `background: rgba(9,10,14,0.72)`, `backdrop-filter: blur(14px)`,
   `border-bottom: 1px solid rgba(255,255,255,0.07)`
 - Inner row: `display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; max-width: 1160px; margin: 0 auto`; padding `12px clamp(14px,4vw,28px)`.
@@ -234,14 +240,13 @@ Centered card (radius 18): mono `QUESTION n OF total` `#818cf8`, big question (S
 answer sits under a hairline divider.
 
 ### Audio player → `src/components/CoursePlayer.jsx` (`.player-bar`)
-Fixed bottom bar, `rgba(13,14,19,0.9)` + blur, top border hairline. **Compact 3-row layout**
-(`.player-head` · `.player-progress` · `.player-controls`), top → bottom:
-1. **Head row** (`.player-head`, one flex row): **title** (current question, 13.5px 600,
-   `flex:1`, ellipsised to one line) · **`Q n/N` chip** (mono 10.5px uppercase `--text-3`,
-   `flex-shrink:0`) · **`✕` close** (right). There is **no module `<select>`** — the player
-   plays the whole course in order.
-2. **Seek row:** current time / seek track (fill `#818cf8`) / duration.
-3. **Transport — one centered row of 5 controls** (`.player-controls`, `justify-content:center`,
+Fixed bottom bar, `rgba(13,14,19,0.9)` + blur, top border hairline. Rows, top → bottom:
+1. **Meta row:** module `<select>` (left) + `✕` close (right).
+2. **Status eyebrow:** `Q n of N` in mono 10.5px, uppercase, `--text-3` — sits ABOVE the title
+   (not in the control row).
+3. **Title:** current question, 13.5px 600, ellipsised to one line.
+4. **Seek row:** current time / seek track (fill `#818cf8`) / duration.
+5. **Transport — one centered row of 5 controls** (`.player-controls`, `justify-content:center`,
    `gap`), in this order so **play sits dead-centre** (2 left · play · 2 right):
    `speed` · `prev` · **`play/pause`** (48px indigo gradient) · `next` · `repeat`.
    - Secondary controls (`speed` pill showing `0.75×–1.5×`, `repeat` toggle) are the same 40px
@@ -348,12 +353,10 @@ The reference now includes an explicit mobile breakpoint. Add these rules to `sr
 > a `100vw` element, an un-wrapped row) forcing the whole page to scroll sideways — content gets
 > cut off at the right edge. Add this global guard so it can never happen:
 > ```css
-> html, body { overflow-x: clip; max-width: 100%; }
+> html, body { overflow-x: hidden; max-width: 100%; }
 > ```
-> **Use `clip`, not `hidden`.** `overflow-x: hidden` on `html,body` establishes a scroll container
-> and breaks the sticky header (`position: sticky` stops working); `clip` blocks sideways scroll
-> **without** a scroll container, so the header stays sticky. If your deployed build still scrolls
-> sideways, redeploy from the latest source and confirm this rule is present.
+> The reference already ships this. If your deployed build still scrolls sideways, your build is
+> **stale** — redeploy from the latest source and confirm this rule is present.
 
 ```css
 @media (max-width: 560px) {
@@ -368,8 +371,8 @@ The reference now includes an explicit mobile breakpoint. Add these rules to `sr
 ```
 > Real app class names: `.lu-search-wrap` → `.header-search-zone`, `.lu-actions` →
 > `.header-cluster`, `.lu-notif` → `.notif-menu` (already applied in `src/index.css`).
-> The audio player needs **no** mobile rule now — it's 3 compact rows (head / seek / transport)
-> with the `Q n/N` chip on the head row next to the title, so it fits 390px without wrapping.
+> The audio player needs **no** mobile rule now — the transport is one row of five 40px controls
+> with the `Q n of N` status moved above the title, so it fits 390px without wrapping.
 Layout intent per element:
 - **Header** — three flex children (logo / search / actions). On mobile the search wrapper
   reorders below (`order:3; flex-basis:100%`) so row 1 is **logo left + icons right**
@@ -377,8 +380,54 @@ Layout intent per element:
 - **NotificationBell popover** — on desktop it's `position:absolute` off the bell; on mobile it
   overflowed the narrow viewport, so switch to `position:fixed` pinned 10px from the right edge,
   124px from top (just under the header).
-- **CoursePlayer** — 3 compact rows; the `Q n/N` chip sits on the head row next to the title, and
-  the five transport controls stay on one centered row on mobile too — no wrap needed.
+- **CoursePlayer transport** — the `Q n of N` label lives above the title (mono eyebrow), and the
+  five transport controls stay on one centered row on mobile too — no wrap needed.
+
+## Profile & edit → new `src/components/ProfilePage.jsx` + `EditProfileDialog.jsx`
+A dedicated profile screen (route/screen `profile`), reached from the account dropdown:
+the whole **avatar + name row** at the top of the dropdown is clickable (chevron affordance +
+hover highlight) and navigates to the profile, plus an explicit **View profile** button below the stats. Full-width `<main>` capped at 900px, same page rhythm as the course screen.
+
+**Layout (top → bottom):**
+- **Back home** text button (arrow-left).
+- **Identity card** — 88px gradient avatar (initials), name (H1), a `TRACK track` mono pill +
+  email, bio paragraph, and an **Edit profile** button (top-right; pencil icon). Soft radial
+  accent glow top-right, gated by the `--glow` density flag.
+- **Stat row** — 3 cards: 🔥 day streak / reviewed / ★ saved (reuse the account-menu totals:
+  `progressSummary()` → reviewed & favorites; streak is the demo placeholder for now).
+- **Course progress** + **Recent activity** in a 2-up responsive grid (`minmax(280px,1fr)`).
+  Progress = title + `n / total` + a filled bar per course accent. Activity = icon tile + text + time.
+- **Saved questions** — favorites list (star + title + course tag), rows divided by hairlines.
+- **Achievements** — wrap of colored badge chips.
+- **Danger zone** — rose-tinted card: **Sign out** + **Delete account** (the latter behind a
+  `confirm()`; wire to the real delete endpoint, then clear session and route home).
+
+**Edit profile modal** (`EditProfileDialog`, same overlay pattern as AuthDialog, z-index 130):
+- Avatar block with **Upload photo** button (placeholder — wire to a file input + upload; keep the
+  initials fallback). Fields: **Name**, **Track** (select: Backend/Frontend/Full-stack/DevOps/Mobile),
+  **Email**, **Bio** (textarea), and a **Change password** section (current + new).
+- **Validation:** name non-empty; valid email; if a new password is entered it must be ≥ 6 chars.
+  Errors render inline in `#f87171`. On save, patch the `user` object
+  (`{ name, email, bio, track }`) and close. Cancel / ✕ / backdrop / Esc all dismiss.
+- **Production:** wire Save to the profile update endpoint; theme & language still live in the
+  account dropdown (unchanged). `user` shape extended: `{ name, email, bio, track }`.
+
+**Implemented (2026-07-17):** `ProfilePage.jsx` + `EditProfileDialog.jsx`, `#profile` route in
+`App.jsx`, `onViewProfile` threaded `App → AppHeader → AccountMenu`, `updateUser` added to
+`useAuth` so the header + identity card stay in sync after a save.
+- **Real data:** name/email/initial from `useAuth().user`; reviewed/saved totals + per-course
+  **Course progress** and **Saved questions** (per-course favourite counts) from `/progress/summary`
+  (`byCourse` keyed by course uuid); **Achievements** derived from the real reviewed/saved/streak
+  numbers. **Placeholders** (marked): 🔥 streak (`DEMO_STREAK`) and **Recent activity** (tagged
+  “Preview” — no activity-feed backend). Photo upload is a UI placeholder (initials fallback kept).
+- **`user` shape** is now `{ id, name, email, age, bio, track }`.
+- **Backend extended** (`level-up-backend`): `User` gained `bio`+`track` (goose migration
+  `00007_add_bio_track_to_users.sql`); `PATCH /users` `UpdateDTO` accepts `email`
+  (`omitempty,email`, uniqueness-checked → 409 `ErrEmailTaken`), `bio`/`track`, and
+  `currentPassword`+`newPassword` (`omitempty,min=8` — bcrypt-verified current, wrong → 401
+  `ErrWrongPassword`). Entity is returned directly, so `authMe`/`login`/`update` now include
+  `bio`+`track`. **Password min is 8** (matches signup), not 6.
+- **Delete account** calls `usersDelete()` behind `window.confirm`, then `logout()` + routes home.
 
 ## Loading states (backend data)
 Courses, dictionary entries, and questions now come from the **backend** (async), so every list

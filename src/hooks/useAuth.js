@@ -74,7 +74,13 @@ export function useAuthState() {
 
   const clearError = useCallback(() => setError(null), [])
 
-  return { clearError, register, status, logout, error, login, user }
+  // Merge freshly-saved fields into the cached user so the header avatar /
+  // name and any open profile stay in sync after an edit (e.g. usersUpdate).
+  const updateUser = useCallback((next) => {
+    setUser((prev) => (prev ? { ...prev, ...next } : prev))
+  }, [])
+
+  return { updateUser, clearError, register, status, logout, error, login, user }
 }
 
 // Consumer side — any component that needs the auth state or actions.

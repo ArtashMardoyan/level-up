@@ -7,6 +7,7 @@ import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import { useCourses } from './hooks/useCourses'
 import { AuthContext } from './auth/AuthContext'
+import ProfilePage from './components/ProfilePage'
 import { progressBulk } from './services/endpoints'
 import { useHashRoute } from './hooks/useHashRoute'
 import CourseSelect from './components/CourseSelect'
@@ -110,6 +111,7 @@ function AppContent() {
   const backToCourses = () => navigate(null)
 
   const isDictionary = courseId === 'dictionary'
+  const isProfile = courseId === 'profile'
   const course = courseId && !isDictionary ? courses.find((c) => c.id === courseId) || null : null
   const validCourse = course?.questions?.length > 0 ? course : null
   const dictionaryCategory = isDictionary ? getDictionaryCategory(jumpToId) : null
@@ -118,6 +120,7 @@ function AppContent() {
   return (
     <>
       <AppHeader
+        onViewProfile={() => navigate('profile')}
         onSelectQuestion={selectCourse}
         toggleTheme={toggleTheme}
         onHome={backToCourses}
@@ -126,6 +129,8 @@ function AppContent() {
       />
       {showDictionaryCategory ? (
         <DictionaryCategoryPage onNavigate={navigate} categoryId={jumpToId} voices={voices} />
+      ) : isProfile ? (
+        <ProfilePage onNavigate={navigate} courses={courses} />
       ) : validCourse ? (
         <PrepView
           key={language + ':' + validCourse.id}

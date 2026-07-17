@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
-  html, body { margin: 0; overflow-x: hidden; max-width: 100%; }
+  html, body { margin: 0; overflow-x: clip; max-width: 100%; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -91,12 +91,13 @@
       <div style="display: {{ settingsDisplay }}; position: absolute; right: 0; top: 50px; z-index: 50; width: 276px; padding: 16px; border-radius: 16px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 18px 44px rgba(0,0,0,0.5);">
         <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
           <div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+            <div onClick="{{ goProfile }}" style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; padding: 8px; margin-left: -8px; margin-right: -8px; margin-top: -8px; border-radius: 12px;" style-hover="background: var(--control);">
               <div style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center;">{{ userInitial }}</div>
-              <div style="min-width: 0;">
+              <div style="min-width: 0; flex: 1;">
                 <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; color: var(--text);">{{ userName }}</div>
                 <div style="font-size: 12.5px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ userSub }}</div>
               </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-3); flex-shrink: 0;"><path d="m9 18 6-6-6-6"/></svg>
             </div>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
               <div style="border-radius: 11px; background: var(--control); border: 1px solid var(--border); padding: 10px 6px; text-align: center;">
@@ -112,6 +113,7 @@
                 <div style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); margin-top: 3px;">Saved</div>
               </div>
             </div>
+            <button onClick="{{ goProfile }}" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 10px; border-radius: 11px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text); cursor: pointer; margin-bottom: 16px;" style-hover="background: var(--control-2);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>View profile</button>
           </div>
         </sc-if>
 
@@ -215,6 +217,66 @@
         </form>
 
         <div style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-2);">{{ authSwitchText }} <a href="#" onClick="{{ switchAuthMode }}" style="color: #818cf8; font-weight: 600; text-decoration: none;">{{ authSwitchCta }}</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: {{ editDisplay }}; position: fixed; inset: 0; z-index: 130; align-items: flex-start; justify-content: center; background: rgba(4,5,8,0.68); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); padding: clamp(40px,8vh,90px) 16px 24px; overflow-y: auto;" onClick="{{ editBackdropClose }}">
+    <div style="width: min(480px, 100%); border-radius: 20px; background: var(--panel-solid); border: 1px solid var(--border-strong); box-shadow: 0 30px 80px rgba(0,0,0,0.6); overflow: hidden;">
+      <div style="padding: 24px 26px 22px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+          <h2 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; margin: 0; color: var(--text);">Edit profile</h2>
+          <button onClick="{{ closeEdit }}" aria-label="Close" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border-2); background: var(--control); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="color: var(--text); background: var(--control-2);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+          <div style="width: 64px; height: 64px; flex-shrink: 0; border-radius: 18px; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">{{ editInitial }}</div>
+          <div>
+            <button style="display: inline-flex; align-items: center; gap: 7px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text); cursor: pointer;" style-hover="background: var(--control-2);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg>Upload photo</button>
+            <div style="font-size: 11.5px; color: var(--text-3); margin-top: 6px;">JPG or PNG, up to 2MB</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;">Name</label>
+            <input value="{{ eName }}" onInput="{{ onEName }}" style="width: 100%; box-sizing: border-box; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" style-focus="border-color: #818cf8;" />
+          </div>
+          <div>
+            <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;">Track</label>
+            <select value="{{ eTrack }}" onChange="{{ onETrack }}" style="width: 100%; box-sizing: border-box; height: 44px; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 0 12px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none; cursor: pointer;">
+              <option>Backend</option>
+              <option>Frontend</option>
+              <option>Full-stack</option>
+              <option>DevOps</option>
+              <option>Mobile</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;">Email</label>
+          <input type="email" value="{{ eEmail }}" onInput="{{ onEEmail }}" style="width: 100%; box-sizing: border-box; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" style-focus="border-color: #818cf8;" />
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 7px;">Bio</label>
+          <textarea value="{{ eBio }}" onInput="{{ onEBio }}" rows="3" style="width: 100%; box-sizing: border-box; resize: vertical; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; line-height: 1.5; outline: none;" style-focus="border-color: #818cf8;"></textarea>
+        </div>
+
+        <div style="border-top: 1px solid var(--hairline); margin: 18px 0 16px; padding-top: 16px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 12px;">Change password</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <input type="password" value="{{ ePass }}" onInput="{{ onEPass }}" placeholder="Current" style="width: 100%; box-sizing: border-box; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" style-focus="border-color: #818cf8;" />
+            <input type="password" value="{{ eNewPass }}" onInput="{{ onENewPass }}" placeholder="New password" style="width: 100%; box-sizing: border-box; background: var(--control); border: 1px solid var(--border-2); border-radius: 11px; padding: 11px 13px; color: var(--text); font-family: 'Manrope', sans-serif; font-size: 14.5px; outline: none;" style-focus="border-color: #818cf8;" />
+          </div>
+        </div>
+
+        <div style="display: {{ editErrDisplay }}; font-size: 12.5px; color: #f87171; margin-bottom: 13px;">{{ editError }}</div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button onClick="{{ closeEdit }}" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; padding: 11px 20px; border-radius: 11px; border: 1px solid var(--border-strong); background: transparent; color: var(--text-2); cursor: pointer;" style-hover="color: var(--text);">Cancel</button>
+          <button onClick="{{ submitEdit }}" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; padding: 11px 22px; border-radius: 11px; border: none; cursor: pointer; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; box-shadow: 0 4px 16px rgba(99,102,241,0.4);">Save changes</button>
+        </div>
       </div>
     </div>
   </div>
@@ -740,19 +802,111 @@
     </sc-if>
   </main>
 
+  <main style="display: {{ profileDisplay }}; max-width: 900px; margin: 0 auto; padding: clamp(24px, 4vw, 44px) clamp(16px, 4vw, 28px) 120px; animation: lu-rise 0.4s ease both;">
+    <button onClick="{{ goHome }}" style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: var(--text-2); font-family: 'Manrope', sans-serif; font-size: 13.5px; cursor: pointer; margin-bottom: 20px; padding: 0;" style-hover="color: var(--text);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back home</button>
+
+    <div style="position: relative; overflow: hidden; isolation: isolate; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); padding: clamp(22px, 4vw, 34px); display: flex; align-items: center; gap: clamp(16px, 3vw, 26px); flex-wrap: wrap;">
+      <div style="position: absolute; top: -60px; right: -40px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(129,140,248,0.22), transparent 68%); filter: blur(10px); opacity: var(--glow); pointer-events: none;"></div>
+      <div style="position: relative; flex-shrink: 0;">
+        <div style="width: 88px; height: 88px; border-radius: 24px; background: linear-gradient(150deg, #818cf8, #6366f1); color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 34px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(99,102,241,0.4);">{{ userInitial }}</div>
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: clamp(24px, 3.4vw, 32px); letter-spacing: -0.02em; margin: 0; color: var(--text);">{{ userName }}</h1>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: #b9c1ff; background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.28); padding: 4px 10px; border-radius: 8px;">{{ userTrack }} track</span>
+          <span style="font-size: 13.5px; color: var(--text-2);">{{ userEmail }}</span>
+        </div>
+        <p style="margin: 14px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--text-2); max-width: 560px; text-wrap: pretty;">{{ userBio }}</p>
+      </div>
+      <button onClick="{{ openEdit }}" style="flex-shrink: 0; align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; padding: 10px 18px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text); cursor: pointer;" style-hover="background: var(--control-2);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit profile</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px;">
+      <div style="border-radius: 16px; background: var(--surface); border: 1px solid var(--border); padding: 20px;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 30px; color: #fbbf24;">🔥{{ streak }}</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-top: 6px;">Day streak</div>
+      </div>
+      <div style="border-radius: 16px; background: var(--surface); border: 1px solid var(--border); padding: 20px;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 30px; color: #4ade80;">{{ profileReviewed }}</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-top: 6px;">Reviewed</div>
+      </div>
+      <div style="border-radius: 16px; background: var(--surface); border: 1px solid var(--border); padding: 20px;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 30px; color: #fbbf24;">★{{ profileSaved }}</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-top: 6px;">Saved</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 18px;">
+      <div style="border-radius: 18px; background: var(--surface); border: 1px solid var(--border); padding: 22px;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 16px;">Course progress</div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <sc-for list="{{ courseProgress }}" as="c" hint-placeholder-count="3">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px;">
+                <span style="font-size: 13.5px; font-weight: 600; color: var(--text);">{{ c.title }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-3);">{{ c.label }}</span>
+              </div>
+              <div style="height: 7px; border-radius: 99px; background: var(--control); overflow: hidden;"><div style="height: 100%; width: {{ c.pct }}; border-radius: 99px; background: {{ c.accent }};"></div></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="border-radius: 18px; background: var(--surface); border: 1px solid var(--border); padding: 22px;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 16px;">Recent activity</div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <sc-for list="{{ recentActivity }}" as="r" hint-placeholder-count="4">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <span style="width: 30px; height: 30px; flex-shrink: 0; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: {{ r.accent }}; background: {{ r.tint }}; border: 1px solid {{ r.border }};">{{ r.iconEl }}</span>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 13.5px; color: var(--text); line-height: 1.4;">{{ r.text }}</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); margin-top: 4px;">{{ r.time }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-radius: 18px; background: var(--surface); border: 1px solid var(--border); padding: 22px; margin-top: 18px;">
+      <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 16px;">Saved questions</div>
+      <div style="display: flex; flex-direction: column;">
+        <sc-for list="{{ savedQuestions }}" as="q" hint-placeholder-count="4">
+          <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--hairline); text-decoration: none;">
+            <span style="color: #fbbf24; flex-shrink: 0;">★</span>
+            <span style="flex: 1; min-width: 0; font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ q.title }}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); flex-shrink: 0;">{{ q.course }}</span>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="border-radius: 18px; background: var(--surface); border: 1px solid var(--border); padding: 22px; margin-top: 18px;">
+      <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 16px;">Achievements</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <sc-for list="{{ badges }}" as="b" hint-placeholder-count="4">
+          <span style="display: inline-flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; padding: 8px 14px; border-radius: 11px; color: {{ b.color }}; background: {{ b.tint }}; border: 1px solid {{ b.border }};">{{ b.icon }} {{ b.label }}</span>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="border-radius: 18px; background: rgba(251,113,133,0.05); border: 1px solid rgba(251,113,133,0.22); padding: 22px; margin-top: 18px;">
+      <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 16px; color: #fb7185; margin-bottom: 6px;">Danger zone</div>
+      <p style="margin: 0 0 16px; font-size: 13.5px; color: var(--text-2); line-height: 1.5;">Sign out of this device, or permanently delete your account and all progress.</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button onClick="{{ signOut }}" style="display: inline-flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 10px 18px; border-radius: 11px; border: 1px solid var(--border-strong); background: var(--control); color: var(--text-2); cursor: pointer;" style-hover="color: var(--text);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button>
+        <button onClick="{{ deleteAccount }}" style="display: inline-flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 10px 18px; border-radius: 11px; border: 1px solid rgba(251,113,133,0.4); background: rgba(251,113,133,0.1); color: #fb7185; cursor: pointer;" style-hover="background: rgba(251,113,133,0.18);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Delete account</button>
+      </div>
+    </div>
+  </main>
+
   <div style="display: {{ playerDisplay }}; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; flex-direction: column; padding: 14px clamp(16px, 4vw, 28px) 18px; background: var(--panel-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border-2);">
     <div style="max-width: 900px; margin: 0 auto; width: 100%;">
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px;">
-        <select style="max-width: 220px; height: 34px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--control-2); color: var(--text-2); font-family: 'Manrope', sans-serif; font-size: 13px; cursor: pointer; outline: none;">
-          <option>All modules</option>
-          <option>Event Loop</option>
-          <option>Streams</option>
-          <option>Modules</option>
-        </select>
-        <button onClick="{{ closePlayer }}" style="background: transparent; border: none; color: var(--text-3); font-size: 15px; cursor: pointer; flex-shrink: 0;">✕</button>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 9px;">
+        <span style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ playerTitle }}</span>
+        <span style="flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); font-variant-numeric: tabular-nums;">{{ playerStatus }}</span>
+        <button onClick="{{ closePlayer }}" aria-label="Close player" style="background: transparent; border: none; color: var(--text-3); font-size: 15px; cursor: pointer; flex-shrink: 0; padding: 4px;">✕</button>
       </div>
-      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;">{{ playerStatus }}</div>
-      <div style="font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ playerTitle }}</div>
       <div style="display: flex; align-items: center; gap: 12px;">
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3);">0:00</span>
         <div style="flex: 1; height: 4px; border-radius: 99px; background: var(--border-strong); overflow: hidden;"><div style="height: 100%; width: 22%; background: #818cf8; border-radius: 99px;"></div></div>
@@ -901,8 +1055,11 @@ class Component extends DCLogic {
     settingsOpen: false,
     theme: 'dark',
     lang: 'en',
-    loggedIn: false,
-    user: null,
+    loggedIn: true,
+    user: { name: 'Artash', email: 'artash@example.com', bio: 'Backend engineer prepping for senior interviews. Node.js, distributed systems, and clean architecture.', track: 'Backend' },
+    editOpen: false,
+    editError: '',
+    eName: '', eEmail: '', eBio: '', eTrack: 'Backend', ePass: '', eNewPass: '',
     authOpen: false,
     authMode: 'login',
     authName: '',
@@ -1133,6 +1290,59 @@ class Component extends DCLogic {
       userName: (s.user && s.user.name) || 'Artash',
       userInitial: (((s.user && s.user.name) || 'Artash').trim()[0] || 'A').toUpperCase(),
       userSub: (s.user && s.user.email) || 'Backend track · preparing',
+      userEmail: (s.user && s.user.email) || 'artash@example.com',
+      userBio: (s.user && s.user.bio) || 'Backend engineer prepping for senior interviews.',
+      userTrack: (s.user && s.user.track) || 'Backend',
+      profileDisplay: s.screen === 'profile' ? 'block' : 'none',
+      goProfile: () => this.setState({ screen: 'profile', settingsOpen: false }),
+      openEdit: () => this.setState((st) => ({ editOpen: true, editError: '', eName: (st.user && st.user.name) || 'Artash', eEmail: (st.user && st.user.email) || 'artash@example.com', eBio: (st.user && st.user.bio) || '', eTrack: (st.user && st.user.track) || 'Backend', ePass: '', eNewPass: '' })),
+      closeEdit: () => this.setState({ editOpen: false }),
+      editBackdropClose: (e) => { if (e.target === e.currentTarget) this.setState({ editOpen: false }); },
+      editDisplay: s.editOpen ? 'flex' : 'none',
+      editInitial: ((s.eName || 'A').trim()[0] || 'A').toUpperCase(),
+      editErrDisplay: s.editError ? 'block' : 'none',
+      editError: s.editError,
+      eName: s.eName, eEmail: s.eEmail, eBio: s.eBio, eTrack: s.eTrack, ePass: s.ePass, eNewPass: s.eNewPass,
+      onEName: (e) => this.setState({ eName: e.target.value }),
+      onEEmail: (e) => this.setState({ eEmail: e.target.value }),
+      onEBio: (e) => this.setState({ eBio: e.target.value }),
+      onETrack: (e) => this.setState({ eTrack: e.target.value }),
+      onEPass: (e) => this.setState({ ePass: e.target.value }),
+      onENewPass: (e) => this.setState({ eNewPass: e.target.value }),
+      submitEdit: () => {
+        const st = this.state;
+        if (!st.eName.trim()) { this.setState({ editError: 'Name cannot be empty' }); return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(st.eEmail.trim())) { this.setState({ editError: 'Enter a valid email address' }); return; }
+        if (st.eNewPass && st.eNewPass.length < 6) { this.setState({ editError: 'New password must be at least 6 characters' }); return; }
+        this.setState((s2) => ({ editOpen: false, editError: '', user: { ...(s2.user || {}), name: s2.eName.trim(), email: s2.eEmail.trim(), bio: s2.eBio.trim(), track: s2.eTrack } }));
+      },
+      deleteAccount: () => { if (window.confirm('Permanently delete your account and all progress? This cannot be undone.')) this.setState({ loggedIn: false, user: null, screen: 'home', settingsOpen: false }); },
+      courseProgress: [
+        { title: 'Node.js Core', label: '34 / 51', pct: '67%', accent: '#818cf8' },
+        { title: 'System Design', label: '12 / 40', pct: '30%', accent: '#34d399' },
+        { title: 'Databases & SQL', label: '20 / 45', pct: '44%', accent: '#fbbf24' },
+      ],
+      savedQuestions: [
+        { title: 'How do you handle a large number of concurrent requests?', course: 'Node.js' },
+        { title: 'Explain the event loop and its phases', course: 'Node.js' },
+        { title: 'When would you denormalize a database?', course: 'Databases' },
+        { title: 'Design a URL shortener', course: 'System Design' },
+      ],
+      badges: [
+        { icon: '🔥', label: '5-day streak', color: '#fbbf24', tint: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.28)' },
+        { icon: '⚡', label: 'Fast learner', color: '#818cf8', tint: 'rgba(129,140,248,0.14)', border: 'rgba(129,140,248,0.28)' },
+        { icon: '🎯', label: '50 reviewed', color: '#34d399', tint: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.28)' },
+        { icon: '📚', label: 'Node.js explorer', color: '#f472b6', tint: 'rgba(244,114,182,0.12)', border: 'rgba(244,114,182,0.28)' },
+      ],
+      recentActivity: (() => {
+        const svg = (d) => React.createElement('svg', { width: 15, height: 15, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d }));
+        return [
+          { text: 'Reviewed “Event loop phases” in Node.js Core', time: '2 hours ago', accent: '#4ade80', tint: 'rgba(74,222,128,0.12)', border: 'rgba(74,222,128,0.26)', iconEl: svg('M20 6 9 17l-5-5') },
+          { text: 'Saved “Design a URL shortener” to favorites', time: 'Yesterday', accent: '#fbbf24', tint: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.26)', iconEl: React.createElement('span', { style: { fontSize: '13px' } }, '★') },
+          { text: 'Completed Interview mode · System Design', time: '2 days ago', accent: '#818cf8', tint: 'rgba(129,140,248,0.14)', border: 'rgba(129,140,248,0.26)', iconEl: svg('M13 2 3 14h7l-1 8 10-12h-7z') },
+          { text: 'Started Databases & SQL track', time: '4 days ago', accent: '#f472b6', tint: 'rgba(244,114,182,0.12)', border: 'rgba(244,114,182,0.26)', iconEl: svg('M12 5v14M5 12h14') },
+        ];
+      })(),
       openAuth: () => this.setState({ authOpen: true, settingsOpen: false, authMode: 'login', authError: '', authPassword: '' }),
       closeAuth: () => this.setState({ authOpen: false }),
       authBackdropClose: (e) => { if (e.target === e.currentTarget) this.setState({ authOpen: false }); },

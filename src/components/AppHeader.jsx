@@ -4,7 +4,7 @@ import GlobalSearch from './GlobalSearch'
 import NotificationBell from './NotificationBell'
 import { useLanguage } from '../hooks/useLanguage'
 
-export default function AppHeader({ onSelectQuestion, toggleTheme, courses, onHome, theme }) {
+export default function AppHeader({ onSelectQuestion, onViewProfile, toggleTheme, courses, onHome, theme }) {
   const { t } = useLanguage()
 
   return (
@@ -19,7 +19,7 @@ export default function AppHeader({ onSelectQuestion, toggleTheme, courses, onHo
         </div>
         <div className="header-cluster">
           <NotificationBell />
-          <AccountMenu toggleTheme={toggleTheme} theme={theme} />
+          <AccountMenu onViewProfile={onViewProfile} toggleTheme={toggleTheme} theme={theme} />
         </div>
       </div>
     </header>

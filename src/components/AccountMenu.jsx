@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { LogOut, LogIn, Moon, User, Sun } from 'lucide-react'
+import { ChevronRight, LogOut, LogIn, Moon, User, Sun } from 'lucide-react'
 
 import AuthDialog from './AuthDialog'
 import { useAuth } from '../hooks/useAuth'
@@ -9,7 +9,7 @@ import { progressSummary } from '../services/endpoints'
 // Placeholder streak until a backend endpoint exists for it.
 const DEMO_STREAK = 5
 
-export default function AccountMenu({ toggleTheme, theme }) {
+export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
   const { setLanguage, language, t } = useLanguage()
   const { logout, user } = useAuth()
   const [open, setOpen] = useState(false)
@@ -59,6 +59,11 @@ export default function AccountMenu({ toggleTheme, theme }) {
     setAuthOpen(true)
   }
 
+  const viewProfile = () => {
+    setOpen(false)
+    onViewProfile()
+  }
+
   return (
     <div className="account-wrap" ref={wrapRef}>
       <button
@@ -73,13 +78,14 @@ export default function AccountMenu({ toggleTheme, theme }) {
       {open && (
         <div className="account-menu">
           {signedIn ? (
-            <div className="account-profile">
+            <button className="account-profile account-profile-link" onClick={viewProfile} type="button">
               <span className="account-avatar signed">{displayName.charAt(0)}</span>
               <span className="account-identity">
                 <span className="account-name">{displayName}</span>
                 <span className="account-sub">{t('accountSubtitle')}</span>
               </span>
-            </div>
+              <ChevronRight className="account-profile-caret" aria-hidden="true" size={17} />
+            </button>
           ) : (
             <div className="account-profile">
               <span className="account-avatar">
@@ -93,20 +99,25 @@ export default function AccountMenu({ toggleTheme, theme }) {
           )}
 
           {signedIn ? (
-            <div className="account-stats">
-              <span className="account-stat">
-                <span className="account-stat-value amber">🔥{DEMO_STREAK}</span>
-                <span className="account-stat-label">{t('accountStatStreak')}</span>
-              </span>
-              <span className="account-stat">
-                <span className="account-stat-value green">{totals.reviewed}</span>
-                <span className="account-stat-label">{t('accountStatReviewed')}</span>
-              </span>
-              <span className="account-stat">
-                <span className="account-stat-value amber">★{totals.saved}</span>
-                <span className="account-stat-label">{t('accountStatSaved')}</span>
-              </span>
-            </div>
+            <>
+              <div className="account-stats">
+                <span className="account-stat">
+                  <span className="account-stat-value amber">🔥{DEMO_STREAK}</span>
+                  <span className="account-stat-label">{t('accountStatStreak')}</span>
+                </span>
+                <span className="account-stat">
+                  <span className="account-stat-value green">{totals.reviewed}</span>
+                  <span className="account-stat-label">{t('accountStatReviewed')}</span>
+                </span>
+                <span className="account-stat">
+                  <span className="account-stat-value amber">★{totals.saved}</span>
+                  <span className="account-stat-label">{t('accountStatSaved')}</span>
+                </span>
+              </div>
+              <button className="account-view-profile" onClick={viewProfile} type="button">
+                <User aria-hidden="true" size={16} /> {t('accountViewProfile')}
+              </button>
+            </>
           ) : (
             <>
               <button className="account-signin" onClick={openAuth}>
