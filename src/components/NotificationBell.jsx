@@ -12,7 +12,7 @@ import {
   notificationsList
 } from '../services/endpoints'
 
-export default function NotificationBell() {
+export default function NotificationBell({ onViewActivity }) {
   const { language, t } = useLanguage()
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
@@ -148,7 +148,13 @@ export default function NotificationBell() {
               })
             )}
           </div>
-          <button onClick={() => setOpen(false)} className="notif-viewall">
+          <button
+            onClick={() => {
+              setOpen(false)
+              onViewActivity()
+            }}
+            className="notif-viewall"
+          >
             {t('notifViewAll')}
           </button>
         </div>

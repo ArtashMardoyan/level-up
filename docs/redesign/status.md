@@ -27,6 +27,11 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       time via `Intl.RelativeTimeFormat`. Guests see a sign-in hint. The profile **Recent activity**
       block reuses the same feed (`src/data/notifications.js`). Types today: `welcome`,
       `review_milestone` (streak/daily/new_questions reserved). See backend `docs/notifications.md`.
+- [x] **Activity screen** (`#activity`, `ActivityPage.jsx`) — full notifications feed with
+      "Load more" pagination, per-row + mark-all read, mark-all-seen on open (clears the badge).
+      Reached from the bell's "View all activity" and the profile's "See all". Reuses the shared
+      `notificationMeta`/`relativeTime`. Roadmap for the rest (real streak, new_questions, daily):
+      backend `docs/engagement-features-plan.md`.
 - [x] **Command palette (⌘K)** — `GlobalSearch` trigger + portal overlay, filters Courses /
       Questions / Dictionary, navigates on select.
 - [x] **Rich footer** — `AppFooter` (brand + social + link columns + bottom bar), home only.

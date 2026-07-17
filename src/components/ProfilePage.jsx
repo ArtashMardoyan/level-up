@@ -189,7 +189,12 @@ export default function ProfilePage({ onNavigate, courses }) {
         </section>
 
         <section className="profile-card">
-          <h2 className="profile-card-title">{t('profileRecentActivity')}</h2>
+          <div className="profile-card-head">
+            <h2 className="profile-card-title">{t('profileRecentActivity')}</h2>
+            <button onClick={() => onNavigate('activity')} className="profile-seeall" type="button">
+              {t('profileSeeAll')}
+            </button>
+          </div>
           {loading ? (
             <div className="profile-progress-list">
               {[0, 1, 2].map((i) => (

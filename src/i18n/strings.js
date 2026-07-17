@@ -94,6 +94,11 @@ export const STRINGS = {
     notifLoading: 'Загрузка…',
     notifAria: 'Уведомления',
     notifGenericBody: '',
+    // ActivityPage
+    activityEmpty: 'Активности пока нет',
+    activityLoadMore: 'Показать ещё',
+    activityTitle: 'Активность',
+    profileSeeAll: 'Все',
     // AppFooter
     footerTagline:
       'Структурированные банки вопросов и ежедневные тренировки, чтобы прокачать основы для реальных собеседований.',
@@ -333,6 +338,11 @@ export const STRINGS = {
     notifAria: 'Notifications',
     notifLoading: 'Loading…',
     notifGenericBody: '',
+    // ActivityPage
+    activityEmpty: 'No activity yet',
+    activityLoadMore: 'Load more',
+    activityTitle: 'Activity',
+    profileSeeAll: 'See all',
     // AppFooter
     footerTagline:
       'Structured question banks and daily drills to sharpen the fundamentals that come up in real interviews.',
