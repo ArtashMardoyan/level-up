@@ -158,6 +158,29 @@ Effort: small (4a) once the streak/activity hook exists; large (4b, infra).
 - **Deploy:** phases with a migration (2) or reseed (3) need a backend redeploy; frontend pushes
   auto-deploy to Pages. **Never commit/push without explicit instruction.**
 
+## TODO / remaining (deferred)
+
+Phases 1, 2, 3 and 4a are **shipped**. Everything below is intentionally deferred — pick up here
+in a future pass.
+
+- [ ] **4b — scheduled daily push.** Emit `daily` to all users each local morning (instead of
+      lazily on first activity). Needs a scheduler App Runner doesn't provide: EventBridge → an
+      internal auth'd endpoint, or a `cmd/daily` binary run by cron. Must dedupe by user-local day
+      so it never doubles up with the 4a lazy path.
+- [ ] **Persist per-user timezone** (`users.timezone`, IANA) — prerequisite for 4b (a cron has no
+      request to read tz from). Auto-sync from the client on load/login. Today tz is only sent
+      per-request on the review upsert (enough for streak/4a, not for a scheduled job). Sketch in
+      the Phase 2 note above.
+- [ ] **Streak backfill** — everyone currently starts at 0. Optional: derive an initial
+      `currentStreak`/`lastActiveOn` from historic `user_question_progress.reviewedAt`.
+- [ ] **`new_questions` polish** — it only fires when `cmd/seed` runs against a DB that gains
+      questions (a manual content step, not `make deploy`). Optional: group by course (params
+      `{course, count}`), or limit fan-out to recently-active users instead of everyone.
+- [ ] **`daily` content link** — the notification is generic ("Today's Challenge is ready"); wire
+      it to the real daily-challenge/dictionary content when that exists.
+- [ ] **Client freshness** — badge/unseen count is fetched on mount + on open; consider a light
+      poll or refetch-after-review so a new streak/milestone badge appears without a reload.
+
 ## Verification per phase
 
 - **P1:** open `#activity`, paginate, mark read, badge clears on open (dark+light, ~390px).

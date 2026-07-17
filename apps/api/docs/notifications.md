@@ -57,7 +57,13 @@ Wired in the `level-up` repo (2026-07-17): `NotificationBell` reads the badge fr
 The client maps `type` → icon/accent/localized text (params interpolated) and formats time
 with `Intl.RelativeTimeFormat`. See that repo's `docs/redesign/handoff/README.md` → Notifications.
 
-## Not yet built (deferred)
+## Status & TODO
+
+Generators live today: `welcome`, `review_milestone`, `streak`, `new_questions`, `daily` (lazy).
+The only deferred piece is the **scheduled daily push (4b)** and its prerequisite (persisted
+per-user timezone). See the authoritative checklist in
+[`engagement-features-plan.md`](engagement-features-plan.md) → **TODO / remaining**.
+
 
 - Generators that need global fan-out (new questions on reseed) or a scheduler
   (daily challenge, streak) — reserved types exist; no producers yet.
