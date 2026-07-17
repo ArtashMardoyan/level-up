@@ -54,14 +54,24 @@ useEffect(() => {
       { src: '/media-art-512.png', sizes: '512x512', type: 'image/png' },
     ],
   })
-  navigator.mediaSession.setActionHandler('play', handlePlayPause)
-  navigator.mediaSession.setActionHandler('pause', handlePlayPause)
+  // Use explicit (non-toggling) play/pause handlers, not one shared toggle:
+  // iOS chooses which action to dispatch from `playbackState`, and a toggle
+  // misfires whenever that drifts (dispatches "pause" again → toggle resumes).
+  navigator.mediaSession.setActionHandler('play', handleMediaPlay)
+  navigator.mediaSession.setActionHandler('pause', handleMediaPause)
   navigator.mediaSession.setActionHandler('previoustrack', currentIndex > 0 ? handlePrev : null)
   navigator.mediaSession.setActionHandler(
     'nexttrack',
     currentIndex < scopedList.length - 1 ? handleNext : null
   )
 }, [currentItem, courseTitle, currentIndex, scopedList.length])
+
+// Keep the OS controls in sync so iOS shows the right button and dispatches the
+// matching action. Without this the lock-screen pause button won't pause.
+useEffect(() => {
+  if (!('mediaSession' in navigator)) return
+  navigator.mediaSession.playbackState = playing ? (paused ? 'paused' : 'playing') : 'none'
+}, [playing, paused])
 ```
 
 Optional: mirror the same block in `DictionaryPlayer.jsx` for dictionary audio.
@@ -75,7 +85,9 @@ Optional: mirror the same block in `DictionaryPlayer.jsx` for dictionary audio.
   `artwork` array at the rounded `icon-*.png` files.
 - Lock-screen artwork appears only for the **MP3** path (the `<audio>` element). Tracks that fall
   back to `SpeechSynthesis` have no media session — expected, no action needed.
-- The play/pause state on the lock screen follows the `<audio>` element automatically; the action
-  handlers above just wire the hardware/again buttons back to your transport.
+- The lock-screen play/pause state does **not** follow the `<audio>` element automatically once you
+  register `play`/`pause` action handlers — the OS defers to your handlers and to
+  `navigator.mediaSession.playbackState`. You must set `playbackState` yourself (see the effect
+  above), or iOS shows a stale button and the pause action stops working.
 - All icons are the same mark as `Logo.jsx` (indigo gradient `#818cf8 → #6366f1`, white double
   chevron-up), just bolder so it survives 16–32px and reads as artwork at 512px.
