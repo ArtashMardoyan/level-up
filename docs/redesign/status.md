@@ -18,13 +18,15 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       course screen, interview mode, dictionary (table + single), players. (`index.css` rewrite.)
 - [x] **Account block** — `AccountMenu` (avatar → dropdown: Guest / signed-in profile + stats +
       Theme/Language). UI-only, local demo toggle; real auth later.
-- [x] **Notifications** — `NotificationBell` **wired to the backend API**: badge from
-      `GET /notifications/unread-count`, dropdown list from `GET /notifications` (auth-gated),
-      per-row + mark-all read via `PATCH /notifications/:id/read` / `/read`. Server sends
-      `type` + `params`; the client maps type → icon/accent/i18n and renders relative time via
-      `Intl.RelativeTimeFormat`. Guests see a sign-in hint. Types today: `welcome`,
-      `review_milestone` (streak/daily/new_questions reserved). See `endpoints.js`
-      (`notifications*`) + backend `docs/notifications.md`.
+- [x] **Notifications** — `NotificationBell` **wired to the backend API** with a Facebook-style
+      **seen vs read** model: the badge = **unseen** count (`GET /notifications/unseen-count`),
+      cleared on open via `PATCH /notifications/seen` (opening = seen, does not mark read); the
+      per-row "new" dot = **unread**, cleared by a row click (`PATCH /notifications/:id/read`) or
+      "Mark all read" (`PATCH /notifications/read`). List from `GET /notifications` (auth-gated).
+      Server sends `type` + `params`; the client maps type → icon/accent/i18n and renders relative
+      time via `Intl.RelativeTimeFormat`. Guests see a sign-in hint. The profile **Recent activity**
+      block reuses the same feed (`src/data/notifications.js`). Types today: `welcome`,
+      `review_milestone` (streak/daily/new_questions reserved). See backend `docs/notifications.md`.
 - [x] **Command palette (⌘K)** — `GlobalSearch` trigger + portal overlay, filters Courses /
       Questions / Dictionary, navigates on select.
 - [x] **Rich footer** — `AppFooter` (brand + social + link columns + bottom bar), home only.

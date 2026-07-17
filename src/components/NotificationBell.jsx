@@ -5,7 +5,8 @@ import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
 import { notificationMeta, relativeTime } from '../data/notifications'
 import {
-  notificationsUnreadCount,
+  notificationsMarkAllSeen,
+  notificationsUnseenCount,
   notificationsMarkAllRead,
   notificationsMarkRead,
   notificationsList
@@ -16,19 +17,19 @@ export default function NotificationBell() {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState([])
-  const [unread, setUnread] = useState(0)
+  const [unseen, setUnseen] = useState(0)
   const [loading, setLoading] = useState(false)
   const wrapRef = useRef(null)
 
-  // Badge count: fetch on mount and whenever the signed-in user changes. When
-  // signed out we simply stop fetching — rendering is gated on `user`, so any
-  // stale count/items from a previous session never show.
+  // Badge = unseen count: fetch on mount and whenever the signed-in user changes.
+  // When signed out we stop fetching — rendering is gated on `user`, so any stale
+  // count/items from a previous session never show.
   useEffect(() => {
     if (!user) return
     let active = true
-    notificationsUnreadCount()
+    notificationsUnseenCount()
       .then((data) => {
-        if (active) setUnread(data?.count || 0)
+        if (active) setUnseen(data?.count || 0)
       })
       .catch(() => {})
     return () => {
@@ -72,20 +73,28 @@ export default function NotificationBell() {
 
   const toggle = () => {
     const next = !open
-    if (next && user) setLoading(true)
+    if (next && user) {
+      setLoading(true)
+      // Opening the panel = "seen": clear the badge and mark everything seen on
+      // the server. This does NOT mark read — the rows keep their unread dots
+      // until the user clicks one or "Mark all read".
+      if (unseen > 0) {
+        setUnseen(0)
+        notificationsMarkAllSeen().catch(() => {})
+      }
+    }
     setOpen(next)
   }
 
   const markAll = () => {
     setItems((prev) => prev.map((n) => ({ ...n, read: true })))
-    setUnread(0)
+    setUnseen(0)
     notificationsMarkAllRead().catch(() => {})
   }
 
   const markOne = (n) => {
     if (n.read) return
     setItems((prev) => prev.map((it) => (it.id === n.id ? { ...it, read: true } : it)))
-    setUnread((u) => Math.max(0, u - 1))
     notificationsMarkRead(n.id).catch(() => {})
   }
 
@@ -93,7 +102,7 @@ export default function NotificationBell() {
     <div className="notif-wrap" ref={wrapRef}>
       <button aria-label={t('notifAria')} className="notif-btn" aria-expanded={open} onClick={toggle}>
         <Bell aria-hidden="true" strokeWidth={1.9} size={18} />
-        {user && unread > 0 && <span className="notif-badge">{unread}</span>}
+        {user && unseen > 0 && <span className="notif-badge">{unseen}</span>}
       </button>
 
       {open && (

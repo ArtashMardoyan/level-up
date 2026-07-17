@@ -19,9 +19,11 @@ export const usersList = (page = 1, limit = 10) => apiGet(`/users?page=${page}&l
 export const coursesFull = (lang) => apiGet(`/courses/full?lang=${lang}`)
 export const coursesVersion = () => apiGet('/courses/version')
 
-// Notifications (per-user, auth required)
+// Notifications (per-user, auth required). "seen" clears the badge (opening the
+// list); "read" is acting on an item (click / mark-all-read). Reading implies seen.
 export const notificationsList = (page = 1, limit = 10) => apiGet(`/notifications?page=${page}&limit=${limit}`)
-export const notificationsUnreadCount = () => apiGet('/notifications/unread-count')
+export const notificationsUnseenCount = () => apiGet('/notifications/unseen-count')
+export const notificationsMarkAllSeen = () => apiPatch('/notifications/seen')
 export const notificationsMarkAllRead = () => apiPatch('/notifications/read')
 export const notificationsMarkRead = (id) => apiPatch(`/notifications/${id}/read`)
 
