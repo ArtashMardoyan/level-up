@@ -88,5 +88,5 @@ player, in dark + light themes.
 
 ## Not wired (intentional, backend later)
 Footer links (most are placeholders); the reference's "glow on/off" and "compact density"
-design-tool props. Notification generators still pending: `new_questions` (reseed fan-out) and
-`daily` (see the engagement plan).
+design-tool props. The `new_questions` notification now fans out on a content reseed
+(`cmd/seed`); the only generator still pending is `daily` (see the engagement plan).

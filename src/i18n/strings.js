@@ -76,8 +76,8 @@ export const STRINGS = {
     searchGroupCourses: 'Курсы',
     // NotificationBell
     notifWelcomeBody: 'Аккаунт готов — начните отслеживать подготовку к собеседованиям.',
-    notifNewQuestionsBody: '4 новых вопроса в модуле «Streams» курса Node.js.',
     notifMilestoneBody: 'Вы просмотрели {count} вопросов. Так держать!',
+    notifNewQuestionsBody: 'Добавлено новых вопросов: {count}.',
     notifStreakBody: '{days} дней подряд — не сбавляй темп!',
     notifDailyBody: 'В словаре ждёт новая цель на день.',
     notifSignedOut: 'Войдите, чтобы видеть уведомления',
@@ -320,10 +320,10 @@ export const STRINGS = {
     searchOpenAria: 'Open search',
     // NotificationBell
     notifWelcomeBody: 'Your account is ready — start tracking your interview prep.',
-    notifNewQuestionsBody: '4 fresh questions in the Node.js Streams module.',
     notifDailyBody: 'A new speaking goal is waiting in your Dictionary.',
     notifMilestoneBody: "You've reviewed {count} questions. Keep it up!",
     notifStreakBody: '{days} days in a row — keep the momentum going!',
+    notifNewQuestionsBody: '{count} new questions were just added.',
     notifSignedOut: 'Sign in to see your notifications',
     notifNewQuestionsTitle: 'New questions added',
     notifDailyTitle: "Today's Challenge is ready",
