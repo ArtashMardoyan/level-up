@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { CheckCircle2, ArrowLeft, LogOut, Trophy, Pencil, Trash2, Flame, Star } from 'lucide-react'
 
-import CourseIcon from './CourseIcon'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
 import EditProfileDialog from './EditProfileDialog'
-import { progressSummary, usersDelete } from '../services/endpoints'
+import { notificationMeta, relativeTime } from '../data/notifications'
+import { notificationsList, progressSummary, usersDelete } from '../services/endpoints'
 
 // Placeholder streak until a backend endpoint exists for it (mirrors AccountMenu).
 const DEMO_STREAK = 5
@@ -25,27 +25,25 @@ function earnedAchievements(reviewed, saved, streak, t) {
   return all.filter((a) => a.unlocked)
 }
 
-// Three not-yet-wired activity rows (no backend activity feed) — labelled with a
-// "Preview" tag. Anchored to the user's real courses so it reads believably.
-const ACTIVITY_TIMES = ['profileActivityTimeRecent', 'profileActivityTimeDay', 'profileActivityTimeWeek']
-
 export default function ProfilePage({ onNavigate, courses }) {
   const { updateUser, logout, user } = useAuth()
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
   const [summary, setSummary] = useState(null)
+  const [activity, setActivity] = useState([])
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
 
-  // `loading` starts true; the summary fetch flips it off in its async callback
-  // (setState inside .finally is fine — only synchronous setState-in-effect is barred).
+  // Load stats + the recent-activity feed together. `loading` starts true and is
+  // flipped off in the async callback (synchronous setState-in-effect is barred).
   useEffect(() => {
     if (!user) return
     let active = true
-    progressSummary()
-      .then((data) => {
-        if (active) setSummary(data)
+    Promise.all([progressSummary().catch(() => null), notificationsList(1, 5).catch(() => null)])
+      .then(([summ, notifs]) => {
+        if (!active) return
+        if (summ) setSummary(summ)
+        if (notifs) setActivity(notifs.items || [])
       })
-      .catch(() => {})
       .finally(() => {
         if (active) setLoading(false)
       })
@@ -86,7 +84,6 @@ export default function ProfilePage({ onNavigate, courses }) {
     .filter((row) => row.saved > 0)
     .sort((a, b) => b.saved - a.saved)
 
-  const activityCourses = (progressRows.length ? progressRows.map((r) => r.course) : withQuestions).slice(0, 3)
   const achievements = earnedAchievements(reviewed, saved, DEMO_STREAK, t)
 
   const onDelete = () => {
@@ -192,25 +189,34 @@ export default function ProfilePage({ onNavigate, courses }) {
         </section>
 
         <section className="profile-card">
-          <div className="profile-card-head">
-            <h2 className="profile-card-title">{t('profileRecentActivity')}</h2>
-            <span className="profile-preview-tag">{t('profilePreviewTag')}</span>
-          </div>
-          <div className="profile-activity-list">
-            {activityCourses.map((course, i) => (
-              <div className="profile-activity-row" key={course.id}>
-                <span style={{ '--card-accent': course.accent || '#818cf8' }} className="profile-activity-icon">
-                  <CourseIcon courseId={course.id} emoji={course.emoji} size={17} />
-                </span>
-                <span className="profile-activity-body">
-                  <span className="profile-activity-text">
-                    {t('profileActivityReviewed', { course: course.title })}
-                  </span>
-                  <span className="profile-activity-time">{t(ACTIVITY_TIMES[i] || ACTIVITY_TIMES[2])}</span>
-                </span>
-              </div>
-            ))}
-          </div>
+          <h2 className="profile-card-title">{t('profileRecentActivity')}</h2>
+          {loading ? (
+            <div className="profile-progress-list">
+              {[0, 1, 2].map((i) => (
+                <span className="skeleton profile-progress-skel" key={i} />
+              ))}
+            </div>
+          ) : activity.length ? (
+            <div className="profile-activity-list">
+              {activity.map((n) => {
+                const meta = notificationMeta(n.type)
+                const Icon = meta.Icon
+                return (
+                  <div className="profile-activity-row" key={n.id}>
+                    <span style={{ '--card-accent': meta.accent }} className="profile-activity-icon">
+                      <Icon aria-hidden="true" size={17} />
+                    </span>
+                    <span className="profile-activity-body">
+                      <span className="profile-activity-text">{t(meta.titleKey)}</span>
+                      <span className="profile-activity-time">{relativeTime(n.createdAt, language)}</span>
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="profile-empty">{t('profileNoActivity')}</p>
+          )}
         </section>
       </div>
 

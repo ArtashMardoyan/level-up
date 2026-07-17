@@ -1,42 +1,15 @@
+import { Bell } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
-import { Sparkles, Hexagon, Trophy, Target, Flame, Bell } from 'lucide-react'
 
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
+import { notificationMeta, relativeTime } from '../data/notifications'
 import {
   notificationsUnreadCount,
   notificationsMarkAllRead,
   notificationsMarkRead,
   notificationsList
 } from '../services/endpoints'
-
-// Maps a backend notification `type` to its icon, accent, and i18n keys. The
-// server sends type + params (never localized text), so the wording lives here.
-const TYPE_META = {
-  new_questions: {
-    titleKey: 'notifNewQuestionsTitle',
-    bodyKey: 'notifNewQuestionsBody',
-    accent: '#4ade80',
-    Icon: Hexagon
-  },
-  review_milestone: { titleKey: 'notifMilestoneTitle', bodyKey: 'notifMilestoneBody', accent: '#4ade80', Icon: Trophy },
-  welcome: { titleKey: 'notifWelcomeTitle', bodyKey: 'notifWelcomeBody', accent: '#818cf8', Icon: Sparkles },
-  streak: { titleKey: 'notifStreakTitle', bodyKey: 'notifStreakBody', accent: '#fbbf24', Icon: Flame },
-  daily: { titleKey: 'notifDailyTitle', bodyKey: 'notifDailyBody', accent: '#818cf8', Icon: Target }
-}
-const FALLBACK = { titleKey: 'notifGenericTitle', bodyKey: 'notifGenericBody', accent: '#818cf8', Icon: Bell }
-
-// Localized relative time from an ISO timestamp ("2 hours ago" / "вчера").
-function relativeTime(iso, language) {
-  const diffSec = Math.round((new Date(iso).getTime() - Date.now()) / 1000)
-  const abs = Math.abs(diffSec)
-  const rtf = new Intl.RelativeTimeFormat(language, { numeric: 'auto' })
-  if (abs < 60) return rtf.format(Math.round(diffSec), 'second')
-  if (abs < 3600) return rtf.format(Math.round(diffSec / 60), 'minute')
-  if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), 'hour')
-  if (abs < 604800) return rtf.format(Math.round(diffSec / 86400), 'day')
-  return rtf.format(Math.round(diffSec / 604800), 'week')
-}
 
 export default function NotificationBell() {
   const { language, t } = useLanguage()
@@ -142,7 +115,7 @@ export default function NotificationBell() {
               <p className="notif-empty">{t('notifEmpty')}</p>
             ) : (
               items.map((n) => {
-                const meta = TYPE_META[n.type] || FALLBACK
+                const meta = notificationMeta(n.type)
                 const Icon = meta.Icon
                 const body = t(meta.bodyKey, n.params || {})
                 return (
