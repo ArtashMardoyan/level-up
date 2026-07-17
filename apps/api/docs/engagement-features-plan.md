@@ -86,7 +86,15 @@ Effort: medium. Migration + service hook + DTO + 2 frontend swaps. No scheduler.
 
 ---
 
-## Phase 3 — `new_questions` generator (backend, reseed)
+## Phase 3 — `new_questions` generator (backend, reseed) — ✅ DONE (2026-07-17)
+
+> `internal/seed` snapshots existing question ids before seeding (the upsert uses `DoUpdates`, so
+> `RowsAffected` can't tell new from updated), counts genuinely-new questions, and if `> 0` fans
+> out one `new_questions` notification (params `{count}`) to **every** user via `CreateInBatches`.
+> No-op reseed → 0 new → no fan-out; fresh DB → all "new" but no users yet → no fan-out. Fires
+> only when `cmd/seed` runs against a DB that gains questions (a manual content step, not
+> `make deploy`). Frontend `notifNewQuestionsBody` is now `{count}`-based.
+
 
 **Goal:** when a reseed adds genuinely new questions, notify every user.
 
