@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { ArrowRight, Sparkles } from 'lucide-react'
 
 import { useTheme } from './hooks/useTheme'
 import PrepView from './components/PrepView'
@@ -13,6 +14,7 @@ import { useHashRoute } from './hooks/useHashRoute'
 import ActivityPage from './components/ActivityPage'
 import CourseSelect from './components/CourseSelect'
 import { useAuthState, useAuth } from './hooks/useAuth'
+import InterviewCoach from './components/InterviewCoach'
 import { LanguageContext } from './i18n/LanguageContext'
 import { getDictionaryCategory } from './data/dictionary'
 import DictionarySelect from './components/DictionarySelect'
@@ -114,6 +116,7 @@ function AppContent() {
   const isDictionary = courseId === 'dictionary'
   const isProfile = courseId === 'profile'
   const isActivity = courseId === 'activity'
+  const isInterview = courseId === 'interview'
   const course = courseId && !isDictionary ? courses.find((c) => c.id === courseId) || null : null
   const validCourse = course?.questions?.length > 0 ? course : null
   const dictionaryCategory = isDictionary ? getDictionaryCategory(jumpToId) : null
@@ -132,6 +135,8 @@ function AppContent() {
       />
       {showDictionaryCategory ? (
         <DictionaryCategoryPage onNavigate={navigate} categoryId={jumpToId} voices={voices} />
+      ) : isInterview ? (
+        <InterviewCoach onNavigate={navigate} sessionId={jumpToId} courses={courses} />
       ) : isActivity ? (
         <ActivityPage onNavigate={navigate} />
       ) : isProfile ? (
@@ -150,6 +155,16 @@ function AppContent() {
           <div className="home-eyebrow">{t('homeEyebrow', { n: courses.length })}</div>
           <h1 className="home-heading">{t('homeHeading')}</h1>
           <p className="home-subtitle">{t('homeSubtitle')}</p>
+          <button onClick={() => selectCourse('interview')} className="home-interview-cta" type="button">
+            <span className="home-interview-cta-icon" aria-hidden="true">
+              <Sparkles size={20} />
+            </span>
+            <span className="home-interview-cta-text">
+              <span className="home-interview-cta-title">{t('interviewCoachTitle')}</span>
+              <span className="home-interview-cta-sub">{t('interviewCoachTagline')}</span>
+            </span>
+            <ArrowRight className="home-interview-cta-arrow" aria-hidden="true" size={18} />
+          </button>
           <div className="segmented home-tabs">
             <button className={'segmented-btn' + (isDictionary ? '' : ' active')} onClick={backToCourses}>
               {t('tabCourses')}

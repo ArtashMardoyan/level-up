@@ -27,6 +27,17 @@ export const notificationsMarkAllSeen = () => apiPatch('/notifications/seen')
 export const notificationsMarkAllRead = () => apiPatch('/notifications/read')
 export const notificationsMarkRead = (id) => apiPatch(`/notifications/${id}/read`)
 
+// AI Interview Coach (per-user, auth required). A chat interview: start a
+// session, submit each answer (evaluated on submit), then complete to aggregate
+// the final report. See docs/interview in the backend repo.
+export const interviewGet = (id) => apiGet(`/interviews/${id}`)
+export const interviewReport = (id) => apiGet(`/interviews/${id}/report`)
+export const interviewComplete = (id) => apiPost(`/interviews/${id}/complete`)
+export const interviewsCreate = (payload) => apiPost('/interviews', payload)
+export const interviewsList = (page = 1, limit = 10) => apiGet(`/interviews?page=${page}&limit=${limit}`)
+export const interviewSubmitAnswer = (id, questionId, payload) =>
+  apiPost(`/interviews/${id}/answers/${questionId}`, payload)
+
 // Progress (per-user, auth required)
 export const progressSummary = () => apiGet('/progress/summary')
 export const progressBulk = (payload) => apiPost('/progress/bulk', payload)

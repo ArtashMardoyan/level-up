@@ -90,3 +90,16 @@ player, in dark + light themes.
 Footer links (most are placeholders); the reference's "glow on/off" and "compact density"
 design-tool props. The `new_questions` notification now fans out on a content reseed
 (`cmd/seed`); the only generator still pending is `daily` (see the engagement plan).
+
+## AI Interview Coach (MVP frontend)
+New feature screens under `#interview`, built to the delivered Claude Design
+`AI Interview Coach.dc.html` (spec: `level-up-backend/docs/interview/**`):
+- `InterviewCoach` (container + auth gate + `key={sessionId}` session loader), `InterviewSetup`
+  (course/difficulty/count/**language** + confirm modal), `InterviewChat` (chat bubbles, composer,
+  sample answer, per-answer feedback, thinking dots), `InterviewResults` (score ring /100, 4-axis
+  rubric breakdown, strengths/focus, next steps, + inline Review), `InterviewHistory`.
+- Entry: a CTA on the home screen (`.home-interview-cta`) → `#interview`.
+- Styles: `.aic-*` block in `index.css` (reuses tokens; light+dark). Strings added for en/ru.
+  Endpoints in `endpoints.js` (`interviews*`).
+- **Language selector (en/ru) added here** — the delivered `.dc.html` had none; flag to add in
+  Claude Design.
