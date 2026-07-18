@@ -64,6 +64,7 @@ func main() {
 		AllowOrigins:     cfg.CORS.Origins,
 		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowWildcard:    true, // lets patterns like https://*.vercel.app match preview deploys
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))

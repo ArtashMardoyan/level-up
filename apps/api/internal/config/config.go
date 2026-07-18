@@ -51,6 +51,8 @@ var defaultCORSOrigins = []string{
 	"http://localhost:5173",
 	"http://localhost:4173",
 	"https://artashmardoyan.github.io",
+	"http://localhost:3000",
+	"https://*.vercel.app",
 }
 
 func corsOrigins() []string {
