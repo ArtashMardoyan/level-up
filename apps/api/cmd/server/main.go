@@ -13,6 +13,7 @@ import (
 	"level-up-backend/internal/modules/auth"
 	"level-up-backend/internal/modules/course"
 	"level-up-backend/internal/modules/health"
+	"level-up-backend/internal/modules/interview"
 	"level-up-backend/internal/modules/notification"
 	"level-up-backend/internal/modules/user"
 
@@ -47,15 +48,19 @@ func main() {
 	courseRepo := course.NewCourseRepository(db)
 	progressRepo := course.NewProgressRepository(db)
 	notificationRepo := notification.NewRepository(db)
+	interviewRepo := interview.NewRepository(db)
 
 	notificationService := notification.NewService(notificationRepo)
 	userService := user.NewService(userRepo, notificationService)
+	interviewEvaluator := interview.NewEvaluator(cfg.OpenAI.APIKey, cfg.OpenAI.Model, cfg.OpenAI.Timeout)
+	interviewService := interview.NewService(interviewRepo, courseRepo, interviewEvaluator)
 
 	userHandler := user.NewHandler(userService)
 	authHandler := auth.NewHandler(auth.NewService(userRepo, revokedRepo, cfg.JWT.Secret))
 	healthHandler := health.NewHandler(db)
 	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo, notificationService, userService))
 	notificationHandler := notification.NewHandler(notificationService)
+	interviewHandler := interview.NewHandler(interviewService)
 
 	jwtMiddleware := middleware.JWT(userRepo, revokedRepo, cfg.JWT.Secret)
 
@@ -78,6 +83,7 @@ func main() {
 	userHandler.RegisterRoutes(r, jwtMiddleware)
 	courseHandler.RegisterRoutes(r, jwtMiddleware)
 	notificationHandler.RegisterRoutes(r, jwtMiddleware)
+	interviewHandler.RegisterRoutes(r, jwtMiddleware)
 
 	log.Fatal(r.Run(cfg.Server.Addr))
 }

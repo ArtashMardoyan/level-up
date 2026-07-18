@@ -2,77 +2,83 @@
 
 ## Overview
 
-Decides **what the user should do next** after each interview, turning results into a personalized
-plan. Runs server-side in the completion flow (`004`) and persists `Recommendation` rows (`010`).
+Decides **what the user should do next** after an interview, turning results into a short, ranked
+"next steps" list. Runs server-side in the `complete` aggregation (`004`) and is stored as the
+`recommendations` jsonb list on the `FinalReport` (`010`), shown on the Results screen (`011`).
+
+> **MVP scope.** Recommendations are a generated **string list** on the report — no separate table,
+> no completion tracking yet. Richer, trackable recommendations (and inputs from the Learning
+> Profile / Dictionary) return post-MVP (`007`/`008`, `014` v1.1+).
 
 ---
 
 ## Goals
 
-- Recommend the most valuable next lesson (course/module).
-- Recommend the next interview.
-- Prioritize weak topics.
-- Avoid repetitive recommendations.
-- Adapt as the user improves.
+- Point the user to the most valuable next step (weak topic first).
+- Suggest a concrete next interview.
+- Keep it short and specific (3–5 items).
 
 ---
 
-## Inputs (all real data)
+## Inputs (MVP — all from this interview + existing data)
 
-- Learning Profile (`007`) — topic levels/confidence.
-- Latest interview report (`006`/`010`).
-- Interview history.
-- Personalized Dictionary progress (`008`).
-- Course progress (existing `/progress/summary` — `byCourse` reviewed/favorites).
+- This interview's per-question results (`010`): which questions scored low (weak areas) vs. high.
+- The rubric averages (Correctness / Depth / Communication / Structure) — the lowest axis is a hint.
+- Course progress (existing `/progress/summary` — `byCourse` reviewed/favorites), to point at real
+  lessons.
+
+(Post-MVP adds Learning Profile topic levels and Dictionary progress as inputs.)
 
 ---
 
-## Recommendation types
+## Recommendation types (MVP)
 
-- **Next lesson** — the course/module with the highest learning value (lowest topic level × weight).
-  Maps to a real course/question the user can open.
-- **Next interview** — same course at the current or next difficulty, biased to weak topics.
-- **Dictionary review** — the most-repeated vocab/grammar/phrase entries (`008`).
-- **Practice topics** — a ranked list: Critical / Recommended / Optional.
+Generated as plain strings for the numbered list, e.g.:
+
+- **Study** — the course/module tied to the lowest-scoring questions ("Revisit the Node.js Streams
+  module").
+- **Next interview** — same course at the current or next difficulty ("Try a Medium Node.js
+  interview").
+- **Skill focus** — the weakest rubric axis ("Work on structuring answers: setup → detail →
+  conclusion").
 
 ---
 
 ## Prioritization
 
-Weighs: weak-topic score (highest), mistake frequency, time since last practice, overall progress,
-and previously-completed recommendations (to avoid repeats — dedupe like the notifications module
-avoids re-emitting).
+Weakest area first (lowest question scores, then lowest rubric axis), then a concrete next-interview
+suggestion. Keep the list to 3–5 items; avoid restating the same weak topic twice.
 
 ---
 
 ## Example
 
-Interview result → Redis 4/10, JWT 5/10, Node.js 9/10. Recommendations:
+Interview result → Redis question 40/100, JWT 55/100, Node.js basics 90/100. Recommendations:
 
-1. Node.js course → Redis/caching module (lesson)
-2. Node.js interview, Easy (next interview)
-3. Review Redis vocabulary (dictionary)
-4. Grammar review (dictionary)
+1. Revisit caching / Redis in the Node.js course.
+2. Try another Medium Node.js interview focused on infrastructure.
+3. Tighten answer structure — lead with the key point, then details.
 
-*(Topics resolve to real courses/modules; the strong topic, Node.js overall, is de-prioritized.)*
+*(The strong area, Node.js basics, is not repeated.)*
 
 ---
 
 ## Acceptance criteria
 
-- Every interview generates recommendations.
-- They change as the user improves.
-- Strong topics appear less; weak topics dominate.
+- Every completed interview produces a non-empty recommendations list on the report.
+- Recommendations reflect this interview's weak areas.
 
 ---
 
 ## Delivery
 
-Recommendations show on the Final Report and a "next steps" area; a notification can nudge the user
-(reuse the notifications module). 
+Recommendations render on the Results screen ("Recommended next steps"). A notification can nudge the
+user later (reuse the notifications module, `014` v1.1).
 
 ---
 
-## Future improvements
+## Future improvements (post-MVP)
 
-- AI-generated weekly study plans, calendar goals, interview-readiness score, company-specific prep.
+- Trackable `Recommendation` rows (mark completed), dedupe across interviews, difficulty ramp.
+- Inputs from Learning Profile / Dictionary (`007`/`008`); AI-generated weekly study plans;
+  interview-readiness score; company-specific prep.

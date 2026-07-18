@@ -1,5 +1,11 @@
 # 007 - Learning Profile
 
+> **Status: DEFERRED — post-MVP.** The delivered design (`AI Interview Coach.dc.html`) is a pure
+> technical mock-interview (chat → per-answer feedback → Results/Review/History) with no long-term
+> profile surface. The Learning Profile ships with the **English-coaching** version (`014` v2), not
+> in the MVP. Spec kept below for that phase. The MVP does **not** create `LearningProfile` /
+> `TopicProgress` tables (`010`).
+
 ## Overview
 
 The Learning Profile is the user's long-term knowledge model — persisted per user in **Postgres**

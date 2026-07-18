@@ -36,6 +36,7 @@ type Question struct {
 	CourseID     string                `json:"courseId"  gorm:"column:courseId"`
 	Ref          string                `json:"ref"`
 	Module       string                `json:"module"`
+	Difficulty   string                `json:"difficulty" gorm:"column:difficulty;default:medium"`
 	SortOrder    int                   `json:"sortOrder" gorm:"column:sortOrder"`
 	Translations []QuestionTranslation `json:"-"         gorm:"foreignKey:QuestionID"`
 }

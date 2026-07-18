@@ -19,9 +19,11 @@ A scalable architecture for the AI Interview Coach that fits the **existing** Le
 - **OpenAI**, called **from the Go backend** (never the browser). `OPENAI_API_KEY` read only in
   `internal/config`, passed to the interview service via constructor.
 - Structured JSON output validated against `006`; **retry once**, then degrade per `006`.
-- Per-answer evaluation runs concurrently with a bounded worker pool + per-call timeout while the
-  session is `evaluating` (`004`/`005`). (The repo already uses OpenAI for TTS tooling — same
-  provider, now server-side in Go.)
+- **One AI call per answer, on submit** (`004`/`005`) — feedback returns in the submit response and
+  renders in the chat. `complete` calls no AI; it only aggregates. A per-call timeout backs the chat
+  "thinking" state. (The repo already uses OpenAI for TTS tooling — same provider, now server-side
+  in Go.)
+- Scores are **0–100** on the rubric Correctness / Depth / Communication / Structure (`006`).
 
 ## Frontend (existing app)
 
@@ -30,21 +32,21 @@ A scalable architecture for the AI Interview Coach that fits the **existing** Le
   CSS tokens; `lucide-react`.
 - No business logic in the UI — it mirrors backend state (`012`).
 
-## HTTP endpoint contract (proposed)
+## HTTP endpoint contract
 
-All under `/interviews` (+ profile/recommendations), JWT-protected, scoped to the caller:
+All under `/interviews`, JWT-protected, scoped to the caller:
 
 | Method | Path | Purpose |
 |---|---|---|
-| POST | `/interviews` | Start a session (`courseId`, `difficulty`, `questionCount`) → session + questions |
-| GET | `/interviews/:id` | Fetch a session (resume) |
-| PATCH | `/interviews/:id/answers/:questionId` | Save/auto-save one answer (`{answer, skipped?}`) |
-| POST | `/interviews/:id/complete` | Evaluate + build report + update profile/dictionary/recs |
-| GET | `/interviews/:id/report` | Final report |
+| POST | `/interviews` | Start a session (`courseSlug`, `difficulty` `easy`\|`medium`\|`hard`, `language` `en`\|`ru`, `questionCount`) → session + first question |
+| GET | `/interviews/:id` | Fetch a session for resume (questions + stored answers/feedback so far) |
+| POST | `/interviews/:id/answers/:questionId` | Submit one answer (`{answer, skipped?}`) → evaluates it, returns `006` (score + rubric + feedback) |
+| POST | `/interviews/:id/complete` | Aggregate results → build + return the final report (`010`) |
+| GET | `/interviews/:id/report` | Final report (overall score /100 + rubric + strengths/weaknesses + recommendations) |
 | GET | `/interviews?page&limit` | Interview history (paginated) |
-| GET | `/learning-profile` | The caller's learning profile + topic progress |
-| GET | `/recommendations` | The caller's current recommendations |
-| PATCH | `/recommendations/:id` | Mark a recommendation completed |
+
+Post-MVP (English coaching, `007`/`008`): `/learning-profile`, `/recommendations`,
+`/recommendations/:id`.
 
 Keep the Postman collection in sync (CLAUDE.md).
 

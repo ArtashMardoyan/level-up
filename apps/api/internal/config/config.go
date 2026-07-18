@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -15,6 +16,7 @@ type Config struct {
 	JWT    JWTConfig
 	CORS   CORSConfig
 	Server ServerConfig
+	OpenAI OpenAIConfig
 }
 
 type DBConfig struct {
@@ -43,6 +45,15 @@ type CORSConfig struct {
 
 type ServerConfig struct {
 	Addr string
+}
+
+// OpenAIConfig holds the settings for server-side AI answer evaluation
+// (docs/interview/005). APIKey is optional at boot: if it is empty the interview
+// module still starts but evaluation degrades per docs/interview/006.
+type OpenAIConfig struct {
+	APIKey  string
+	Model   string
+	Timeout time.Duration
 }
 
 // defaultCORSOrigins are the frontends allowed to call the API when CORS_ORIGINS
@@ -91,6 +102,18 @@ func Load() (Config, error) {
 		addr = ":3000"
 	}
 
+	openAIModel := os.Getenv("OPENAI_MODEL")
+	if openAIModel == "" {
+		openAIModel = "gpt-4o-mini"
+	}
+
+	openAITimeout := 30 * time.Second
+	if raw := os.Getenv("OPENAI_TIMEOUT_SECONDS"); raw != "" {
+		if secs, err := time.ParseDuration(raw + "s"); err == nil {
+			openAITimeout = secs
+		}
+	}
+
 	return Config{
 		DB: DBConfig{
 			Host:     os.Getenv("DB_HOST"),
@@ -103,5 +126,10 @@ func Load() (Config, error) {
 		JWT:    JWTConfig{Secret: secret},
 		CORS:   CORSConfig{Origins: corsOrigins()},
 		Server: ServerConfig{Addr: addr},
+		OpenAI: OpenAIConfig{
+			APIKey:  os.Getenv("OPENAI_API_KEY"),
+			Model:   openAIModel,
+			Timeout: openAITimeout,
+		},
 	}, nil
 }

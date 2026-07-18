@@ -1,8 +1,19 @@
 # AI Interview Coach — documentation
 
-This folder specifies the **AI Interview Coach**: a personalized loop that turns each mock
-interview into future learning — interview → AI evaluation → learning profile → dictionary →
-recommendations → next interview.
+This folder specifies the **AI Interview Coach**: a **chat** mock interview where the AI asks one
+question at a time, scores each answer **0–100** (Correctness / Depth / Communication / Structure)
+with feedback in the chat, then shows a final report + recommendations and tracks History.
+
+> **These docs are reconciled with the delivered design** `AI Interview Coach.dc.html` (Claude
+> Design project "Level up Node.js review"). Screens: **Setup → Interview (chat) → Results → Review →
+> History**. The MVP is **bilingual (RU + EN)** — language is chosen at Setup and drives questions,
+> model answer, and AI feedback (`004`). **English coaching** (Learning Profile `007` + Dictionary
+> `008`) is **deferred to post-MVP** (`014` v2) — those two docs are kept but marked DEFERRED.
+> **Voice/audio interviews** and **AI strong/weak analysis** (mining the per-question scores captured
+> from day one) are future (`015`); per-question data is persisted in the MVP to enable them.
+>
+> **Design gap:** the delivered `.dc.html` has **no language selector** yet — it must be added to the
+> Setup screen in Claude Design (`011`/`016`).
 
 > **Stack note (important).** These docs target the **real** Level Up codebase, not a generic
 > stack. Backend is **Go + Gin + GORM + PostgreSQL** (this repo, `internal/modules/*`); frontend is
@@ -29,7 +40,7 @@ recommendations → next interview.
 13. `013-technical-architecture.md` — includes the HTTP endpoint contract
 14. `014-release-plan.md`
 15. `015-future-ideas.md`
-16. `016-design-brief.md` — visual brief for mocking up the screens in Claude Design (design-first)
+16. `016-design-brief.md` — the delivered design reference (screens/tokens as built in Claude Design)
 
 ## Working rules
 
