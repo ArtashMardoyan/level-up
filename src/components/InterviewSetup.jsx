@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, ArrowLeft, Sparkles, History, Clock, Check } from 'lucide-react'
+import { ArrowRight, Sparkles, History, Clock, Check } from 'lucide-react'
 
 import CourseIcon from './CourseIcon'
 import { useLanguage } from '../hooks/useLanguage'
@@ -44,22 +44,19 @@ export default function InterviewSetup({ onHistory, onStarted, courses, onBack }
 
   return (
     <main className="aic">
-      <button className="profile-back" onClick={onBack} type="button">
-        <ArrowLeft aria-hidden="true" size={16} /> {t('interviewBack')}
-      </button>
-
-      <div className="aic-setup-head">
-        <div>
-          <div className="aic-eyebrow">
-            <span className="aic-eyebrow-dot" /> {t('interviewNewSession')}
-          </div>
-          <h1 className="aic-title">{t('interviewSetupTitle')}</h1>
-          <p className="aic-subtitle">{t('interviewSetupSubtitle')}</p>
-        </div>
-        <button className="aic-ghost-btn" onClick={onHistory} type="button">
-          <History aria-hidden="true" size={16} /> {t('interviewHistory')}
+      <div className="aic-breadcrumb">
+        <button onClick={onBack} type="button">
+          Level Up
         </button>
+        <span>/</span>
+        <span>{t('interviewCoachTitle')}</span>
       </div>
+
+      <div className="aic-eyebrow">
+        <span className="aic-eyebrow-dot" /> {t('interviewNewSession')}
+      </div>
+      <h1 className="aic-title">{t('interviewSetupTitle')}</h1>
+      <p className="aic-subtitle">{t('interviewSetupSubtitle')}</p>
 
       <div className="aic-step-label">{t('interviewStepCourse')}</div>
       <div className="aic-course-grid">
@@ -80,46 +77,52 @@ export default function InterviewSetup({ onHistory, onStarted, courses, onBack }
         ))}
       </div>
 
-      <div className="aic-step-label">{t('interviewStepDifficulty')}</div>
-      <div className="aic-seg">
-        {DIFFICULTIES.map((d) => (
-          <button
-            className={'aic-seg-btn' + (d === difficulty ? ' active' : '')}
-            onClick={() => setDifficulty(d)}
-            type="button"
-            key={d}
-          >
-            {t('difficulty_' + d)}
-          </button>
-        ))}
-      </div>
-
-      <div className="aic-step-label">{t('interviewStepCount')}</div>
-      <div className="aic-seg">
-        {COUNTS.map((n) => (
-          <button
-            className={'aic-seg-btn' + (n === count ? ' active' : '')}
-            onClick={() => setCount(n)}
-            type="button"
-            key={n}
-          >
-            {n}
-          </button>
-        ))}
-      </div>
-
-      <div className="aic-step-label">{t('interviewStepLanguage')}</div>
-      <div className="aic-seg">
-        {LANGUAGES.map((l) => (
-          <button
-            className={'aic-seg-btn aic-lang-btn' + (lang === l.code ? ' active' : '')}
-            onClick={() => setLang(l.code)}
-            type="button"
-            key={l.code}
-          >
-            <span aria-hidden="true">{l.flag}</span> {l.label}
-          </button>
-        ))}
+      <div className="aic-setup-grid">
+        <div>
+          <div className="aic-step-label">{t('interviewStepDifficulty')}</div>
+          <div className="aic-seg">
+            {DIFFICULTIES.map((d) => (
+              <button
+                className={'aic-seg-btn' + (d === difficulty ? ' active' : '')}
+                onClick={() => setDifficulty(d)}
+                type="button"
+                key={d}
+              >
+                {t('difficulty_' + d)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="aic-step-label">{t('interviewStepCount')}</div>
+          <div className="aic-seg">
+            {COUNTS.map((n) => (
+              <button
+                className={'aic-seg-btn' + (n === count ? ' active' : '')}
+                onClick={() => setCount(n)}
+                type="button"
+                key={n}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="aic-step-label">{t('interviewStepLanguage')}</div>
+          <div className="aic-seg">
+            {LANGUAGES.map((l) => (
+              <button
+                className={'aic-seg-btn aic-lang-btn' + (lang === l.code ? ' active' : '')}
+                onClick={() => setLang(l.code)}
+                type="button"
+                key={l.code}
+              >
+                <span aria-hidden="true">{l.flag}</span> {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {error && <div className="aic-error-note">{error}</div>}
@@ -128,7 +131,19 @@ export default function InterviewSetup({ onHistory, onStarted, courses, onBack }
         <button onClick={() => setConfirmOpen(true)} className="aic-primary-btn" disabled={!selected} type="button">
           <Sparkles aria-hidden="true" size={18} /> {t('interviewStart')}
         </button>
-        {!selected && <span className="aic-hint">{t('interviewPickCourseHint')}</span>}
+        <button className="aic-ghost-btn" onClick={onHistory} type="button">
+          <History aria-hidden="true" size={16} /> {t('interviewHistory')}
+        </button>
+        <span className="aic-hint">
+          {selected
+            ? t('interviewSetupSummary', {
+                difficulty: t('difficulty_' + difficulty).toLowerCase(),
+                lang: LANGUAGES.find((l) => l.code === lang)?.label,
+                course: selected.title,
+                n: count
+              })
+            : t('interviewPickCourseHint')}
+        </span>
       </div>
 
       {confirmOpen && (
