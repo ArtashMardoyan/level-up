@@ -86,8 +86,11 @@ func (e *openAIEvaluator) Evaluate(ctx context.Context, in *EvalInput) (EvalResu
 	defer cancel()
 
 	langName := "English"
-	if in.Language == LangRU {
+	switch in.Language {
+	case LangRU:
 		langName = "Russian"
+	case LangHY:
+		langName = "Armenian"
 	}
 
 	userPrompt := fmt.Sprintf(

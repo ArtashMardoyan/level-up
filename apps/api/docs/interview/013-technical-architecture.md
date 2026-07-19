@@ -38,7 +38,7 @@ All under `/interviews`, JWT-protected, scoped to the caller:
 
 | Method | Path | Purpose |
 |---|---|---|
-| POST | `/interviews` | Start a session (`courseSlug`, `difficulty` `easy`\|`medium`\|`hard`, `language` `en`\|`ru`, `questionCount`) → session + first question |
+| POST | `/interviews` | Start a session (`courseSlug`, `difficulty` `easy`\|`medium`\|`hard`, `language` `en`\|`ru`\|`hy`, `questionCount`) → session + first question |
 | GET | `/interviews/:id` | Fetch a session for resume (questions + stored answers/feedback so far) |
 | POST | `/interviews/:id/answers/:questionId` | Submit one answer (`{answer, skipped?}`) → evaluates it, returns `006` (score + rubric + feedback) |
 | POST | `/interviews/:id/complete` | Aggregate results → build + return the final report (`010`) |

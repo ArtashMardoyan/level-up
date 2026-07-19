@@ -33,6 +33,7 @@ const (
 const (
 	LangEN = "en"
 	LangRU = "ru"
+	LangHY = "hy"
 )
 
 // StringList is a []string persisted as a jsonb column (strengths, weaknesses,

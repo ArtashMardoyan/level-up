@@ -5,7 +5,7 @@ package interview
 type CreateInterviewRequest struct {
 	CourseSlug    string `json:"courseSlug"    binding:"required"`
 	Difficulty    string `json:"difficulty"    binding:"required,oneof=easy medium hard"`
-	Language      string `json:"language"      binding:"required,oneof=en ru"`
+	Language      string `json:"language"      binding:"required,oneof=en ru hy"`
 	QuestionCount int    `json:"questionCount" binding:"required,min=1,max=20"`
 }
 
