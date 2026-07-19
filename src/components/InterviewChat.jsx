@@ -31,6 +31,12 @@ function initialMessages(view) {
   return msgs
 }
 
+// Height of the app header, so the chat can fill exactly the space below it.
+function headerHeight() {
+  if (typeof document === 'undefined') return 68
+  return document.querySelector('.app-header')?.offsetHeight || 68
+}
+
 export default function InterviewChat({ onComplete, sessionId, initial, course }) {
   const { t } = useLanguage()
 
@@ -41,7 +47,11 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   const [thinking, setThinking] = useState(false)
   const [completing, setCompleting] = useState(false)
   const [error, setError] = useState(null)
-  const bottomRef = useRef(null)
+  const [chatHeight, setChatHeight] = useState(() => `calc(100dvh - ${headerHeight()}px)`)
+
+  const logRef = useRef(null)
+  const inputRef = useRef(null)
+  const stickRef = useRef(true)
 
   const total = initial.session.questionCount
   const answered = messages.filter((m) => m.kind === 'feedback').length
@@ -50,10 +60,28 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   const accent = course?.accent || '#818cf8'
   const courseTitle = course?.title || ''
 
-  // Auto-scroll to the newest bubble.
+  // Keep the chat sized to the viewport below the (variable-height) header.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    const measure = () => setChatHeight(`calc(100dvh - ${headerHeight()}px)`)
+    const raf = requestAnimationFrame(measure)
+    window.addEventListener('resize', measure)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('resize', measure)
+    }
+  }, [])
+
+  // Auto-scroll the message list to the newest bubble — but only when the user
+  // is already near the bottom, so scrolling up to re-read isn't interrupted.
+  useEffect(() => {
+    const el = logRef.current
+    if (el && stickRef.current) el.scrollTop = el.scrollHeight
   }, [messages, thinking])
+
+  // Focus the answer box whenever a new question is shown.
+  useEffect(() => {
+    if (current && !thinking) inputRef.current?.focus()
+  }, [current, thinking])
 
   // Warn before leaving an in-progress interview.
   useEffect(() => {
@@ -66,12 +94,18 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
     return () => window.removeEventListener('beforeunload', warn)
   }, [finished])
 
+  const onLogScroll = () => {
+    const el = logRef.current
+    if (el) stickRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120
+  }
+
   const submit = (skipped) => {
     if (!current || thinking) return
     const text = skipped ? '' : answer.trim()
     if (!skipped && !text) return
 
     const q = current
+    stickRef.current = true
     setMessages((prev) => [...prev, { id: q.questionId + ':a', kind: 'answer', role: 'user', skipped, text }])
     setAnswer('')
     setThinking(true)
@@ -105,6 +139,14 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
       .finally(() => setThinking(false))
   }
 
+  const onKeyDown = (e) => {
+    // Enter sends, Shift+Enter makes a new line (standard chat behaviour).
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      submit(false)
+    }
+  }
+
   const seeResults = () => {
     setCompleting(true)
     setError(null)
@@ -117,7 +159,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   }
 
   return (
-    <main style={{ '--aic-accent': accent }} className="aic aic-chat">
+    <main style={{ '--aic-accent': accent, height: chatHeight }} className="aic aic-chat">
       <div className="aic-chat-head">
         <span className="aic-chat-head-icon">
           <CourseIcon courseId={course?.id} emoji={course?.emoji} size={20} />
@@ -134,7 +176,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
         <div className="aic-progress-fill" style={{ width: pct + '%' }} />
       </div>
 
-      <div className="aic-chat-log">
+      <div className="aic-chat-log" onScroll={onLogScroll} ref={logRef}>
         {messages.map((m) => (
           <div className={'aic-bubble-row ' + (m.role === 'user' ? 'user' : 'ai')} key={m.id}>
             {m.role === 'ai' && (
@@ -166,10 +208,9 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
             </div>
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
-      {error && <div className="aic-error-note">{error}</div>}
+      {error && <div className="aic-error-note aic-chat-error">{error}</div>}
 
       {current && !finished && (
         <div className="aic-composer">
@@ -177,8 +218,10 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
             placeholder={t('interviewAnswerPlaceholder')}
             onChange={(e) => setAnswer(e.target.value)}
             className="aic-composer-input"
+            onKeyDown={onKeyDown}
             disabled={thinking}
             value={answer}
+            ref={inputRef}
             rows={3}
           />
           <div className="aic-composer-actions">
@@ -194,7 +237,12 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
               <button className="aic-ghost-btn small" onClick={() => submit(true)} disabled={thinking} type="button">
                 {t('interviewSkip')}
               </button>
-              <button onClick={() => submit(false)} className="aic-primary-btn" disabled={thinking} type="button">
+              <button
+                disabled={thinking || !answer.trim()}
+                onClick={() => submit(false)}
+                className="aic-primary-btn"
+                type="button"
+              >
                 {t('interviewSubmit')} <Send aria-hidden="true" size={15} />
               </button>
             </div>
