@@ -1,5 +1,11 @@
 # 008 - Dictionary Engine
 
+> **Status: DEFERRED — post-MVP.** The personalized Dictionary and the English-coaching feedback it
+> feeds on (grammar/vocabulary) are **not** in the MVP — the delivered design has no dictionary
+> screen and the rubric is Correctness / Depth / Communication / Structure (`006`). This ships with
+> the English-coaching version (`014` v2). Spec kept below for that phase; MVP does not create
+> `DictionaryEntry` (`010`).
+
 ## Overview
 
 The Dictionary Engine turns interview feedback into **personalized** learning content. The app

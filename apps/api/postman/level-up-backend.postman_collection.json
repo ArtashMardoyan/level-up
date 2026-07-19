@@ -30,6 +30,10 @@
 			"key": "questionId",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "interviewId",
+			"value": ""
 		}
 	],
 	"item": [
@@ -399,6 +403,207 @@
 							]
 						},
 						"description": "Readiness — pings the database. 200 { \"data\": \"ready\" } when reachable, 503 otherwise. Public."
+					}
+				}
+			]
+		},
+		{
+			"name": "Interviews",
+			"description": "AI Interview Coach (docs/interview). Chat interview: start a session, submit each answer (evaluated on submit, 0-100 rubric), then complete to aggregate the final report. Bilingual (en|ru). All routes are JWT-protected and scoped to the caller.",
+			"item": [
+				{
+					"name": "List Interviews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews?page=1&limit=10",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Paginated interview history for the caller, newest first. Each item is an InterviewSession { id, courseId, difficulty, language, status, overallScore, ... }. Captures the first id into {{interviewId}}."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.items && res.data.items.length) {",
+									"    pm.environment.set('interviewId', res.data.items[0].id);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Interview (resume)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}"
+							]
+						},
+						"description": "Resume payload: { session, history: [{question, result}], current, finished }. Rebuilds the chat from stored answers/feedback up to currentIndex. Captures the current question id into {{questionId}}."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.current) {",
+									"    pm.environment.set('questionId', res.data.current.questionId);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Interview Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/report",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"report"
+							]
+						},
+						"description": "Final report + per-question review for a completed interview: { report, session, review }. report has overallScore /100, the four rubric averages (correctness/depth/communication/structure), verdict, strengths, weaknesses, recommendations."
+					}
+				},
+				{
+					"name": "Start Interview",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews"
+							]
+						},
+						"description": "Start a session. Rejects with 409 if the caller already has one in progress. Returns { session, history, current } with the first question. Captures {{interviewId}} and the first {{questionId}}.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"courseSlug\": \"backend\",\n    \"difficulty\": \"medium\",\n    \"language\": \"en\",\n    \"questionCount\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data) {",
+									"    if (res.data.session) pm.environment.set('interviewId', res.data.session.id);",
+									"    if (res.data.current) pm.environment.set('questionId', res.data.current.questionId);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Submit Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/answers/{{questionId}}",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"answers",
+								"{{questionId}}"
+							]
+						},
+						"description": "Submit one answer. Evaluated on submit via the AI layer (unless skipped) and returns { result, next, finished }. result carries score + rubric + feedback (shown as the AI's chat reply). Captures the next {{questionId}}. Set \"skipped\": true to skip (scores 0, no AI call).",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"answer\": \"Dependency injection is a pattern where a component receives its dependencies from the outside instead of creating them, which improves testability and decoupling.\",\n    \"skipped\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.next) {",
+									"    pm.environment.set('questionId', res.data.next.questionId);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Complete Interview",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/complete",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"complete"
+							]
+						},
+						"description": "Aggregate the per-answer results into the final report (no AI). Idempotent: re-completing returns the existing report. Returns { report, session, review }."
 					}
 				}
 			]

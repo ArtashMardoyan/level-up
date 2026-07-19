@@ -46,6 +46,10 @@ func (*stubCourseRepo) FindQuestionByID(context.Context, string) (course.Questio
 	return course.Question{}, gorm.ErrRecordNotFound
 }
 
+func (*stubCourseRepo) FindQuestionByIDWithTranslations(context.Context, string) (course.Question, error) {
+	return course.Question{}, gorm.ErrRecordNotFound
+}
+
 type stubProgressRepo struct{}
 
 func (stubProgressRepo) FindByUser(context.Context, string) ([]course.UserQuestionProgress, error) {

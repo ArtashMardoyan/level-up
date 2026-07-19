@@ -16,6 +16,7 @@ type CourseRepository interface {
 	FindCourseBySlug(ctx context.Context, slug string) (Course, error)
 	FindQuestionsByCourse(ctx context.Context, courseID string) ([]Question, error)
 	FindQuestionByID(ctx context.Context, id string) (Question, error)
+	FindQuestionByIDWithTranslations(ctx context.Context, id string) (Question, error)
 }
 
 type ProgressRepository interface {

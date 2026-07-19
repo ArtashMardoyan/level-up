@@ -4,38 +4,46 @@ import { readFileSync, readdirSync } from 'node:fs'
 
 const coursesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'internal', 'seed', 'data')
 
-const CYRILLIC = /[а-яё]/i
+const LANGUAGE_SCRIPTS = {
+  hy: /[\u0531-\u0587]/,
+  ru: /[а-яё]/i
+}
 
-function validateCourse(name) {
+function validateCourse(name, lang) {
   const errors = []
   const en = JSON.parse(readFileSync(path.join(coursesDir, name, 'en.json'), 'utf8'))
-  const ru = JSON.parse(readFileSync(path.join(coursesDir, name, 'ru.json'), 'utf8'))
+  const translated = JSON.parse(readFileSync(path.join(coursesDir, name, `${lang}.json`), 'utf8'))
 
-  if (!Array.isArray(ru)) return [`${name}: ru file is not an array`]
-  if (ru.length === 0) return { skipped: true }
-  if (ru.length !== en.length) errors.push(`${name}: length mismatch — en ${en.length}, ru ${ru.length}`)
+  if (!Array.isArray(translated)) return [`${name}: ${lang} file is not an array`]
+  if (translated.length === 0) return { skipped: true }
+  if (translated.length !== en.length) errors.push(`${name}: length mismatch — en ${en.length}, ${lang} ${translated.length}`)
 
-  const count = Math.min(en.length, ru.length)
+  const count = Math.min(en.length, translated.length)
   for (let i = 0; i < count; i++) {
     const enQ = en[i]
-    const ruQ = ru[i]
+    const translatedQ = translated[i]
     const label = `${name}[${i}] (${enQ.id})`
-    if (ruQ.id !== enQ.id) errors.push(`${label}: id mismatch — ru has "${ruQ.id}"`)
-    if (typeof ruQ.question !== 'string' || !ruQ.question.trim()) errors.push(`${label}: empty question`)
-    if (typeof ruQ.answer !== 'string' || !ruQ.answer.trim()) errors.push(`${label}: empty answer`)
-    if (Boolean(enQ.bonus) !== Boolean(ruQ.bonus)) errors.push(`${label}: bonus presence mismatch`)
-    if (ruQ.module !== undefined) errors.push(`${label}: ru entries must not carry "module" (labels stay English)`)
-    if (typeof ruQ.question === 'string' && !CYRILLIC.test(ruQ.question)) {
-      errors.push(`${label}: question has no Cyrillic — untranslated?`)
+    if (translatedQ.id !== enQ.id) errors.push(`${label}: id mismatch — ${lang} has "${translatedQ.id}"`)
+    if (typeof translatedQ.question !== 'string' || !translatedQ.question.trim()) errors.push(`${label}: empty question`)
+    if (typeof translatedQ.answer !== 'string' || !translatedQ.answer.trim()) errors.push(`${label}: empty answer`)
+    if (Boolean(enQ.bonus) !== Boolean(translatedQ.bonus)) errors.push(`${label}: bonus presence mismatch`)
+    if (translatedQ.module !== undefined) errors.push(`${label}: ${lang} entries must not carry "module" (labels stay English)`)
+    const script = LANGUAGE_SCRIPTS[lang]
+    if (script && typeof translatedQ.question === 'string' && !script.test(translatedQ.question)) {
+      errors.push(`${label}: question has no ${lang} script — untranslated?`)
     }
-    if (typeof ruQ.answer === 'string' && !CYRILLIC.test(ruQ.answer)) {
-      errors.push(`${label}: answer has no Cyrillic — untranslated?`)
+    if (script && typeof translatedQ.answer === 'string' && !script.test(translatedQ.answer)) {
+      errors.push(`${label}: answer has no ${lang} script — untranslated?`)
     }
   }
   return errors
 }
 
-const requested = process.argv.slice(2)
+const args = process.argv.slice(2)
+const langIndex = args.indexOf('--lang')
+const lang = langIndex === -1 ? 'ru' : args[langIndex + 1]
+if (langIndex !== -1 && !lang) throw new Error('--lang needs a value')
+const requested = args.filter((arg, index) => index !== langIndex && index !== langIndex + 1)
 const names = requested.length
   ? requested
   : readdirSync(coursesDir, { withFileTypes: true })
@@ -46,7 +54,7 @@ let failed = false
 for (const name of names) {
   let result
   try {
-    result = validateCourse(name)
+    result = validateCourse(name, lang)
   } catch (error) {
     result = [`${name}: ${error.message}`]
   }

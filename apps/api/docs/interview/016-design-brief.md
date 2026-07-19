@@ -1,13 +1,18 @@
-# 016 - Design Brief (for Claude Design)
+# 016 - Design Reference (delivered)
 
 ## Purpose
 
-A visual brief to mock up the **AI Interview Coach** screens in Claude Design **before** coding.
-Feed this to Claude Design together with the existing design system so the mockup is on-brand.
+Reference for the **AI Interview Coach** screens **as delivered** in Claude Design
+(`AI Interview Coach.dc.html`, project "Level up Node.js review"). Implement the JSX screens (`011`)
+to match this. Pull it via the DesignSync flow when it changes.
 
 > **Reuse the existing design system — do not invent a new look.** The whole app is built from
 > `docs/redesign/handoff/Level Up.dc.html` + its README (tokens, components). The interview screens
-> must look like the rest of Level Up (same header, cards, buttons, progress bar, dark theme).
+> use the same header, cards, buttons, progress bar, and dark theme.
+
+> **Delivered flow:** Setup (+ start-confirm modal) → Interview **chat** → Results → Review →
+> History. Scores are **0–100**; the Results breakdown is **Correctness / Depth / Communication /
+> Structure**. No personalized-Dictionary screen (English coaching is post-MVP, `008`).
 
 ---
 
@@ -53,47 +58,46 @@ sign-in prompt (same pattern as profile/notifications).
 
 ## Screens
 
-### 1 — Interview Setup  (`#interview`)
-Card-based setup, page title row ("AI Interview", target icon).
-- **Course** — pick from the 8 courses (reuse course tiles/accents).
-- **Difficulty** — segmented control: Easy / Medium / Hard.
-- **Number of questions** — segmented or stepper (e.g. 3 / 5 / 10).
-- Primary **Start Interview** button (indigo gradient, like auth submit); secondary Cancel.
-- Empty/validation: Start disabled until course + difficulty chosen.
+### 1 — Setup  (`#interview`)
+Eyebrow "New session" + H1 "Set up your mock interview".
+- **1 · Choose a course** — grid of the 8 course tiles (per-course accent/icon + question count).
+- **2 · Difficulty** — segmented control: Easy / Medium / Hard.
+- **3 · Number of questions** — segmented (3 / 5 / 10).
+- **4 · Language** — segmented control: **English / Русский**. ⚠️ **To add in Claude Design** — the
+  current `.dc.html` has no language control. Reuse the same `.aic-seg` segmented style as difficulty.
+  The interview runs bilingually (questions, model answer, AI feedback follow this choice — `004`).
+- Primary **Start interview** button (indigo gradient) → opens the confirm modal.
 
-### 2 — Interview  (`#interview/:id`)
-Focused, one question at a time.
-- Top: **ProgressBar** (course accent) + `Q n / N` mono chip + course name.
-- **Question** card (Space Grotesk, ~20–24px), module label (mono, uppercase, `--text-3`).
-- **Answer editor** — large textarea, `--control` bg, `--border-2`, radius 12, autofocus,
-  char/auto-save hint ("Saved").
-- Footer: **Skip** (ghost) · **Submit / Next** (primary). On last question: **Finish interview**.
-- Auto-save indicator; "warn before leaving" is behavior, not visual.
+### 1b — Start-confirm modal
+Overlay + blur, `--panel-solid` card. Course icon, "Ready to start?", a summary ("N {difficulty}
+questions on {course}"), a 3-item expectations list (no timer · feedback + model answer after each ·
+overall score at the end). Buttons: **Cancel** · **Begin interview**.
 
-### 3 — Evaluating
-Loading screen while the AI evaluates (server-side).
-- Centered: animated indicator (reuse shimmer/spinner style), friendly status
-  ("Evaluating your answers…"), maybe per-answer tick list.
-- No actions; prevent double-submit.
+### 2 — Interview chat  (`#interview/:id`)
+Conversational, one question at a time.
+- Top: course icon + `{Course} interview`, `{Difficulty} · Question n of N`, `progress %`, and a
+  course-accent **ProgressBar**.
+- **Chat transcript** — AI question bubbles (bot avatar) + user answer bubbles; the AI **feedback**
+  bubble appears after each answer. A **"thinking"** three-dot indicator while evaluating.
+- **Composer** (sticky bottom, `--panel-solid`): textarea + **Sample answer** (ghost) + **Submit**
+  (primary). On finish: an **"Interview complete 🎉"** card with **Review answers** / **See results**.
 
-### 4 — Final Report
-The payoff screen. Sections (stacked cards, like the profile page):
-- **Overall score** hero — big number /10 + one-line verdict + a radial/label per dimension
-  (Technical / English / Communication) using mono labels + small bars.
-- **Strengths** and **Improvements** — two lists (green `#4ade80` / rose `#fb7185` accents).
-- **Missing concepts** — chips.
-- **English feedback** — grammar fixes (original → corrected) + vocabulary swaps
-  (weak → stronger), styled like the dictionary rows.
-- **Recommendations** — "Next lesson" + "Next interview" cards with course accent + CTA.
-- Actions: **Review Dictionary** · **Start Next Interview**.
+### 3 — Results  (`#interview/:id/results`)
+The payoff. Stacked cards:
+- **Overall score** hero — radial ring, big number **/100**, verdict label, course · difficulty.
+- **Score breakdown** — four labelled bars: **Correctness / Depth / Communication / Structure**.
+- **What went well** (green `#4ade80`) and **Focus areas** (rose `#fb7185`) lists.
+- **Recommended next steps** — numbered list.
+- Actions: **Review all answers** · **New interview**.
 
-### 5 — Personalized Dictionary (secondary)
-A per-user section on the existing Dictionary screen: cards for Vocabulary / Grammar Fixes /
-Interview Phrases / Words to Use More Often, each with priority + repetition count. Match the
-current dictionary visual language.
+### 4 — Review  (`#interview/:id/review`)
+Per-question cards: `Q n`, the question, a **per-question score chip** (color by band), **Your
+answer**, **Strengths** / **To improve** (two columns), and the **Model answer** (the question's
+stored answer).
 
-### 6 — Recommendations (secondary)
-A "what's next" list (ranked Critical / Recommended / Optional) — reuse card + accent + chips.
+### 5 — History  (`#interview/history`)
+List of past interviews (course icon, title, date, meta, per-row **score**, chevron → Results).
+Empty state: "No interviews yet" + CTA.
 
 ---
 
@@ -107,18 +111,22 @@ A "what's next" list (ranked Critical / Recommended / Optional) — reuse card +
 
 ## Data → UI mapping (so nothing's invented)
 
-- Scores/strengths/weaknesses/missingConcepts/grammarCorrections/vocabularySuggestions come from the
-  AI response schema (`006`). Report summaries from `FinalReport` (`010`).
-- Recommendations from `009`. Dictionary entries from `008`.
+- Per-answer chat feedback + per-question score + strengths/weaknesses come from the AI response
+  schema (`006`). The **Model answer** (Review) and **Sample answer** (composer) are the question's
+  stored `answer` from the bank (`004`).
+- Results overall score /100, the four rubric averages, verdict, and recommendations come from
+  `FinalReport` (`010`) / `009`. History rows from the sessions list (`013`).
 
-## Out of scope for this mockup
+## Out of scope
 
-Voice / live-coding / video / avatar interviewer (future — `015`). Design text interviews only.
+Voice / live-coding / video / avatar interviewer (future — `015`). English-coaching / personalized
+Dictionary screen (post-MVP — `008`). Text interviews only.
 
 ---
 
 ## Handoff loop
 
-1. Build these screens in Claude Design, reusing the tokens/components above.
-2. Say "прокачай изменения" — the design is pulled into `docs/redesign/` and implemented
-   (Go backend per `013` + JSX screens per `011`). See the sync workflow.
+1. The design lives in Claude Design (`AI Interview Coach.dc.html`), reusing the tokens/components
+   above.
+2. Say "прокачай изменения" — the design is pulled via DesignSync and implemented (Go backend per
+   `013` + JSX screens per `011`). See the sync workflow.

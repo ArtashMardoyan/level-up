@@ -89,6 +89,19 @@ func (r *gormCourseRepository) FindQuestionByID(ctx context.Context, id string) 
 	return question, err
 }
 
+// FindQuestionByIDWithTranslations loads a question together with its per-language
+// translations (question text + ideal answer). Used by the interview module to
+// serve a question and its model answer in the session language.
+func (r *gormCourseRepository) FindQuestionByIDWithTranslations(ctx context.Context, id string) (Question, error) {
+	var question Question
+
+	err := r.db.WithContext(ctx).
+		Preload("Translations").
+		First(&question, "id = ?", id).Error
+
+	return question, err
+}
+
 type gormProgressRepository struct {
 	db *gorm.DB
 }
