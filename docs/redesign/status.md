@@ -110,3 +110,21 @@ New feature screens under `#interview`, built to the delivered Claude Design
   interview design docs to add in Claude Design.
 - Verified: `npm run lint` clean, `npm run build` OK. End-to-end needs the interview backend
   running (the `interview` Go module is built but not yet deployed).
+
+## Interview performance (profile + header), per Claude Design update
+- **Account dropdown** (`AccountMenu.jsx`): mini-stats replaced Reviewed/Saved with
+  **Interviews** (`totalCompleted`) and **Avg score** (dynamically colored by `scoreColor`),
+  fetched from the new `GET /interviews/summary` alongside `progressSummary()`.
+- **`ProfilePage.jsx`**: the 3-tile stat row became a 4-tile `auto-fit` grid — Streak,
+  Interviews, Avg score, **Best score** (new). Added a new **"Interview performance"** card:
+  a highlighted latest-session box (big score + course/difficulty + language flag+code pill,
+  e.g. 🇦🇲 ARM) and a recent-3 list (reuses `.aic-recent-*` from the Interview Coach dashboard),
+  each row also showing its language flag+code. "See all" → `#interview/history`.
+- New CSS: `.profile-iv-latest*`, `.profile-iv-lang`, `.profile-iv-meta`,
+  `.profile-iv-recent-lang`; `.account-stat-value.indigo`; `.profile-stats` grid changed from
+  `repeat(3, 1fr)` to `repeat(auto-fit, minmax(140px, 1fr))`.
+- Endpoint: `interviewsSummary()` in `endpoints.js` → backend `GET /interviews/summary`
+  (`level-up-backend`, no migration — aggregates existing `interview_sessions` columns).
+- Verified end-to-end: seeded 3 completed sessions (en/ru/hy) against a local backend +
+  Postgres, confirmed via screenshot that stats, colors, and language flags render correctly
+  in both the header dropdown and the profile page.

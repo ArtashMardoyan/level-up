@@ -4,33 +4,40 @@ import { ChevronRight, LogOut, LogIn, Moon, User, Sun } from 'lucide-react'
 import AuthDialog from './AuthDialog'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
-import { progressSummary } from '../services/endpoints'
+import { interviewsSummary, progressSummary } from '../services/endpoints'
+
+function scoreColor(n) {
+  if (n >= 85) return '#4ade80'
+  if (n >= 70) return '#818cf8'
+  if (n >= 50) return '#fbbf24'
+  return '#fb7185'
+}
 
 export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
   const { setLanguage, language, t } = useLanguage()
   const { logout, user } = useAuth()
   const [open, setOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
-  const [totals, setTotals] = useState({ reviewed: 0, streak: 0, saved: 0 })
+  const [totals, setTotals] = useState({ interviews: 0, avgScore: 0, streak: 0 })
   const wrapRef = useRef(null)
 
   const signedIn = !!user
   const displayName = user?.name || ''
 
-  // Real reviewed/favorite totals for the account, fetched when the menu opens.
+  // Real streak/interview totals for the account, fetched when the menu opens.
   useEffect(() => {
     if (!open || !signedIn) return
     let active = true
-    progressSummary()
-      .then((data) => {
-        if (active)
-          setTotals({
-            reviewed: data?.totalReviewed || 0,
-            saved: data?.totalFavorites || 0,
-            streak: data?.currentStreak || 0
-          })
-      })
-      .catch(() => {})
+    Promise.all([progressSummary().catch(() => null), interviewsSummary().catch(() => null)]).then(
+      ([progress, interviews]) => {
+        if (!active) return
+        setTotals({
+          interviews: interviews?.totalCompleted || 0,
+          streak: progress?.currentStreak || 0,
+          avgScore: interviews?.avgScore || 0
+        })
+      }
+    )
     return () => {
       active = false
     }
@@ -107,12 +114,14 @@ export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
                 <span className="account-stat-label">{t('accountStatStreak')}</span>
               </span>
               <span className="account-stat">
-                <span className="account-stat-value green">{totals.reviewed}</span>
-                <span className="account-stat-label">{t('accountStatReviewed')}</span>
+                <span className="account-stat-value indigo">{totals.interviews}</span>
+                <span className="account-stat-label">{t('accountStatInterviews')}</span>
               </span>
               <span className="account-stat">
-                <span className="account-stat-value amber">★{totals.saved}</span>
-                <span className="account-stat-label">{t('accountStatSaved')}</span>
+                <span style={{ color: scoreColor(totals.avgScore) }} className="account-stat-value">
+                  {totals.avgScore}
+                </span>
+                <span className="account-stat-label">{t('accountStatAvgScore')}</span>
               </span>
             </div>
           ) : (

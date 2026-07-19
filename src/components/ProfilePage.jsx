@@ -1,11 +1,29 @@
 import { useEffect, useState } from 'react'
-import { CheckCircle2, ArrowLeft, LogOut, Trophy, Pencil, Trash2, Flame, Star } from 'lucide-react'
+import { ChevronRight, TrendingUp, ArrowLeft, History, LogOut, Trophy, Pencil, Trash2, Flame, Star } from 'lucide-react'
 
+import CourseIcon from './CourseIcon'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
 import EditProfileDialog from './EditProfileDialog'
 import { notificationMeta, relativeTime } from '../data/notifications'
-import { notificationsList, progressSummary, usersDelete } from '../services/endpoints'
+import {
+  notificationsList,
+  interviewsSummary,
+  progressSummary,
+  interviewsList,
+  usersDelete
+} from '../services/endpoints'
+
+// Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
+const IV_LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }
+const IV_LANG_LABEL = { en: 'ENG', ru: 'RUS', hy: 'ARM' }
+
+function ivScoreColor(n) {
+  if (n >= 85) return '#4ade80'
+  if (n >= 70) return '#818cf8'
+  if (n >= 50) return '#fbbf24'
+  return '#fb7185'
+}
 
 // Achievements are derived from the real reviewed/saved/streak numbers — each
 // entry unlocks once its threshold is met, so the row only ever shows earned badges.
@@ -27,6 +45,8 @@ export default function ProfilePage({ onNavigate, courses }) {
   const { language, t } = useLanguage()
   const [summary, setSummary] = useState(null)
   const [activity, setActivity] = useState([])
+  const [ivSummary, setIvSummary] = useState(null)
+  const [ivRecent, setIvRecent] = useState([])
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
 
@@ -35,11 +55,18 @@ export default function ProfilePage({ onNavigate, courses }) {
   useEffect(() => {
     if (!user) return
     let active = true
-    Promise.all([progressSummary().catch(() => null), notificationsList(1, 5).catch(() => null)])
-      .then(([summ, notifs]) => {
+    Promise.all([
+      progressSummary().catch(() => null),
+      notificationsList(1, 5).catch(() => null),
+      interviewsSummary().catch(() => null),
+      interviewsList(1, 3).catch(() => null)
+    ])
+      .then(([summ, notifs, ivSumm, ivList]) => {
         if (!active) return
         if (summ) setSummary(summ)
         if (notifs) setActivity(notifs.items || [])
+        if (ivSumm) setIvSummary(ivSumm)
+        if (ivList) setIvRecent(ivList.items || [])
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -83,6 +110,21 @@ export default function ProfilePage({ onNavigate, courses }) {
     .sort((a, b) => b.saved - a.saved)
 
   const achievements = earnedAchievements(reviewed, saved, streak, t)
+
+  const ivTotal = ivSummary?.totalCompleted || 0
+  const ivAvg = ivSummary?.avgScore || 0
+  const ivBest = ivSummary?.bestScore || 0
+  const ivLast = ivSummary?.lastSession || null
+  const ivCourseFor = (courseId) => courses.find((c) => c.uuid === courseId || c.id === courseId) || null
+  const ivFmtDate = (session) => {
+    const raw = session.completedAt || session.createdAt
+    if (!raw) return ''
+    try {
+      return new Date(raw).toLocaleDateString(language, { day: 'numeric', month: 'short' })
+    } catch {
+      return ''
+    }
+  }
 
   const onDelete = () => {
     if (!window.confirm(t('profileDeleteConfirm'))) return
@@ -136,19 +178,104 @@ export default function ProfilePage({ onNavigate, courses }) {
           <span className="profile-stat-label">{t('profileStatStreakLabel')}</span>
         </div>
         <div className="profile-stat">
-          <span className="profile-stat-icon green">
-            <CheckCircle2 aria-hidden="true" size={20} />
+          <span className="profile-stat-icon indigo">
+            <History aria-hidden="true" size={20} />
           </span>
-          <span className="profile-stat-value">{loading ? '—' : reviewed}</span>
-          <span className="profile-stat-label">{t('profileStatReviewedLabel')}</span>
+          <span className="profile-stat-value">{loading ? '—' : ivTotal}</span>
+          <span className="profile-stat-label">{t('profileStatInterviewsLabel')}</span>
         </div>
         <div className="profile-stat">
-          <span className="profile-stat-icon indigo">
-            <Star aria-hidden="true" size={20} />
+          <span className="profile-stat-icon green">
+            <TrendingUp aria-hidden="true" size={20} />
           </span>
-          <span className="profile-stat-value">{loading ? '—' : saved}</span>
-          <span className="profile-stat-label">{t('profileStatSavedLabel')}</span>
+          <span style={loading ? undefined : { color: ivScoreColor(ivAvg) }} className="profile-stat-value">
+            {loading ? '—' : ivAvg}
+          </span>
+          <span className="profile-stat-label">{t('profileStatAvgScoreLabel')}</span>
         </div>
+        <div className="profile-stat">
+          <span className="profile-stat-icon amber">
+            <Trophy aria-hidden="true" size={20} />
+          </span>
+          <span style={loading ? undefined : { color: ivScoreColor(ivBest) }} className="profile-stat-value">
+            {loading ? '—' : ivBest}
+          </span>
+          <span className="profile-stat-label">{t('profileStatBestScoreLabel')}</span>
+        </div>
+      </section>
+
+      {/* Interview performance */}
+      <section className="profile-card">
+        <div className="profile-card-head">
+          <h2 className="profile-card-title">{t('profileIvPerformance')}</h2>
+          <button onClick={() => onNavigate('interview', 'history')} className="profile-seeall" type="button">
+            {t('profileSeeAll')}
+          </button>
+        </div>
+        {loading ? (
+          <div className="profile-progress-list">
+            {[0, 1, 2].map((i) => (
+              <span className="skeleton profile-progress-skel" key={i} />
+            ))}
+          </div>
+        ) : ivLast ? (
+          <>
+            <div className="profile-iv-latest">
+              <div style={{ color: ivScoreColor(ivLast.overallScore) }} className="profile-iv-latest-score">
+                {ivLast.overallScore}
+              </div>
+              <div className="profile-iv-latest-info">
+                <div className="profile-iv-latest-label">{t('profileIvLatestLabel')}</div>
+                <div className="profile-iv-latest-track">
+                  <span className="profile-iv-latest-title">
+                    {ivCourseFor(ivLast.courseId)?.title || ''} · {t('difficulty_' + ivLast.difficulty)}
+                  </span>
+                  <span className="profile-iv-lang">
+                    <span aria-hidden="true">{IV_LANG_FLAG[ivLast.language] || '🌐'}</span>
+                    {IV_LANG_LABEL[ivLast.language] || ivLast.language}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              {ivRecent.map((s) => {
+                const c = ivCourseFor(s.courseId)
+                return (
+                  <button
+                    style={{ '--aic-accent': c?.accent || '#818cf8' }}
+                    onClick={() => onNavigate('interview', s.id)}
+                    className="aic-recent-row"
+                    type="button"
+                    key={s.id}
+                  >
+                    <span className="aic-recent-icon">
+                      <CourseIcon courseId={c?.id} emoji={c?.emoji} size={18} />
+                    </span>
+                    <div className="aic-recent-body">
+                      <div className="aic-recent-title">{c?.title || ''}</div>
+                      <div className="aic-recent-meta profile-iv-meta">
+                        <span>{ivFmtDate(s)}</span>
+                        <span className="profile-iv-recent-lang">
+                          <span aria-hidden="true">{IV_LANG_FLAG[s.language] || '🌐'}</span>
+                          {IV_LANG_LABEL[s.language] || s.language}
+                        </span>
+                      </div>
+                    </div>
+                    <span
+                      style={{ color: s.overallScore != null ? ivScoreColor(s.overallScore) : 'var(--text-3)' }}
+                      className="aic-recent-score"
+                    >
+                      {s.overallScore != null ? s.overallScore : '—'}
+                    </span>
+                    <ChevronRight className="aic-recent-chevron" aria-hidden="true" size={16} />
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        ) : (
+          <p className="profile-empty">{t('profileNoInterviews')}</p>
+        )}
       </section>
 
       {/* Course progress + Recent activity */}

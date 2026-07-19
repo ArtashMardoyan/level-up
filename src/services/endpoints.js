@@ -35,6 +35,7 @@ export const interviewReport = (id) => apiGet(`/interviews/${id}/report`)
 export const interviewComplete = (id) => apiPost(`/interviews/${id}/complete`)
 export const interviewsCreate = (payload) => apiPost('/interviews', payload)
 export const interviewsList = (page = 1, limit = 10) => apiGet(`/interviews?page=${page}&limit=${limit}`)
+export const interviewsSummary = () => apiGet('/interviews/summary')
 export const interviewSubmitAnswer = (id, questionId, payload) =>
   apiPost(`/interviews/${id}/answers/${questionId}`, payload)
 

@@ -425,6 +425,9 @@ select.plain-btn {
 .account-stat-value.green {
   color: #4ade80;
 }
+.account-stat-value.indigo {
+  color: #818cf8;
+}
 .account-stat-label {
   font-family: var(--font-mono);
   font-size: 9.5px;
@@ -2268,7 +2271,7 @@ footer {
 /* Stat row */
 .profile-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -4270,6 +4273,82 @@ footer {
 .aic-recent-chevron {
   color: var(--text-3);
   flex-shrink: 0;
+}
+
+/* Profile page: Interview performance panel (latest-session box + recent list,
+   the recent list itself reuses .aic-recent-* above). */
+.profile-iv-latest {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--control);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.profile-iv-latest-score {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 40px;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.profile-iv-latest-info {
+  flex: 1;
+  min-width: 140px;
+}
+.profile-iv-latest-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+.profile-iv-latest-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.profile-iv-latest-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+}
+.profile-iv-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.profile-iv-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.profile-iv-recent-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: var(--text-2);
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--control);
+  border: 1px solid var(--border);
 }
 
 @media (max-width: 640px) {
