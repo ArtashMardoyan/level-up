@@ -7,6 +7,12 @@ import { interviewsCreate } from '../services/endpoints'
 
 const DIFFICULTIES = ['easy', 'medium', 'hard']
 const COUNTS = [3, 5, 10]
+// Interview language (ENG/RUS/ARM). Codes match the app locales / backend `hy`.
+const LANGUAGES = [
+  { label: 'ENG', flag: '🇬🇧', code: 'en' },
+  { label: 'RUS', flag: '🇷🇺', code: 'ru' },
+  { label: 'ARM', flag: '🇦🇲', code: 'hy' }
+]
 
 export default function InterviewSetup({ onHistory, onStarted, courses, onBack }) {
   const { language, t } = useLanguage()
@@ -15,7 +21,7 @@ export default function InterviewSetup({ onHistory, onStarted, courses, onBack }
   const [courseId, setCourseId] = useState(null)
   const [difficulty, setDifficulty] = useState('medium')
   const [count, setCount] = useState(5)
-  const [lang, setLang] = useState(language === 'ru' ? 'ru' : 'en')
+  const [lang, setLang] = useState(['en', 'ru', 'hy'].includes(language) ? language : 'en')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -104,20 +110,16 @@ export default function InterviewSetup({ onHistory, onStarted, courses, onBack }
 
       <div className="aic-step-label">{t('interviewStepLanguage')}</div>
       <div className="aic-seg">
-        <button
-          className={'aic-seg-btn' + (lang === 'en' ? ' active' : '')}
-          onClick={() => setLang('en')}
-          type="button"
-        >
-          English
-        </button>
-        <button
-          className={'aic-seg-btn' + (lang === 'ru' ? ' active' : '')}
-          onClick={() => setLang('ru')}
-          type="button"
-        >
-          Русский
-        </button>
+        {LANGUAGES.map((l) => (
+          <button
+            className={'aic-seg-btn aic-lang-btn' + (lang === l.code ? ' active' : '')}
+            onClick={() => setLang(l.code)}
+            type="button"
+            key={l.code}
+          >
+            <span aria-hidden="true">{l.flag}</span> {l.label}
+          </button>
+        ))}
       </div>
 
       {error && <div className="aic-error-note">{error}</div>}

@@ -6,6 +6,7 @@ import { useLanguage } from '../hooks/useLanguage'
 import { interviewsList } from '../services/endpoints'
 
 const PAGE_SIZE = 10
+const LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }
 
 function scoreColor(n) {
   if (n >= 85) return '#4ade80'
@@ -122,7 +123,7 @@ export default function InterviewHistory({ courses, onOpen, onBack, onNew }) {
                 <span className="aic-history-body">
                   <span className="aic-history-title">{t('interviewChatTitle', { course: c?.title || '' })}</span>
                   <span className="aic-history-meta">
-                    {fmtDate(s)} · {t('difficulty_' + s.difficulty)} ·{' '}
+                    {LANG_FLAG[s.language] || '🌐'} {fmtDate(s)} · {t('difficulty_' + s.difficulty)} ·{' '}
                     {t('interviewQuestionsTotal', { n: s.questionCount })}
                     {s.status !== 'completed' ? ' · ' + t('interviewInProgress') : ''}
                   </span>
