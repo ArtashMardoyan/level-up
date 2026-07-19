@@ -162,6 +162,12 @@ export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
               >
                 Русский
               </button>
+              <button
+                className={'segmented-btn' + (language === 'hy' ? ' active' : '')}
+                onClick={() => setLanguage('hy')}
+              >
+                Հայերեն
+              </button>
             </div>
           </div>
 

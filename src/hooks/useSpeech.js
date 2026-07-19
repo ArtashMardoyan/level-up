@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 
 const DEFAULT_VOICE_NAMES = {
   en: ['Google US English', 'Samantha'],
-  ru: ['Google русский', 'Milena']
+  ru: ['Google русский', 'Milena'],
+  hy: []
 }
 
 // The app no longer lets users pick a voice — it always uses the language's

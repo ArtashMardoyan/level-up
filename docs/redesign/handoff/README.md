@@ -38,6 +38,15 @@ Redesign of the "Level Up" interview-prep home screen. One screen with a segment
 tab switch between two grids of cards: **Courses** (learning tracks) and
 **Dictionary** (English / speaking practice). Dark developer aesthetic.
 
+## Localization
+
+The product UI supports three independent site locales: English (`en`), Russian (`ru`), and
+Armenian (`hy`, displayed as `Հայերեն`). The selected site locale changes UI chrome, dates, and
+course-content requests; it is persisted locally and defaults to Armenian for `hy-*` browser
+locales. Text-to-speech uses an installed Armenian voice when available, with `hy-AM` as the
+browser fallback. Interview language is a separate choice and is specified in the backend interview
+documentation. Armenian uses Noto Sans Armenian so every Armenian glyph renders consistently.
+
 ## About the Design Files
 The file in this bundle (`Level Up.dc.html`) is a **design reference created in HTML** —
 a prototype showing the intended look and behavior. It is **not** production code to

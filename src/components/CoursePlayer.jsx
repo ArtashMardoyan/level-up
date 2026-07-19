@@ -111,8 +111,8 @@ export default function CoursePlayer({
       },
       // One track per question: the question, then the answer (speech fallback
       // reads both; the MP3 already contains both).
+      lang: voice ? voice.lang : language === 'hy' ? 'hy-AM' : language === 'ru' ? 'ru-RU' : 'en-US',
       text: [currentItem.question, currentItem.answer].filter(Boolean).join('\n\n'),
-      lang: voice ? voice.lang : language === 'ru' ? 'ru-RU' : 'en-US',
       url: audioUrl(currentItem.audio),
       voice,
       id

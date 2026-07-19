@@ -67,6 +67,10 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       `manifest.webmanifest` + `<head>` tags; `CoursePlayer` sets `navigator.mediaSession.metadata`
       so the logo + question title show on the iPhone lock screen while an MP3 plays. Icon/manifest
       paths use the `/level-up/` base. See `docs/redesign/handoff/ICONS_AND_LOCKSCREEN.md`.
+- [x] **Armenian UI locale** — the account-menu selector and persisted language state support
+      `en`, `ru`, and `hy`; Armenian-browser locales default to `hy`. All UI strings have an
+      Armenian translation and browser speech uses `hy-AM` when no matching installed voice is found.
+      Course content/audio translation is tracked separately in the backend.
 
 ## Gotchas (fixed)
 - A `transform` entrance animation on `.wrap` created a containing block that broke the player's
@@ -90,3 +94,18 @@ player, in dark + light themes.
 Footer links (most are placeholders); the reference's "glow on/off" and "compact density"
 design-tool props. The `new_questions` notification now fans out on a content reseed
 (`cmd/seed`); the only generator still pending is `daily` (see the engagement plan).
+
+## AI Interview Coach (MVP frontend)
+New feature screens under `#interview`, built to the delivered Claude Design
+`AI Interview Coach.dc.html` (spec: `level-up-backend/docs/interview/**`):
+- `InterviewCoach` (container + auth gate + `key={sessionId}` session loader), `InterviewSetup`
+  (course/difficulty/count/**language** + confirm modal), `InterviewChat` (chat bubbles, composer,
+  sample answer, per-answer feedback, thinking dots), `InterviewResults` (score ring /100, 4-axis
+  rubric breakdown, strengths/focus, next steps, + inline Review), `InterviewHistory`.
+- Entry: a CTA on the home screen (`.home-interview-cta`) → `#interview`.
+- Styles: `.aic-*` block appended to `index.css` (reuses tokens; light+dark). Strings added in
+  `strings.js` for en/ru/hy. Endpoints in `endpoints.js` (`interviews*`).
+- **Language selector was added here** (en/ru) — the delivered `.dc.html` had none; flagged in the
+  interview design docs to add in Claude Design.
+- Verified: `npm run lint` clean, `npm run build` OK. End-to-end needs the interview backend
+  running (the `interview` Go module is built but not yet deployed).
