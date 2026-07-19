@@ -8,11 +8,13 @@ const LANGUAGE_STORAGE_KEY = 'interviewPrepLanguage'
 function getInitialLanguage() {
   try {
     const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY)
-    if (saved === 'en' || saved === 'ru') return saved
+    if (saved === 'en' || saved === 'hy' || saved === 'ru') return saved
   } catch {
     /* ignore */
   }
-  return navigator.language?.toLowerCase().startsWith('ru') ? 'ru' : 'en'
+  const browserLanguage = navigator.language?.toLowerCase()
+  if (browserLanguage?.startsWith('hy')) return 'hy'
+  return browserLanguage?.startsWith('ru') ? 'ru' : 'en'
 }
 
 // Owner side — called exactly once, in App, to create the context value.

@@ -101,25 +101,20 @@ export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
           )}
 
           {signedIn ? (
-            <>
-              <div className="account-stats">
-                <span className="account-stat">
-                  <span className="account-stat-value amber">🔥{totals.streak}</span>
-                  <span className="account-stat-label">{t('accountStatStreak')}</span>
-                </span>
-                <span className="account-stat">
-                  <span className="account-stat-value green">{totals.reviewed}</span>
-                  <span className="account-stat-label">{t('accountStatReviewed')}</span>
-                </span>
-                <span className="account-stat">
-                  <span className="account-stat-value amber">★{totals.saved}</span>
-                  <span className="account-stat-label">{t('accountStatSaved')}</span>
-                </span>
-              </div>
-              <button className="account-view-profile" onClick={viewProfile} type="button">
-                <User aria-hidden="true" size={16} /> {t('accountViewProfile')}
-              </button>
-            </>
+            <div className="account-stats">
+              <span className="account-stat">
+                <span className="account-stat-value amber">🔥{totals.streak}</span>
+                <span className="account-stat-label">{t('accountStatStreak')}</span>
+              </span>
+              <span className="account-stat">
+                <span className="account-stat-value green">{totals.reviewed}</span>
+                <span className="account-stat-label">{t('accountStatReviewed')}</span>
+              </span>
+              <span className="account-stat">
+                <span className="account-stat-value amber">★{totals.saved}</span>
+                <span className="account-stat-label">{t('accountStatSaved')}</span>
+              </span>
+            </div>
           ) : (
             <>
               <button className="account-signin" onClick={openAuth}>
@@ -161,6 +156,12 @@ export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
                 onClick={() => setLanguage('ru')}
               >
                 Русский
+              </button>
+              <button
+                className={'segmented-btn' + (language === 'hy' ? ' active' : '')}
+                onClick={() => setLanguage('hy')}
+              >
+                Հայերեն
               </button>
             </div>
           </div>

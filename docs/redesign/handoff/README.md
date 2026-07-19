@@ -6,6 +6,10 @@
 > bundles anything under `docs/`. Implementation status lives in `docs/redesign/status.md`.
 
 ## Changelog
+- **2026-07-19** — **Removed the separate "View profile" button** from the account dropdown
+  (`AccountMenu.jsx`) — the clickable avatar/name row (chevron + hover) is the sole entry point
+  into `#profile` now; the two matched the Claude Design source, which had already dropped the
+  standalone button. See **Profile & edit** below.
 - **2026-07-17** — **Fix: profile identity card squashed on mobile.** The code had
   `.profile-identity-body { min-width: 0 }`; the reference uses `min-width: 200px`. With `0` the
   flex-wrap never triggers, the Edit button stays in-row, and the bio wraps one word per line.
@@ -37,6 +41,15 @@
 Redesign of the "Level Up" interview-prep home screen. One screen with a segmented
 tab switch between two grids of cards: **Courses** (learning tracks) and
 **Dictionary** (English / speaking practice). Dark developer aesthetic.
+
+## Localization
+
+The product UI supports three independent site locales: English (`en`), Russian (`ru`), and
+Armenian (`hy`, displayed as `Հայերեն`). The selected site locale changes UI chrome, dates, and
+course-content requests; it is persisted locally and defaults to Armenian for `hy-*` browser
+locales. Text-to-speech uses an installed Armenian voice when available, with `hy-AM` as the
+browser fallback. Interview language is a separate choice and is specified in the backend interview
+documentation. Armenian uses Noto Sans Armenian so every Armenian glyph renders consistently.
 
 ## About the Design Files
 The file in this bundle (`Level Up.dc.html`) is a **design reference created in HTML** —
@@ -388,7 +401,8 @@ Layout intent per element:
 ## Profile & edit → new `src/components/ProfilePage.jsx` + `EditProfileDialog.jsx`
 A dedicated profile screen (route/screen `profile`), reached from the account dropdown:
 the whole **avatar + name row** at the top of the dropdown is clickable (chevron affordance +
-hover highlight) and navigates to the profile, plus an explicit **View profile** button below the stats. Full-width `<main>` capped at 900px, same page rhythm as the course screen.
+hover highlight) and navigates to the profile — the sole entry point, no separate button below
+the stats. Full-width `<main>` capped at 900px, same page rhythm as the course screen.
 
 **Layout (top → bottom):**
 - **Back home** text button (arrow-left).
