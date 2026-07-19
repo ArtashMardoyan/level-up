@@ -185,6 +185,14 @@
         "audio": "audio/courses/backend/en/q25.mp3"
     },
     {
+        "id": "q26",
+        "module": "Module 5 — Architecture & Leadership",
+        "question": "Question 26. Monolith vs Microservices",
+        "answer": "I've worked with both monoliths and microservices, and I don't think one architecture is always better than the other. The right choice depends on the team, the product, and the business goals.\n\nFor small and medium-sized projects, I usually prefer a well-structured monolith. It is easier to develop, deploy, test, and debug. New developers can also understand the system much faster.\n\nAs the system grows, different parts may need to scale independently. In that case, microservices become a good option. Each service owns its business logic and can be deployed separately. Services usually communicate through HTTP, gRPC, or asynchronous messaging using RabbitMQ or Kafka.\n\nIn our projects we started with a NestJS monorepo instead of microservices. This allowed us to move quickly while keeping the architecture clean. Later, if necessary, individual modules could be extracted into separate services.\n\nOne lesson I've learned is that many teams move to microservices too early. Good architecture is about solving business problems, not following trends.",
+        "bonus": "I wouldn't use microservices for a small project or a small team. They add a lot of extra work.",
+        "audio": "audio/courses/backend/en/q26.mp3"
+    },
+    {
         "id": "q27",
         "module": "Module 4 — Cloud & Infrastructure",
         "question": "Question 27. Which AWS services have you used?",
@@ -241,14 +249,6 @@
         "question": "Question 34. How do you monitor backend applications?",
         "answer": "Monitoring helps us detect problems before users report them. Good monitoring is just as important as writing good code.\n\nIn our projects we use CloudWatch for logs, metrics, dashboards, and alarms. We monitor response time, error rate, CPU usage, memory, database connections, and request count. For business-critical services we also monitor business metrics such as payment failures or completed imports.\n\nAlerts are sent to Slack or Telegram so the team is notified immediately when something unusual happens. We also expose health check endpoints that load balancers and monitoring systems can verify automatically.\n\nWhen investigating incidents, logs and metrics are always the first place I look.\n\nOne lesson I've learned is that collecting data is not enough. Monitoring is valuable only when alerts are meaningful and help the team react quickly to real problems.",
         "audio": "audio/courses/backend/en/q34.mp3"
-    },
-    {
-        "id": "q26",
-        "module": "Module 5 — Architecture & Leadership",
-        "question": "Question 26. Monolith vs Microservices",
-        "answer": "I've worked with both monoliths and microservices, and I don't think one architecture is always better than the other. The right choice depends on the team, the product, and the business goals.\n\nFor small and medium-sized projects, I usually prefer a well-structured monolith. It is easier to develop, deploy, test, and debug. New developers can also understand the system much faster.\n\nAs the system grows, different parts may need to scale independently. In that case, microservices become a good option. Each service owns its business logic and can be deployed separately. Services usually communicate through HTTP, gRPC, or asynchronous messaging using RabbitMQ or Kafka.\n\nIn our projects we started with a NestJS monorepo instead of microservices. This allowed us to move quickly while keeping the architecture clean. Later, if necessary, individual modules could be extracted into separate services.\n\nOne lesson I've learned is that many teams move to microservices too early. Good architecture is about solving business problems, not following trends.",
-        "bonus": "I wouldn't use microservices for a small project or a small team. They add a lot of extra work.",
-        "audio": "audio/courses/backend/en/q26.mp3"
     },
     {
         "id": "q35",
