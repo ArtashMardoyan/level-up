@@ -3967,9 +3967,31 @@ footer {
   .lu-nav-btn {
     flex: 1 1 0;
   }
+  /* Collapse the search box to an icon so the header stays two rows on mobile
+     (logo on the left; search + bell + account on the right; nav on row 2). The
+     icon still opens the ⌘K palette. */
+  .header-search-zone {
+    order: 1;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+  .header-cluster {
+    order: 2;
+    margin-left: 0;
+  }
+  .search-trigger {
+    width: 44px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
+  .search-trigger-label,
+  .search-trigger-kbd {
+    display: none;
+  }
 }
 
-/* ── Interview home dashboard ─────────────────────────────────── */
+/* ── Interview home dashboard ─────────────────────── */
 .aic-hero {
   border-radius: 20px;
   background: linear-gradient(155deg, color-mix(in oklab, var(--brand-2) 14%, transparent), transparent 70%);
