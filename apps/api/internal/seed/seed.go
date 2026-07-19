@@ -27,6 +27,10 @@ var dataFS embed.FS
 // every environment seeded from the same content.
 var seedNamespace = uuid.NewSHA1(uuid.NameSpaceURL, []byte("level-up-backend/courses"))
 
+// translationLanguages are optional overlays for the English source content.
+// A missing file simply keeps the English fallback active for that course.
+var translationLanguages = []string{"ru", "hy"}
+
 func courseID(slug string) string { return uuid.NewSHA1(seedNamespace, []byte(slug)).String() }
 
 func questionID(slug, ref string) string {
@@ -82,9 +86,14 @@ func Run(db *gorm.DB) error {
 			return fmt.Errorf("course %s en: %w", meta.Slug, err)
 		}
 
-		ruByRef, err := loadTranslationsByRef(meta.Slug, "ru")
-		if err != nil {
-			return fmt.Errorf("course %s ru: %w", meta.Slug, err)
+		translationsByLang := make(map[string]map[string]rawQuestion, len(translationLanguages))
+		for _, lang := range translationLanguages {
+			translations, err := loadTranslationsByRef(meta.Slug, lang)
+			if err != nil {
+				return fmt.Errorf("course %s %s: %w", meta.Slug, lang, err)
+			}
+
+			translationsByLang[lang] = translations
 		}
 
 		for j := range enQuestions {
@@ -103,9 +112,11 @@ func Run(db *gorm.DB) error {
 				return fmt.Errorf("translation %s/%s en: %w", meta.Slug, raw.ID, err)
 			}
 
-			if ru, ok := ruByRef[raw.ID]; ok {
-				if err := upsertTranslation(db, qID, "ru", &ru); err != nil {
-					return fmt.Errorf("translation %s/%s ru: %w", meta.Slug, raw.ID, err)
+			for _, lang := range translationLanguages {
+				if translated, ok := translationsByLang[lang][raw.ID]; ok {
+					if err := upsertTranslation(db, qID, lang, &translated); err != nil {
+						return fmt.Errorf("translation %s/%s %s: %w", meta.Slug, raw.ID, lang, err)
+					}
 				}
 			}
 		}
