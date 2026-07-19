@@ -3895,3 +3895,52 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Header nav (Interview / Courses / Dictionary) ────────────── */
+.lu-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--control);
+  border: 1px solid var(--border);
+}
+
+.lu-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-2);
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.lu-nav-btn:hover {
+  color: var(--text);
+}
+
+.lu-nav-btn.active {
+  background: rgba(129, 140, 248, 0.18);
+  color: #b9c1ff;
+}
+
+@media (max-width: 680px) {
+  .lu-nav {
+    order: 3;
+    width: 100%;
+    justify-content: stretch;
+    gap: 4px;
+  }
+  .lu-nav-btn {
+    flex: 1 1 0;
+  }
+}

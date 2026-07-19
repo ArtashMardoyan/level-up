@@ -17,7 +17,11 @@ export const STRINGS = {
     retry: 'Повторить',
     // AppHeader
     brandAria: 'Level Up — все курсы',
+    navAria: 'Основная навигация',
     logoAria: 'Логотип Level Up',
+    navInterview: 'Интервью',
+    navDictionary: 'Словарь',
+    navCourses: 'Курсы',
     // CourseSelect
     questionsCount: { many: '{n} вопросов', other: '{n} вопроса', few: '{n} вопроса', one: '{n} вопрос' },
     comingSoon: 'Скоро',
@@ -339,7 +343,11 @@ export const STRINGS = {
     retry: 'Retry',
     // AppHeader
     brandAria: 'Level Up — all courses',
+    navAria: 'Primary navigation',
+    navDictionary: 'Dictionary',
     logoAria: 'Level Up logo',
+    navInterview: 'Interview',
+    navCourses: 'Courses',
     // CourseSelect
     questionsCount: { other: '{n} questions', one: '{n} question' },
     comingSoon: 'Coming soon',

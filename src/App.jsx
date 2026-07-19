@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { ArrowRight, Sparkles } from 'lucide-react'
 
 import { useTheme } from './hooks/useTheme'
 import PrepView from './components/PrepView'
@@ -117,6 +116,7 @@ function AppContent() {
   const isProfile = courseId === 'profile'
   const isActivity = courseId === 'activity'
   const isInterview = courseId === 'interview'
+  const activeSection = isInterview ? 'interview' : isDictionary ? 'dictionary' : 'courses'
   const course = courseId && !isDictionary ? courses.find((c) => c.id === courseId) || null : null
   const validCourse = course?.questions?.length > 0 ? course : null
   const dictionaryCategory = isDictionary ? getDictionaryCategory(jumpToId) : null
@@ -128,8 +128,10 @@ function AppContent() {
         onViewActivity={() => navigate('activity')}
         onViewProfile={() => navigate('profile')}
         onSelectQuestion={selectCourse}
+        activeSection={activeSection}
         toggleTheme={toggleTheme}
         onHome={backToCourses}
+        onNavigate={navigate}
         courses={courses}
         theme={theme}
       />
@@ -155,27 +157,6 @@ function AppContent() {
           <div className="home-eyebrow">{t('homeEyebrow', { n: courses.length })}</div>
           <h1 className="home-heading">{t('homeHeading')}</h1>
           <p className="home-subtitle">{t('homeSubtitle')}</p>
-          <button onClick={() => selectCourse('interview')} className="home-interview-cta" type="button">
-            <span className="home-interview-cta-icon" aria-hidden="true">
-              <Sparkles size={20} />
-            </span>
-            <span className="home-interview-cta-text">
-              <span className="home-interview-cta-title">{t('interviewCoachTitle')}</span>
-              <span className="home-interview-cta-sub">{t('interviewCoachTagline')}</span>
-            </span>
-            <ArrowRight className="home-interview-cta-arrow" aria-hidden="true" size={18} />
-          </button>
-          <div className="segmented home-tabs">
-            <button className={'segmented-btn' + (isDictionary ? '' : ' active')} onClick={backToCourses}>
-              {t('tabCourses')}
-            </button>
-            <button
-              className={'segmented-btn' + (isDictionary ? ' active' : '')}
-              onClick={() => selectCourse('dictionary')}
-            >
-              {t('tabDictionary')}
-            </button>
-          </div>
           {isDictionary ? (
             <DictionarySelect onSelect={(id) => navigate('dictionary', id)} />
           ) : status === 'loading' ? (
