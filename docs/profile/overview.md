@@ -10,8 +10,9 @@
 - Хеш-роут `#profile` (тот же механизм `useHashRoute`, что и `#course`, `#dictionary`).
 - `App.jsx` ветвится: `courseId === 'profile'` → `<ProfilePage>`.
 - Навигация: `onViewProfile` прокинут `App → AppHeader → AccountMenu`. В `AccountMenu`
-  строка «аватар + имя» стала кликабельной (шеврон + hover) и есть отдельная кнопка
-  **View profile** под статами. Обе зовут `navigate('profile')`.
+  строка «аватар + имя» кликабельна (шеврон + hover) и зовёт `navigate('profile')` — это
+  единственная точка входа в профиль из меню; отдельную кнопку **View profile** под
+  статами убрали как дублирующую.
 
 ## Экран (`components/ProfilePage.jsx`)
 

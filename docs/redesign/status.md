@@ -57,7 +57,8 @@ the restyle; data, routing, state hooks and i18n logic were not changed.
       `overflow-x: clip` (not `hidden`, which creates a scroll container and breaks `sticky`).
 - [x] **User Profile screen + Edit modal** — `ProfilePage.jsx` (identity card, stat row,
       per-course progress, saved-questions counts, achievements, danger zone) reached via `#profile`
-      from `AccountMenu` (clickable profile row + View profile). `EditProfileDialog.jsx` saves
+      from `AccountMenu` (clickable avatar/name row is the sole entry point — the separate
+      "View profile" button was removed as redundant). `EditProfileDialog.jsx` saves
       name/email/bio/track + password change via `PATCH /users`; `updateUser` in `useAuth` keeps the
       header in sync. Real data from `useAuth().user` + `/progress/summary`; streak + recent-activity
       are marked placeholders. **Backend extended**: `User.bio`/`track` (migration `00007`),
