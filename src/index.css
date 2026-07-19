@@ -4137,6 +4137,31 @@ footer {
   color: var(--text);
 }
 
+.aic-dash-card-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.aic-dash-card-title-row .aic-dash-card-title {
+  margin: 0;
+}
+.aic-dash-card-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--control);
+  border: 1px solid var(--border);
+}
+
 .aic-dash-card-body {
   font-size: 13.5px;
   line-height: 1.6;
@@ -4275,6 +4300,26 @@ footer {
   flex-shrink: 0;
 }
 
+/* Recent-row meta line with a language flag+code pill — shared by the
+   Interview Coach dashboard, History, and the profile page's recent list. */
+.aic-recent-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.aic-recent-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: var(--text-2);
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--control);
+  border: 1px solid var(--border);
+}
+
 /* Profile page: Interview performance panel (latest-session box + recent list,
    the recent list itself reuses .aic-recent-* above). */
 .profile-iv-latest {
@@ -4331,23 +4376,6 @@ footer {
   padding: 3px 8px;
   border-radius: 7px;
   background: var(--surface);
-  border: 1px solid var(--border);
-}
-.profile-iv-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.profile-iv-recent-lang {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 600;
-  color: var(--text-2);
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: var(--control);
   border: 1px solid var(--border);
 }
 

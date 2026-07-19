@@ -253,9 +253,9 @@ export default function ProfilePage({ onNavigate, courses }) {
                     </span>
                     <div className="aic-recent-body">
                       <div className="aic-recent-title">{c?.title || ''}</div>
-                      <div className="aic-recent-meta profile-iv-meta">
+                      <div className="aic-recent-meta aic-recent-meta-row">
                         <span>{ivFmtDate(s)}</span>
-                        <span className="profile-iv-recent-lang">
+                        <span className="aic-recent-lang">
                           <span aria-hidden="true">{IV_LANG_FLAG[s.language] || '🌐'}</span>
                           {IV_LANG_LABEL[s.language] || s.language}
                         </span>

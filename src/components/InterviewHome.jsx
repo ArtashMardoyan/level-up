@@ -13,6 +13,10 @@ function scoreColor(n) {
   return '#fb7185'
 }
 
+// Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
+const LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }
+const LANG_LABEL = { en: 'ENG', ru: 'RUS', hy: 'ARM' }
+
 // The three "how it works" steps (guest + new-user states).
 function HowItWorks({ t }) {
   const steps = [
@@ -188,7 +192,13 @@ export default function InterviewHome({
       <div className="aic-two">
         <div className="aic-dash-card">
           <div className="aic-dash-card-label">{t('interviewContinuePracticing')}</div>
-          <div className="aic-dash-card-title">{trackLabel}</div>
+          <div className="aic-dash-card-title-row">
+            <div className="aic-dash-card-title">{trackLabel}</div>
+            <span className="aic-dash-card-lang">
+              <span aria-hidden="true">{LANG_FLAG[latest.language] || '🌐'}</span>
+              {LANG_LABEL[latest.language] || latest.language}
+            </span>
+          </div>
           <p className="aic-dash-card-body">{t('interviewContinueBody')}</p>
           <button onClick={() => onContinue(latest.id)} className="aic-primary-btn" type="button">
             {t('interviewResume')} <ArrowRight aria-hidden="true" size={15} />
@@ -235,8 +245,14 @@ export default function InterviewHome({
               </span>
               <div className="aic-recent-body">
                 <div className="aic-recent-title">{t('interviewChatTitle', { course: c?.title || '' })}</div>
-                <div className="aic-recent-meta">
-                  {fmtDate(s)} · {t('difficulty_' + s.difficulty)}
+                <div className="aic-recent-meta aic-recent-meta-row">
+                  <span>
+                    {fmtDate(s)} · {t('difficulty_' + s.difficulty)}
+                  </span>
+                  <span className="aic-recent-lang">
+                    <span aria-hidden="true">{LANG_FLAG[s.language] || '🌐'}</span>
+                    {LANG_LABEL[s.language] || s.language}
+                  </span>
                 </div>
               </div>
               <span

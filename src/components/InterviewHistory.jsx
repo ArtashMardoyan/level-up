@@ -6,7 +6,9 @@ import { useLanguage } from '../hooks/useLanguage'
 import { interviewsList } from '../services/endpoints'
 
 const PAGE_SIZE = 10
+// Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
 const LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }
+const LANG_LABEL = { en: 'ENG', ru: 'RUS', hy: 'ARM' }
 
 function scoreColor(n) {
   if (n >= 85) return '#4ade80'
@@ -122,10 +124,16 @@ export default function InterviewHistory({ courses, onOpen, onBack, onNew }) {
                 </span>
                 <span className="aic-history-body">
                   <span className="aic-history-title">{t('interviewChatTitle', { course: c?.title || '' })}</span>
-                  <span className="aic-history-meta">
-                    {LANG_FLAG[s.language] || '🌐'} {fmtDate(s)} · {t('difficulty_' + s.difficulty)} ·{' '}
-                    {t('interviewQuestionsTotal', { n: s.questionCount })}
-                    {s.status !== 'completed' ? ' · ' + t('interviewInProgress') : ''}
+                  <span className="aic-history-meta aic-recent-meta-row">
+                    <span>
+                      {fmtDate(s)} · {t('difficulty_' + s.difficulty)} ·{' '}
+                      {t('interviewQuestionsTotal', { n: s.questionCount })}
+                      {s.status !== 'completed' ? ' · ' + t('interviewInProgress') : ''}
+                    </span>
+                    <span className="aic-recent-lang">
+                      <span aria-hidden="true">{LANG_FLAG[s.language] || '🌐'}</span>
+                      {LANG_LABEL[s.language] || s.language}
+                    </span>
                   </span>
                 </span>
                 <span className="aic-history-score">
