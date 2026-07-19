@@ -26,7 +26,8 @@ function validateCourse(name, lang) {
     if (translatedQ.id !== enQ.id) errors.push(`${label}: id mismatch — ${lang} has "${translatedQ.id}"`)
     if (typeof translatedQ.question !== 'string' || !translatedQ.question.trim()) errors.push(`${label}: empty question`)
     if (typeof translatedQ.answer !== 'string' || !translatedQ.answer.trim()) errors.push(`${label}: empty answer`)
-    if (Boolean(enQ.bonus) !== Boolean(translatedQ.bonus)) errors.push(`${label}: bonus presence mismatch`)
+    // hy content is an independently authored question set, not a 1:1 translation of en — bonus presence isn't expected to line up
+    if (lang !== 'hy' && Boolean(enQ.bonus) !== Boolean(translatedQ.bonus)) errors.push(`${label}: bonus presence mismatch`)
     if (translatedQ.module !== undefined) errors.push(`${label}: ${lang} entries must not carry "module" (labels stay English)`)
     const script = LANGUAGE_SCRIPTS[lang]
     if (script && typeof translatedQ.question === 'string' && !script.test(translatedQ.question)) {
