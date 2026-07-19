@@ -1,5 +1,7 @@
 package interview
 
+import "time"
+
 // CreateInterviewRequest starts a session (docs/interview/004/013). Course is
 // referenced by slug (stable, human-readable) — the content bank keys on it.
 type CreateInterviewRequest struct {
@@ -68,4 +70,28 @@ type ReportView struct {
 	Report  FinalReport  `json:"report"`
 	Session Session      `json:"session"`
 	Review  []ReviewItem `json:"review"`
+}
+
+// LastSessionView is the lean shape of the most recently completed session, for
+// the profile page's "latest session" card (course/difficulty/language + score;
+// the client already has course titles/accents from /courses/full and maps by
+// courseId, same as the interview history list).
+type LastSessionView struct {
+	ID           string    `json:"id"`
+	CourseID     string    `json:"courseId"`
+	Difficulty   string    `json:"difficulty"`
+	Language     string    `json:"language"`
+	OverallScore int       `json:"overallScore"`
+	CompletedAt  time.Time `json:"completedAt"`
+}
+
+// SummaryView aggregates a user's completed interviews for the profile page
+// (docs/interview/011 "Interview performance"): total count, average and best
+// score, and the latest session. Zero values (no completed interviews yet) are
+// valid — LastSession is nil in that case.
+type SummaryView struct {
+	TotalCompleted int              `json:"totalCompleted"`
+	AvgScore       int              `json:"avgScore"`
+	BestScore      int              `json:"bestScore"`
+	LastSession    *LastSessionView `json:"lastSession"`
 }

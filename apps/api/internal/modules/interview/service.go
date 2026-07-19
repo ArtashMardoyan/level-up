@@ -3,6 +3,7 @@ package interview
 import (
 	"context"
 	"errors"
+	"math"
 	"math/rand"
 	"strings"
 	"time"
@@ -293,6 +294,33 @@ func (s *Service) List(ctx context.Context, userID string, q shared.PaginationQu
 	q.Normalize()
 
 	return s.repo.ListByUser(ctx, userID, q)
+}
+
+// Summary aggregates the user's completed interviews for the profile page.
+func (s *Service) Summary(ctx context.Context, userID string) (SummaryView, error) {
+	total, avg, best, last, err := s.repo.SummaryByUser(ctx, userID)
+	if err != nil {
+		return SummaryView{}, err
+	}
+
+	view := SummaryView{
+		TotalCompleted: total,
+		AvgScore:       int(math.Round(avg)),
+		BestScore:      int(math.Round(best)),
+	}
+
+	if last != nil {
+		view.LastSession = &LastSessionView{
+			ID:           last.ID,
+			CourseID:     last.CourseID,
+			Difficulty:   last.Difficulty,
+			Language:     last.Language,
+			OverallScore: *last.OverallScore,
+			CompletedAt:  *last.CompletedAt,
+		}
+	}
+
+	return view, nil
 }
 
 func (s *Service) buildReview(ctx context.Context, session *Session, results []QuestionResult) ([]ReviewItem, error) {

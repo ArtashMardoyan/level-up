@@ -30,4 +30,9 @@ type Repository interface {
 	FindReport(ctx context.Context, interviewID string) (FinalReport, error)
 
 	ListByUser(ctx context.Context, userID string, q shared.PaginationQuery) (shared.PaginatedResult[Session], error)
+
+	// SummaryByUser aggregates completed sessions: count, average and best
+	// overallScore. lastCompleted is the most recently completed session, or
+	// nil if the user has none.
+	SummaryByUser(ctx context.Context, userID string) (total int, avgScore, bestScore float64, lastCompleted *Session, err error)
 }

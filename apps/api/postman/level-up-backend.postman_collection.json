@@ -453,6 +453,24 @@
 					]
 				},
 				{
+					"name": "Interview Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/summary",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"summary"
+							]
+						},
+						"description": "Aggregates the caller's completed interviews for the profile page: totalCompleted, avgScore, bestScore, and lastSession (id, courseId, difficulty, language, overallScore, completedAt), or null lastSession if none completed yet."
+					}
+				},
+				{
 					"name": "Get Interview (resume)",
 					"request": {
 						"method": "GET",

@@ -22,6 +22,7 @@ func (h *Handler) RegisterRoutes(r *gin.Engine, auth gin.HandlerFunc) {
 	interviews := r.Group("/interviews", auth)
 	interviews.POST("", h.Create)
 	interviews.GET("", h.List)
+	interviews.GET("/summary", h.Summary)
 	interviews.GET("/:id", h.Get)
 	interviews.POST("/:id/answers/:questionId", h.SubmitAnswer)
 	interviews.POST("/:id/complete", h.Complete)
@@ -118,6 +119,22 @@ func (h *Handler) Report(c *gin.Context) {
 	}
 
 	shared.OK(c, view)
+}
+
+func (h *Handler) Summary(c *gin.Context) {
+	caller, ok := contextUser(c)
+	if !ok {
+		shared.Error(c, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	summary, err := h.service.Summary(c.Request.Context(), caller.ID)
+	if err != nil {
+		shared.Error(c, http.StatusInternalServerError, "failed to load interview summary")
+		return
+	}
+
+	shared.OK(c, summary)
 }
 
 func (h *Handler) List(c *gin.Context) {

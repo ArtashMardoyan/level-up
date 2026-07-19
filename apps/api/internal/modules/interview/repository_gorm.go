@@ -124,3 +124,37 @@ func (r *gormRepository) ListByUser(ctx context.Context, userID string, q shared
 
 	return shared.NewPaginatedResult(sessions, total, q), nil
 }
+
+func (r *gormRepository) SummaryByUser(ctx context.Context, userID string) (total int, avgScore, bestScore float64, lastCompleted *Session, err error) {
+	var agg struct {
+		Total int
+		Avg   float64
+		Best  float64
+	}
+
+	err = r.db.WithContext(ctx).Model(&Session{}).
+		Where(`"userId" = ? AND "status" = ?`, userID, StatusCompleted).
+		Select(`COUNT(*) AS total, COALESCE(AVG("overallScore"), 0) AS avg, COALESCE(MAX("overallScore"), 0) AS best`).
+		Scan(&agg).Error
+	if err != nil {
+		return total, avgScore, bestScore, lastCompleted, err
+	}
+
+	if agg.Total == 0 {
+		return total, avgScore, bestScore, lastCompleted, err
+	}
+
+	var last Session
+
+	err = r.db.WithContext(ctx).
+		Where(`"userId" = ? AND "status" = ?`, userID, StatusCompleted).
+		Order(`"completedAt" DESC`).
+		First(&last).Error
+	if err != nil {
+		return total, avgScore, bestScore, lastCompleted, err
+	}
+
+	total, avgScore, bestScore, lastCompleted = agg.Total, agg.Avg, agg.Best, &last
+
+	return total, avgScore, bestScore, lastCompleted, err
+}
