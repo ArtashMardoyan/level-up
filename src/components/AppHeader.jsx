@@ -19,7 +19,7 @@ export default function AppHeader({
 
   const nav = [
     { go: () => onNavigate('interview'), label: t('navInterview'), section: 'interview' },
-    { go: () => onNavigate(null), label: t('navCourses'), section: 'courses' },
+    { go: () => onNavigate('courses'), label: t('navCourses'), section: 'courses' },
     { go: () => onNavigate('dictionary'), label: t('navDictionary'), section: 'dictionary' }
   ]
 

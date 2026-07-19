@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useTheme } from './hooks/useTheme'
 import PrepView from './components/PrepView'
@@ -6,6 +6,7 @@ import { useSpeech } from './hooks/useSpeech'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import { useCourses } from './hooks/useCourses'
+import AuthDialog from './components/AuthDialog'
 import { AuthContext } from './auth/AuthContext'
 import ProfilePage from './components/ProfilePage'
 import { progressBulk } from './services/endpoints'
@@ -72,21 +73,8 @@ function AppContent() {
   const { courses, status, reload } = useCourses(language)
   const { status: authStatus, user } = useAuth()
 
-  // No course in the URL yet (fresh visit) - resume the last one, once courses
-  // are loaded so we can validate the saved id.
-  useEffect(() => {
-    if (status !== 'ready' || courseId) return
-    let saved = null
-    try {
-      saved = localStorage.getItem(COURSE_STORAGE_KEY)
-    } catch {
-      /* ignore */
-    }
-    if (!saved) return
-    if (saved === 'dictionary' || courses.some((c) => c.id === saved && c.questions.length > 0)) navigate(saved)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status])
-
+  // The default landing (empty hash) is the AI Interview Coach home. The last
+  // course is still remembered for the Courses grid, but no longer auto-opened.
   useEffect(() => {
     try {
       if (courseId) localStorage.setItem(COURSE_STORAGE_KEY, courseId)
@@ -109,15 +97,19 @@ function AppContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authStatus, user, status])
 
+  const [authOpen, setAuthOpen] = useState(false)
+
   const selectCourse = (id, questionId = null) => navigate(id, questionId)
-  const backToCourses = () => navigate(null)
+  const goHome = () => navigate('interview')
 
   const isDictionary = courseId === 'dictionary'
   const isProfile = courseId === 'profile'
   const isActivity = courseId === 'activity'
-  const isInterview = courseId === 'interview'
+  const isCoursesGrid = courseId === 'courses'
+  const isInterview = courseId === null || courseId === 'interview'
   const activeSection = isInterview ? 'interview' : isDictionary ? 'dictionary' : 'courses'
-  const course = courseId && !isDictionary ? courses.find((c) => c.id === courseId) || null : null
+  const course =
+    courseId && !isDictionary && !isCoursesGrid && !isInterview ? courses.find((c) => c.id === courseId) || null : null
   const validCourse = course?.questions?.length > 0 ? course : null
   const dictionaryCategory = isDictionary ? getDictionaryCategory(jumpToId) : null
   const showDictionaryCategory = isDictionary && dictionaryCategory
@@ -130,15 +122,20 @@ function AppContent() {
         onSelectQuestion={selectCourse}
         activeSection={activeSection}
         toggleTheme={toggleTheme}
-        onHome={backToCourses}
         onNavigate={navigate}
         courses={courses}
+        onHome={goHome}
         theme={theme}
       />
       {showDictionaryCategory ? (
         <DictionaryCategoryPage onNavigate={navigate} categoryId={jumpToId} voices={voices} />
       ) : isInterview ? (
-        <InterviewCoach onNavigate={navigate} sessionId={jumpToId} courses={courses} />
+        <InterviewCoach
+          onRequireAuth={() => setAuthOpen(true)}
+          onNavigate={navigate}
+          sessionId={jumpToId}
+          courses={courses}
+        />
       ) : isActivity ? (
         <ActivityPage onNavigate={navigate} />
       ) : isProfile ? (
@@ -174,6 +171,7 @@ function AppContent() {
           <AppFooter onNavigate={navigate} />
         </main>
       )}
+      <AuthDialog onClose={() => setAuthOpen(false)} open={authOpen} />
     </>
   )
 }
