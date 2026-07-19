@@ -59,10 +59,20 @@ type rawQuestion struct {
 	Audio    string `json:"audio"`
 }
 
-func Run(db *gorm.DB) error {
+// Run seeds every course, or only the given slugs when provided (e.g. after
+// changing a single course's content/audio, to avoid re-writing all 8 courses'
+// rows on a slow remote DB). An unknown slug is an error, to catch typos.
+func Run(db *gorm.DB, slugs ...string) error {
 	metas, err := loadCourses()
 	if err != nil {
 		return err
+	}
+
+	if len(slugs) > 0 {
+		metas, err = filterCourses(metas, slugs)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Snapshot the question ids that already exist so we can tell which ones this
@@ -226,6 +236,27 @@ func upsertTranslation(db *gorm.DB, questionID, lang string, raw *rawQuestion) e
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"question", "answer", "bonus", "audio", "updatedAt"}),
 	}).Create(&t).Error
+}
+
+// filterCourses keeps only the metas whose slug is in slugs, preserving the
+// slugs' order (not courses.json's). Errors on any slug that matches nothing.
+func filterCourses(metas []courseMeta, slugs []string) ([]courseMeta, error) {
+	bySlug := make(map[string]courseMeta, len(metas))
+	for _, m := range metas {
+		bySlug[m.Slug] = m
+	}
+
+	filtered := make([]courseMeta, 0, len(slugs))
+	for _, slug := range slugs {
+		meta, ok := bySlug[slug]
+		if !ok {
+			return nil, fmt.Errorf("unknown course slug %q (check courses.json)", slug)
+		}
+
+		filtered = append(filtered, meta)
+	}
+
+	return filtered, nil
 }
 
 func loadCourses() ([]courseMeta, error) {
