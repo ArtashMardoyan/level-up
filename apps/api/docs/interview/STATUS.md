@@ -127,7 +127,8 @@ _Last updated: 2026-07-20._
     raw `reaction` vs `question` split from `GET /interviews/:id`. Every AI reaction
     (turns 2–3) was a pure bridge — no `?`, ended on a period — with all questioning
     confined to the `question` field; turn 1 was the deterministic greeting as
-    expected.
+    expected. The throwaway account created for this run was removed afterward via
+    `DELETE /users` (self-delete) — prod carries no leftover test data.
 
 ## TL;DR — it's SHIPPED and live on prod
 
