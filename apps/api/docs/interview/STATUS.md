@@ -83,6 +83,33 @@ _Last updated: 2026-07-20._
     the full record → stop → transcribe → fill-composer cycle through a real
     browser (Chrome DevTools Protocol with `--use-fake-device-for-media-stream`,
     since this environment has no physical mic).
+- **2026-07-20 session, part 3 — frontend-only polish + cleanup, committed +
+  deployed** (frontend `f6d1e95`, `18da956`, `fb7f569`, `178a8c6`, `77b9d6a`;
+  no backend change):
+  - **Legacy Course Interview mode removed** (`fb7f569`). The old List/Quiz/**Interview**
+    flashcard mode inside course pages is gone — the AI Interview Coach is now the
+    only interview experience. Deleted `InterviewMode.jsx`, dropped it from `ModeBar`
+    and `PrepView` (now List/Quiz only), removed its dead CSS (`.interview-stage`,
+    `.interview-actions`) and i18n keys (`interviewMode`, `interviewDone`, `questionOf`,
+    `skipNext`).
+  - **i18n split by language** (`fb7f569`). `src/i18n/strings.js` is now a thin barrel
+    that imports + merges `strings.en.js` / `strings.ru.js` / `strings.hy.js` (one file
+    per language, grouped by component) — editing one language no longer means scrolling
+    past the other two. Armenian strings were rewritten for a consistent fully-Armenian
+    tone (was mixed with English UI terms) and the `accountSubtitle` key added everywhere.
+  - **Mobile overflow fixes** (`fb7f569`, `178a8c6`, `77b9d6a`): `.lu-nav-btn` got
+    `min-width:0` so it actually shrinks in its flex row; `.segmented` (List/Quiz + setup)
+    and the dictionary table now scroll-with-hidden-scrollbar instead of clipping/showing
+    a bar (native swipe feel); the chat's **Record and Submit** buttons drop their text
+    label below 480px (icon-only + `aria-label`) so the four composer actions fit one row.
+  - **AuthDialog stale-state fix** (`18da956`). The dialog renders `null` while closed
+    (stays mounted), so a previous attempt's email/password/mode lingered in state.
+    Switching Login↔Signup now clears password/name (keeps email); closing does a full
+    reset — using a `prevOpen !== open` render-time guard (matching `QuestionCard.jsx`),
+    not a `useEffect` (barred by lint).
+  - **Record button placement** (`f6d1e95`): moved next to Submit (not grouped with the
+    secondary "Sample answer" helper) — voice is an alternate way to answer + send, so it
+    sits by Send like WhatsApp/Telegram.
 
 ## TL;DR — it's SHIPPED and live on prod
 
@@ -184,4 +211,5 @@ with real OpenAI scoring in EN / RU / ARM.
 - Frontend: `src/components/Interview{Home,Coach,Setup,Chat,Results,History}.jsx`,
   `src/utils/interview.js` (shared `scoreColor`), `src/App.jsx` (routing + AuthDialog),
   `src/components/AppHeader.jsx` (nav), `src/services/endpoints.js` (`interviews*`),
-  `src/index.css` (`.aic-*` / `.lu-nav`), `src/i18n/strings.js` (interview keys, en/ru/hy).
+  `src/index.css` (`.aic-*` / `.lu-nav`), `src/i18n/strings.{en,ru,hy}.js` (interview keys;
+  `strings.js` is now just the barrel that merges the three per-language files).
