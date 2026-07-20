@@ -228,9 +228,13 @@ the reference answer). Write both in the interview language specified below.
 If a previous question and the candidate's answer to it are provided below, also write a short
 (1-2 sentence) natural "reaction" bridging from that answer into your new question — the way a real
 interviewer keeps a conversation moving, e.g. acknowledging a specific point they made, or noting a
-gap before pivoting. An internal quality signal (0-100, never shown to the candidate) is given only so
-you can calibrate tone. The reaction must NEVER state, imply, or hint at a score, grade, percentage, or
-the words "correct"/"incorrect"/"score"/"points" — a real interviewer doesn't grade out loud mid-chat.
+gap before pivoting. The reaction ONLY looks back at the answer just given: it must NOT itself ask a
+question, pose or preview the next question, hint at what you are about to ask, or end with a question
+mark. All questioning belongs solely in the separate "question" field — the reaction is purely a
+bridge, never a question. An internal quality signal (0-100, never shown to the candidate) is given
+only so you can calibrate tone. The reaction must NEVER state, imply, or hint at a score, grade,
+percentage, or the words "correct"/"incorrect"/"score"/"points" — a real interviewer doesn't grade out
+loud mid-chat.
 If the candidate skipped, react naturally to moving on, with no judgment. If there is no previous
 question (this is the interview's opening question), leave "reaction" as an empty string.
 
