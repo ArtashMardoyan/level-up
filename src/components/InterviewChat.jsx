@@ -261,22 +261,6 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
           />
           <div className="aic-composer-actions">
             <button
-              className={'aic-ghost-btn small' + (recording ? ' recording' : '')}
-              onClick={recording ? stopRecording : startRecording}
-              disabled={thinking || transcribing}
-              type="button"
-            >
-              {recording ? (
-                <>
-                  <Square aria-hidden="true" size={14} /> {t('interviewStopRecording')}
-                </>
-              ) : (
-                <>
-                  <Mic aria-hidden="true" size={14} /> {t('interviewRecord')}
-                </>
-              )}
-            </button>
-            <button
               onClick={() => setAnswer(current.modelAnswer || '')}
               disabled={thinking || recording || transcribing}
               className="aic-ghost-btn small"
@@ -292,6 +276,22 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
                 type="button"
               >
                 {t('interviewSkip')}
+              </button>
+              <button
+                className={'aic-ghost-btn small' + (recording ? ' recording' : '')}
+                onClick={recording ? stopRecording : startRecording}
+                disabled={thinking || transcribing}
+                type="button"
+              >
+                {recording ? (
+                  <>
+                    <Square aria-hidden="true" size={14} /> {t('interviewStopRecording')}
+                  </>
+                ) : (
+                  <>
+                    <Mic aria-hidden="true" size={14} /> {t('interviewRecord')}
+                  </>
+                )}
               </button>
               <button
                 disabled={thinking || recording || transcribing || !answer.trim()}
