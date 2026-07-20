@@ -141,7 +141,14 @@ func (h *Handler) Transcribe(c *gin.Context) {
 	}
 	defer func() { _ = file.Close() }()
 
-	transcript, err := h.service.Transcribe(c.Request.Context(), file, fileHeader.Filename)
+	// The interview language (en/ru/hy) pins Whisper to the spoken language;
+	// anything else is ignored so Whisper falls back to auto-detect.
+	language := c.PostForm("language")
+	if language != LangEN && language != LangRU && language != LangHY {
+		language = ""
+	}
+
+	transcript, err := h.service.Transcribe(c.Request.Context(), file, fileHeader.Filename, language)
 	if err != nil {
 		writeError(c, err)
 		return

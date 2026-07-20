@@ -354,12 +354,12 @@ func (s *Service) Summary(ctx context.Context, userID string) (SummaryView, erro
 // review/edit it in the composer before submitting like any typed answer
 // (docs/interview/005). The transcript never touches grading directly — it's
 // just text that lands in the same SubmitAnswerRequest.Answer field either way.
-func (s *Service) Transcribe(ctx context.Context, audio io.Reader, filename string) (string, error) {
+func (s *Service) Transcribe(ctx context.Context, audio io.Reader, filename, language string) (string, error) {
 	if s.ai == nil {
 		return "", ErrVoiceUnavailable
 	}
 
-	return s.ai.Transcribe(ctx, audio, filename)
+	return s.ai.Transcribe(ctx, audio, filename, language)
 }
 
 func (s *Service) buildReview(ctx context.Context, session *Session, results []QuestionResult) ([]ReviewItem, error) {

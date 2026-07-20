@@ -599,7 +599,7 @@
 								"transcribe"
 							]
 						},
-						"description": "Transcribes a recorded voice answer via Whisper. multipart/form-data with an \"audio\" file field (webm/mp3/wav/m4a/etc). Returns { transcript } for the client to prefill (and let the candidate edit) the composer before a normal Submit Answer call. 503 if no OpenAI key is configured.",
+						"description": "Transcribe a recorded voice answer via Whisper. multipart/form-data: audio (file) + optional language (en|ru|hy). Body limit is 25 MB for this route (audio); returns { data: { transcript } }.",
 						"body": {
 							"mode": "formdata",
 							"formdata": [
@@ -607,6 +607,12 @@
 									"key": "audio",
 									"type": "file",
 									"src": []
+								},
+								{
+									"key": "language",
+									"value": "ru",
+									"type": "text",
+									"description": "Interview language (en|ru|hy) — pins Whisper to the spoken language; other values auto-detect."
 								}
 							]
 						}

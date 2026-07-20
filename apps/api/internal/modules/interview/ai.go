@@ -86,8 +86,11 @@ type Generator interface {
 
 // Transcriber converts a recorded answer into text (docs/interview/005). Backed
 // by Whisper — a fixed model, independent of the chat model (OPENAI_MODEL).
+// language is the session language (ISO-639-1: en/ru/hy) so Whisper transcribes
+// in the spoken language instead of guessing (a short Russian clip otherwise
+// often comes back as English); empty lets Whisper auto-detect.
 type Transcriber interface {
-	Transcribe(ctx context.Context, audio io.Reader, filename string) (string, error)
+	Transcribe(ctx context.Context, audio io.Reader, filename, language string) (string, error)
 }
 
 // AI is the combined OpenAI-backed surface the service depends on.
@@ -316,14 +319,21 @@ func parseGen(content string) (GenResult, error) {
 // Unlike Evaluate/Generate this never degrades silently — a caller with no
 // transcript to show has nothing useful to fall back to, so the error is
 // returned as-is for the handler to surface.
-func (e *openAIClient) Transcribe(ctx context.Context, audio io.Reader, filename string) (string, error) {
+func (e *openAIClient) Transcribe(ctx context.Context, audio io.Reader, filename, language string) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, e.timeout)
 	defer cancel()
 
-	res, err := e.client.Audio.Transcriptions.New(ctx, openai.AudioTranscriptionNewParams{
+	params := openai.AudioTranscriptionNewParams{
 		File:  openai.File(audio, filename, "application/octet-stream"),
 		Model: openai.AudioModelWhisper1,
-	})
+	}
+	// Pin the spoken language when we know it (session language), so Whisper
+	// doesn't mis-detect a short clip; empty = auto-detect.
+	if language != "" {
+		params.Language = openai.String(language)
+	}
+
+	res, err := e.client.Audio.Transcriptions.New(ctx, params)
 	if err != nil {
 		return "", fmt.Errorf("interview: transcription failed: %w", err)
 	}

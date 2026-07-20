@@ -78,7 +78,13 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	r.Use(func(c *gin.Context) {
-		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 1<<20)
+		// 1 MB is plenty for JSON APIs, but voice-answer audio uploads need much
+		// more — cap those at Whisper's own 25 MB file limit instead.
+		limit := int64(1 << 20)
+		if c.Request.URL.Path == "/interviews/transcribe" {
+			limit = 25 << 20
+		}
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, limit)
 		c.Next()
 	})
 
