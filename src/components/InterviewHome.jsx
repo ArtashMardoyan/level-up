@@ -3,15 +3,9 @@ import { MessageSquare, ChevronRight, ArrowRight, Sparkles, Check, Plus, Bot, Za
 
 import CourseIcon from './CourseIcon'
 import { useAuth } from '../hooks/useAuth'
+import { scoreColor } from '../utils/interview'
 import { useLanguage } from '../hooks/useLanguage'
 import { interviewsList } from '../services/endpoints'
-
-function scoreColor(n) {
-  if (n >= 85) return '#4ade80'
-  if (n >= 70) return '#818cf8'
-  if (n >= 50) return '#fbbf24'
-  return '#fb7185'
-}
 
 // Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
 const LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }

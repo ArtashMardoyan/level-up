@@ -3225,24 +3225,8 @@ footer {
   border-top-right-radius: 4px;
 }
 
-.aic-bubble.feedback {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  border-top-left-radius: 4px;
-}
-
 .aic-bubble-text {
   white-space: pre-wrap;
-}
-
-.aic-bubble-score {
-  display: inline-block;
-  margin-top: 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--brand-2);
 }
 
 .aic-skipped {

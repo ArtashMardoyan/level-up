@@ -5,11 +5,18 @@ import CourseIcon from './CourseIcon'
 import { useLanguage } from '../hooks/useLanguage'
 import { interviewSubmitAnswer, interviewComplete } from '../services/endpoints'
 
+// A real interviewer doesn't grade out loud mid-chat — the AI's natural, score-free
+// reaction to the previous answer is folded into the same bubble as the next
+// question, instead of a separate "feedback" message. Empty for question 1.
+function questionText(q) {
+  return q.reaction ? q.reaction + '\n\n' + q.question : q.question
+}
+
 // Build the initial chat bubbles from a resumed session view.
 function initialMessages(view) {
   const msgs = []
   for (const turn of view.history || []) {
-    msgs.push({ id: turn.question.questionId + ':q', text: turn.question.question, kind: 'question', role: 'ai' })
+    msgs.push({ id: turn.question.questionId + ':q', text: questionText(turn.question), kind: 'question', role: 'ai' })
     msgs.push({
       text: turn.result.skipped ? '' : turn.result.userAnswer,
       id: turn.question.questionId + ':a',
@@ -17,16 +24,9 @@ function initialMessages(view) {
       kind: 'answer',
       role: 'user'
     })
-    msgs.push({
-      score: turn.result.skipped ? null : turn.result.score,
-      id: turn.question.questionId + ':f',
-      text: turn.result.feedback,
-      kind: 'feedback',
-      role: 'ai'
-    })
   }
   if (view.current) {
-    msgs.push({ id: view.current.questionId + ':q', text: view.current.question, kind: 'question', role: 'ai' })
+    msgs.push({ id: view.current.questionId + ':q', text: questionText(view.current), kind: 'question', role: 'ai' })
   }
   return msgs
 }
@@ -54,7 +54,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   const stickRef = useRef(true)
 
   const total = initial.session.questionCount
-  const answered = messages.filter((m) => m.kind === 'feedback').length
+  const answered = current ? current.index : total
   const currentNumber = current ? current.index + 1 : total
   const pct = total ? Math.round((answered / total) * 100) : 0
   const accent = course?.accent || '#818cf8'
@@ -113,24 +113,13 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
 
     interviewSubmitAnswer(sessionId, q.questionId, { skipped: Boolean(skipped), answer: text })
       .then((res) => {
-        setMessages((prev) => {
-          const next = [
+        if (res.next) {
+          setMessages((prev) => [
             ...prev,
-            {
-              score: res.result.skipped ? null : res.result.score,
-              text: res.result.feedback,
-              id: q.questionId + ':f',
-              kind: 'feedback',
-              role: 'ai'
-            }
-          ]
-          if (res.next) {
-            next.push({ id: res.next.questionId + ':q', text: res.next.question, kind: 'question', role: 'ai' })
-          }
-          return next
-        })
-        if (res.next) setCurrent(res.next)
-        else {
+            { id: res.next.questionId + ':q', text: questionText(res.next), kind: 'question', role: 'ai' }
+          ])
+          setCurrent(res.next)
+        } else {
           setCurrent(null)
           setFinished(true)
         }
@@ -189,9 +178,6 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
                 <span className="aic-skipped">{t('interviewSkipped')}</span>
               ) : (
                 <span className="aic-bubble-text">{m.text}</span>
-              )}
-              {m.kind === 'feedback' && m.score != null && (
-                <span className="aic-bubble-score">{t('interviewScore', { n: m.score })}</span>
               )}
             </div>
           </div>

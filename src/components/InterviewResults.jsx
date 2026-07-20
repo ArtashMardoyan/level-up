@@ -1,19 +1,11 @@
 import { useEffect, useState } from 'react'
 import { TriangleAlert, ArrowLeft, RotateCw, Award, Check } from 'lucide-react'
 
+import { scoreColor } from '../utils/interview'
 import { useLanguage } from '../hooks/useLanguage'
 import { interviewReport } from '../services/endpoints'
 
 const RING_CIRCUMFERENCE = 339.29 // 2 * pi * 54
-
-// Score band → color (also used for the per-question chips). Bands mirror the
-// backend verdict thresholds (docs/interview/report.go).
-function scoreColor(n) {
-  if (n >= 85) return '#4ade80'
-  if (n >= 70) return '#818cf8'
-  if (n >= 50) return '#fbbf24'
-  return '#fb7185'
-}
 
 export default function InterviewResults({ sessionId, course, onBack, onNew }) {
   const { t } = useLanguage()
