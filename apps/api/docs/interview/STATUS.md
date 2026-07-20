@@ -14,7 +14,8 @@ _Last updated: 2026-07-20._
 - **`GET /interviews/summary`** shipped (backend `c922b3d`) + a profile-page
   "Interview performance" panel + account-dropdown mini-stats (frontend `bd12047`,
   `f3bae9e`). Both deployed.
-- **2026-07-20 session (backend, NOT yet committed/deployed):**
+- **2026-07-20 session — committed + deployed** (backend `2deb8e9`, `448eb7d`;
+  frontend `3831bcf`):
   - **Verdict bands reconciled with the design.** Pulled `Level Up.dc.html` via
     DesignSync and found the real source: `ivSC`/`ivVerdict` use **3 bands** (≥80
     green "Strong performance", ≥65 amber "Solid, with gaps", else rose "Needs
@@ -39,13 +40,28 @@ _Last updated: 2026-07-20._
     generation-prompt instruction to the AI (easy/medium/hard framing), which
     actually works regardless of bank tagging. `filterByDifficulty` (dead code —
     always fell back) was removed.
+  - **No more per-answer score bubbles in chat.** The chat used to show a
+    separate "Great job! 100/100" feedback message after every answer — not how
+    a real interviewer behaves. Evaluation still runs on submit (needed for
+    per-question data + instant `complete`), but the same AI call that writes the
+    next question now also writes a short, score-free `reaction` bridging from
+    the previous answer (`GenResult.Reaction` / `QuestionView.Reaction`, cached
+    alongside `Question`/`ModelAnswer`). The frontend folds `reaction` + `question`
+    into **one** chat bubble; score/rubric feedback is exclusive to Results now.
+    Reaction is a separate field from the (unchanged) clean `Question` text, so
+    grading and the Review screen aren't affected.
+  - **Two AI reliability gaps found + forced deterministically in Go**, not
+    trusted to the prompt: the model invented a reaction to a nonexistent
+    previous answer on the interview's *first* question (forced to `""` when
+    there's no previous turn), and reacted as if a real answer was given after a
+    *skip* (forced to a canned localized line, `skippedReaction()` in report.go).
   - Per-question score history (`QuestionResult`, keyed by the real bank
-    `questionId`) is untouched by this change — still the raw data for a future
-    recommendation engine, and still correctly attributable to a real bank
-    entry/module even though the *displayed* text is now AI-paraphrased.
-  - `go build && golangci-lint run && go test ./...` all clean. **Not committed**
-    (repo rule: wait for explicit "commit") and **not deployed** — App Runner is
-    still running the `c922b3d` image.
+    `questionId`) is untouched by any of this — still the raw data for a future
+    recommendation engine.
+  - Verified live end-to-end: local API (curl) + a real browser via raw Chrome
+    DevTools Protocol (`--remote-debugging-port`, no extension needed — useful
+    when the `claude-in-chrome` extension won't connect). Both resume and the
+    live submit path render as one natural bubble with no visible score.
 
 ## TL;DR — it's SHIPPED and live on prod
 
@@ -100,8 +116,10 @@ with real OpenAI scoring in EN / RU / ARM.
 
 ## What's OPEN / next
 
-- **Deploy the 2026-07-20 backend changes** (verdict bands, AI-generated questions,
-  migration `00014`) — commit + `make deploy` when the user says go.
+- **Minor prompt polish (optional):** the AI's `reaction` occasionally poses
+  a question itself before the separate clean `Question` field asks something
+  very similar — a bit repetitive, not broken (observed once in live testing).
+  Could tighten the prompt so `reaction` only bridges, never asks.
 - **Armenian question content** exists only for the `backend` course (`hy.json`). Other
   courses: ARM interview picks from the EN bank (fallback) + AI still writes the
   paraphrased question/feedback in Armenian. To make ARM full: developer adds
