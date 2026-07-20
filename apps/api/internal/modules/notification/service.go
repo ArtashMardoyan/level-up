@@ -76,14 +76,11 @@ func (s *Service) NotifyWelcome(ctx context.Context, userID string) error {
 	return err
 }
 
-func (s *Service) NotifyReviewMilestone(ctx context.Context, userID string, count int) error {
-	_, err := s.Create(ctx, userID, TypeReviewMilestone, Params{"count": count})
-
-	return err
-}
-
-func (s *Service) NotifyStreak(ctx context.Context, userID string, days int) error {
-	_, err := s.Create(ctx, userID, TypeStreak, Params{"days": days})
+// NotifyBadgeEarned announces a newly earned achievement badge. The client maps
+// badgeId to the localized badge name/description/icon (wording never lives on
+// the server). Invoked by the badge service through its own Notifier interface.
+func (s *Service) NotifyBadgeEarned(ctx context.Context, userID, badgeID string) error {
+	_, err := s.Create(ctx, userID, TypeBadgeEarned, Params{"badgeId": badgeID})
 
 	return err
 }

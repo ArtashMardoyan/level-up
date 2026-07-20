@@ -24,6 +24,14 @@ var (
 	ErrVoiceUnavailable = errors.New("interview: voice transcription unavailable")
 )
 
+// BadgeAwarder grants interview badges (completed-interview count + score) when a
+// session completes, without depending on the badge package (badge.Service
+// satisfies it). It returns the IDs newly earned this call so the results screen
+// can celebrate them. Best-effort: a nil awarder or an error never blocks Complete.
+type BadgeAwarder interface {
+	AwardInterviewComplete(ctx context.Context, userID string, score, total int) ([]string, error)
+}
+
 // Service is the interview engine (docs/interview/004). The AI client may be nil
 // (no OpenAI key) — evaluation then degrades to a failed placeholder, and question
 // generation degrades to the raw bank text.
@@ -31,10 +39,11 @@ type Service struct {
 	repo    Repository
 	content ContentReader
 	ai      AI
+	badges  BadgeAwarder
 }
 
-func NewService(repo Repository, content ContentReader, ai AI) *Service {
-	return &Service{repo: repo, content: content, ai: ai}
+func NewService(repo Repository, content ContentReader, ai AI, badges BadgeAwarder) *Service {
+	return &Service{repo: repo, content: content, ai: ai, badges: badges}
 }
 
 // Start creates a session, snapshots the chosen questions, and returns the first
@@ -253,7 +262,8 @@ func (s *Service) Complete(ctx context.Context, userID, id string) (ReportView, 
 		return ReportView{}, err
 	}
 
-	if session.Status != StatusCompleted {
+	firstCompletion := session.Status != StatusCompleted
+	if firstCompletion {
 		now := time.Now()
 		score := report.OverallScore
 		session.Status = StatusCompleted
@@ -269,7 +279,16 @@ func (s *Service) Complete(ctx context.Context, userID, id string) (ReportView, 
 		return ReportView{}, err
 	}
 
-	return ReportView{Report: report, Session: session, Review: review}, nil
+	// Award interview badges only on the first completion (count + score), so a
+	// re-completion doesn't re-run awarding. Best-effort: never fail the report.
+	var newBadges []string
+	if firstCompletion && s.badges != nil {
+		if total, _, _, _, err := s.repo.SummaryByUser(ctx, userID); err == nil {
+			newBadges, _ = s.badges.AwardInterviewComplete(ctx, userID, report.OverallScore, total)
+		}
+	}
+
+	return ReportView{Report: report, Session: session, Review: review, NewBadges: newBadges}, nil
 }
 
 // Report returns a completed interview's report + review (docs/interview/011).

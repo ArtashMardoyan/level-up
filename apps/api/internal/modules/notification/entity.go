@@ -12,11 +12,17 @@ import (
 type Type string
 
 const (
-	TypeWelcome         Type = "welcome"
+	TypeWelcome      Type = "welcome"
+	TypeNewQuestions Type = "new_questions"
+	TypeDaily        Type = "daily"
+	TypeBadgeEarned  Type = "badge_earned"
+
+	// TypeReviewMilestone and TypeStreak are no longer emitted — reviewed-count
+	// and streak milestones now award durable badges (TypeBadgeEarned) instead.
+	// The constants are retained because rows of these types persist in existing
+	// users' notification history and the client still renders them.
 	TypeReviewMilestone Type = "review_milestone"
 	TypeStreak          Type = "streak"
-	TypeNewQuestions    Type = "new_questions"
-	TypeDaily           Type = "daily"
 )
 
 type Notification struct {

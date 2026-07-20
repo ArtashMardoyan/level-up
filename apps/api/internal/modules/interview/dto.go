@@ -73,6 +73,10 @@ type ReportView struct {
 	Report  FinalReport  `json:"report"`
 	Session Session      `json:"session"`
 	Review  []ReviewItem `json:"review"`
+	// NewBadges holds the badge IDs newly earned by completing this interview
+	// (empty on a re-completion or when nothing new was reached), so the results
+	// screen can celebrate them. The client maps each ID to a localized badge.
+	NewBadges []string `json:"newBadges"`
 }
 
 // LastSessionView is the lean shape of the most recently completed session, for

@@ -123,20 +123,20 @@ func TestMarkAllSeenDoesNotMarkRead(t *testing.T) {
 	}
 }
 
-func TestNotifyReviewMilestoneParams(t *testing.T) {
+func TestNotifyBadgeEarnedParams(t *testing.T) {
 	repo := &stubRepo{}
 	svc := notification.NewService(repo)
 
-	if err := svc.NotifyReviewMilestone(t.Context(), "user-1", 10); err != nil {
-		t.Fatalf("NotifyReviewMilestone: %v", err)
+	if err := svc.NotifyBadgeEarned(t.Context(), "user-1", "streak_7"); err != nil {
+		t.Fatalf("NotifyBadgeEarned: %v", err)
 	}
 
 	got := repo.items[0]
-	if got.Type != notification.TypeReviewMilestone {
-		t.Errorf("expected review_milestone type, got %q", got.Type)
+	if got.Type != notification.TypeBadgeEarned {
+		t.Errorf("expected badge_earned type, got %q", got.Type)
 	}
-	if got.Params["count"] != 10 {
-		t.Errorf("expected count=10 param, got %v", got.Params["count"])
+	if got.Params["badgeId"] != "streak_7" {
+		t.Errorf("expected badgeId=streak_7 param, got %v", got.Params["badgeId"])
 	}
 }
 
@@ -144,7 +144,7 @@ func TestMarkAllRead(t *testing.T) {
 	repo := &stubRepo{}
 	svc := notification.NewService(repo)
 	_ = svc.NotifyWelcome(t.Context(), "user-1")
-	_ = svc.NotifyReviewMilestone(t.Context(), "user-1", 10)
+	_ = svc.NotifyBadgeEarned(t.Context(), "user-1", "review_10")
 
 	if err := svc.MarkAllRead(t.Context(), "user-1"); err != nil {
 		t.Fatalf("MarkAllRead: %v", err)

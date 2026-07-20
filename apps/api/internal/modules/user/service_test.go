@@ -80,16 +80,24 @@ func seedUser(t *testing.T) *user.User {
 }
 
 // spyNotifier counts notification emissions for assertions.
-type spyNotifier struct{ welcome, streak, daily int }
+type spyNotifier struct{ welcome, daily int }
 
-func (s *spyNotifier) NotifyWelcome(context.Context, string) error     { s.welcome++; return nil }
-func (s *spyNotifier) NotifyStreak(context.Context, string, int) error { s.streak++; return nil }
-func (s *spyNotifier) NotifyDaily(context.Context, string) error       { s.daily++; return nil }
+func (s *spyNotifier) NotifyWelcome(context.Context, string) error { s.welcome++; return nil }
+func (s *spyNotifier) NotifyDaily(context.Context, string) error   { s.daily++; return nil }
+
+// spyBadges records the streak day counts awarding was attempted for.
+type spyBadges struct{ streakDays []int }
+
+func (s *spyBadges) AwardStreak(_ context.Context, _ string, days int) error {
+	s.streakDays = append(s.streakDays, days)
+
+	return nil
+}
 
 func TestRecordActivityEmitsDailyOncePerDay(t *testing.T) {
 	spy := &spyNotifier{}
 	repo := newStubUserRepo(seedUser(t))
-	svc := user.NewService(repo, spy)
+	svc := user.NewService(repo, spy, nil)
 
 	if err := svc.RecordActivity(t.Context(), "user-1", "UTC"); err != nil {
 		t.Fatalf("RecordActivity: %v", err)
@@ -114,7 +122,7 @@ func TestRecordActivityStreak(t *testing.T) {
 
 	t.Run("first activity starts streak at 1", func(t *testing.T) {
 		repo := newStubUserRepo(seedUser(t))
-		svc := user.NewService(repo, nil)
+		svc := user.NewService(repo, nil, nil)
 
 		if err := svc.RecordActivity(t.Context(), "user-1", "UTC"); err != nil {
 			t.Fatalf("RecordActivity: %v", err)
@@ -128,7 +136,7 @@ func TestRecordActivityStreak(t *testing.T) {
 		u := seedUser(t)
 		u.CurrentStreak, u.LongestStreak, u.LastActiveOn = 1, 1, dateDaysAgo(1)
 		repo := newStubUserRepo(u)
-		svc := user.NewService(repo, nil)
+		svc := user.NewService(repo, nil, nil)
 
 		_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
 		if repo.saved.CurrentStreak != 2 {
@@ -136,11 +144,27 @@ func TestRecordActivityStreak(t *testing.T) {
 		}
 	})
 
+	t.Run("reaching a milestone awards a streak badge", func(t *testing.T) {
+		u := seedUser(t)
+		u.CurrentStreak, u.LongestStreak, u.LastActiveOn = 2, 2, dateDaysAgo(1)
+		repo := newStubUserRepo(u)
+		badges := &spyBadges{}
+		svc := user.NewService(repo, nil, badges)
+
+		_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
+		if repo.saved.CurrentStreak != 3 {
+			t.Fatalf("want streak 3, got %d", repo.saved.CurrentStreak)
+		}
+		if len(badges.streakDays) != 1 || badges.streakDays[0] != 3 {
+			t.Fatalf("want streak badge awarded at day 3, got %v", badges.streakDays)
+		}
+	})
+
 	t.Run("same day is a no-op", func(t *testing.T) {
 		u := seedUser(t)
 		u.CurrentStreak, u.LongestStreak, u.LastActiveOn = 5, 5, dateDaysAgo(0)
 		repo := newStubUserRepo(u)
-		svc := user.NewService(repo, nil)
+		svc := user.NewService(repo, nil, nil)
 
 		_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
 		if repo.saved != nil {
@@ -156,7 +180,7 @@ func TestRecordActivityStreak(t *testing.T) {
 		u := seedUser(t)
 		u.CurrentStreak, u.LongestStreak, u.LastActiveOn = 9, 9, dateDaysAgo(3)
 		repo := newStubUserRepo(u)
-		svc := user.NewService(repo, nil)
+		svc := user.NewService(repo, nil, nil)
 
 		_ = svc.RecordActivity(t.Context(), "user-1", "UTC")
 		if repo.saved.CurrentStreak != 1 {
@@ -170,7 +194,7 @@ func TestRecordActivityStreak(t *testing.T) {
 
 func TestUpdateFields(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
-	svc := user.NewService(repo, nil)
+	svc := user.NewService(repo, nil, nil)
 
 	got, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{
 		Name:  "New Name",
@@ -194,7 +218,7 @@ func TestUpdateEmailTaken(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
 	// A different account already owns the target email.
 	repo.byEmail["taken@example.com"] = user.User{ID: "user-2", Email: "taken@example.com"}
-	svc := user.NewService(repo, nil)
+	svc := user.NewService(repo, nil, nil)
 
 	_, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{Email: "taken@example.com"})
 	if !errors.Is(err, user.ErrEmailTaken) {
@@ -204,7 +228,7 @@ func TestUpdateEmailTaken(t *testing.T) {
 
 func TestUpdatePasswordWrongCurrent(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
-	svc := user.NewService(repo, nil)
+	svc := user.NewService(repo, nil, nil)
 
 	_, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{
 		CurrentPassword: "wrong-password",
@@ -217,7 +241,7 @@ func TestUpdatePasswordWrongCurrent(t *testing.T) {
 
 func TestUpdatePasswordSuccess(t *testing.T) {
 	repo := newStubUserRepo(seedUser(t))
-	svc := user.NewService(repo, nil)
+	svc := user.NewService(repo, nil, nil)
 
 	if _, err := svc.Update(t.Context(), "user-1", &user.UpdateDTO{
 		CurrentPassword: "current-password",

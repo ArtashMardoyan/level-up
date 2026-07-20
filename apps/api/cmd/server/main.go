@@ -11,6 +11,7 @@ import (
 	"level-up-backend/internal/infrastructure/database"
 	"level-up-backend/internal/infrastructure/middleware"
 	"level-up-backend/internal/modules/auth"
+	"level-up-backend/internal/modules/badge"
 	"level-up-backend/internal/modules/course"
 	"level-up-backend/internal/modules/health"
 	"level-up-backend/internal/modules/interview"
@@ -49,18 +50,21 @@ func main() {
 	progressRepo := course.NewProgressRepository(db)
 	notificationRepo := notification.NewRepository(db)
 	interviewRepo := interview.NewRepository(db)
+	badgeRepo := badge.NewRepository(db)
 
 	notificationService := notification.NewService(notificationRepo)
-	userService := user.NewService(userRepo, notificationService)
+	badgeService := badge.NewService(badgeRepo, notificationService)
+	userService := user.NewService(userRepo, notificationService, badgeService)
 	interviewAI := interview.NewAI(cfg.OpenAI.APIKey, cfg.OpenAI.Model, cfg.OpenAI.Timeout)
-	interviewService := interview.NewService(interviewRepo, courseRepo, interviewAI)
+	interviewService := interview.NewService(interviewRepo, courseRepo, interviewAI, badgeService)
 
 	userHandler := user.NewHandler(userService)
 	authHandler := auth.NewHandler(auth.NewService(userRepo, revokedRepo, cfg.JWT.Secret))
 	healthHandler := health.NewHandler(db)
-	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo, notificationService, userService))
+	courseHandler := course.NewHandler(course.NewService(courseRepo, progressRepo, badgeService, userService))
 	notificationHandler := notification.NewHandler(notificationService)
 	interviewHandler := interview.NewHandler(interviewService)
+	badgeHandler := badge.NewHandler(badgeService)
 
 	jwtMiddleware := middleware.JWT(userRepo, revokedRepo, cfg.JWT.Secret)
 
@@ -84,6 +88,7 @@ func main() {
 	courseHandler.RegisterRoutes(r, jwtMiddleware)
 	notificationHandler.RegisterRoutes(r, jwtMiddleware)
 	interviewHandler.RegisterRoutes(r, jwtMiddleware)
+	badgeHandler.RegisterRoutes(r, jwtMiddleware)
 
 	log.Fatal(r.Run(cfg.Server.Addr))
 }

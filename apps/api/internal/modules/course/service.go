@@ -15,15 +15,11 @@ var (
 	ErrQuestionNotFound = errors.New("question not found")
 )
 
-// reviewMilestones are the reviewed-count thresholds that emit a notification
-// (only when the count lands exactly on one, so each fires once).
-var reviewMilestones = map[int]bool{10: true, 25: true, 50: true, 100: true}
-
-// Notifier lets the course service emit a milestone notification without
-// depending on the notification package (notification.Service satisfies it).
-// Best-effort: a nil notifier or an error never blocks the progress save.
-type Notifier interface {
-	NotifyReviewMilestone(ctx context.Context, userID string, count int) error
+// BadgeAwarder grants reviewed-count badges as the user's reviewed total grows,
+// without depending on the badge package (badge.Service satisfies it).
+// Best-effort: a nil awarder or an error never blocks the progress save.
+type BadgeAwarder interface {
+	AwardReview(ctx context.Context, userID string, count int) error
 }
 
 // StreakService records daily activity and reads the streak, without coupling to
@@ -37,12 +33,12 @@ type StreakService interface {
 type Service struct {
 	courses  CourseRepository
 	progress ProgressRepository
-	notifier Notifier
+	badges   BadgeAwarder
 	streak   StreakService
 }
 
-func NewService(courses CourseRepository, progress ProgressRepository, notifier Notifier, streak StreakService) *Service {
-	return &Service{courses: courses, progress: progress, notifier: notifier, streak: streak}
+func NewService(courses CourseRepository, progress ProgressRepository, badges BadgeAwarder, streak StreakService) *Service {
+	return &Service{courses: courses, progress: progress, badges: badges, streak: streak}
 }
 
 func (s *Service) ListCourses(ctx context.Context) ([]CourseListItemDTO, error) {
@@ -190,15 +186,15 @@ func (s *Service) UpsertProgress(ctx context.Context, userID, questionID string,
 	}
 
 	// A not-reviewed -> reviewed transition is a qualifying daily activity and may
-	// hit a reviewed-count milestone. Both are best-effort: never fail the save.
+	// earn a reviewed-count badge. Both are best-effort: never fail the save.
 	if !wasReviewed && p.Reviewed {
 		if s.streak != nil {
 			_ = s.streak.RecordActivity(ctx, userID, dto.Timezone)
 		}
 
-		if s.notifier != nil {
-			if total, err := s.reviewedCount(ctx, userID); err == nil && reviewMilestones[total] {
-				_ = s.notifier.NotifyReviewMilestone(ctx, userID, total)
+		if s.badges != nil {
+			if total, err := s.reviewedCount(ctx, userID); err == nil {
+				_ = s.badges.AwardReview(ctx, userID, total)
 			}
 		}
 	}

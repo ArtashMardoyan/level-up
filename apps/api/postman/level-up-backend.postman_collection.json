@@ -151,6 +151,28 @@
 			]
 		},
 		{
+			"name": "Badges",
+			"item": [
+				{
+					"name": "List Badges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/badges",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"badges"
+							]
+						},
+						"description": "Full achievement-badge catalog with the authenticated user's earn status: { \"data\": [ { \"id\", \"category\", \"tier\", \"threshold\", \"earned\", \"earnedAt\" } ] }. The catalog is code-defined; the client maps id -> localized name/description/icon."
+					}
+				}
+			]
+		},
+		{
 			"name": "Courses",
 			"item": [
 				{

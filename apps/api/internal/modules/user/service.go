@@ -17,26 +17,28 @@ var (
 	ErrWrongPassword = errors.New("current password is incorrect")
 )
 
-// streakMilestones fire a streak notification when currentStreak lands exactly
-// on one of these day counts.
-var streakMilestones = map[int]bool{3: true, 7: true, 14: true, 30: true, 100: true}
-
-// Notifier lets the user service emit notifications (welcome, streak) without
+// Notifier lets the user service emit notifications (welcome, daily) without
 // depending on the notification package (notification.Service satisfies it).
 // Best-effort: a nil notifier or an error never blocks the parent operation.
 type Notifier interface {
 	NotifyWelcome(ctx context.Context, userID string) error
-	NotifyStreak(ctx context.Context, userID string, days int) error
 	NotifyDaily(ctx context.Context, userID string) error
+}
+
+// BadgeAwarder grants streak badges on a milestone day, without depending on the
+// badge package (badge.Service satisfies it). Best-effort, like Notifier.
+type BadgeAwarder interface {
+	AwardStreak(ctx context.Context, userID string, days int) error
 }
 
 type Service struct {
 	repo     Repository
 	notifier Notifier
+	badges   BadgeAwarder
 }
 
-func NewService(repo Repository, notifier Notifier) *Service {
-	return &Service{repo: repo, notifier: notifier}
+func NewService(repo Repository, notifier Notifier, badges BadgeAwarder) *Service {
+	return &Service{repo: repo, notifier: notifier, badges: badges}
 }
 
 func (s *Service) FindAll(ctx context.Context, q shared.PaginationQuery) (shared.PaginatedResult[User], error) {
@@ -218,13 +220,13 @@ func (s *Service) RecordActivity(ctx context.Context, userID, tz string) error {
 	}
 
 	// Reaching here means it's the user's first activity of a new local day (the
-	// same-day case returned early above), so surface today's daily challenge and,
-	// if the streak just hit a milestone, celebrate it. Best-effort.
+	// same-day case returned early above), so surface today's daily challenge and
+	// award any streak badge just reached. Both best-effort.
 	if s.notifier != nil {
 		_ = s.notifier.NotifyDaily(ctx, userID)
-		if streakMilestones[u.CurrentStreak] {
-			_ = s.notifier.NotifyStreak(ctx, userID, u.CurrentStreak)
-		}
+	}
+	if s.badges != nil {
+		_ = s.badges.AwardStreak(ctx, userID, u.CurrentStreak)
 	}
 
 	return nil
