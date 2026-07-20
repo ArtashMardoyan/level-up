@@ -37,6 +37,15 @@ function headerHeight() {
   return document.querySelector('.app-header')?.offsetHeight || 68
 }
 
+// Number of bars in the live recording waveform.
+const METER_BARS = 24
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
 export default function InterviewChat({ onComplete, sessionId, initial, course }) {
   const { t } = useLanguage()
 
@@ -50,12 +59,17 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   const [chatHeight, setChatHeight] = useState(() => `calc(100dvh - ${headerHeight()}px)`)
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
 
   const logRef = useRef(null)
   const inputRef = useRef(null)
   const stickRef = useRef(true)
   const recorderRef = useRef(null)
   const chunksRef = useRef([])
+  const meterRef = useRef(null)
+  const audioCtxRef = useRef(null)
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
 
   const total = initial.session.questionCount
   const answered = current ? current.index : total
@@ -98,10 +112,21 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
     return () => window.removeEventListener('beforeunload', warn)
   }, [finished])
 
-  // Release the mic if the component unmounts mid-recording (e.g. navigating away).
+  // Tears down the live audio meter + elapsed timer started with a recording.
+  const stopMeter = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    if (timerRef.current) clearInterval(timerRef.current)
+    audioCtxRef.current?.close().catch(() => {})
+    rafRef.current = null
+    timerRef.current = null
+    audioCtxRef.current = null
+  }
+
+  // Release the mic + tear down the meter if the component unmounts mid-recording.
   useEffect(() => {
     return () => {
       recorderRef.current?.stream?.getTracks().forEach((track) => track.stop())
+      stopMeter()
     }
   }, [])
 
@@ -169,7 +194,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
       stream.getTracks().forEach((track) => track.stop())
       const blob = new Blob(chunksRef.current, { type: recorder.mimeType })
       setTranscribing(true)
-      interviewTranscribe(blob)
+      interviewTranscribe(blob, initial.session.language)
         .then((res) => setAnswer((prev) => (prev ? prev + ' ' : '') + res.transcript))
         .catch(() => setError(t('interviewTranscribeError')))
         .finally(() => setTranscribing(false))
@@ -178,11 +203,46 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
     recorderRef.current = recorder
     recorder.start()
     setRecording(true)
+    setElapsed(0)
+    startMeter(stream)
+  }
+
+  // Drives the live waveform + MM:SS timer while recording. The bar heights are
+  // written straight to the DOM each animation frame (no per-frame re-render);
+  // only the once-a-second elapsed counter goes through React state.
+  const startMeter = (stream) => {
+    const started = Date.now()
+    timerRef.current = setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 500)
+
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      const analyser = ctx.createAnalyser()
+      analyser.fftSize = 64
+      ctx.createMediaStreamSource(stream).connect(analyser)
+      audioCtxRef.current = ctx
+
+      const freq = new Uint8Array(analyser.frequencyBinCount)
+      const tick = () => {
+        analyser.getByteFrequencyData(freq)
+        const bars = meterRef.current?.children
+        if (bars) {
+          for (let i = 0; i < bars.length; i++) {
+            const v = freq[i + 1] / 255 // skip the DC bin; 0..1
+            bars[i].style.transform = `scaleY(${Math.max(0.08, v)})`
+          }
+        }
+        rafRef.current = requestAnimationFrame(tick)
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    } catch {
+      /* Web Audio unavailable — the timer + pulsing dot still show. */
+    }
   }
 
   const stopRecording = () => {
     recorderRef.current?.stop()
     setRecording(false)
+    stopMeter()
   }
 
   const seeResults = () => {
@@ -249,16 +309,29 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
 
       {current && !finished && (
         <div className="aic-composer">
-          <textarea
-            placeholder={transcribing ? t('interviewTranscribing') : t('interviewAnswerPlaceholder')}
-            onChange={(e) => setAnswer(e.target.value)}
-            disabled={thinking || transcribing}
-            className="aic-composer-input"
-            onKeyDown={onKeyDown}
-            value={answer}
-            ref={inputRef}
-            rows={3}
-          />
+          {recording ? (
+            <div className="aic-recording" aria-live="polite">
+              <span className="aic-recording-dot" aria-hidden="true" />
+              <span className="aic-recording-time">{formatTime(elapsed)}</span>
+              <div className="aic-recording-meter" aria-hidden="true" ref={meterRef}>
+                {Array.from({ length: METER_BARS }).map((_, i) => (
+                  <span className="aic-recording-bar" key={i} />
+                ))}
+              </div>
+              <span className="aic-recording-hint">{t('interviewRecordingHint')}</span>
+            </div>
+          ) : (
+            <textarea
+              placeholder={transcribing ? t('interviewTranscribing') : t('interviewAnswerPlaceholder')}
+              onChange={(e) => setAnswer(e.target.value)}
+              disabled={thinking || transcribing}
+              className="aic-composer-input"
+              onKeyDown={onKeyDown}
+              value={answer}
+              ref={inputRef}
+              rows={3}
+            />
+          )}
           <div className="aic-composer-actions">
             <button
               onClick={() => setAnswer(current.modelAnswer || '')}

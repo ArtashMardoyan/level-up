@@ -299,6 +299,7 @@ export const hy = {
   interviewCompleteBody: 'Դուք ավարտեցիք բոլոր {total} հարցերը։',
   interviewContinueBody: 'Շարունակեք այնտեղից, որտեղ կանգ առաք։',
   interviewConfirmScore: 'Վերջում կտեսնեք ընդհանուր արդյունքը։',
+  interviewRecordingHint: 'Ձայնագրվում է… ավարտին սեղմեք կանգ',
   interviewSetupSummary: '{course} · {difficulty} · {n} հարց',
   interviewActiveError: 'Դուք արդեն ունեք ակտիվ հարցազրույց։',
   interviewCompleteError: 'Չհաջողվեց ավարտել հարցազրույցը։',

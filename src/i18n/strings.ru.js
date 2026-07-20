@@ -309,6 +309,7 @@ export const ru = {
   interviewStartError: 'Не удалось начать интервью. Попробуйте ещё раз.',
   interviewConfirmFeedback: 'Фидбэк и образцовый ответ после каждого',
   interviewHistorySubtitle: 'Ваши прошлые пробные интервью и баллы.',
+  interviewRecordingHint: 'Идёт запись… нажмите стоп по готовности',
   interviewHeroTitle: 'Практикуйте настоящие интервью с AI-коучем',
   interviewConfirmScore: 'Общий балл и следующие шаги в конце',
   interviewSignedOutTitle: 'Войдите, чтобы начать интервью',

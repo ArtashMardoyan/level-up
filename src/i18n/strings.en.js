@@ -314,6 +314,7 @@ export const en = {
   interviewConfirmScore: 'Overall score and next steps at the end',
   interviewHeroTitle: 'Practice real interviews with an AI coach',
   interviewSignedOutTitle: 'Sign in to start interviewing',
+  interviewRecordingHint: 'Recording… tap stop when done',
   interviewHistoryEmptyCta: 'Start your first interview',
   interviewHeroStartFirst: 'Start your first interview',
   interviewConfirmNoTimer: 'Take your time — no timer',
