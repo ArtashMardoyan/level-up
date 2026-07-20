@@ -1,4 +1,4 @@
-import { apiDelete, apiPatch, apiPost, apiGet } from './api'
+import { apiDelete, apiUpload, apiPatch, apiPost, apiGet } from './api'
 
 // One thin wrapper per backend route. The UI uses the auth subset today; the
 // rest are ready to wire up as features land.
@@ -36,6 +36,11 @@ export const interviewComplete = (id) => apiPost(`/interviews/${id}/complete`)
 export const interviewsCreate = (payload) => apiPost('/interviews', payload)
 export const interviewsList = (page = 1, limit = 10) => apiGet(`/interviews?page=${page}&limit=${limit}`)
 export const interviewsSummary = () => apiGet('/interviews/summary')
+export const interviewTranscribe = (audioBlob) => {
+  const form = new FormData()
+  form.append('audio', audioBlob, 'answer.webm')
+  return apiUpload('/interviews/transcribe', form)
+}
 export const interviewSubmitAnswer = (id, questionId, payload) =>
   apiPost(`/interviews/${id}/answers/${questionId}`, payload)
 

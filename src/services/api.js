@@ -12,19 +12,25 @@ export class ApiError extends Error {
   }
 }
 
-// The backend wraps success in { data } and errors in { error }.
-async function request(method, path, body) {
-  const headers = { 'Content-Type': 'application/json' }
+// The backend wraps success in { data } and errors in { error }. formData (when
+// given) is sent as-is with no Content-Type — the browser sets the multipart
+// boundary; JSON is used otherwise.
+async function request(method, path, { formData, json } = {}) {
+  const headers = {}
   const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
 
+  let body
+  if (formData) {
+    body = formData
+  } else if (json !== undefined) {
+    headers['Content-Type'] = 'application/json'
+    body = JSON.stringify(json)
+  }
+
   let res
   try {
-    res = await fetch(`${BASE_URL}${path}`, {
-      body: body === undefined ? undefined : JSON.stringify(body),
-      headers,
-      method
-    })
+    res = await fetch(`${BASE_URL}${path}`, { headers, method, body })
   } catch {
     throw new ApiError(0, 'network error')
   }
@@ -46,6 +52,7 @@ async function request(method, path, body) {
 }
 
 export const apiGet = (path) => request('GET', path)
-export const apiPost = (path, body) => request('POST', path, body)
-export const apiPatch = (path, body) => request('PATCH', path, body)
+export const apiPost = (path, body) => request('POST', path, { json: body })
+export const apiPatch = (path, body) => request('PATCH', path, { json: body })
 export const apiDelete = (path) => request('DELETE', path)
+export const apiUpload = (path, formData) => request('POST', path, { formData })

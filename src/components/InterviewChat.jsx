@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
-import { ArrowRight, Sparkles, Send, Bot } from 'lucide-react'
+import { ArrowRight, Sparkles, Square, Send, Bot, Mic } from 'lucide-react'
 
 import CourseIcon from './CourseIcon'
 import { useLanguage } from '../hooks/useLanguage'
-import { interviewSubmitAnswer, interviewComplete } from '../services/endpoints'
+import { interviewSubmitAnswer, interviewTranscribe, interviewComplete } from '../services/endpoints'
 
 // A real interviewer doesn't grade out loud mid-chat — the AI's natural, score-free
 // reaction to the previous answer is folded into the same bubble as the next
@@ -48,10 +48,14 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   const [completing, setCompleting] = useState(false)
   const [error, setError] = useState(null)
   const [chatHeight, setChatHeight] = useState(() => `calc(100dvh - ${headerHeight()}px)`)
+  const [recording, setRecording] = useState(false)
+  const [transcribing, setTranscribing] = useState(false)
 
   const logRef = useRef(null)
   const inputRef = useRef(null)
   const stickRef = useRef(true)
+  const recorderRef = useRef(null)
+  const chunksRef = useRef([])
 
   const total = initial.session.questionCount
   const answered = current ? current.index : total
@@ -94,6 +98,13 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
     return () => window.removeEventListener('beforeunload', warn)
   }, [finished])
 
+  // Release the mic if the component unmounts mid-recording (e.g. navigating away).
+  useEffect(() => {
+    return () => {
+      recorderRef.current?.stream?.getTracks().forEach((track) => track.stop())
+    }
+  }, [])
+
   const onLogScroll = () => {
     const el = logRef.current
     if (el) stickRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120
@@ -134,6 +145,44 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
       e.preventDefault()
       submit(false)
     }
+  }
+
+  // Voice answers transcribe to text (Whisper) rather than attach raw audio —
+  // grading is text-based either way, and this lets the candidate review/edit
+  // the transcript in the composer before submitting like any typed answer.
+  const startRecording = async () => {
+    setError(null)
+    let stream
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch {
+      setError(t('interviewMicError'))
+      return
+    }
+
+    const recorder = new MediaRecorder(stream)
+    chunksRef.current = []
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunksRef.current.push(e.data)
+    }
+    recorder.onstop = () => {
+      stream.getTracks().forEach((track) => track.stop())
+      const blob = new Blob(chunksRef.current, { type: recorder.mimeType })
+      setTranscribing(true)
+      interviewTranscribe(blob)
+        .then((res) => setAnswer((prev) => (prev ? prev + ' ' : '') + res.transcript))
+        .catch(() => setError(t('interviewTranscribeError')))
+        .finally(() => setTranscribing(false))
+    }
+
+    recorderRef.current = recorder
+    recorder.start()
+    setRecording(true)
+  }
+
+  const stopRecording = () => {
+    recorderRef.current?.stop()
+    setRecording(false)
   }
 
   const seeResults = () => {
@@ -201,30 +250,51 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
       {current && !finished && (
         <div className="aic-composer">
           <textarea
-            placeholder={t('interviewAnswerPlaceholder')}
+            placeholder={transcribing ? t('interviewTranscribing') : t('interviewAnswerPlaceholder')}
             onChange={(e) => setAnswer(e.target.value)}
+            disabled={thinking || transcribing}
             className="aic-composer-input"
             onKeyDown={onKeyDown}
-            disabled={thinking}
             value={answer}
             ref={inputRef}
             rows={3}
           />
           <div className="aic-composer-actions">
             <button
+              className={'aic-ghost-btn small' + (recording ? ' recording' : '')}
+              onClick={recording ? stopRecording : startRecording}
+              disabled={thinking || transcribing}
+              type="button"
+            >
+              {recording ? (
+                <>
+                  <Square aria-hidden="true" size={14} /> {t('interviewStopRecording')}
+                </>
+              ) : (
+                <>
+                  <Mic aria-hidden="true" size={14} /> {t('interviewRecord')}
+                </>
+              )}
+            </button>
+            <button
               onClick={() => setAnswer(current.modelAnswer || '')}
+              disabled={thinking || recording || transcribing}
               className="aic-ghost-btn small"
-              disabled={thinking}
               type="button"
             >
               <Sparkles aria-hidden="true" size={14} /> {t('interviewSample')}
             </button>
             <div className="aic-composer-right">
-              <button className="aic-ghost-btn small" onClick={() => submit(true)} disabled={thinking} type="button">
+              <button
+                disabled={thinking || recording || transcribing}
+                className="aic-ghost-btn small"
+                onClick={() => submit(true)}
+                type="button"
+              >
                 {t('interviewSkip')}
               </button>
               <button
-                disabled={thinking || !answer.trim()}
+                disabled={thinking || recording || transcribing || !answer.trim()}
                 onClick={() => submit(false)}
                 className="aic-primary-btn"
                 type="button"
