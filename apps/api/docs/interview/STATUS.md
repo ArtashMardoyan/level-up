@@ -62,6 +62,27 @@ _Last updated: 2026-07-20._
     DevTools Protocol (`--remote-debugging-port`, no extension needed — useful
     when the `claude-in-chrome` extension won't connect). Both resume and the
     live submit path render as one natural bubble with no visible score.
+- **2026-07-20 session, part 2 — committed + deployed** (backend `d04efde`;
+  frontend `edf2d0d`):
+  - **Personalized greeting.** The first question now opens with a deterministic
+    (not AI-written), localized greeting using the candidate's name — "Hi
+    Artash! Let's get started." — reusing the exact same `reaction` field/bubble
+    mechanism from part 1, so no frontend change was needed for this half.
+  - **Voice answers.** New `POST /interviews/transcribe` (multipart `audio` file)
+    transcribes via Whisper (`openai-go`'s `Audio.Transcriptions`, fixed model
+    `whisper-1`, independent of `OPENAI_MODEL`) and returns `{ transcript }`.
+    Frontend composer got a Record button (`MediaRecorder` → upload → fills the
+    textarea, editable before Submit) — grading stays entirely text-based and
+    untouched, voice is just an alternate way to fill the same answer field.
+    **Deliberately did not persist raw audio to S3**: grading doesn't need it,
+    and the Go backend has neither an AWS SDK dependency nor an App Runner
+    `InstanceRoleArn` configured yet — adding S3 playback would mean both, for a
+    "hear your own delivery" nice-to-have, not a requirement. Revisit if wanted
+    later (see "What's OPEN" below).
+  - Verified live: `curl` with real spoken audio (exact transcript back), and
+    the full record → stop → transcribe → fill-composer cycle through a real
+    browser (Chrome DevTools Protocol with `--use-fake-device-for-media-stream`,
+    since this environment has no physical mic).
 
 ## TL;DR — it's SHIPPED and live on prod
 
@@ -86,6 +107,7 @@ with real OpenAI scoring in EN / RU / ARM.
 - **Languages EN / RU / HY** (`hy` = Armenian): AI feedback in the session language;
   questions from `question_translations` (falls back to EN where an overlay is missing).
 - `OPENAI_API_KEY` (+ `OPENAI_MODEL`) is set on App Runner (RuntimeEnvironmentVariables).
+- **`POST /interviews/transcribe`** — Whisper transcription for voice answers (see above).
 - Postman collection updated (`Interviews` folder).
 
 **Frontend** (`level-up`, `src/components/Interview*.jsx`):
@@ -98,7 +120,8 @@ with real OpenAI scoring in EN / RU / ARM.
   **language selector 🇬🇧 ENG / 🇷🇺 RUS / 🇦🇲 ARM** + confirm modal; breadcrumb + Start/History/summary.
 - `InterviewChat` — proper chat: header/progress pinned, messages scroll in their own area
   (auto-scroll only when near bottom), **composer fixed at the bottom**, Enter-to-send
-  (Shift+Enter = newline), autofocus per question, Submit disabled while empty.
+  (Shift+Enter = newline), autofocus per question, Submit disabled while empty. **Record
+  button** (mic → Whisper transcript fills the composer, editable before Submit).
 - `InterviewResults` (score ring /100, 4-axis rubric, strengths/focus, next steps) + inline
   `Review`, `InterviewHistory` (with language flag).
 - Routing: `#interview` = home, `/new` = setup, `/history` = history, `/<id>` = session;
@@ -120,14 +143,21 @@ with real OpenAI scoring in EN / RU / ARM.
   a question itself before the separate clean `Question` field asks something
   very similar — a bit repetitive, not broken (observed once in live testing).
   Could tighten the prompt so `reaction` only bridges, never asks.
+- **Voice answers persist no audio (by design, for now).** Recorded answers are
+  transcribed and discarded — only the text is kept. If "hear your own delivery"
+  playback is wanted later: add an AWS SDK dependency (`aws-sdk-go-v2` + `s3`),
+  create + attach an `InstanceRoleArn` to the App Runner service (one-time AWS
+  step, like the OPENAI_API_KEY dance), and a migration for the S3 key column.
 - **Armenian question content** exists only for the `backend` course (`hy.json`). Other
   courses: ARM interview picks from the EN bank (fallback) + AI still writes the
   paraphrased question/feedback in Armenian. To make ARM full: developer adds
   `hy.json` per course + run `cmd/seed` against prod RDS (no migration needed).
 - **Deferred (post-MVP):** English coaching = Learning Profile (`007`) + personalized
-  Dictionary (`008`); voice/audio interviews (reuse `question_translations.audio`);
-  AI strong/weak analysis (the per-question scores are already persisted from day one,
-  keyed by the real bank `questionId`/module regardless of the AI paraphrase).
+  Dictionary (`008`); the AI *asking* questions via audio (reusing
+  `question_translations.audio`, distinct from candidates *answering* by voice,
+  which is now shipped); AI strong/weak analysis (the per-question scores are
+  already persisted from day one, keyed by the real bank `questionId`/module
+  regardless of the AI paraphrase).
 
 ## How to continue (for a new session)
 
