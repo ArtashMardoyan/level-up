@@ -226,12 +226,15 @@ Also write a strong model answer to the question YOU wrote (matching its exact s
 the reference answer). Write both in the interview language specified below.
 
 If a previous question and the candidate's answer to it are provided below, also write a short
-(1-2 sentence) natural "reaction" bridging from that answer into your new question — the way a real
-interviewer keeps a conversation moving, e.g. acknowledging a specific point they made, or noting a
-gap before pivoting. The reaction ONLY looks back at the answer just given: it must NOT itself ask a
-question, pose or preview the next question, hint at what you are about to ask, or end with a question
-mark. All questioning belongs solely in the separate "question" field — the reaction is purely a
-bridge, never a question. An internal quality signal (0-100, never shown to the candidate) is given
+(1-2 sentence) natural "reaction" that acknowledges the answer just given — the way a real
+interviewer keeps a conversation moving, e.g. affirming a specific point they made or noting a gap.
+The reaction ONLY looks back at the answer just given: it must NOT itself ask a question, pose or
+preview the next question, hint at what you are about to ask, name or introduce the topic/subject of
+the next question, or end with a question mark. Do NOT announce the next topic (no "let's talk about
+X", "let's move on to X", "shifting to X") — introducing the new subject is the job of the "question"
+field alone, so the topic is never named twice across the reaction and the question. All questioning
+belongs solely in the separate "question" field — the reaction is purely a look-back bridge, never a
+question or a topic announcement. An internal quality signal (0-100, never shown to the candidate) is given
 only so you can calibrate tone. The reaction must NEVER state, imply, or hint at a score, grade,
 percentage, or the words "correct"/"incorrect"/"score"/"points" — a real interviewer doesn't grade out
 loud mid-chat.
