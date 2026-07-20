@@ -153,6 +153,13 @@ a {
   border-radius: 13px;
   background: var(--control);
   border: 1px solid var(--border);
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.segmented::-webkit-scrollbar {
+  display: none;
 }
 .segmented-btn {
   display: inline-flex;
@@ -1094,45 +1101,6 @@ select.plain-btn {
   line-height: 1.6;
   color: var(--text-2);
   white-space: pre-line;
-}
-
-/* Interview mode */
-.interview-stage {
-  max-width: 640px;
-  margin: 10px auto;
-  padding: 40px 30px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--surface);
-  text-align: center;
-}
-.interview-stage .qnum {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--brand);
-  margin-bottom: 16px;
-}
-.interview-stage .qtext {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(20px, 2.6vw, 26px);
-  line-height: 1.35;
-  color: var(--text);
-  margin-bottom: 26px;
-}
-.interview-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.interview-stage .a-inner {
-  text-align: left;
-  margin-top: 26px;
-  padding: 22px 0 0;
-  border-top: 1px solid var(--hairline-2);
 }
 
 /* Dictionary table */
@@ -3319,9 +3287,10 @@ footer {
 
 .aic-composer-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 12px 8px;
   margin-top: 8px;
   padding-top: 12px;
   border-top: 1px solid var(--hairline);
@@ -3329,7 +3298,18 @@ footer {
 
 .aic-composer-right {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .aic-record-btn {
+    padding: 11px;
+  }
+  .aic-record-btn-label {
+    display: none;
+  }
 }
 
 /* Completion card */
@@ -3968,6 +3948,7 @@ footer {
   }
   .lu-nav-btn {
     flex: 1 1 0;
+    min-width: 0;
   }
   /* Collapse the search box to an icon so the header stays two rows on mobile
      (logo on the left; search + bell + account on the right; nav on row 2). The

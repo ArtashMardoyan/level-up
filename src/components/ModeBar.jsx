@@ -4,8 +4,7 @@ import { useLanguage } from '../hooks/useLanguage'
 
 const MODES = [
   { labelKey: 'listView', key: 'list' },
-  { labelKey: 'quizMode', key: 'quiz' },
-  { labelKey: 'interviewMode', key: 'interview' }
+  { labelKey: 'quizMode', key: 'quiz' }
 ]
 
 export default function ModeBar({

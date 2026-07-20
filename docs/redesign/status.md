@@ -128,3 +128,11 @@ New feature screens under `#interview`, built to the delivered Claude Design
 - Verified end-to-end: seeded 3 completed sessions (en/ru/hy) against a local backend +
   Postgres, confirmed via screenshot that stats, colors, and language flags render correctly
   in both the header dropdown and the profile page.
+
+## Removed — old Course "Interview" mode
+The `List / Quiz / Interview` mode inside `PrepView` (per-course shuffled Q&A flashcard flow,
+`src/components/InterviewMode.jsx` + `.interview-stage`/`.interview-actions`) was removed now that
+**AI Interview Coach** (`#interview`) covers that need with a much better experience. `ModeBar` is
+now `List / Quiz` only. This is unrelated to AI Interview Coach, which is untouched — see that
+section above. Line 18's "interview mode" mention above is a historical record of the original
+dark-redesign restyle and no longer reflects current UI.

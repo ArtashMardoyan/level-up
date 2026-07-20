@@ -278,18 +278,21 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
                 {t('interviewSkip')}
               </button>
               <button
-                className={'aic-ghost-btn small' + (recording ? ' recording' : '')}
+                className={'aic-ghost-btn small aic-record-btn' + (recording ? ' recording' : '')}
+                aria-label={recording ? t('interviewStopRecording') : t('interviewRecord')}
                 onClick={recording ? stopRecording : startRecording}
                 disabled={thinking || transcribing}
                 type="button"
               >
                 {recording ? (
                   <>
-                    <Square aria-hidden="true" size={14} /> {t('interviewStopRecording')}
+                    <Square aria-hidden="true" size={14} />{' '}
+                    <span className="aic-record-btn-label">{t('interviewStopRecording')}</span>
                   </>
                 ) : (
                   <>
-                    <Mic aria-hidden="true" size={14} /> {t('interviewRecord')}
+                    <Mic aria-hidden="true" size={14} />{' '}
+                    <span className="aic-record-btn-label">{t('interviewRecord')}</span>
                   </>
                 )}
               </button>

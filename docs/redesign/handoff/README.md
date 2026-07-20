@@ -239,7 +239,7 @@ The reference now also covers the in-course screens. Click any course card to op
 - **`ProgressBar`:** label row (mono, `Reviewed` / `{done} / {total}` in course accent) + 6px
   track (`rgba(255,255,255,0.07)`), fill = **course accent**, `transition: width .3s`.
 - **`.search-box`:** 44px, radius 12, left search icon, same field styling as the header.
-- **`ModeBar`:** segmented `List / Quiz / Interview` (active `rgba(129,140,248,0.18)`/`#b9c1ff`)
+- **`ModeBar`:** segmented `List / Quiz` (active `rgba(129,140,248,0.18)`/`#b9c1ff`)
   + standalone `★ Favorites` and `🔊 Listen` chips (radius 11, own border) that highlight when on.
 - **`QuestionCard`** (`.card` / `.q-header` / `.a-body` / `.a-inner`): radius 14 card,
   header button = question (Manrope 600 15.5px) + `✓` reviewed check in `#4ade80` + `🔊` speak
@@ -248,11 +248,6 @@ The reference now also covers the in-course screens. Click any course card to op
   bg + hairline border. `.bonus-box` = indigo-tinted (`rgba(129,140,248,0.08)`/`0.2` border) with
   a mono `BONUS` tag `#a5b0ff`. Quiz mode gates the answer behind a "Show answer" button.
 - **Module labels** (`.module-label`): mono 11.5px uppercase `#6b7285`, collapsible.
-
-### Interview mode → `src/components/InterviewMode.jsx` (`.interview-stage`)
-Centered card (radius 18): mono `QUESTION n OF total` `#818cf8`, big question (Space Grotesk 600,
-`clamp(20px,2.6vw,26px)`), primary `Show answer` (indigo gradient) + ghost `Skip →`; revealed
-answer sits under a hairline divider.
 
 ### Audio player → `src/components/CoursePlayer.jsx` (`.player-bar`)
 Fixed bottom bar, `rgba(13,14,19,0.9)` + blur, top border hairline. Rows, top → bottom:

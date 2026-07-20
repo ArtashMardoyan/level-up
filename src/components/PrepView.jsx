@@ -7,7 +7,6 @@ import ProgressBar from './ProgressBar'
 import QuestionCard from './QuestionCard'
 import CoursePlayer from './CoursePlayer'
 import PageSwitcher from './PageSwitcher'
-import InterviewMode from './InterviewMode'
 import { scoreMatch } from '../utils/fuzzy'
 import { useLanguage } from '../hooks/useLanguage'
 import { useReviewState } from '../hooks/useReviewState'
@@ -111,51 +110,45 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
         mode={mode}
       />
 
-      {mode === 'interview' ? (
-        <InterviewMode questions={questions} />
-      ) : (
-        <>
-          <div className="controls">
-            <span>{hintText}</span>
-            <div className="controls-right">
-              <button onClick={toggleAllOpen} className="plain-btn">
-                {allOpen ? t('collapseAll') : t('expandAll')}
-              </button>
-            </div>
-          </div>
+      <div className="controls">
+        <span>{hintText}</span>
+        <div className="controls-right">
+          <button onClick={toggleAllOpen} className="plain-btn">
+            {allOpen ? t('collapseAll') : t('expandAll')}
+          </button>
+        </div>
+      </div>
 
-          <div>
-            {filtered.length === 0 && <p className="empty">{t('noMatches')}</p>}
-            {filtered.map(({ item }, index) => {
-              const showLabel = showModuleLabels && item.module !== filtered[index - 1]?.item.module
-              const isCollapsed = showModuleLabels && collapsedModules.has(item.module)
-              return (
-                <div key={item.id}>
-                  {showLabel && (
-                    <button onClick={() => toggleModule(item.module)} className="module-label">
-                      {item.module}
-                      <ChevronDown className={'arrow' + (isCollapsed ? '' : ' open')} aria-hidden="true" size={14} />
-                    </button>
-                  )}
-                  {!isCollapsed && (
-                    <QuestionCard
-                      autoOpen={item.id === jumpToId || item.id === playerActiveId}
-                      isFavorite={state.favorites.includes(item.id)}
-                      isReviewed={state.reviewed.includes(item.id)}
-                      onToggleFavorite={toggleFavorite}
-                      onPlay={playQuestionInPlayer}
-                      quizMode={mode === 'quiz'}
-                      onOpen={markReviewed}
-                      forceOpen={allOpen}
-                      item={item}
-                    />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </>
-      )}
+      <div>
+        {filtered.length === 0 && <p className="empty">{t('noMatches')}</p>}
+        {filtered.map(({ item }, index) => {
+          const showLabel = showModuleLabels && item.module !== filtered[index - 1]?.item.module
+          const isCollapsed = showModuleLabels && collapsedModules.has(item.module)
+          return (
+            <div key={item.id}>
+              {showLabel && (
+                <button onClick={() => toggleModule(item.module)} className="module-label">
+                  {item.module}
+                  <ChevronDown className={'arrow' + (isCollapsed ? '' : ' open')} aria-hidden="true" size={14} />
+                </button>
+              )}
+              {!isCollapsed && (
+                <QuestionCard
+                  autoOpen={item.id === jumpToId || item.id === playerActiveId}
+                  isFavorite={state.favorites.includes(item.id)}
+                  isReviewed={state.reviewed.includes(item.id)}
+                  onToggleFavorite={toggleFavorite}
+                  onPlay={playQuestionInPlayer}
+                  quizMode={mode === 'quiz'}
+                  onOpen={markReviewed}
+                  forceOpen={allOpen}
+                  item={item}
+                />
+              )}
+            </div>
+          )
+        })}
+      </div>
 
       <footer>{t('footer')}</footer>
 
