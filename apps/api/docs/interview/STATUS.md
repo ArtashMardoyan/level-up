@@ -129,6 +129,27 @@ _Last updated: 2026-07-20._
     confined to the `question` field; turn 1 was the deterministic greeting as
     expected. The throwaway account created for this run was removed afterward via
     `DELETE /users` (self-delete) — prod carries no leftover test data.
+- **2026-07-20 session, part 5 — reaction topic-repeat polish, backend-only**
+  (backend `d5c44e5`):
+  - **The `reaction` no longer names the next question's topic.** After part 4 the
+    reaction still *announced* the upcoming subject ("let's talk about payment
+    APIs") which the separate `question` field then repeated — the topic word
+    appeared twice in a row. Tightened `questionSystemPrompt` again: the reaction
+    must not name or introduce the next question's subject, and must not announce
+    the next topic at all ("let's talk about X" / "let's move on to X" / "shifting
+    to X"). Introducing the new subject is the `question` field's job alone.
+    Prompt-wording only — JSON contract and `SchemaVersion` unchanged, Go-side
+    forces untouched.
+  - **Verified live on prod** (deployed backend, real OpenAI generation): ran a
+    3-question Backend/Medium/EN interview and inspected the raw `reaction`/`question`
+    split per turn. Every AI reaction (turns 2–3) looked back only at the previous
+    answer, with **zero topic-word overlap** with its paired `question`, no
+    "let's talk about X" announcement, and no `?` (the part-4 fix still holds).
+    This run was driven through the prod API rather than the browser UI — the
+    `claude-in-chrome`/playwright tab got stuck in a `beforeunload` dialog loop, so
+    the same live check (raw `reaction`/`question` fields from the deployed backend)
+    was done via `curl`/HTTP instead. Throwaway account removed afterward via
+    `DELETE /users`.
 
 ## TL;DR — it's SHIPPED and live on prod
 
