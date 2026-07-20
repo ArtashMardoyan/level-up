@@ -22,16 +22,17 @@ var (
 	ErrNoResults      = errors.New("interview: no answers to evaluate")
 )
 
-// Service is the interview engine (docs/interview/004). The evaluator may be nil
-// (no OpenAI key) — evaluation then degrades to a failed placeholder.
+// Service is the interview engine (docs/interview/004). The AI client may be nil
+// (no OpenAI key) — evaluation then degrades to a failed placeholder, and question
+// generation degrades to the raw bank text.
 type Service struct {
-	repo      Repository
-	content   ContentReader
-	evaluator Evaluator
+	repo    Repository
+	content ContentReader
+	ai      AI
 }
 
-func NewService(repo Repository, content ContentReader, evaluator Evaluator) *Service {
-	return &Service{repo: repo, content: content, evaluator: evaluator}
+func NewService(repo Repository, content ContentReader, ai AI) *Service {
+	return &Service{repo: repo, content: content, ai: ai}
 }
 
 // Start creates a session, snapshots the chosen questions, and returns the first
@@ -52,18 +53,13 @@ func (s *Service) Start(ctx context.Context, userID string, req CreateInterviewR
 	if err != nil {
 		return SessionView{}, err
 	}
-
-	pool := filterByDifficulty(all, req.Difficulty)
-	if len(pool) == 0 {
-		// Until the bank is tagged, easy/hard may be empty — fall back to the
-		// whole course so interviews still work (docs/interview/004).
-		pool = all
-	}
-	if len(pool) == 0 {
+	if len(all) == 0 {
 		return SessionView{}, ErrNoQuestions
 	}
 
-	chosen := pickQuestions(pool, req.QuestionCount)
+	// The bank isn't tagged by difficulty (docs/004) — difficulty is applied as a
+	// generation instruction to the AI instead of filtering the pool (ensureGenerated).
+	chosen := pickQuestions(all, req.QuestionCount)
 
 	session := &Session{
 		UserID:        userID,
@@ -73,6 +69,7 @@ func (s *Service) Start(ctx context.Context, userID string, req CreateInterviewR
 		Status:        StatusInProgress,
 		QuestionCount: len(chosen),
 		QuestionIDs:   idsOf(chosen),
+		Generated:     GeneratedQuestions{},
 		CurrentIndex:  0,
 		StartedAt:     time.Now(),
 	}
@@ -80,7 +77,10 @@ func (s *Service) Start(ctx context.Context, userID string, req CreateInterviewR
 		return SessionView{}, err
 	}
 
-	first := questionView(&chosen[0], 0, req.Language)
+	first, err := s.ensureGenerated(ctx, session, 0, &chosen[0])
+	if err != nil {
+		return SessionView{}, err
+	}
 
 	return SessionView{Session: *session, History: []ChatTurn{}, Current: &first}, nil
 }
@@ -107,7 +107,7 @@ func (s *Service) Get(ctx context.Context, userID, id string) (SessionView, erro
 		if err != nil {
 			continue
 		}
-		view := questionView(&q, i, session.Language)
+		view := cachedView(&q, i, session.Language, session.Generated)
 
 		if res, ok := byQuestion[qid]; ok {
 			history = append(history, ChatTurn{Question: view, Result: res})
@@ -144,9 +144,13 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 	if err != nil {
 		return SubmitAnswerResponse{}, ErrQuestionNotIn
 	}
-	qText, idealAnswer, module := translate(&q, session.Language)
 
-	result := s.evaluateAnswer(ctx, &session, module, qText, idealAnswer, questionID, req)
+	asked, err := s.ensureGenerated(ctx, &session, idx, &q)
+	if err != nil {
+		return SubmitAnswerResponse{}, err
+	}
+
+	result := s.evaluateAnswer(ctx, &session, asked.Module, asked.Question, asked.ModelAnswer, questionID, req)
 	if err := s.repo.UpsertResult(ctx, &result); err != nil {
 		return SubmitAnswerResponse{}, err
 	}
@@ -162,8 +166,9 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 	if session.CurrentIndex < len(session.QuestionIDs) {
 		nextID := session.QuestionIDs[session.CurrentIndex]
 		if nq, err := s.content.FindQuestionByIDWithTranslations(ctx, nextID); err == nil {
-			nv := questionView(&nq, session.CurrentIndex, session.Language)
-			resp.Next = &nv
+			if nv, err := s.ensureGenerated(ctx, &session, session.CurrentIndex, &nq); err == nil {
+				resp.Next = &nv
+			}
 		}
 	} else {
 		resp.Finished = true
@@ -194,11 +199,11 @@ func (s *Service) evaluateAnswer(ctx context.Context, session *Session, topic, q
 		return result
 	}
 
-	if s.evaluator == nil {
+	if s.ai == nil {
 		return degraded(&result, session.Language)
 	}
 
-	eval, err := s.evaluator.Evaluate(ctx, &EvalInput{
+	eval, err := s.ai.Evaluate(ctx, &EvalInput{
 		CourseTitle: topic,
 		Difficulty:  session.Difficulty,
 		Language:    session.Language,
@@ -336,13 +341,13 @@ func (s *Service) buildReview(ctx context.Context, session *Session, results []Q
 		if err != nil {
 			continue
 		}
-		qText, ideal, _ := translate(&q, session.Language)
+		view := cachedView(&q, i, session.Language, session.Generated)
 
 		items = append(items, ReviewItem{
 			QuestionID:  qid,
 			Index:       i,
-			Question:    qText,
-			ModelAnswer: ideal,
+			Question:    view.Question,
+			ModelAnswer: view.ModelAnswer,
 			UserAnswer:  res.UserAnswer,
 			Skipped:     res.Skipped,
 			Score:       res.Score,
@@ -370,15 +375,55 @@ func (s *Service) load(ctx context.Context, userID, id string) (Session, error) 
 
 // ---- helpers ----
 
-func filterByDifficulty(qs []course.Question, difficulty string) []course.Question {
-	out := make([]course.Question, 0, len(qs))
-	for i := range qs {
-		if qs[i].Difficulty == difficulty {
-			out = append(out, qs[i])
+// ensureGenerated returns slot idx's question view, generating (and permanently
+// caching on the session) its AI paraphrase the first time this slot is shown.
+// Already-cached slots are a pure read, so calling this again for the current
+// question (e.g. on submit) never re-triggers the AI. A nil AI client or a failed
+// generation degrades to the bank's raw text (docs/interview/004) — same policy
+// as answer evaluation.
+func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int, q *course.Question) (QuestionView, error) {
+	if idx < len(session.Generated) {
+		return generatedView(q, idx, session.Language, session.Generated[idx]), nil
+	}
+
+	view := questionView(q, idx, session.Language)
+	if s.ai != nil {
+		refQ, refA, module := translate(q, session.Language)
+		gen, err := s.ai.Generate(ctx, &GenInput{
+			CourseTitle: module,
+			Difficulty:  session.Difficulty,
+			Language:    session.Language,
+			Module:      module,
+			RefQuestion: refQ,
+			RefAnswer:   refA,
+		})
+		if err == nil {
+			view.Question, view.ModelAnswer = gen.Question, gen.ModelAnswer
 		}
 	}
 
-	return out
+	session.Generated = append(session.Generated, GeneratedQuestion{Question: view.Question, ModelAnswer: view.ModelAnswer})
+	if err := s.repo.UpdateSession(ctx, session); err != nil {
+		return QuestionView{}, err
+	}
+
+	return view, nil
+}
+
+// cachedView is the read-only counterpart used on resume/review: never calls the
+// AI or writes, it just returns the cached paraphrase if the slot already has one.
+func cachedView(q *course.Question, idx int, lang string, cache GeneratedQuestions) QuestionView {
+	if idx < len(cache) {
+		return generatedView(q, idx, lang, cache[idx])
+	}
+
+	return questionView(q, idx, lang)
+}
+
+func generatedView(q *course.Question, idx int, lang string, g GeneratedQuestion) QuestionView {
+	_, _, module := translate(q, lang)
+
+	return QuestionView{QuestionID: q.ID, Index: idx, Module: module, Question: g.Question, ModelAnswer: g.ModelAnswer}
 }
 
 func pickQuestions(pool []course.Question, count int) []course.Question {

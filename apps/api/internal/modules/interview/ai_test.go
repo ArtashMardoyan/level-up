@@ -59,3 +59,49 @@ func TestParseEval(t *testing.T) {
 		})
 	}
 }
+
+func TestParseGen(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+		wantErr bool
+	}{
+		{
+			name:    "valid",
+			content: `{"question":"How would you handle a burst of concurrent requests?","modelAnswer":"Use a queue and backpressure..."}`,
+		},
+		{
+			name:    "invalid json",
+			content: `not json`,
+			wantErr: true,
+		},
+		{
+			name:    "empty question",
+			content: `{"question":"  ","modelAnswer":"x"}`,
+			wantErr: true,
+		},
+		{
+			name:    "empty model answer",
+			content: `{"question":"x","modelAnswer":""}`,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := parseGen(tt.content)
+			if tt.wantErr {
+				if err == nil {
+					t.Fatalf("expected error, got none")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got.Question == "" || got.ModelAnswer == "" {
+				t.Errorf("question/modelAnswer must be non-empty")
+			}
+		})
+	}
+}

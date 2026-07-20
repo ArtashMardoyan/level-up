@@ -52,8 +52,8 @@ func main() {
 
 	notificationService := notification.NewService(notificationRepo)
 	userService := user.NewService(userRepo, notificationService)
-	interviewEvaluator := interview.NewEvaluator(cfg.OpenAI.APIKey, cfg.OpenAI.Model, cfg.OpenAI.Timeout)
-	interviewService := interview.NewService(interviewRepo, courseRepo, interviewEvaluator)
+	interviewAI := interview.NewAI(cfg.OpenAI.APIKey, cfg.OpenAI.Model, cfg.OpenAI.Timeout)
+	interviewService := interview.NewService(interviewRepo, courseRepo, interviewAI)
 
 	userHandler := user.NewHandler(userService)
 	authHandler := auth.NewHandler(auth.NewService(userRepo, revokedRepo, cfg.JWT.Secret))

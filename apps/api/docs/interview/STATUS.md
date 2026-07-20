@@ -4,7 +4,48 @@
 > what's open, the git/deploy state, and how to continue. The full spec is the
 > other files in this folder (`001`–`016`); this file is the live status on top.
 
-_Last updated: 2026-07-19._
+_Last updated: 2026-07-20._
+
+## Since the last update (2026-07-19 evening → 2026-07-20)
+
+- **Armenian (`feature/armenian-language`) is merged to `master`** in both repos
+  (backend `51df6fd`, frontend `57acf9f`) and deployed — this superseded the
+  "not merged yet" note below from the original 2026-07-19 write-up.
+- **`GET /interviews/summary`** shipped (backend `c922b3d`) + a profile-page
+  "Interview performance" panel + account-dropdown mini-stats (frontend `bd12047`,
+  `f3bae9e`). Both deployed.
+- **2026-07-20 session (backend, NOT yet committed/deployed):**
+  - **Verdict bands reconciled with the design.** Pulled `Level Up.dc.html` via
+    DesignSync and found the real source: `ivSC`/`ivVerdict` use **3 bands** (≥80
+    green "Strong performance", ≥65 amber "Solid, with gaps", else rose "Needs
+    practice") — not the 4-band placeholder (85/70/50) that shipped. Fixed
+    `report.go verdict()` (now localized en/ru) and consolidated the
+    3 duplicated frontend `scoreColor` functions into `src/utils/interview.js`
+    with the same 80/65 bands.
+  - **Fixed the "Question 39." problem.** The seed bank's question text is
+    literally `"Question 39. How do you estimate tasks?"` (flashcard-style
+    numbering baked into the content) — shown verbatim in the interview chat.
+    Interview questions are now **AI-paraphrased live, one at a time**: the bank
+    Q&A pair is still picked in Go (same diversity/no-repeat logic as before) and
+    still anchors grading, but right before a question is shown, an AI call
+    rewrites it into a natural interview question + a fresh model answer, cached
+    on the session (`generatedQuestions` jsonb, migration `00014`) so resume/review
+    always show the exact text originally asked. A nil AI client or a failed
+    generation degrades to the raw bank text (same policy as answer evaluation).
+  - **Difficulty is now applied at generation, not by tagging.** Discovered no
+    course's seed content has a `difficulty` tag — every question defaulted to
+    `medium`, so picking Easy/Hard in Setup silently fell back to the whole pool.
+    Rather than hand-tagging ~50 questions × 8 courses, difficulty is now a
+    generation-prompt instruction to the AI (easy/medium/hard framing), which
+    actually works regardless of bank tagging. `filterByDifficulty` (dead code —
+    always fell back) was removed.
+  - Per-question score history (`QuestionResult`, keyed by the real bank
+    `questionId`) is untouched by this change — still the raw data for a future
+    recommendation engine, and still correctly attributable to a real bank
+    entry/module even though the *displayed* text is now AI-paraphrased.
+  - `go build && golangci-lint run && go test ./...` all clean. **Not committed**
+    (repo rule: wait for explicit "commit") and **not deployed** — App Runner is
+    still running the `c922b3d` image.
 
 ## TL;DR — it's SHIPPED and live on prod
 
@@ -50,43 +91,25 @@ with real OpenAI scoring in EN / RU / ARM.
 
 ## Git / branch state (IMPORTANT)
 
-- **All interview work is on `master`** in both `level-up` and `level-up-backend`
-  (committed + deployed). Nothing of the interview feature is unshipped.
-- **`feature/armenian-language`** (both repos) holds the developer's **Armenian
-  localization WIP** (`seed.go`, `hy.json` — only the `backend` course so far,
-  `AccountMenu`, `CoursePlayer`, `useLanguage`, `useSpeech`, `index.html`, hy strings/CSS)
-  **plus a redundant copy of the interview work** (already on `master`). It is behind
-  `master`. This branch is the DEVELOPER's; it was snapshotted/backed up to origin but not
-  merged. Don't merge it to master blindly — it's incomplete and duplicates interview files.
-
-## How each change was shipped (the "isolation dance")
-
-Because the interview work and the developer's Armenian work are intermixed in the
-`feature/armenian-language` working tree, every deploy isolated only the interview change
-onto a clean `master`:
-
-1. Save the mine-only changed files to a temp dir.
-2. `git stash push -u` (stash all WIP), `git checkout -B master origin/master`.
-3. Restore the mine-only files; re-apply entangled edits (strings.js/index.css) onto master's versions.
-4. `npm run lint && npm run build` (frontend) or `go build && golangci-lint run && go test` (backend).
-5. Commit + `git push origin master`.
-6. Frontend: GitHub Pages auto-deploys. Backend: `make deploy` (needs `aws sso login --profile vyb-dev` first; App Runner build ~5 min).
-7. `git checkout feature/armenian-language && git stash pop` to restore the developer's WIP.
-
-Working directly on `master` (now that the feature is shipped) is simpler for future changes.
+- **All interview work is on `master`** in both `level-up` and `level-up-backend`.
+  **`feature/armenian-language` (both repos) is merged to `master`** (backend `51df6fd`,
+  frontend `57acf9f`, 2026-07-19) — the note in earlier versions of this doc about it
+  being unmerged is stale. Work directly on `master` going forward; the isolation-dance
+  steps that used to be needed here are no longer necessary now that the branches
+  have converged.
 
 ## What's OPEN / next
 
-- **Verdict bands + score-chip colors** are placeholders (`report.go verdict()` and FE
-  `scoreColor`: ≥85 green / ≥70 brand / ≥50 amber / else rose). Reconcile exact thresholds with the design.
+- **Deploy the 2026-07-20 backend changes** (verdict bands, AI-generated questions,
+  migration `00014`) — commit + `make deploy` when the user says go.
 - **Armenian question content** exists only for the `backend` course (`hy.json`). Other
-  courses: ARM interview shows EN questions (fallback) + AI feedback in Armenian. To make
-  ARM full: developer adds `hy.json` per course + run `cmd/seed` against prod RDS (no migration needed).
-- **hy interview strings on the frontend** are NOT on master yet (only en+ru shipped); add
-  when the Armenian frontend work merges to master.
+  courses: ARM interview picks from the EN bank (fallback) + AI still writes the
+  paraphrased question/feedback in Armenian. To make ARM full: developer adds
+  `hy.json` per course + run `cmd/seed` against prod RDS (no migration needed).
 - **Deferred (post-MVP):** English coaching = Learning Profile (`007`) + personalized
   Dictionary (`008`); voice/audio interviews (reuse `question_translations.audio`);
-  AI strong/weak analysis (the per-question scores are already persisted from day one).
+  AI strong/weak analysis (the per-question scores are already persisted from day one,
+  keyed by the real bank `questionId`/module regardless of the AI paraphrase).
 
 ## How to continue (for a new session)
 
@@ -105,10 +128,12 @@ Working directly on `master` (now that the feature is shipped) is simpler for fu
 
 ## Key files
 
-- Backend: `internal/modules/interview/{entity,dto,repository,repository_gorm,ai,service,report,handler}.go`,
-  `migrations/00012_*`, `migrations/00013_*`, `internal/config/config.go` (OpenAI),
-  `cmd/server/main.go` (wiring), `postman/level-up-backend.postman_collection.json`.
+- Backend: `internal/modules/interview/{entity,dto,repository,repository_gorm,ai,service,report,handler}.go`
+  (`ai.go` has both `Evaluator` (grades an answer) and `Generator` (paraphrases the
+  next question) behind one `AI` interface/client), `migrations/00012_*`–`00014_*`,
+  `internal/config/config.go` (OpenAI), `cmd/server/main.go` (wiring),
+  `postman/level-up-backend.postman_collection.json`.
 - Frontend: `src/components/Interview{Home,Coach,Setup,Chat,Results,History}.jsx`,
-  `src/App.jsx` (routing + AuthDialog), `src/components/AppHeader.jsx` (nav),
-  `src/services/endpoints.js` (`interviews*`), `src/index.css` (`.aic-*` / `.lu-nav`),
-  `src/i18n/strings.js` (interview keys, en+ru on master; hy in the dev's WIP).
+  `src/utils/interview.js` (shared `scoreColor`), `src/App.jsx` (routing + AuthDialog),
+  `src/components/AppHeader.jsx` (nav), `src/services/endpoints.js` (`interviews*`),
+  `src/index.css` (`.aic-*` / `.lu-nav`), `src/i18n/strings.js` (interview keys, en/ru/hy).

@@ -73,22 +73,68 @@ func (l *StringList) Scan(src any) error {
 	return json.Unmarshal(bytes, l)
 }
 
-// Session is one chat interview. QuestionIDs is the snapshot chosen at start so
-// the set stays stable across refreshes; CurrentIndex tracks chat progress.
+// GeneratedQuestion is one AI-paraphrased question + its matching model answer,
+// cached the first time it's generated so resume/review always show the exact
+// text the candidate was asked (docs/interview/004/005).
+type GeneratedQuestion struct {
+	Question    string `json:"question"`
+	ModelAnswer string `json:"modelAnswer"`
+}
+
+// GeneratedQuestions is a []GeneratedQuestion persisted as jsonb, parallel-indexed
+// with Session.QuestionIDs: len(Generated) grows to i+1 once slot i has been shown.
+type GeneratedQuestions []GeneratedQuestion
+
+func (g GeneratedQuestions) Value() (driver.Value, error) {
+	if g == nil {
+		return "[]", nil
+	}
+
+	return json.Marshal(g)
+}
+
+func (g *GeneratedQuestions) Scan(src any) error {
+	if src == nil {
+		*g = GeneratedQuestions{}
+		return nil
+	}
+
+	var bytes []byte
+	switch v := src.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New("interview: unsupported GeneratedQuestions scan type")
+	}
+
+	if len(bytes) == 0 {
+		*g = GeneratedQuestions{}
+		return nil
+	}
+
+	return json.Unmarshal(bytes, g)
+}
+
+// Session is one chat interview. QuestionIDs is the bank-question snapshot chosen
+// at start so the set stays stable across refreshes; Generated caches each slot's
+// AI-paraphrased text as it's shown (docs/004). CurrentIndex tracks chat progress.
 type Session struct {
 	shared.Base
-	ID            string     `json:"id"            gorm:"primaryKey"`
-	UserID        string     `json:"userId"        gorm:"column:userId"`
-	CourseID      string     `json:"courseId"      gorm:"column:courseId"`
-	Difficulty    string     `json:"difficulty"`
-	Language      string     `json:"language"`
-	Status        Status     `json:"status"`
-	QuestionCount int        `json:"questionCount" gorm:"column:questionCount"`
-	QuestionIDs   StringList `json:"questionIds"   gorm:"column:questionIds;type:jsonb"`
-	CurrentIndex  int        `json:"currentIndex"  gorm:"column:currentIndex"`
-	OverallScore  *int       `json:"overallScore"  gorm:"column:overallScore"`
-	StartedAt     time.Time  `json:"startedAt"     gorm:"column:startedAt"`
-	CompletedAt   *time.Time `json:"completedAt"   gorm:"column:completedAt"`
+	ID            string             `json:"id"            gorm:"primaryKey"`
+	UserID        string             `json:"userId"        gorm:"column:userId"`
+	CourseID      string             `json:"courseId"      gorm:"column:courseId"`
+	Difficulty    string             `json:"difficulty"`
+	Language      string             `json:"language"`
+	Status        Status             `json:"status"`
+	QuestionCount int                `json:"questionCount" gorm:"column:questionCount"`
+	QuestionIDs   StringList         `json:"questionIds"   gorm:"column:questionIds;type:jsonb"`
+	Generated     GeneratedQuestions `json:"-"             gorm:"column:generatedQuestions;type:jsonb"`
+	CurrentIndex  int                `json:"currentIndex"  gorm:"column:currentIndex"`
+	OverallScore  *int               `json:"overallScore"  gorm:"column:overallScore"`
+	StartedAt     time.Time          `json:"startedAt"     gorm:"column:startedAt"`
+	CompletedAt   *time.Time         `json:"completedAt"   gorm:"column:completedAt"`
 }
 
 func (Session) TableName() string { return "interview_sessions" }

@@ -46,20 +46,51 @@ type Evaluator interface {
 	Evaluate(ctx context.Context, in *EvalInput) (EvalResult, error)
 }
 
-type openAIEvaluator struct {
+// GenInput grounds one AI-written interview question in a real bank Q&A pair, so
+// grading stays anchored to a concrete reference answer even though the question
+// text and model answer shown to the candidate are freshly written (docs/004).
+type GenInput struct {
+	CourseTitle string
+	Difficulty  string
+	Language    string
+	Module      string
+	RefQuestion string
+	RefAnswer   string
+}
+
+// GenResult is one AI-written question + its matching model answer.
+type GenResult struct {
+	Question    string `json:"question"`
+	ModelAnswer string `json:"modelAnswer"`
+}
+
+// Generator writes one natural interview question (no bank numbering/labels) from
+// a reference bank entry. The service degrades to the raw bank text when this
+// returns an error or is nil (docs/interview/004).
+type Generator interface {
+	Generate(ctx context.Context, in *GenInput) (GenResult, error)
+}
+
+// AI is the combined OpenAI-backed surface the service depends on.
+type AI interface {
+	Evaluator
+	Generator
+}
+
+type openAIClient struct {
 	client  openai.Client
 	model   string
 	timeout time.Duration
 }
 
-// NewEvaluator builds an OpenAI-backed evaluator. Returns nil when apiKey is
-// empty so the module can start without a key (evaluation then degrades).
-func NewEvaluator(apiKey, model string, timeout time.Duration) Evaluator {
+// NewAI builds an OpenAI-backed evaluator + question generator. Returns nil when
+// apiKey is empty so the module can start without a key (both then degrade).
+func NewAI(apiKey, model string, timeout time.Duration) AI {
 	if apiKey == "" {
 		return nil
 	}
 
-	return &openAIEvaluator{
+	return &openAIClient{
 		client:  openai.NewClient(option.WithAPIKey(apiKey)),
 		model:   model,
 		timeout: timeout,
@@ -81,7 +112,7 @@ Respond with a SINGLE JSON object and nothing else, matching exactly:
 "structure":<int>,"confidence":"low|medium|high","feedback":"<string>",
 "strengths":["<string>"],"weaknesses":["<string>"]}`
 
-func (e *openAIEvaluator) Evaluate(ctx context.Context, in *EvalInput) (EvalResult, error) {
+func (e *openAIClient) Evaluate(ctx context.Context, in *EvalInput) (EvalResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, e.timeout)
 	defer cancel()
 
@@ -157,6 +188,87 @@ func parseEval(content string) (EvalResult, error) {
 	}
 	if r.Weaknesses == nil {
 		r.Weaknesses = []string{}
+	}
+
+	return r, nil
+}
+
+const questionSystemPrompt = `You are a real, professional technical interviewer conducting a live mock interview.
+You are given one topic from the interview's internal question bank: a module name, a reference
+question, and its reference answer. Do NOT quote the reference question verbatim and NEVER include
+any numbering or label like "Question 12." — a real interviewer never says that out loud.
+Write ONE natural, conversational interview question on this topic, phrased the way a real
+interviewer would ask it, calibrated to the requested difficulty:
+- easy: a single foundational concept, generously framed
+- medium: connects 2-3 concepts, or asks for a short concrete example
+- hard: open-ended, probes trade-offs, edge cases, or "what would you do if..." scenarios
+Also write a strong model answer to the question YOU wrote (matching its exact scope — not a copy of
+the reference answer). Write both in the interview language specified below.
+Respond with a SINGLE JSON object and nothing else, matching exactly:
+{"question":"<string>","modelAnswer":"<string>"}`
+
+func (e *openAIClient) Generate(ctx context.Context, in *GenInput) (GenResult, error) {
+	ctx, cancel := context.WithTimeout(ctx, e.timeout)
+	defer cancel()
+
+	langName := "English"
+	switch in.Language {
+	case LangRU:
+		langName = "Russian"
+	case LangHY:
+		langName = "Armenian"
+	}
+
+	userPrompt := fmt.Sprintf(
+		"Interview language: %s\nCourse: %s\nDifficulty: %s\nModule: %s\n\nReference question:\n%s\n\nReference answer:\n%s",
+		langName, in.CourseTitle, in.Difficulty, in.Module, in.RefQuestion, fallback(in.RefAnswer, "(none provided)"),
+	)
+
+	params := openai.ChatCompletionNewParams{
+		Model:       openai.ChatModel(e.model),
+		Temperature: openai.Float(0.7),
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage(questionSystemPrompt),
+			openai.UserMessage(userPrompt),
+		},
+		ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
+			OfJSONObject: &shared.ResponseFormatJSONObjectParam{},
+		},
+	}
+
+	// One call + one retry on transport or validation failure, same policy as Evaluate.
+	var lastErr error
+	for attempt := 0; attempt < 2; attempt++ {
+		res, err := e.client.Chat.Completions.New(ctx, params)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		if len(res.Choices) == 0 {
+			lastErr = fmt.Errorf("interview: empty AI response")
+			continue
+		}
+
+		parsed, err := parseGen(res.Choices[0].Message.Content)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		return parsed, nil
+	}
+
+	return GenResult{}, lastErr
+}
+
+// parseGen unmarshals and validates the AI's generated question.
+func parseGen(content string) (GenResult, error) {
+	var r GenResult
+	if err := json.Unmarshal([]byte(strings.TrimSpace(content)), &r); err != nil {
+		return GenResult{}, fmt.Errorf("interview: invalid AI JSON: %w", err)
+	}
+	if strings.TrimSpace(r.Question) == "" || strings.TrimSpace(r.ModelAnswer) == "" {
+		return GenResult{}, fmt.Errorf("interview: AI question or model answer empty")
 	}
 
 	return r, nil

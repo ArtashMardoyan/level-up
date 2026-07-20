@@ -30,7 +30,7 @@ func aggregate(session *Session, results []QuestionResult) FinalReport {
 	report := FinalReport{
 		InterviewID:     session.ID,
 		OverallScore:    overall,
-		Verdict:         verdict(overall),
+		Verdict:         verdict(overall, session.Language),
 		Correctness:     sumCorrect / n,
 		Depth:           sumDepth / n,
 		Communication:   sumComm / n,
@@ -44,19 +44,36 @@ func aggregate(session *Session, results []QuestionResult) FinalReport {
 	return report
 }
 
-// verdict bands (0–100). Placeholder thresholds — reconcile the exact bands and
-// colors with the delivered design before shipping the UI (docs/interview/016).
-func verdict(score int) string {
+// verdict bands (0–100). Thresholds and colors mirror the design source (ivSC /
+// ivVerdict in Level Up.dc.html) — the FE scoreColor helper (src/utils/interview.js)
+// uses the same 80/65 bands.
+func verdict(score int, lang string) string {
 	switch {
-	case score >= 85:
-		return "Strong"
-	case score >= 70:
-		return "Solid"
-	case score >= 50:
-		return "Fair"
+	case score >= 80:
+		return verdictText(lang, "strong")
+	case score >= 65:
+		return verdictText(lang, "solid")
 	default:
-		return "Needs work"
+		return verdictText(lang, "needsWork")
 	}
+}
+
+func verdictText(lang, kind string) string {
+	en := map[string]string{
+		"strong":    "Strong performance",
+		"solid":     "Solid, with gaps",
+		"needsWork": "Needs practice",
+	}
+	ru := map[string]string{
+		"strong":    "Отличный результат",
+		"solid":     "Хорошо, но есть пробелы",
+		"needsWork": "Нужно больше практики",
+	}
+	if lang == LangRU {
+		return ru[kind]
+	}
+
+	return en[kind]
 }
 
 // rollUpStrengths / rollUpWeaknesses collect the highest- and lowest-scoring
