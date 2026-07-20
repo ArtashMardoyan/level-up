@@ -122,6 +122,12 @@ _Last updated: 2026-07-20._
     `reaction`/`question`/`modelAnswer` JSON contract and `SchemaVersion` are
     unchanged, and the deterministic Go-side forces (empty reaction on the first
     question, `skippedReaction`) are untouched.
+  - **Verified live on prod** (browser via playwright, real interview against the
+    deployed backend): ran a 3-question Backend/Medium/EN session and inspected the
+    raw `reaction` vs `question` split from `GET /interviews/:id`. Every AI reaction
+    (turns 2–3) was a pure bridge — no `?`, ended on a period — with all questioning
+    confined to the `question` field; turn 1 was the deterministic greeting as
+    expected.
 
 ## TL;DR — it's SHIPPED and live on prod
 
