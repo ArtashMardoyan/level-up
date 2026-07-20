@@ -150,6 +150,40 @@ _Last updated: 2026-07-20._
     the same live check (raw `reaction`/`question` fields from the deployed backend)
     was done via `curl`/HTTP instead. Throwaway account removed afterward via
     `DELETE /users`.
+- **2026-07-20 session, part 6 — achievement badges (gamification), full stack**
+  (backend `42748c4`, frontend `5855de4`):
+  - **Durable badges on top of the existing streak.** New backend module
+    `internal/modules/badge/` with a **code-defined catalog of 15 badges** in four
+    categories — completed-interview count (1/5/10/25), interview score (90/100),
+    streak days (3/7/14/30/100), reviewed-question count (10/25/50/100), each with a
+    bronze/silver/gold tier. Only ownership is stored: `user_badges` table
+    (migration `00015`, uniq `userId+badgeId`); the catalog (id → threshold/tier)
+    and the localized name/icon are code/client-side. Awarding is idempotent
+    (dedup + `ON CONFLICT DO NOTHING`).
+  - **Awarding hooks:** `interview.Complete` grants count + score badges on first
+    completion and returns the newly earned ids in `ReportView.NewBadges` (results
+    screen celebrates them); the **streak** (`user`) and **reviewed-count**
+    (`course`) milestones now award durable badges. Each new badge fires a
+    `badge_earned` notification. **Replaced** the old `NotifyStreak` /
+    `NotifyReviewMilestone` emitters (per decision) — those events are badges now;
+    the `TypeStreak`/`TypeReviewMilestone` constants stay only to classify existing
+    users' notification history. `GET /badges` returns the full catalog with the
+    caller's earn status.
+  - **Frontend:** ProfilePage's Achievements section is now a real **trophy case**
+    (earned highlighted by tier, locked greyed with the unlock hint, "n of total
+    earned" counter), replacing the old client-derived `earnedAchievements`
+    placeholder. Completing an interview shows a gold "Achievement unlocked!" panel
+    (`newBadges` threaded `InterviewChat → InterviewCoach → InterviewResults`).
+    Badge names/descriptions localized in en/ru/hy; `badge_earned` renders in the bell.
+  - **Tests:** `badge` service (award/dedup/list) + a streak-milestone award test in
+    `user`; notification/user tests updated. Postman synced (Badges folder).
+  - **Verified live on prod** (API + browser): a fresh interview returned
+    `newBadges:['interview_first']`, `GET /badges` then showed it earned (14 locked),
+    a `badge_earned` notification was created, and a re-`Complete` returned no new
+    badges (idempotent). The profile trophy case rendered on prod Pages ("1 of 15
+    earned", four category groups). Throwaway account removed via `DELETE /users`.
+    Streak/review badges are covered by unit tests but were not driven live (that
+    needs course-progress activity with timezones).
 
 ## TL;DR — it's SHIPPED and live on prod
 
@@ -169,7 +203,10 @@ with real OpenAI scoring in EN / RU / ARM.
   (resume), `GET /interviews?page&limit` (history).
 - Rubric **0–100**: Correctness / Depth / Communication / Structure + overall + `feedback`.
 - Migrations `00012` (`questions.difficulty`) + `00013` (`interview_sessions`,
-  `question_results`, `final_reports`). Ran on prod RDS.
+  `question_results`, `final_reports`) + `00014` (`generatedQuestions`) + `00015`
+  (`user_badges`). Ran on prod RDS.
+- **Achievement badges** (`internal/modules/badge/`): `GET /badges` + a 15-badge
+  code catalog; awarded on interview completion / streak / reviewed-count (see part 6).
 - OpenAI eval via `openai-go`, JSON-object mode, retry once, per-answer.
 - **Languages EN / RU / HY** (`hy` = Armenian): AI feedback in the session language;
   questions from `question_translations` (falls back to EN where an overlay is missing).
@@ -241,11 +278,17 @@ with real OpenAI scoring in EN / RU / ARM.
 
 - Backend: `internal/modules/interview/{entity,dto,repository,repository_gorm,ai,service,report,handler}.go`
   (`ai.go` has both `Evaluator` (grades an answer) and `Generator` (paraphrases the
-  next question) behind one `AI` interface/client), `migrations/00012_*`–`00014_*`,
+  next question) behind one `AI` interface/client), `migrations/00012_*`–`00015_*`,
   `internal/config/config.go` (OpenAI), `cmd/server/main.go` (wiring),
   `postman/level-up-backend.postman_collection.json`.
+- Backend (badges): `internal/modules/badge/{catalog,entity,dto,repository,repository_gorm,service,handler}.go`
+  (`catalog.go` = the 15-badge code catalog; awarded via best-effort `Awarder`
+  interfaces from `interview`/`user`/`course`), `migrations/00015_create_user_badges.sql`.
 - Frontend: `src/components/Interview{Home,Coach,Setup,Chat,Results,History}.jsx`,
   `src/utils/interview.js` (shared `scoreColor`), `src/App.jsx` (routing + AuthDialog),
-  `src/components/AppHeader.jsx` (nav), `src/services/endpoints.js` (`interviews*`),
-  `src/index.css` (`.aic-*` / `.lu-nav`), `src/i18n/strings.{en,ru,hy}.js` (interview keys;
+  `src/components/AppHeader.jsx` (nav), `src/services/endpoints.js` (`interviews*`, `badgesList`),
+  `src/index.css` (`.aic-*` / `.lu-nav` / `.badge-*`), `src/i18n/strings.{en,ru,hy}.js` (interview + badge keys;
   `strings.js` is now just the barrel that merges the three per-language files).
+- Frontend (badges): `src/data/badges.js` (icon/tier/i18n helpers), `src/components/ProfilePage.jsx`
+  (trophy case), `src/components/InterviewResults.jsx` (unlock celebration), `src/data/notifications.js`
+  (`badge_earned`).
