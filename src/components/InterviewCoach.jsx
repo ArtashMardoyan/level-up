@@ -15,6 +15,7 @@ function SessionRunner({ sessionId, goHistory, courses, goSetup }) {
   const [view, setView] = useState(null)
   const [status, setStatus] = useState('loading')
   const [showResults, setShowResults] = useState(false)
+  const [newBadges, setNewBadges] = useState([])
 
   useEffect(() => {
     let active = true
@@ -52,10 +53,23 @@ function SessionRunner({ sessionId, goHistory, courses, goSetup }) {
   const course = courses.find((c) => c.uuid === view.session.courseId || c.id === view.session.courseId) || null
 
   if (showResults) {
-    return <InterviewResults sessionId={sessionId} onBack={goHistory} onNew={goSetup} course={course} />
+    return (
+      <InterviewResults
+        sessionId={sessionId}
+        newBadges={newBadges}
+        onBack={goHistory}
+        onNew={goSetup}
+        course={course}
+      />
+    )
   }
 
-  return <InterviewChat onComplete={() => setShowResults(true)} sessionId={sessionId} course={course} initial={view} />
+  const onComplete = (badges) => {
+    setNewBadges(badges || [])
+    setShowResults(true)
+  }
+
+  return <InterviewChat onComplete={onComplete} sessionId={sessionId} course={course} initial={view} />
 }
 
 // Container for the AI Interview Coach. Routing is hash-based via `sessionId`

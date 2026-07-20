@@ -7,11 +7,20 @@ import { useLanguage } from '../hooks/useLanguage'
 import EditProfileDialog from './EditProfileDialog'
 import { notificationMeta, relativeTime } from '../data/notifications'
 import {
+  badgeCategoryTitleKey,
+  BADGE_CATEGORY_ORDER,
+  badgeNameKey,
+  badgeDescKey,
+  badgeColor,
+  badgeIcon
+} from '../data/badges'
+import {
   notificationsList,
   interviewsSummary,
   progressSummary,
   interviewsList,
-  usersDelete
+  usersDelete,
+  badgesList
 } from '../services/endpoints'
 
 // Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
@@ -25,19 +34,13 @@ function ivScoreColor(n) {
   return '#fb7185'
 }
 
-// Achievements are derived from the real reviewed/saved/streak numbers — each
-// entry unlocks once its threshold is met, so the row only ever shows earned badges.
-function earnedAchievements(reviewed, saved, streak, t) {
-  const all = [
-    { label: t('profileAchFirstReview'), unlocked: reviewed >= 1, key: 'first-review', color: '#4ade80' },
-    { label: t('profileAchTenReviews'), unlocked: reviewed >= 10, key: 'ten-reviews', color: '#38bdf8' },
-    { label: t('profileAchFiftyReviews'), unlocked: reviewed >= 50, key: 'fifty-reviews', color: '#818cf8' },
-    { label: t('profileAchFirstSaved'), unlocked: saved >= 1, key: 'first-save', color: '#fbbf24' },
-    { label: t('profileAchCollector'), unlocked: saved >= 10, key: 'collector', color: '#c084fc' },
-    { label: t('profileAchStreak', { n: streak }), unlocked: streak >= 5, color: '#fb7185', key: 'streak' }
-  ]
-
-  return all.filter((a) => a.unlocked)
+// Groups the flat badge catalog into the display categories, preserving catalog
+// order within each group. Earned badges sort ahead of locked ones per group.
+function groupBadges(badges) {
+  return BADGE_CATEGORY_ORDER.map((category) => ({
+    items: badges.filter((b) => b.category === category).sort((a, b) => Number(b.earned) - Number(a.earned)),
+    category
+  })).filter((g) => g.items.length > 0)
 }
 
 export default function ProfilePage({ onNavigate, courses }) {
@@ -47,6 +50,7 @@ export default function ProfilePage({ onNavigate, courses }) {
   const [activity, setActivity] = useState([])
   const [ivSummary, setIvSummary] = useState(null)
   const [ivRecent, setIvRecent] = useState([])
+  const [badges, setBadges] = useState([])
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
 
@@ -59,14 +63,16 @@ export default function ProfilePage({ onNavigate, courses }) {
       progressSummary().catch(() => null),
       notificationsList(1, 5).catch(() => null),
       interviewsSummary().catch(() => null),
-      interviewsList(1, 3).catch(() => null)
+      interviewsList(1, 3).catch(() => null),
+      badgesList().catch(() => null)
     ])
-      .then(([summ, notifs, ivSumm, ivList]) => {
+      .then(([summ, notifs, ivSumm, ivList, badgeList]) => {
         if (!active) return
         if (summ) setSummary(summ)
         if (notifs) setActivity(notifs.items || [])
         if (ivSumm) setIvSummary(ivSumm)
         if (ivList) setIvRecent(ivList.items || [])
+        if (badgeList) setBadges(badgeList)
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -94,8 +100,6 @@ export default function ProfilePage({ onNavigate, courses }) {
 
   const displayName = user.name || ''
   const initial = displayName.charAt(0).toUpperCase()
-  const reviewed = summary?.totalReviewed || 0
-  const saved = summary?.totalFavorites || 0
   const streak = summary?.currentStreak || 0
   const byCourse = summary?.byCourse || {}
 
@@ -109,7 +113,8 @@ export default function ProfilePage({ onNavigate, courses }) {
     .filter((row) => row.saved > 0)
     .sort((a, b) => b.saved - a.saved)
 
-  const achievements = earnedAchievements(reviewed, saved, streak, t)
+  const badgeGroups = groupBadges(badges)
+  const earnedCount = badges.filter((b) => b.earned).length
 
   const ivTotal = ivSummary?.totalCompleted || 0
   const ivAvg = ivSummary?.avgScore || 0
@@ -374,15 +379,47 @@ export default function ProfilePage({ onNavigate, courses }) {
         )}
       </section>
 
-      {/* Achievements */}
+      {/* Achievements — the trophy case (earned + locked, from GET /badges) */}
       <section className="profile-card">
-        <h2 className="profile-card-title">{t('profileAchievements')}</h2>
-        {achievements.length ? (
-          <div className="profile-badges">
-            {achievements.map((a) => (
-              <span style={{ '--badge-accent': a.color }} className="profile-badge" key={a.key}>
-                <Trophy aria-hidden="true" size={14} /> {a.label}
-              </span>
+        <div className="profile-card-head">
+          <h2 className="profile-card-title">{t('profileAchievements')}</h2>
+          {!loading && badges.length > 0 && (
+            <span className="badge-earned-count">
+              {t('badgeEarnedCount', { total: badges.length, n: earnedCount })}
+            </span>
+          )}
+        </div>
+        {loading ? (
+          <div className="profile-progress-list">
+            {[0, 1].map((i) => (
+              <span className="skeleton profile-progress-skel" key={i} />
+            ))}
+          </div>
+        ) : badgeGroups.length ? (
+          <div className="badge-groups">
+            {badgeGroups.map((group) => (
+              <div className="badge-group" key={group.category}>
+                <div className="badge-group-title">{t(badgeCategoryTitleKey(group.category))}</div>
+                <div className="badge-grid">
+                  {group.items.map((b) => {
+                    const Icon = badgeIcon(b.category)
+                    return (
+                      <div
+                        style={b.earned ? { '--badge-accent': badgeColor(b.tier) } : undefined}
+                        className={'badge-card' + (b.earned ? ' earned' : ' locked')}
+                        title={t(badgeDescKey(b.id))}
+                        key={b.id}
+                      >
+                        <span className="badge-card-icon">
+                          <Icon aria-hidden="true" size={20} />
+                        </span>
+                        <span className="badge-card-name">{t(badgeNameKey(b.id))}</span>
+                        <span className="badge-card-desc">{t(badgeDescKey(b.id))}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         ) : (

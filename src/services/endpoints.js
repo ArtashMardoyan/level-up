@@ -27,6 +27,10 @@ export const notificationsMarkAllSeen = () => apiPatch('/notifications/seen')
 export const notificationsMarkAllRead = () => apiPatch('/notifications/read')
 export const notificationsMarkRead = (id) => apiPatch(`/notifications/${id}/read`)
 
+// Achievement badges (per-user, auth required). Returns the full code-defined
+// catalog with this user's earn status (earned + earnedAt, or locked).
+export const badgesList = () => apiGet('/badges')
+
 // AI Interview Coach (per-user, auth required). A chat interview: start a
 // session, submit each answer (evaluated on submit), then complete to aggregate
 // the final report. See docs/interview in the backend repo.

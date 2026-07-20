@@ -4,10 +4,20 @@ import { TriangleAlert, ArrowLeft, RotateCw, Award, Check } from 'lucide-react'
 import { scoreColor } from '../utils/interview'
 import { useLanguage } from '../hooks/useLanguage'
 import { interviewReport } from '../services/endpoints'
+import { badgeNameKey, badgeIcon } from '../data/badges'
 
 const RING_CIRCUMFERENCE = 339.29 // 2 * pi * 54
 
-export default function InterviewResults({ sessionId, course, onBack, onNew }) {
+// Map a newly-earned badge id to its category/tier for the celebration chip.
+// The results POST returns only ids; the visual metadata mirrors the catalog.
+const BADGE_CATEGORY = { interview: 'interview', streak: 'streak', review: 'review', score: 'score' }
+
+function badgeCategoryOf(id) {
+  const prefix = id.split('_')[0]
+  return BADGE_CATEGORY[prefix] || 'interview'
+}
+
+export default function InterviewResults({ newBadges = [], sessionId, course, onBack, onNew }) {
   const { t } = useLanguage()
 
   const [data, setData] = useState(null)
@@ -126,6 +136,22 @@ export default function InterviewResults({ sessionId, course, onBack, onNew }) {
         <Award aria-hidden="true" size={14} /> {t('interviewSessionComplete')}
       </div>
       <h1 className="aic-title">{t('interviewResultsTitle')}</h1>
+
+      {newBadges.length > 0 && (
+        <div className="aic-badge-unlock">
+          <div className="aic-badge-unlock-head">{t('interviewBadgesUnlocked', { n: newBadges.length })}</div>
+          <div className="aic-badge-unlock-list">
+            {newBadges.map((id) => {
+              const Icon = badgeIcon(badgeCategoryOf(id))
+              return (
+                <span className="aic-badge-chip" key={id}>
+                  <Icon aria-hidden="true" size={16} /> {t(badgeNameKey(id))}
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="aic-results-summary">
         <div className="aic-score-card">

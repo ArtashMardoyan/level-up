@@ -1,4 +1,4 @@
-import { Sparkles, Hexagon, Trophy, Target, Flame, Bell } from 'lucide-react'
+import { Sparkles, Hexagon, Trophy, Target, Award, Flame, Bell } from 'lucide-react'
 
 // Maps a backend notification `type` to its icon, accent, and i18n keys. The
 // server sends type + params (never localized text), so the wording lives here.
@@ -12,6 +12,7 @@ const TYPE_META = {
   },
   review_milestone: { titleKey: 'notifMilestoneTitle', bodyKey: 'notifMilestoneBody', accent: '#4ade80', Icon: Trophy },
   welcome: { titleKey: 'notifWelcomeTitle', bodyKey: 'notifWelcomeBody', accent: '#818cf8', Icon: Sparkles },
+  badge_earned: { titleKey: 'notifBadgeTitle', bodyKey: 'notifBadgeBody', accent: '#fbbf24', Icon: Award },
   streak: { titleKey: 'notifStreakTitle', bodyKey: 'notifStreakBody', accent: '#fbbf24', Icon: Flame },
   daily: { titleKey: 'notifDailyTitle', bodyKey: 'notifDailyBody', accent: '#818cf8', Icon: Target }
 }

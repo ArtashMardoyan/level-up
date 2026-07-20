@@ -189,7 +189,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
     setCompleting(true)
     setError(null)
     interviewComplete(sessionId)
-      .then(() => onComplete())
+      .then((res) => onComplete(res?.newBadges || []))
       .catch(() => {
         setError(t('interviewCompleteError'))
         setCompleting(false)

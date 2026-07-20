@@ -2446,23 +2446,109 @@ footer {
 }
 
 /* Achievements */
-.profile-badges {
+/* Badges — the profile trophy case (earned + locked, from GET /badges) */
+.badge-earned-count {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.badge-groups {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 20px;
+}
+.badge-group-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
 }
-.profile-badge {
+.badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 16px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border-2);
+  background: var(--surface);
+}
+.badge-card.earned {
+  border-color: color-mix(in oklab, var(--badge-accent) 35%, transparent);
+  background: color-mix(in oklab, var(--badge-accent) 9%, transparent);
+}
+.badge-card.locked {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+}
+.badge-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--text-2);
+  background: var(--surface-hover);
+}
+.badge-card.earned .badge-card-icon {
+  color: var(--badge-accent);
+  background: color-mix(in oklab, var(--badge-accent) 16%, transparent);
+}
+.badge-card-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-1);
+}
+.badge-card-desc {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-3);
+}
+
+/* Newly-earned badges celebrated on the interview results screen */
+.aic-badge-unlock {
+  margin: 4px 0 20px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, #fbbf24 32%, transparent);
+  background: color-mix(in oklab, #fbbf24 8%, transparent);
+}
+.aic-badge-unlock-head {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: #f59e0b;
+  margin-bottom: 10px;
+}
+.aic-badge-unlock-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.aic-badge-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
+  padding: 6px 12px;
   border-radius: 99px;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 13px;
-  color: var(--badge-accent);
-  background: color-mix(in oklab, var(--badge-accent) 13%, transparent);
-  border: 1px solid color-mix(in oklab, var(--badge-accent) 30%, transparent);
+  color: #f59e0b;
+  background: color-mix(in oklab, #fbbf24 15%, transparent);
+  border: 1px solid color-mix(in oklab, #fbbf24 32%, transparent);
 }
 
 /* Danger zone */
