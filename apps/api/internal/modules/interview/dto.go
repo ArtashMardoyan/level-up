@@ -88,6 +88,12 @@ type LastSessionView struct {
 	CompletedAt  time.Time `json:"completedAt"`
 }
 
+// TranscribeResponse is the transcript of a recorded voice answer, for the
+// frontend to prefill (and let the candidate edit) the composer (docs/005).
+type TranscribeResponse struct {
+	Transcript string `json:"transcript"`
+}
+
 // SummaryView aggregates a user's completed interviews for the profile page
 // (docs/interview/011 "Interview performance"): total count, average and best
 // score, and the latest session. Zero values (no completed interviews yet) are

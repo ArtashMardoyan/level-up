@@ -3,6 +3,7 @@ package interview
 import (
 	"context"
 	"errors"
+	"io"
 	"math"
 	"math/rand"
 	"strings"
@@ -14,12 +15,13 @@ import (
 
 // Sentinel errors mapped to HTTP status by the handler.
 var (
-	ErrActiveSession  = errors.New("interview: user already has an active session")
-	ErrCourseNotFound = errors.New("interview: course not found")
-	ErrNoQuestions    = errors.New("interview: no questions available for this course")
-	ErrNotEditable    = errors.New("interview: session is not in progress")
-	ErrQuestionNotIn  = errors.New("interview: question is not part of this session")
-	ErrNoResults      = errors.New("interview: no answers to evaluate")
+	ErrActiveSession    = errors.New("interview: user already has an active session")
+	ErrCourseNotFound   = errors.New("interview: course not found")
+	ErrNoQuestions      = errors.New("interview: no questions available for this course")
+	ErrNotEditable      = errors.New("interview: session is not in progress")
+	ErrQuestionNotIn    = errors.New("interview: question is not part of this session")
+	ErrNoResults        = errors.New("interview: no answers to evaluate")
+	ErrVoiceUnavailable = errors.New("interview: voice transcription unavailable")
 )
 
 // Service is the interview engine (docs/interview/004). The AI client may be nil
@@ -37,7 +39,7 @@ func NewService(repo Repository, content ContentReader, ai AI) *Service {
 
 // Start creates a session, snapshots the chosen questions, and returns the first
 // question (docs/interview/004).
-func (s *Service) Start(ctx context.Context, userID string, req CreateInterviewRequest) (SessionView, error) {
+func (s *Service) Start(ctx context.Context, userID, userName string, req CreateInterviewRequest) (SessionView, error) {
 	if _, active, err := s.repo.FindActiveByUser(ctx, userID); err != nil {
 		return SessionView{}, err
 	} else if active {
@@ -77,7 +79,7 @@ func (s *Service) Start(ctx context.Context, userID string, req CreateInterviewR
 		return SessionView{}, err
 	}
 
-	first, err := s.ensureGenerated(ctx, session, 0, &chosen[0], nil)
+	first, err := s.ensureGenerated(ctx, session, 0, &chosen[0], nil, userName)
 	if err != nil {
 		return SessionView{}, err
 	}
@@ -145,7 +147,7 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 		return SubmitAnswerResponse{}, ErrQuestionNotIn
 	}
 
-	asked, err := s.ensureGenerated(ctx, &session, idx, &q, nil)
+	asked, err := s.ensureGenerated(ctx, &session, idx, &q, nil, "")
 	if err != nil {
 		return SubmitAnswerResponse{}, err
 	}
@@ -167,7 +169,7 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 		nextID := session.QuestionIDs[session.CurrentIndex]
 		prev := &prevTurn{Question: asked.Question, Answer: req.Answer, Skipped: req.Skipped, Score: result.Score}
 		if nq, err := s.content.FindQuestionByIDWithTranslations(ctx, nextID); err == nil {
-			if nv, err := s.ensureGenerated(ctx, &session, session.CurrentIndex, &nq, prev); err == nil {
+			if nv, err := s.ensureGenerated(ctx, &session, session.CurrentIndex, &nq, prev, ""); err == nil {
 				resp.Next = &nv
 			}
 		}
@@ -329,6 +331,18 @@ func (s *Service) Summary(ctx context.Context, userID string) (SummaryView, erro
 	return view, nil
 }
 
+// Transcribe converts a recorded voice answer to text, so the candidate can
+// review/edit it in the composer before submitting like any typed answer
+// (docs/interview/005). The transcript never touches grading directly — it's
+// just text that lands in the same SubmitAnswerRequest.Answer field either way.
+func (s *Service) Transcribe(ctx context.Context, audio io.Reader, filename string) (string, error) {
+	if s.ai == nil {
+		return "", ErrVoiceUnavailable
+	}
+
+	return s.ai.Transcribe(ctx, audio, filename)
+}
+
 func (s *Service) buildReview(ctx context.Context, session *Session, results []QuestionResult) ([]ReviewItem, error) {
 	byQuestion := indexResults(results)
 	items := make([]ReviewItem, 0, len(session.QuestionIDs))
@@ -392,7 +406,7 @@ type prevTurn struct {
 // question (e.g. on submit) never re-triggers the AI. A nil AI client or a failed
 // generation degrades to the bank's raw text (docs/interview/004) — same policy
 // as answer evaluation.
-func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int, q *course.Question, prev *prevTurn) (QuestionView, error) {
+func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int, q *course.Question, prev *prevTurn, userName string) (QuestionView, error) {
 	if idx < len(session.Generated) {
 		return generatedView(q, idx, session.Language, session.Generated[idx]), nil
 	}
@@ -417,10 +431,11 @@ func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int
 			view.Question, view.ModelAnswer = gen.Question, gen.ModelAnswer
 			switch {
 			case prev == nil:
-				// No previous turn to react to — force-empty rather than trust the
-				// model's judgment, since it sometimes invents one anyway despite
-				// the prompt instruction.
-				view.Reaction = ""
+				// No previous turn to react to — a deterministic, personalized
+				// greeting instead of trusting the model's judgment (same reason
+				// as the skip case below: it invents a reaction anyway despite
+				// the prompt instruction saying to leave this empty).
+				view.Reaction = greeting(userName, session.Language)
 			case prev.Skipped:
 				// The model isn't reliable about honoring a skip either (it has
 				// reacted as if a real answer was given) — use a deterministic,

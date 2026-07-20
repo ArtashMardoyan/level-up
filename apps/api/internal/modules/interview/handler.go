@@ -22,6 +22,7 @@ func (h *Handler) RegisterRoutes(r *gin.Engine, auth gin.HandlerFunc) {
 	interviews := r.Group("/interviews", auth)
 	interviews.POST("", h.Create)
 	interviews.GET("", h.List)
+	interviews.POST("/transcribe", h.Transcribe)
 	interviews.GET("/summary", h.Summary)
 	interviews.GET("/:id", h.Get)
 	interviews.POST("/:id/answers/:questionId", h.SubmitAnswer)
@@ -42,7 +43,7 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	view, err := h.service.Start(c.Request.Context(), caller.ID, req)
+	view, err := h.service.Start(c.Request.Context(), caller.ID, caller.Name, req)
 	if err != nil {
 		writeError(c, err)
 		return
@@ -121,6 +122,34 @@ func (h *Handler) Report(c *gin.Context) {
 	shared.OK(c, view)
 }
 
+func (h *Handler) Transcribe(c *gin.Context) {
+	if _, ok := contextUser(c); !ok {
+		shared.Error(c, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	fileHeader, err := c.FormFile("audio")
+	if err != nil {
+		shared.Error(c, http.StatusBadRequest, "audio file is required")
+		return
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		shared.Error(c, http.StatusBadRequest, "could not read audio file")
+		return
+	}
+	defer func() { _ = file.Close() }()
+
+	transcript, err := h.service.Transcribe(c.Request.Context(), file, fileHeader.Filename)
+	if err != nil {
+		writeError(c, err)
+		return
+	}
+
+	shared.OK(c, TranscribeResponse{Transcript: transcript})
+}
+
 func (h *Handler) Summary(c *gin.Context) {
 	caller, ok := contextUser(c)
 	if !ok {
@@ -176,6 +205,8 @@ func writeError(c *gin.Context, err error) {
 		shared.Error(c, http.StatusUnprocessableEntity, "no questions available for this course")
 	case errors.Is(err, ErrNoResults):
 		shared.Error(c, http.StatusUnprocessableEntity, "answer at least one question first")
+	case errors.Is(err, ErrVoiceUnavailable):
+		shared.Error(c, http.StatusServiceUnavailable, "voice transcription is unavailable right now")
 	default:
 		shared.Error(c, http.StatusInternalServerError, "something went wrong")
 	}

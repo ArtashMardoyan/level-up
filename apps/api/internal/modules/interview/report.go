@@ -1,7 +1,9 @@
 package interview
 
 import (
+	"fmt"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -189,4 +191,23 @@ func skippedReaction(lang string) string {
 	}
 
 	return "No worries, let's move on."
+}
+
+// greeting opens the interview's first question with a personalized welcome —
+// deterministic (not AI-written) for the same reliability reason as
+// skippedReaction: this needs to always include the name and never drift.
+func greeting(name, lang string) string {
+	name = strings.TrimSpace(name)
+	if lang == LangRU {
+		if name == "" {
+			return "Привет! Начнём."
+		}
+
+		return fmt.Sprintf("Привет, %s! Начнём.", name)
+	}
+	if name == "" {
+		return "Hi there! Let's get started."
+	}
+
+	return fmt.Sprintf("Hi %s! Let's get started.", name)
 }

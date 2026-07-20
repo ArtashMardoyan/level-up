@@ -563,6 +563,34 @@
 					]
 				},
 				{
+					"name": "Transcribe Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/transcribe",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"transcribe"
+							]
+						},
+						"description": "Transcribes a recorded voice answer via Whisper. multipart/form-data with an \"audio\" file field (webm/mp3/wav/m4a/etc). Returns { transcript } for the client to prefill (and let the candidate edit) the composer before a normal Submit Answer call. 503 if no OpenAI key is configured.",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "audio",
+									"type": "file",
+									"src": []
+								}
+							]
+						}
+					}
+				},
+				{
 					"name": "Submit Answer",
 					"request": {
 						"method": "POST",

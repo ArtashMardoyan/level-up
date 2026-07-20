@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -83,10 +84,17 @@ type Generator interface {
 	Generate(ctx context.Context, in *GenInput) (GenResult, error)
 }
 
+// Transcriber converts a recorded answer into text (docs/interview/005). Backed
+// by Whisper — a fixed model, independent of the chat model (OPENAI_MODEL).
+type Transcriber interface {
+	Transcribe(ctx context.Context, audio io.Reader, filename string) (string, error)
+}
+
 // AI is the combined OpenAI-backed surface the service depends on.
 type AI interface {
 	Evaluator
 	Generator
+	Transcriber
 }
 
 type openAIClient struct {
@@ -295,6 +303,30 @@ func parseGen(content string) (GenResult, error) {
 	}
 
 	return r, nil
+}
+
+// Transcribe converts a recorded voice answer to text via Whisper (docs/005).
+// Unlike Evaluate/Generate this never degrades silently — a caller with no
+// transcript to show has nothing useful to fall back to, so the error is
+// returned as-is for the handler to surface.
+func (e *openAIClient) Transcribe(ctx context.Context, audio io.Reader, filename string) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, e.timeout)
+	defer cancel()
+
+	res, err := e.client.Audio.Transcriptions.New(ctx, openai.AudioTranscriptionNewParams{
+		File:  openai.File(audio, filename, "application/octet-stream"),
+		Model: openai.AudioModelWhisper1,
+	})
+	if err != nil {
+		return "", fmt.Errorf("interview: transcription failed: %w", err)
+	}
+
+	text := strings.TrimSpace(res.Text)
+	if text == "" {
+		return "", fmt.Errorf("interview: empty transcription")
+	}
+
+	return text, nil
 }
 
 func fallback(s, alt string) string {
