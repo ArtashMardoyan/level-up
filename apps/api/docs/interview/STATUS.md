@@ -110,6 +110,18 @@ _Last updated: 2026-07-20._
   - **Record button placement** (`f6d1e95`): moved next to Submit (not grouped with the
     secondary "Sample answer" helper) — voice is an alternate way to answer + send, so it
     sits by Send like WhatsApp/Telegram.
+- **2026-07-20 session, part 4 — reaction prompt polish, backend-only** (backend
+  `195566b`):
+  - **The AI `reaction` is now strictly a bridge, never a question.** It used to
+    occasionally pose a question of its own right before the separate clean
+    `Question` field asked something similar (repetitive, seen once in live
+    testing — the previously-OPEN item below). Tightened `questionSystemPrompt`:
+    the reaction only looks back at the answer just given — it must not ask, pose,
+    or preview a question, hint at what's coming, or end with a question mark; all
+    questioning stays solely in the `question` field. Prompt-wording only — the
+    `reaction`/`question`/`modelAnswer` JSON contract and `SchemaVersion` are
+    unchanged, and the deterministic Go-side forces (empty reaction on the first
+    question, `skippedReaction`) are untouched.
 
 ## TL;DR — it's SHIPPED and live on prod
 
@@ -166,10 +178,6 @@ with real OpenAI scoring in EN / RU / ARM.
 
 ## What's OPEN / next
 
-- **Minor prompt polish (optional):** the AI's `reaction` occasionally poses
-  a question itself before the separate clean `Question` field asks something
-  very similar — a bit repetitive, not broken (observed once in live testing).
-  Could tighten the prompt so `reaction` only bridges, never asks.
 - **Voice answers persist no audio (by design, for now).** Recorded answers are
   transcribed and discarded — only the text is kept. If "hear your own delivery"
   playback is wanted later: add an AWS SDK dependency (`aws-sdk-go-v2` + `s3`),
