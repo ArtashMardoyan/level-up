@@ -298,11 +298,13 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
               </button>
               <button
                 disabled={thinking || recording || transcribing || !answer.trim()}
+                className="aic-primary-btn aic-submit-btn"
+                aria-label={t('interviewSubmit')}
                 onClick={() => submit(false)}
-                className="aic-primary-btn"
                 type="button"
               >
-                {t('interviewSubmit')} <Send aria-hidden="true" size={15} />
+                <span className="aic-submit-btn-label">{t('interviewSubmit')}</span>{' '}
+                <Send aria-hidden="true" size={15} />
               </button>
             </div>
           </div>
