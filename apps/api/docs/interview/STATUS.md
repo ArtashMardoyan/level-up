@@ -184,6 +184,32 @@ _Last updated: 2026-07-20._
     earned", four category groups). Throwaway account removed via `DELETE /users`.
     Streak/review badges are covered by unit tests but were not driven live (that
     needs course-progress activity with timezones).
+- **2026-07-20 session, part 7 — voice-answer fixes (recording was broken)**
+  (backend `ee66115`, frontend `a49469f`):
+  - **In-chat recording effectively didn't work; two root causes, both fixed.**
+    (1) The global 1 MB request-body cap (`MaxBytesReader` in `cmd/server/main.go`)
+    applied to **every** route including `POST /interviews/transcribe`, so a voice
+    answer longer than ~1 min of webm/opus exceeded 1 MB and the multipart parse
+    400'd ("audio file is required") **before Whisper ran** — confirmed live. The
+    transcribe route now gets a **25 MB** limit (Whisper's own file cap); other
+    routes stay at 1 MB. (2) Whisper was called with **no language hint** so it
+    guessed — short Russian speech often came back English/transliterated. The
+    session language (en/ru/hy) now flows `handler → service → ai` and is set as
+    Whisper's `Language` param (`ai.Transcribe(..., language)`); empty = auto-detect.
+    Frontend sends it via `interviewTranscribe(blob, initial.session.language)`.
+    Postman: the Transcribe request gained the `language` form field.
+  - **Live recording indicator** (frontend). While recording, the composer shows a
+    real UI instead of an inert disabled textarea: a pulsing red dot, an MM:SS
+    timer, and a live 24-bar waveform driven by the Web Audio `AnalyserNode` (bars
+    written straight to the DOM per frame; timer through state once a second; rAF /
+    interval / `AudioContext` torn down on stop + unmount). New `interviewRecordingHint`
+    string (en/ru/hy) + `.aic-recording*` CSS.
+  - **Verified live on prod:** a >1 MB upload now reaches Whisper (500 on garbage)
+    instead of the old 400 size-gate; real Russian speech (macOS `say -v Milena`)
+    with `language=ru` transcribed exactly as spoken ("Привет! Как дела? …"), and
+    English with `language=en` likewise; the deployed Pages bundle contains the
+    recording-indicator code. Recording UI + mic in a real interview is left for a
+    human to click through. Throwaway account removed via `DELETE /users`.
 
 ## TL;DR — it's SHIPPED and live on prod
 
