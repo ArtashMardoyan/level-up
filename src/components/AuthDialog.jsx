@@ -33,6 +33,7 @@ export default function AuthDialog({ onClose, open }) {
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [prevOpen, setPrevOpen] = useState(open)
 
   useEffect(() => {
     if (!open) return
@@ -42,6 +43,23 @@ export default function AuthDialog({ onClose, open }) {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  // Full reset when the dialog closes — it stays mounted (just renders null),
+  // so without this, stale email/password/mode from a previous attempt would
+  // still be sitting there the next time it opens. Adjust state during render
+  // (https://react.dev/learn/you-might-not-need-an-effect), same pattern as
+  // the forceOpen/autoOpen sync in QuestionCard.jsx.
+  if (open !== prevOpen) {
+    setPrevOpen(open)
+    if (!open) {
+      setMode('login')
+      setName('')
+      setEmail('')
+      setPassword('')
+      setShowPassword(false)
+      setServerError(null)
+    }
+  }
 
   if (!open) return null
 
@@ -55,8 +73,13 @@ export default function AuthDialog({ onClose, open }) {
   const emailError = email && !emailValid ? t('authInvalidEmail') : null
   const passwordError = isSignUp && password && password.length < SIGNUP_PASSWORD_MIN ? t('authPasswordTooShort') : null
 
+  // Switching Login <-> Signup keeps the email (typing it twice is annoying),
+  // but clears the password/name and any error from the other mode's attempt.
   const switchMode = (next) => {
     setMode(next)
+    setPassword('')
+    setName('')
+    setShowPassword(false)
     setServerError(null)
   }
 
