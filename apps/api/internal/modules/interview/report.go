@@ -179,3 +179,14 @@ func skippedFeedback(lang string) string {
 
 	return "Question skipped."
 }
+
+// skippedReaction is the deterministic chat transition after a skipped answer —
+// used instead of the AI's own reaction, which isn't reliable about honoring a
+// skip (docs/interview/004).
+func skippedReaction(lang string) string {
+	if lang == LangRU {
+		return "Хорошо, пропустим этот. Дальше:"
+	}
+
+	return "No worries, let's move on."
+}

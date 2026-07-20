@@ -75,8 +75,11 @@ func (l *StringList) Scan(src any) error {
 
 // GeneratedQuestion is one AI-paraphrased question + its matching model answer,
 // cached the first time it's generated so resume/review always show the exact
-// text the candidate was asked (docs/interview/004/005).
+// text the candidate was asked (docs/interview/004/005). Reaction is the natural,
+// score-free bridge from the previous answer into this question — empty for the
+// interview's first question.
 type GeneratedQuestion struct {
+	Reaction    string `json:"reaction"`
 	Question    string `json:"question"`
 	ModelAnswer string `json:"modelAnswer"`
 }

@@ -77,7 +77,7 @@ func (s *Service) Start(ctx context.Context, userID string, req CreateInterviewR
 		return SessionView{}, err
 	}
 
-	first, err := s.ensureGenerated(ctx, session, 0, &chosen[0])
+	first, err := s.ensureGenerated(ctx, session, 0, &chosen[0], nil)
 	if err != nil {
 		return SessionView{}, err
 	}
@@ -145,7 +145,7 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 		return SubmitAnswerResponse{}, ErrQuestionNotIn
 	}
 
-	asked, err := s.ensureGenerated(ctx, &session, idx, &q)
+	asked, err := s.ensureGenerated(ctx, &session, idx, &q, nil)
 	if err != nil {
 		return SubmitAnswerResponse{}, err
 	}
@@ -165,8 +165,9 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 	resp := SubmitAnswerResponse{Result: result}
 	if session.CurrentIndex < len(session.QuestionIDs) {
 		nextID := session.QuestionIDs[session.CurrentIndex]
+		prev := &prevTurn{Question: asked.Question, Answer: req.Answer, Skipped: req.Skipped, Score: result.Score}
 		if nq, err := s.content.FindQuestionByIDWithTranslations(ctx, nextID); err == nil {
-			if nv, err := s.ensureGenerated(ctx, &session, session.CurrentIndex, &nq); err == nil {
+			if nv, err := s.ensureGenerated(ctx, &session, session.CurrentIndex, &nq, prev); err == nil {
 				resp.Next = &nv
 			}
 		}
@@ -375,13 +376,23 @@ func (s *Service) load(ctx context.Context, userID, id string) (Session, error) 
 
 // ---- helpers ----
 
+// prevTurn is the previous turn's context, passed to ensureGenerated so the AI
+// can write a natural transition into the new question. nil for the interview's
+// first question, where there is no previous turn.
+type prevTurn struct {
+	Question string
+	Answer   string
+	Skipped  bool
+	Score    int
+}
+
 // ensureGenerated returns slot idx's question view, generating (and permanently
 // caching on the session) its AI paraphrase the first time this slot is shown.
 // Already-cached slots are a pure read, so calling this again for the current
 // question (e.g. on submit) never re-triggers the AI. A nil AI client or a failed
 // generation degrades to the bank's raw text (docs/interview/004) — same policy
 // as answer evaluation.
-func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int, q *course.Question) (QuestionView, error) {
+func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int, q *course.Question, prev *prevTurn) (QuestionView, error) {
 	if idx < len(session.Generated) {
 		return generatedView(q, idx, session.Language, session.Generated[idx]), nil
 	}
@@ -389,20 +400,41 @@ func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int
 	view := questionView(q, idx, session.Language)
 	if s.ai != nil {
 		refQ, refA, module := translate(q, session.Language)
-		gen, err := s.ai.Generate(ctx, &GenInput{
+		in := &GenInput{
 			CourseTitle: module,
 			Difficulty:  session.Difficulty,
 			Language:    session.Language,
 			Module:      module,
 			RefQuestion: refQ,
 			RefAnswer:   refA,
-		})
+		}
+		if prev != nil {
+			in.PrevQuestion, in.PrevAnswer, in.PrevSkipped, in.PrevScore = prev.Question, prev.Answer, prev.Skipped, prev.Score
+		}
+
+		gen, err := s.ai.Generate(ctx, in)
 		if err == nil {
 			view.Question, view.ModelAnswer = gen.Question, gen.ModelAnswer
+			switch {
+			case prev == nil:
+				// No previous turn to react to — force-empty rather than trust the
+				// model's judgment, since it sometimes invents one anyway despite
+				// the prompt instruction.
+				view.Reaction = ""
+			case prev.Skipped:
+				// The model isn't reliable about honoring a skip either (it has
+				// reacted as if a real answer was given) — use a deterministic,
+				// judgment-free transition instead of trusting its output.
+				view.Reaction = skippedReaction(session.Language)
+			default:
+				view.Reaction = gen.Reaction
+			}
 		}
 	}
 
-	session.Generated = append(session.Generated, GeneratedQuestion{Question: view.Question, ModelAnswer: view.ModelAnswer})
+	session.Generated = append(session.Generated, GeneratedQuestion{
+		Reaction: view.Reaction, Question: view.Question, ModelAnswer: view.ModelAnswer,
+	})
 	if err := s.repo.UpdateSession(ctx, session); err != nil {
 		return QuestionView{}, err
 	}
@@ -423,7 +455,9 @@ func cachedView(q *course.Question, idx int, lang string, cache GeneratedQuestio
 func generatedView(q *course.Question, idx int, lang string, g GeneratedQuestion) QuestionView {
 	_, _, module := translate(q, lang)
 
-	return QuestionView{QuestionID: q.ID, Index: idx, Module: module, Question: g.Question, ModelAnswer: g.ModelAnswer}
+	return QuestionView{
+		QuestionID: q.ID, Index: idx, Module: module, Reaction: g.Reaction, Question: g.Question, ModelAnswer: g.ModelAnswer,
+	}
 }
 
 func pickQuestions(pool []course.Question, count int) []course.Question {

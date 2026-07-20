@@ -20,11 +20,14 @@ type SubmitAnswerRequest struct {
 
 // QuestionView is a single question as the chat needs it, in the session
 // language. ModelAnswer backs both the Review "Model answer" and the composer's
-// "Sample answer" (docs/interview/011).
+// "Sample answer" (docs/interview/011). Reaction is the natural, score-free
+// bridge from the previous answer (empty for the first question) — the chat
+// folds it into the same bubble as Question; Review/grading use Question alone.
 type QuestionView struct {
 	QuestionID  string `json:"questionId"`
 	Index       int    `json:"index"`
 	Module      string `json:"module"`
+	Reaction    string `json:"reaction"`
 	Question    string `json:"question"`
 	ModelAnswer string `json:"modelAnswer"`
 }

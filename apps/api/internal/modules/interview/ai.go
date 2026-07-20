@@ -49,17 +49,29 @@ type Evaluator interface {
 // GenInput grounds one AI-written interview question in a real bank Q&A pair, so
 // grading stays anchored to a concrete reference answer even though the question
 // text and model answer shown to the candidate are freshly written (docs/004).
+// PrevQuestion/PrevAnswer/PrevSkipped/PrevScore are the previous turn's context,
+// used only to write a natural transition — empty for the interview's first
+// question, when there is no previous turn.
 type GenInput struct {
-	CourseTitle string
-	Difficulty  string
-	Language    string
-	Module      string
-	RefQuestion string
-	RefAnswer   string
+	CourseTitle  string
+	Difficulty   string
+	Language     string
+	Module       string
+	RefQuestion  string
+	RefAnswer    string
+	PrevQuestion string
+	PrevAnswer   string
+	PrevSkipped  bool
+	PrevScore    int
 }
 
-// GenResult is one AI-written question + its matching model answer.
+// GenResult is one AI-written question + its matching model answer, plus an
+// optional natural-language Reaction to the previous answer (empty when there
+// was no previous turn). Reaction never states a score — it's chat flavor, kept
+// separate from Question so grading and the Review screen stay anchored to the
+// clean question text (docs/interview/011).
 type GenResult struct {
+	Reaction    string `json:"reaction"`
 	Question    string `json:"question"`
 	ModelAnswer string `json:"modelAnswer"`
 }
@@ -204,8 +216,18 @@ interviewer would ask it, calibrated to the requested difficulty:
 - hard: open-ended, probes trade-offs, edge cases, or "what would you do if..." scenarios
 Also write a strong model answer to the question YOU wrote (matching its exact scope — not a copy of
 the reference answer). Write both in the interview language specified below.
+
+If a previous question and the candidate's answer to it are provided below, also write a short
+(1-2 sentence) natural "reaction" bridging from that answer into your new question — the way a real
+interviewer keeps a conversation moving, e.g. acknowledging a specific point they made, or noting a
+gap before pivoting. An internal quality signal (0-100, never shown to the candidate) is given only so
+you can calibrate tone. The reaction must NEVER state, imply, or hint at a score, grade, percentage, or
+the words "correct"/"incorrect"/"score"/"points" — a real interviewer doesn't grade out loud mid-chat.
+If the candidate skipped, react naturally to moving on, with no judgment. If there is no previous
+question (this is the interview's opening question), leave "reaction" as an empty string.
+
 Respond with a SINGLE JSON object and nothing else, matching exactly:
-{"question":"<string>","modelAnswer":"<string>"}`
+{"reaction":"<string, can be empty>","question":"<string>","modelAnswer":"<string>"}`
 
 func (e *openAIClient) Generate(ctx context.Context, in *GenInput) (GenResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, e.timeout)
@@ -220,8 +242,9 @@ func (e *openAIClient) Generate(ctx context.Context, in *GenInput) (GenResult, e
 	}
 
 	userPrompt := fmt.Sprintf(
-		"Interview language: %s\nCourse: %s\nDifficulty: %s\nModule: %s\n\nReference question:\n%s\n\nReference answer:\n%s",
+		"Interview language: %s\nCourse: %s\nDifficulty: %s\nModule: %s\n\nReference question:\n%s\n\nReference answer:\n%s%s",
 		langName, in.CourseTitle, in.Difficulty, in.Module, in.RefQuestion, fallback(in.RefAnswer, "(none provided)"),
+		prevTurnPrompt(in),
 	)
 
 	params := openai.ChatCompletionNewParams{
@@ -280,4 +303,21 @@ func fallback(s, alt string) string {
 	}
 
 	return s
+}
+
+// prevTurnPrompt appends the previous turn's context for the "reaction" the AI
+// writes bridging into the new question — omitted entirely for the interview's
+// first question, where GenInput.PrevQuestion is empty.
+func prevTurnPrompt(in *GenInput) string {
+	if strings.TrimSpace(in.PrevQuestion) == "" {
+		return ""
+	}
+	if in.PrevSkipped {
+		return fmt.Sprintf("\n\nPrevious question:\n%s\n\nThe candidate skipped this one.", in.PrevQuestion)
+	}
+
+	return fmt.Sprintf(
+		"\n\nPrevious question:\n%s\n\nCandidate's answer:\n%s\n\nInternal quality signal (0-100, never show this number): %d",
+		in.PrevQuestion, fallback(in.PrevAnswer, "(empty)"), in.PrevScore,
+	)
 }
