@@ -48,6 +48,14 @@ Response envelope: success → `{ "data": ... }`, error → `{ "error": "..." }`
 | GET | `/users/:id` | Bearer | get user by id |
 | PATCH | `/users` | Bearer | update the caller |
 | DELETE | `/users` | Bearer | delete the caller |
+| GET | `/courses/*` | mixed | course content (cached) + per-user progress — see [`docs/engineering/caching`](docs/engineering/caching/) |
+| POST/GET | `/interviews/*` | Bearer | AI Interview Coach — see [`docs/product/interview`](docs/product/interview/) |
+| GET/PATCH | `/notifications/*` | Bearer | per-user feed — see [`docs/product/notifications`](docs/product/notifications/) |
+| GET | `/badges` | Bearer | achievement badge catalog + earn status |
+
+The full route surface lives in the Postman collection (`postman/`) and the module docs
+under [`docs/`](docs/). Feature modules today: `health`, `user`, `auth`, `course`,
+`interview`, `notification`, `badge`.
 
 Auth is a JWT (`Authorization: Bearer <token>`), 24h TTL. `logout` stores the
 token's `jti` in `revoked_tokens` until it expires, so the middleware rejects it
@@ -80,6 +88,11 @@ internal/
     health/                   /ping (liveness) and /ready (DB readiness)
     user/                     entity, dto, status, repository (+gorm), service, handler
     auth/                     login / logout / me; JWT + revoked-token denylist
+    course/                   course content, questions, per-user progress, caching
+    interview/                AI Interview Coach (OpenAI eval + streaming)
+    notification/             per-user notification feed
+    badge/                    achievement badges
+  seed/                       bundled course content (loaded by cmd/seed)
   shared/                     response helpers, pagination, context keys, gorm Base
 migrations/                   goose SQL migrations, applied automatically on startup
 ```
@@ -92,11 +105,13 @@ Mirror the `go-first-api` pattern — create `internal/modules/<name>/` with
 
 1. connect GORM (already available as `db`)
 2. wire `repo -> service -> handler`
-3. call `handler.RegisterRoutes(r, ...)`
+3. call `handler.RegisterRoutes(r, jwtMiddleware)` for protected routes
 4. add a migration under `migrations/`
+5. document it — see [`docs/`](docs/) and the documentation lifecycle in
+   [`docs/process/DOCUMENTATION_ARCHITECTURE.md`](docs/process/DOCUMENTATION_ARCHITECTURE.md)
 
-Auth/JWT is not wired yet — it lands with the first protected module, following
-the `go-first-api` `internal/modules/auth` + `infrastructure/middleware` pattern.
+JWT auth is wired (`internal/modules/auth` + `infrastructure/middleware`); protected
+modules use the shared `jwtMiddleware` from `cmd/server/main.go`.
 
 ## API documentation (Postman)
 
@@ -117,7 +132,7 @@ Both values are also read from `.env`. Keep the collection current whenever rout
 
 Container image → **AWS ECR** → **App Runner**, talking to **RDS PostgreSQL**.
 goose migrations run automatically on container start. See
-[`docs/deployment/overview.md`](docs/deployment/overview.md).
+[`docs/engineering/deployment/README.md`](docs/engineering/deployment/README.md).
 
 ```bash
 aws sso login --profile vyb-dev

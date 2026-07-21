@@ -13,6 +13,34 @@ Architecture and conventions mirror the sibling project `go-first-api`.
 
 **Keep the Postman collection in sync.** Whenever you add, remove, or change a route (method, path, body, or query params), update `postman/level-up-backend.postman_collection.json` in the same change. Folders are ordered alphabetically (Auth, Health, Users); requests within a folder by method GET → POST → PATCH → DELETE.
 
+## Documentation
+
+This repository is the single source of truth for Level Up documentation. The authority
+on how docs are organized is [`docs/process/DOCUMENTATION_ARCHITECTURE.md`](docs/process/DOCUMENTATION_ARCHITECTURE.md);
+[`docs/README.md`](docs/README.md) is the entry point. Follow it.
+
+- **Documentation first.** A feature starts with a spec **before** code — a product
+  feature gets a PRD/spec in `docs/product/<feature>/`; a cross-cutting technical
+  concern gets a doc in `docs/engineering/<area>/`. No feature is done until its docs
+  are updated.
+- **Placement.** *What & why* (platform-independent product behavior) → `docs/product/`.
+  *How it's built* (per stack / cross-cutting technique) → `docs/engineering/`. *Why we
+  chose it* (significant/irreversible decisions) → an ADR in `docs/decisions/`. *How we
+  document & ship* → `docs/standards/` + `docs/process/`.
+- **Depth** follows complexity, risk, and business impact — not module size.
+- **English** is the canonical language for all documentation.
+- **Ownership & status.** Every doc carries a header with `Status` (Draft → Review →
+  Approved → Deprecated → Archived), an owner, and a last-updated date. Keep `STATUS.md`
+  a live snapshot, not a changelog.
+- **Update policy.** Docs and code change in the same PR; on conflict, fix the docs
+  first. Doc changes are reviewed like code.
+
+## Definition of Done
+
+A change is done only when: code + tests + `golangci-lint run` pass **and** the relevant
+docs are updated, the feature's `STATUS.md` is bumped, an ADR is added if a decision was
+made, and the Postman collection is synced if routes changed.
+
 ## Commands
 
 ```bash
@@ -59,7 +87,7 @@ rejects any revoked jti. The middleware sets `shared.ContextUserKey` (user.User)
 
 Course content is bundled JSON in `internal/seed/data/` (`courses.json` + `<course>/{en,ru}.json`) — the single source of truth. `cmd/seed [course-slug ...]` loads it into the DB with deterministic UUIDv5 ids (same content → same ids in every env); with no args it seeds every course, with slugs it seeds only those (much faster against a remote DB when just one course changed). Question `audio` is a single S3 object key; MP3s live in S3, not git.
 
-Content read endpoints support version-based client caching (`GET /courses/version` + ETag/304 on `/courses/full`) — see `docs/caching/overview.md`.
+Content read endpoints support version-based client caching (`GET /courses/version` + ETag/304 on `/courses/full`) — see `docs/engineering/caching/README.md`.
 
 Node tooling in `scripts/` (built-in modules only — no `npm install`; reads `.env`):
 - `validate-translations.mjs [course ...]` — check each `<course>/ru.json` against `en.json`.
@@ -104,7 +132,7 @@ DB_SSLMODE   — "disable" locally, "require" on AWS RDS (default: disable)
 
 ## Deployment
 
-Container → ECR → App Runner → RDS PostgreSQL (region us-east-2, AWS profile vyb-dev). goose migrations run on container start. See `docs/deployment/overview.md`. Deploy with `make deploy` after `aws sso login --profile vyb-dev`.
+Container → ECR → App Runner → RDS PostgreSQL (region us-east-2, AWS profile vyb-dev). goose migrations run on container start. See `docs/engineering/deployment/README.md`. Deploy with `make deploy` after `aws sso login --profile vyb-dev`.
 
 ## Dependency direction
 

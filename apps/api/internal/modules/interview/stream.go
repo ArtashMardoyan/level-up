@@ -14,11 +14,11 @@ import (
 // StreamSink receives a streamed interview turn: zero or more prose Deltas, then
 // exactly one terminal Done (the next question, or finished) or Fail. The service
 // depends only on this interface, not the wire format, so a WebSocket sink can
-// implement it later without touching the engine (docs/ai-chat/006).
+// implement it later without touching the engine (docs/product/ai-chat/006).
 //
 // Phase 2 emits no Deltas — the next question is still produced by the blocking
 // Generate and delivered whole in Done. Token-by-token Deltas arrive in Phase 4
-// (docs/ai-chat/008/012).
+// (docs/product/ai-chat/008/012).
 type StreamSink interface {
 	// Delta streams one chunk of user-visible question prose.
 	Delta(text string) error
@@ -26,11 +26,11 @@ type StreamSink interface {
 	// the interview has no more questions (next is nil in that case).
 	Done(next *QuestionView, finished bool) error
 	// Fail is the terminal error event. recoverable tells the client whether a
-	// re-fetch (GET /interviews/:id) can recover the turn (docs/ai-chat/011).
+	// re-fetch (GET /interviews/:id) can recover the turn (docs/product/ai-chat/011).
 	Fail(cause error, recoverable bool) error
 }
 
-// SSE event names (docs/ai-chat/005).
+// SSE event names (docs/product/ai-chat/005).
 const (
 	sseEventDelta = "delta"
 	sseEventDone  = "done"
@@ -68,7 +68,7 @@ func writeSSEEvent(w io.Writer, name string, payload any) error {
 // sseSink writes StreamSink events as SSE frames over a gin response, flushing
 // after each so the client renders them as they arrive. Headers are written
 // lazily on the first event: until then the handler can still return a normal
-// JSON error (pre-stream failures — docs/ai-chat/006/011).
+// JSON error (pre-stream failures — docs/product/ai-chat/006/011).
 type sseSink struct {
 	c       *gin.Context
 	started bool
@@ -90,7 +90,7 @@ func (s *sseSink) start() {
 	h.Set("Cache-Control", "no-cache")
 	h.Set("Connection", "keep-alive")
 	// Ask any intermediary proxy (nginx / App Runner front) not to buffer, so
-	// frames flush promptly (docs/ai-chat/005/013 — verify on the real service).
+	// frames flush promptly (docs/product/ai-chat/005/013 — verify on the real service).
 	h.Set("X-Accel-Buffering", "no")
 
 	s.c.Writer.WriteHeader(http.StatusOK)
@@ -124,9 +124,9 @@ func (s *sseSink) Fail(_ error, recoverable bool) error {
 
 // observedSink decorates a StreamSink to record one turn's streaming metrics —
 // time-to-first-token, delta count, total duration, and terminal outcome — logged
-// as a single structured line when the turn ends (docs/ai-chat/011). These are the
+// as a single structured line when the turn ends (docs/product/ai-chat/011). These are the
 // signals that tell us whether streaming is healthy in prod (e.g. TTFT under App
-// Runner, and how often turns degrade vs. stream cleanly — docs/ai-chat/013 B1).
+// Runner, and how often turns degrade vs. stream cleanly — docs/product/ai-chat/013 B1).
 type observedSink struct {
 	inner   StreamSink
 	label   string

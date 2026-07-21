@@ -34,7 +34,7 @@ type BadgeAwarder interface {
 	AwardInterviewComplete(ctx context.Context, userID string, score, total int) ([]string, error)
 }
 
-// Service is the interview engine (docs/interview/004). The AI client may be nil
+// Service is the interview engine (docs/product/interview/004). The AI client may be nil
 // (no OpenAI key) — evaluation then degrades to a failed placeholder, and question
 // generation degrades to the raw bank text.
 type Service struct {
@@ -49,7 +49,7 @@ func NewService(repo Repository, content ContentReader, ai AI, badges BadgeAward
 }
 
 // Start creates a session, snapshots the chosen questions, and returns the first
-// question (docs/interview/004).
+// question (docs/product/interview/004).
 func (s *Service) Start(ctx context.Context, userID, userName string, req CreateInterviewRequest) (SessionView, error) {
 	if _, active, err := s.repo.FindActiveByUser(ctx, userID); err != nil {
 		return SessionView{}, err
@@ -99,7 +99,7 @@ func (s *Service) Start(ctx context.Context, userID, userName string, req Create
 }
 
 // Get rebuilds the resume payload: the answered turns plus the current question
-// (docs/interview/012).
+// (docs/product/interview/012).
 func (s *Service) Get(ctx context.Context, userID, id string) (SessionView, error) {
 	session, err := s.load(ctx, userID, id)
 	if err != nil {
@@ -138,7 +138,7 @@ func (s *Service) Get(ctx context.Context, userID, id string) (SessionView, erro
 }
 
 // SubmitAnswer saves one answer, evaluates it (unless skipped), and returns the
-// evaluation plus the next question (docs/interview/004).
+// evaluation plus the next question (docs/product/interview/004).
 func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID string, req SubmitAnswerRequest) (SubmitAnswerResponse, error) {
 	session, err := s.load(ctx, userID, id)
 	if err != nil {
@@ -191,7 +191,7 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 	return resp, nil
 }
 
-// SubmitAnswerStream is the streaming sibling of SubmitAnswer (docs/ai-chat/006/010).
+// SubmitAnswerStream is the streaming sibling of SubmitAnswer (docs/product/ai-chat/006/010).
 // Same checks and same persisted rows, but the next question is delivered over a
 // StreamSink and answer evaluation is moved off the critical path:
 //
@@ -252,7 +252,7 @@ func (s *Service) SubmitAnswerStream(ctx context.Context, userID, id, questionID
 	finished := session.CurrentIndex >= len(session.QuestionIDs)
 
 	// Observe the stream from here on (all sink use flows through the wrapper), so
-	// one structured line records TTFT / delta count / outcome per turn (docs/ai-chat/011).
+	// one structured line records TTFT / delta count / outcome per turn (docs/product/ai-chat/011).
 	sink = newObservedSink(sink, fmt.Sprintf("session=%s idx=%d", session.ID, session.CurrentIndex))
 
 	if finished {
@@ -287,7 +287,7 @@ func (s *Service) SubmitAnswerStream(ctx context.Context, userID, id, questionID
 
 	// PrevScore is -1: the real score is still being computed in the background, and
 	// -1 tells the generator to omit the tone-calibration signal rather than imply a
-	// 0 (a failed answer) — docs/ai-chat/008/010.
+	// 0 (a failed answer) — docs/product/ai-chat/008/010.
 	prev := &prevTurn{Question: asked.Question, Answer: req.Answer, Skipped: req.Skipped, Score: -1}
 	nv, err := s.ensureGeneratedStream(ctx, &session, session.CurrentIndex, &nq, prev, sink)
 	if err != nil {
@@ -303,7 +303,7 @@ func (s *Service) SubmitAnswerStream(ctx context.Context, userID, id, questionID
 }
 
 // preliminaryResult is the answer persisted at submit time, before the AI score is
-// known (docs/ai-chat/010). A skip/empty answer is fully resolved here (no AI).
+// known (docs/product/ai-chat/010). A skip/empty answer is fully resolved here (no AI).
 // A real answer is stored in the existing "failed" degrade state so that IF the
 // background evaluation never lands (e.g. process restart) the answer still counts
 // and reads sensibly; the background eval upserts the real score over it.
@@ -332,7 +332,7 @@ func preliminaryResult(session *Session, questionID string, req SubmitAnswerRequ
 // evaluateInBackground grades one answer off the request's critical path. It runs
 // on a detached context (context.Background, bounded by the AI client's own
 // per-call timeout) so grading completes even if the client disconnects mid-turn —
-// the score is needed for the Results screen regardless (docs/ai-chat/010). It
+// the score is needed for the Results screen regardless (docs/product/ai-chat/010). It
 // snapshots the session so the goroutine never races the caller's later mutations
 // of it. Best-effort: a failure leaves the preliminary degraded row in place.
 func (s *Service) evaluateInBackground(session *Session, topic, question, ideal, questionID string, req SubmitAnswerRequest) {
@@ -352,7 +352,7 @@ func (s *Service) evaluateInBackground(session *Session, topic, question, ideal,
 
 // evaluateAnswer builds a QuestionResult, calling the AI unless the answer is
 // skipped. A nil evaluator or an AI failure degrades to a failed placeholder
-// (docs/interview/006).
+// (docs/product/interview/006).
 func (s *Service) evaluateAnswer(ctx context.Context, session *Session, topic, question, ideal, questionID string, req SubmitAnswerRequest) QuestionResult {
 	result := QuestionResult{
 		InterviewID: session.ID,
@@ -452,7 +452,7 @@ func (s *Service) Complete(ctx context.Context, userID, id string) (ReportView, 
 	return ReportView{Report: report, Session: session, Review: review, NewBadges: newBadges}, nil
 }
 
-// Report returns a completed interview's report + review (docs/interview/011).
+// Report returns a completed interview's report + review (docs/product/interview/011).
 func (s *Service) Report(ctx context.Context, userID, id string) (ReportView, error) {
 	session, err := s.load(ctx, userID, id)
 	if err != nil {
@@ -477,7 +477,7 @@ func (s *Service) Report(ctx context.Context, userID, id string) (ReportView, er
 	return ReportView{Report: report, Session: session, Review: review}, nil
 }
 
-// List returns the caller's interview history (docs/interview/011).
+// List returns the caller's interview history (docs/product/interview/011).
 func (s *Service) List(ctx context.Context, userID string, q shared.PaginationQuery) (shared.PaginatedResult[Session], error) {
 	q.Normalize()
 
@@ -513,7 +513,7 @@ func (s *Service) Summary(ctx context.Context, userID string) (SummaryView, erro
 
 // Transcribe converts a recorded voice answer to text, so the candidate can
 // review/edit it in the composer before submitting like any typed answer
-// (docs/interview/005). The transcript never touches grading directly — it's
+// (docs/product/interview/005). The transcript never touches grading directly — it's
 // just text that lands in the same SubmitAnswerRequest.Answer field either way.
 func (s *Service) Transcribe(ctx context.Context, audio io.Reader, filename, language string) (string, error) {
 	if s.ai == nil {
@@ -584,7 +584,7 @@ type prevTurn struct {
 // caching on the session) its AI paraphrase the first time this slot is shown.
 // Already-cached slots are a pure read, so calling this again for the current
 // question (e.g. on submit) never re-triggers the AI. A nil AI client or a failed
-// generation degrades to the bank's raw text (docs/interview/004) — same policy
+// generation degrades to the bank's raw text (docs/product/interview/004) — same policy
 // as answer evaluation.
 func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int, q *course.Question, prev *prevTurn, userName string) (QuestionView, error) {
 	if idx < len(session.Generated) {
@@ -612,7 +612,7 @@ func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int
 // sink as the model writes it, then caches and returns the canonical view. An
 // already-cached slot returns without streaming (the caller's done frame carries
 // it). A nil AI client or a generation failure degrades to the bank text and caches
-// it exactly like ensureGenerated (docs/ai-chat/008/011); when a failure happens
+// it exactly like ensureGenerated (docs/product/ai-chat/008/011); when a failure happens
 // mid-stream the client's partial bubble is reconciled by the caller's done frame.
 // Only used mid-interview, so prev is never nil (no greeting branch).
 func (s *Service) ensureGeneratedStream(ctx context.Context, session *Session, idx int, q *course.Question, prev *prevTurn, sink StreamSink) (QuestionView, error) {
@@ -633,7 +633,7 @@ func (s *Service) ensureGeneratedStream(ctx context.Context, session *Session, i
 			// Client disconnected / cancelled mid-generation — expected, not a fault.
 			log.Printf("interview: stream generation cancelled (session %s idx %d): %v", session.ID, idx, ctx.Err())
 		default:
-			// Real generation failure — degrade to the raw bank text (docs/ai-chat/011).
+			// Real generation failure — degrade to the raw bank text (docs/product/ai-chat/011).
 			log.Printf("interview: stream generation degraded to bank text (session %s idx %d): %v", session.ID, idx, err)
 		}
 	}
@@ -668,7 +668,7 @@ func buildGenInput(session *Session, q *course.Question, prev *prevTurn) *GenInp
 // resolveReaction picks the reaction actually shown, overriding the model for the
 // two cases it isn't trusted on: the opening question (deterministic greeting) and a
 // skipped previous answer (deterministic, judgment-free transition). Otherwise the
-// model's reaction is used (docs/interview/004).
+// model's reaction is used (docs/product/interview/004).
 func resolveReaction(modelReaction string, prev *prevTurn, userName, lang string) string {
 	switch {
 	case prev == nil:

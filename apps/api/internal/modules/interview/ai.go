@@ -13,11 +13,11 @@ import (
 	"github.com/openai/openai-go/shared"
 )
 
-// SchemaVersion is the AI response schema version (docs/interview/006). Bump it
+// SchemaVersion is the AI response schema version (docs/product/interview/006). Bump it
 // alongside the prompt when the contract changes.
 const SchemaVersion = "2.0"
 
-// EvalInput is everything the AI needs to score one answer (docs/interview/005).
+// EvalInput is everything the AI needs to score one answer (docs/product/interview/005).
 type EvalInput struct {
 	CourseTitle string
 	Difficulty  string
@@ -27,7 +27,7 @@ type EvalInput struct {
 	IdealAnswer string
 }
 
-// EvalResult is the validated AI evaluation of one answer (docs/interview/006).
+// EvalResult is the validated AI evaluation of one answer (docs/product/interview/006).
 type EvalResult struct {
 	Version       string   `json:"version"`
 	Score         int      `json:"score"`
@@ -42,7 +42,7 @@ type EvalResult struct {
 }
 
 // Evaluator scores a single interview answer. Implemented by the OpenAI client;
-// the service degrades gracefully when it returns an error (docs/interview/006).
+// the service degrades gracefully when it returns an error (docs/product/interview/006).
 type Evaluator interface {
 	Evaluate(ctx context.Context, in *EvalInput) (EvalResult, error)
 }
@@ -70,7 +70,7 @@ type GenInput struct {
 // optional natural-language Reaction to the previous answer (empty when there
 // was no previous turn). Reaction never states a score — it's chat flavor, kept
 // separate from Question so grading and the Review screen stay anchored to the
-// clean question text (docs/interview/011).
+// clean question text (docs/product/interview/011).
 type GenResult struct {
 	Reaction    string `json:"reaction"`
 	Question    string `json:"question"`
@@ -79,20 +79,20 @@ type GenResult struct {
 
 // Generator writes one natural interview question (no bank numbering/labels) from
 // a reference bank entry. The service degrades to the raw bank text when this
-// returns an error or is nil (docs/interview/004).
+// returns an error or is nil (docs/product/interview/004).
 type Generator interface {
 	Generate(ctx context.Context, in *GenInput) (GenResult, error)
-	// GenerateStream is the streaming counterpart to Generate (docs/ai-chat/008).
+	// GenerateStream is the streaming counterpart to Generate (docs/product/ai-chat/008).
 	// It streams the user-visible prose (reaction, then question) via onVisible as
 	// the model produces it, and returns the fully-assembled GenResult when done.
 	// The model answer is never streamed (it isn't shown live — it backs the
 	// Sample-answer button and anchors grading). Same one-retry + degrade policy as
 	// Generate, except a failure is not retried once any visible token has been
-	// emitted (docs/ai-chat/008/011).
+	// emitted (docs/product/ai-chat/008/011).
 	GenerateStream(ctx context.Context, in *GenInput, onVisible func(string)) (GenResult, error)
 }
 
-// Transcriber converts a recorded answer into text (docs/interview/005). Backed
+// Transcriber converts a recorded answer into text (docs/product/interview/005). Backed
 // by Whisper — a fixed model, independent of the chat model (OPENAI_MODEL).
 // language is the session language (ISO-639-1: en/ru/hy) so Whisper transcribes
 // in the spoken language instead of guessing (a short Russian clip otherwise
@@ -164,7 +164,7 @@ func (e *openAIClient) Evaluate(ctx context.Context, in *EvalInput) (EvalResult,
 		},
 	}
 
-	// One call + one retry on transport or validation failure (docs/interview/006).
+	// One call + one retry on transport or validation failure (docs/product/interview/006).
 	var lastErr error
 	for attempt := 0; attempt < 2; attempt++ {
 		res, err := e.client.Chat.Completions.New(ctx, params)
@@ -218,7 +218,7 @@ func parseEval(content string) (EvalResult, error) {
 
 // questionGuidance is the shared interviewer instruction for both the blocking
 // (JSON) and streaming (sentinel) generation prompts, so the two paths stay in
-// sync — only the output-format instruction appended below differs (docs/ai-chat/008).
+// sync — only the output-format instruction appended below differs (docs/product/ai-chat/008).
 const questionGuidance = `You are a real, professional technical interviewer conducting a live mock interview.
 You are given one topic from the interview's internal question bank: a module name, a reference
 question, and its reference answer. Do NOT quote the reference question verbatim and NEVER include
@@ -255,7 +255,7 @@ Respond with a SINGLE JSON object and nothing else, matching exactly:
 {"reaction":"<string, can be empty>","question":"<string>","modelAnswer":"<string>"}`
 
 // Sentinel markers delimiting the three sections of the streaming generation
-// response (docs/ai-chat/008). Chosen to be extremely unlikely in natural prose;
+// response (docs/product/ai-chat/008). Chosen to be extremely unlikely in natural prose;
 // the prompt forbids their use anywhere but as the section separators.
 const (
 	genSepQuestion = "###QUESTION###"
@@ -265,7 +265,7 @@ const (
 // questionStreamSystemPrompt is the streaming generation prompt: the same guidance
 // as the blocking path, but a plain-text, sentinel-delimited output contract so the
 // user-visible prose (reaction + question) can be streamed token-by-token while the
-// model answer is parsed off the tail (docs/ai-chat/008).
+// model answer is parsed off the tail (docs/product/ai-chat/008).
 const questionStreamSystemPrompt = questionGuidance + `
 
 Respond with EXACTLY three sections, in this order, each separated by a line containing only the
@@ -333,12 +333,12 @@ func parseGen(content string) (GenResult, error) {
 	return r, nil
 }
 
-// GenerateStream streams the sentinel-delimited generation response (docs/ai-chat/008),
+// GenerateStream streams the sentinel-delimited generation response (docs/product/ai-chat/008),
 // forwarding the visible prose (reaction + question) to onVisible as it arrives and
 // parsing the three sections when complete. Retries once only if the stream fails
 // before any visible token was emitted; after that a failure is returned (a partial
 // bubble can't be un-shown — the service degrades to the bank text and the client
-// reconciles on done, docs/ai-chat/011).
+// reconciles on done, docs/product/ai-chat/011).
 func (e *openAIClient) GenerateStream(ctx context.Context, in *GenInput, onVisible func(string)) (GenResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, e.timeout)
 	defer cancel()
@@ -443,7 +443,7 @@ func parseGenStream(content string) (GenResult, error) {
 // genVisible returns the user-visible prose (reaction + question) that is safe to
 // have shown given the raw sentinel-delimited text accumulated so far. It is a
 // monotonically growing prefix: the caller emits only the part beyond what it has
-// already sent (docs/ai-chat/008/010).
+// already sent (docs/product/ai-chat/008/010).
 //
 // The reaction is withheld until the question separator is seen (so no partial
 // separator ever reaches the client and the reaction never needs re-trimming). The
@@ -565,7 +565,7 @@ func prevTurnPrompt(in *GenInput) string {
 	// A negative PrevScore means "not scored yet" — the streaming path grades the
 	// answer in the background, so the score isn't available when the next question
 	// is generated. Omit the calibration signal rather than imply a 0, which would
-	// read as a failed answer (docs/ai-chat/008/010). The blocking path always passes
+	// read as a failed answer (docs/product/ai-chat/008/010). The blocking path always passes
 	// a real 0–100 score and keeps the signal.
 	if in.PrevScore < 0 {
 		return fmt.Sprintf(

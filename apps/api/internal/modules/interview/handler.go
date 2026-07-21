@@ -91,7 +91,7 @@ func (h *Handler) SubmitAnswer(c *gin.Context) {
 	shared.OK(c, resp)
 }
 
-// SubmitAnswerStream is the SSE variant of SubmitAnswer (docs/ai-chat/006). The
+// SubmitAnswerStream is the SSE variant of SubmitAnswer (docs/product/ai-chat/006). The
 // service returns a non-nil error only for pre-stream failures (checks + the
 // synchronous answer/index writes), where the sink is still untouched and a normal
 // JSON error is valid; once streaming has begun it emits an SSE error frame and

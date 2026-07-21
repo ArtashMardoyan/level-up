@@ -12,7 +12,7 @@ import (
 	"level-up-backend/internal/shared"
 )
 
-// Status is the lifecycle of an interview session (docs/interview/004).
+// Status is the lifecycle of an interview session (docs/product/interview/004).
 type Status string
 
 const (
@@ -75,7 +75,7 @@ func (l *StringList) Scan(src any) error {
 
 // GeneratedQuestion is one AI-paraphrased question + its matching model answer,
 // cached the first time it's generated so resume/review always show the exact
-// text the candidate was asked (docs/interview/004/005). Reaction is the natural,
+// text the candidate was asked (docs/product/interview/004/005). Reaction is the natural,
 // score-free bridge from the previous answer into this question — empty for the
 // interview's first question.
 type GeneratedQuestion struct {
@@ -150,7 +150,7 @@ func (s *Session) BeforeCreate(_ *gorm.DB) error {
 	return nil
 }
 
-// QuestionResult is one evaluated answer (docs/interview/006/010). Scores are
+// QuestionResult is one evaluated answer (docs/product/interview/006/010). Scores are
 // integers in 0–100. Feedback is shown as the AI's chat reply.
 type QuestionResult struct {
 	shared.Base
@@ -182,7 +182,7 @@ func (r *QuestionResult) BeforeCreate(_ *gorm.DB) error {
 	return nil
 }
 
-// FinalReport is the 1:1 aggregation built at completion (docs/interview/010).
+// FinalReport is the 1:1 aggregation built at completion (docs/product/interview/010).
 type FinalReport struct {
 	shared.Base
 	ID              string     `json:"id"              gorm:"primaryKey"`

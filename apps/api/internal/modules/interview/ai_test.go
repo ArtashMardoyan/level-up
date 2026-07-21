@@ -72,7 +72,7 @@ func TestParseGenStream(t *testing.T) {
 // TestGenVisibleStreaming feeds raw generation text one byte at a time — the worst
 // case for sentinel boundaries split across chunks — and asserts the emitted deltas
 // (a) only ever grow the visible prefix (never emit a partial separator or retract),
-// and (b) sum to exactly the final reaction + question prose (docs/ai-chat/008).
+// and (b) sum to exactly the final reaction + question prose (docs/product/ai-chat/008).
 func TestGenVisibleStreaming(t *testing.T) {
 	tests := []struct {
 		name string

@@ -2,7 +2,7 @@ package interview
 
 import "time"
 
-// CreateInterviewRequest starts a session (docs/interview/004/013). Course is
+// CreateInterviewRequest starts a session (docs/product/interview/004/013). Course is
 // referenced by slug (stable, human-readable) — the content bank keys on it.
 type CreateInterviewRequest struct {
 	CourseSlug    string `json:"courseSlug"    binding:"required"`
@@ -12,7 +12,7 @@ type CreateInterviewRequest struct {
 }
 
 // SubmitAnswerRequest saves + evaluates one answer. A skipped answer scores 0
-// and skips the AI call (docs/interview/004).
+// and skips the AI call (docs/product/interview/004).
 type SubmitAnswerRequest struct {
 	Answer  string `json:"answer"`
 	Skipped bool   `json:"skipped"`
@@ -20,7 +20,7 @@ type SubmitAnswerRequest struct {
 
 // QuestionView is a single question as the chat needs it, in the session
 // language. ModelAnswer backs both the Review "Model answer" and the composer's
-// "Sample answer" (docs/interview/011). Reaction is the natural, score-free
+// "Sample answer" (docs/product/interview/011). Reaction is the natural, score-free
 // bridge from the previous answer (empty for the first question) — the chat
 // folds it into the same bubble as Question; Review/grading use Question alone.
 type QuestionView struct {
@@ -33,7 +33,7 @@ type QuestionView struct {
 }
 
 // ChatTurn is one answered question with its evaluation, for rebuilding the chat
-// on resume (docs/interview/012).
+// on resume (docs/product/interview/012).
 type ChatTurn struct {
 	Question QuestionView   `json:"question"`
 	Result   QuestionResult `json:"result"`
@@ -55,7 +55,7 @@ type SubmitAnswerResponse struct {
 	Finished bool           `json:"finished"`
 }
 
-// ReviewItem is one per-question card on the Review screen (docs/interview/011).
+// ReviewItem is one per-question card on the Review screen (docs/product/interview/011).
 type ReviewItem struct {
 	QuestionID  string     `json:"questionId"`
 	Index       int        `json:"index"`
@@ -68,7 +68,7 @@ type ReviewItem struct {
 	Weaknesses  StringList `json:"weaknesses"`
 }
 
-// ReportView is the Results + Review payload (docs/interview/011).
+// ReportView is the Results + Review payload (docs/product/interview/011).
 type ReportView struct {
 	Report  FinalReport  `json:"report"`
 	Session Session      `json:"session"`
@@ -99,7 +99,7 @@ type TranscribeResponse struct {
 }
 
 // SummaryView aggregates a user's completed interviews for the profile page
-// (docs/interview/011 "Interview performance"): total count, average and best
+// (docs/product/interview/011 "Interview performance"): total count, average and best
 // score, and the latest session. Zero values (no completed interviews yet) are
 // valid — LastSession is nil in that case.
 type SummaryView struct {
