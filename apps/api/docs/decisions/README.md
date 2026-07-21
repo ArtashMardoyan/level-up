@@ -25,3 +25,4 @@ is answered.
 | [0002](0002-english-canonical-docs.md) | English is the canonical documentation language | Accepted |
 | [0003](0003-sse-for-text-streaming.md) | SSE for text streaming; WebSocket reserved for voice | Accepted |
 | [0004](0004-sentinel-format-streamed-generation.md) | Sentinel-delimited format for streamed AI generation | Accepted |
+| [0005](0005-documentation-portal-platform.md) | Documentation portal platform (MkDocs Material) | Proposed |
