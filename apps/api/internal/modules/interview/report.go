@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// aggregate rolls per-answer results into a FinalReport (docs/interview/004/009).
+// aggregate rolls per-answer results into a FinalReport (docs/product/interview/004/009).
 // No AI. Scores average over the session's question count (unanswered → 0).
 func aggregate(session *Session, results []QuestionResult) FinalReport {
 	var sumScore, sumCorrect, sumDepth, sumComm, sumStruct int
@@ -125,7 +125,7 @@ func collectBullets(results []QuestionResult, pick func(*QuestionResult) []strin
 	return out
 }
 
-// recommendations produces the ranked "next steps" strings (docs/interview/009,
+// recommendations produces the ranked "next steps" strings (docs/product/interview/009,
 // MVP: derived text, no separate table). Weakest area first.
 func recommendations(session *Session, results []QuestionResult) StringList {
 	weakest := sortedByScore(results, false)
@@ -158,7 +158,7 @@ func recText(lang, kind string) string {
 }
 
 // degraded marks a result as a failed evaluation that still lets the chat
-// continue (docs/interview/006).
+// continue (docs/product/interview/006).
 func degraded(base *QuestionResult, lang string) QuestionResult {
 	base.EvalStatus = EvalFailed
 	base.Feedback = failedFeedback(lang)
@@ -184,7 +184,7 @@ func skippedFeedback(lang string) string {
 
 // skippedReaction is the deterministic chat transition after a skipped answer —
 // used instead of the AI's own reaction, which isn't reliable about honoring a
-// skip (docs/interview/004).
+// skip (docs/product/interview/004).
 func skippedReaction(lang string) string {
 	if lang == LangRU {
 		return "Хорошо, пропустим этот. Дальше:"

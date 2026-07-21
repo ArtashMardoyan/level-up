@@ -1,0 +1,12 @@
+# Standards
+
+> **Status:** Approved · **Owner:** Backend Team Lead · **Last updated:** 2026-07-21
+
+How we write documentation.
+
+- [`naming-conventions.md`](naming-conventions.md) — files, folders, headers, language,
+  and formatting rules.
+- [`templates/`](templates/) — copy-to-start templates:
+  [`feature-README`](templates/feature-README.md) · [`STATUS`](templates/STATUS.md) ·
+  [`prd`](templates/prd.md) · [`technical-design`](templates/technical-design.md) ·
+  [`roadmap`](templates/roadmap.md) · [`adr`](templates/adr.md) · [`ux-spec`](templates/ux-spec.md)

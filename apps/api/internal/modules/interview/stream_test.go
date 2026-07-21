@@ -89,7 +89,7 @@ func TestSubmitAnswerStreamMidInterview(t *testing.T) {
 	}
 
 	// The next question streams as visible-prose deltas, then a Done carrying the
-	// canonical turn (docs/ai-chat/010).
+	// canonical turn (docs/product/ai-chat/010).
 	if len(sink.deltas) == 0 {
 		t.Errorf("streaming path must emit visible deltas for the next question")
 	}

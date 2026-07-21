@@ -48,8 +48,8 @@ type ServerConfig struct {
 }
 
 // OpenAIConfig holds the settings for server-side AI answer evaluation
-// (docs/interview/005). APIKey is optional at boot: if it is empty the interview
-// module still starts but evaluation degrades per docs/interview/006.
+// (docs/product/interview/005). APIKey is optional at boot: if it is empty the interview
+// module still starts but evaluation degrades per docs/product/interview/006.
 type OpenAIConfig struct {
 	APIKey  string
 	Model   string
