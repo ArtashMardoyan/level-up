@@ -6,6 +6,17 @@
 
 _Last updated: 2026-07-21._
 
+## TL;DR — streaming is LIVE (default on)
+
+Phases 1–5 are shipped and **deployed to production**, and the **App Runner SSE gate
+(013-B1) passed**: on 2026-07-21 the streaming endpoint was deployed to App Runner and a
+real interview turn was streamed through its Envoy proxy — tokens arrived incrementally
+(first token ~2 s, question tokens streaming over the next ~0.5 s, `done` ~4 s later), i.e.
+**no proxy buffering**. Streaming is therefore **enabled by default** for all users
+(`STREAMING_CHAT` default on; kill-switch: `VITE_STREAMING_CHAT=false` or
+`localStorage.streamingChat='0'`). The blocking endpoint remains as the automatic fallback.
+Phases 6–8 (voice/realtime) are not started.
+
 ## Where we are
 
 - **Phase 1 (Architecture Documentation) — DONE (this package).** The existing AI Chat is fully
@@ -35,9 +46,10 @@ _Last updated: 2026-07-21._
   where longer streamed content appears.
 - **Phases 6–8 — NOT STARTED** (Voice Recording → Realtime Voice → Realtime AI Interview, `012`).
 
-> **Nothing is deployed.** Backend Phases 2/4/5 are uncommitted in the working tree; frontend
-> Phases 3/5 are on `feature/streaming-chat`. Streaming ships **off by default** — enable per-env
-> (`VITE_STREAMING_CHAT=true`) or per-browser (`localStorage.streamingChat='1'`).
+> **Deployed & live (2026-07-21).** All phases merged to `master` in both repos and pushed;
+> the backend streaming image is deployed to App Runner; the frontend flag defaults **on**.
+> The App Runner SSE gate passed (see TL;DR). Kill-switch: `VITE_STREAMING_CHAT=false` or
+> `localStorage.streamingChat='0'` forces the blocking path without a rebuild.
 
 ## State of the underlying chat (what we're migrating)
 
