@@ -34,6 +34,10 @@ on how docs are organized is [`docs/process/DOCUMENTATION_ARCHITECTURE.md`](docs
   a live snapshot, not a changelog.
 - **Update policy.** Docs and code change in the same PR; on conflict, fix the docs
   first. Doc changes are reviewed like code.
+- **Source of truth.** Markdown in this repo is the single source of truth. Artifacts —
+  Claude Artifacts, generated HTML/PDF, the published docs website — are temporary review
+  copies or build outputs, never authoritative. Lifecycle: **Artifact → Review → Approved
+  → Markdown → Git → Docs website.**
 
 ## Definition of Done
 

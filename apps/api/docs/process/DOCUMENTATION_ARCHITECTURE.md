@@ -83,6 +83,12 @@ accuracy, and it rots. Orphaned documents are an anti-pattern (§12).
 A reader must know how much to trust a document at a glance: `Draft` → `Review` →
 `Approved` → `Deprecated` → `Archived` (§8).
 
+**P9 — The repository is the source of truth; artifacts are temporary.**
+Markdown in this repository is authoritative. Artifacts — Claude Artifacts, generated
+HTML/PDF, the future docs website — are review copies or build outputs, **never** the
+source, and are never edited as the master. The document lifecycle is:
+**Artifact → Review → Approved → Markdown → Git → Docs website.**
+
 ---
 
 ## 4. Information architecture

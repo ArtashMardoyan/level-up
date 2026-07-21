@@ -23,6 +23,15 @@ structure is in [`../process/DOCUMENTATION_ARCHITECTURE.md`](../process/DOCUMENT
   English, so any contributor can read any document. Team chat may be Russian or
   Armenian; the written record is English.
 
+## Source of truth
+
+- **Markdown in this repository is the single source of truth.** Artifacts — Claude
+  Artifacts, generated HTML/PDF, the published docs website — are temporary review copies
+  or build outputs. They are **never** authoritative and are never edited as the master.
+- **Document lifecycle:** `Artifact → Review → Approved → Markdown → Git → Docs website`.
+  A draft may be shaped in an artifact for review, but it becomes real only once it lands
+  as Markdown in Git.
+
 ## Every document header
 
 The first lines of every document, so a reader knows its trust level and who owns it:
