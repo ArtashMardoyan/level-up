@@ -207,9 +207,14 @@ _Last updated: 2026-07-20._
   - **Verified live on prod:** a >1 MB upload now reaches Whisper (500 on garbage)
     instead of the old 400 size-gate; real Russian speech (macOS `say -v Milena`)
     with `language=ru` transcribed exactly as spoken ("Привет! Как дела? …"), and
-    English with `language=en` likewise; the deployed Pages bundle contains the
-    recording-indicator code. Recording UI + mic in a real interview is left for a
-    human to click through. Throwaway account removed via `DELETE /users`.
+    English with `language=en` likewise. **The recording UI was driven end-to-end
+    through a real headless Chrome with a fake mic** (`puppeteer-core` + system
+    Chrome, `--use-file-for-fake-audio-capture=<ru.wav>`): the indicator renders
+    (pulsing dot + `0:01` timer + live waveform + "Stop recording"), and after stop
+    the transcript lands in the composer in **Russian** (Cyrillic — proving the
+    language hint; the exact text was a Whisper-on-near-silence hallucination
+    because the fake-audio clip didn't fully align with the capture window, not a
+    bug). Screenshots captured. Throwaway account removed via `DELETE /users`.
 
 ## TL;DR — it's SHIPPED and live on prod
 
