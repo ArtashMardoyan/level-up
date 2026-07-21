@@ -64,3 +64,4 @@ validation:
 hooks:
   - mkdocs/hooks/visibility_filter.py
   - mkdocs/hooks/readme_index.py
+  - mkdocs/hooks/neutralize_cross_tier_links.py

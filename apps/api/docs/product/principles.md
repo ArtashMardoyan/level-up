@@ -7,7 +7,7 @@ reviewers:
   - "Mobile"
   - "Design"
 last_updated: "2026-07-21"
-visibility: "internal"
+visibility: "public"
 ---
 
 # Product Principles
