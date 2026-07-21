@@ -338,6 +338,7 @@ export const ru = {
   interviewErrorTitle: 'Что-то пошло не так',
   interviewSeeResults: 'Смотреть результаты',
   interviewNextSteps: 'Рекомендованные шаги',
+  interviewReconnecting: 'Переподключаемся…',
   interviewContinue: 'Продолжить · {track}',
   interviewBreakdown: 'Разбор по критериям',
   interviewFocusAreas: 'Над чем поработать',

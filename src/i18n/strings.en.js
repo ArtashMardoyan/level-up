@@ -351,6 +351,7 @@ export const en = {
   interviewBackResults: 'Back to results',
   interviewReviewTitle: 'Question review',
   interviewTranscribing: 'Transcribing…',
+  interviewReconnecting: 'Reconnecting…',
   interviewHowStep1: '1 · Pick a track',
   interviewStepLanguage: '4 · Language',
   interviewResultsTitle: 'Your results',
