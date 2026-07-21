@@ -18,3 +18,9 @@ How we build and ship — and how documentation itself works.
 - [`documentation-portal-implementation-plan.md`](documentation-portal-implementation-plan.md) —
   the implementation design for the portal on MkDocs Material (M4 plan). Design only;
   implementation begins after this plan is approved.
+- [`documentation-portal-hosting.md`](documentation-portal-hosting.md) — how the portal
+  is built and published (M4 · P4): the live CI build/validate pipeline and the guarded,
+  yet-to-be-provisioned deployment for the public and gated-internal sites.
+- [`documentation-visibility-classification.md`](documentation-visibility-classification.md) —
+  **proposal (Review):** which docs are public / internal / private, with rationale.
+  Awaiting approval; nothing is public until then.

@@ -13,6 +13,7 @@ audio/
 
 # Documentation portal — build output + local docs virtualenv (MkDocs Material).
 site/
+site-full/
 site-public/
 site-internal/
 .venv-docs/
