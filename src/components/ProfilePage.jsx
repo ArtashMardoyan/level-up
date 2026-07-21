@@ -82,7 +82,7 @@ export default function ProfilePage({ onNavigate, courses }) {
     }
   }, [user])
 
-  const backHome = () => onNavigate(null)
+  const backHome = () => onNavigate('interview')
 
   if (!user) {
     return (

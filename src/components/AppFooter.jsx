@@ -24,7 +24,7 @@ export default function AppFooter({ onNavigate }) {
   const columns = [
     {
       links: [
-        { labelKey: 'footerLinkAllCourses', onClick: () => onNavigate(null) },
+        { onClick: () => onNavigate('interview'), labelKey: 'footerLinkAllCourses' },
         { onClick: () => onNavigate('dictionary'), labelKey: 'footerLinkDictionary' },
         { onClick: () => onNavigate('dictionary', 'todaysChallenge'), labelKey: 'footerLinkDaily' },
         { labelKey: 'footerLinkSaved' }
