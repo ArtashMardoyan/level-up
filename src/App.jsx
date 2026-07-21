@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import SiteRouter from './site/SiteRouter'
 import { useTheme } from './hooks/useTheme'
 import PrepView from './components/PrepView'
 import { useSpeech } from './hooks/useSpeech'
@@ -8,7 +9,9 @@ import AppFooter from './components/AppFooter'
 import { useCourses } from './hooks/useCourses'
 import AuthDialog from './components/AuthDialog'
 import { AuthContext } from './auth/AuthContext'
+import { marketingPageFor } from './site/router'
 import ProfilePage from './components/ProfilePage'
+import { MARKETING_SITE } from './config/features'
 import { progressBulk } from './services/endpoints'
 import { useHashRoute } from './hooks/useHashRoute'
 import ActivityPage from './components/ActivityPage'
@@ -98,6 +101,14 @@ function AppContent() {
   }, [authStatus, user, status])
 
   const [authOpen, setAuthOpen] = useState(false)
+
+  // Public marketing website (behind a flag, default off). When on, the reserved
+  // marketing hashes ('' / vision / features / faq) render the site; every other
+  // hash (interview, courses, a course slug, …) falls through to the app below.
+  const marketingPage = MARKETING_SITE ? marketingPageFor(courseId) : null
+  if (marketingPage) {
+    return <SiteRouter toggleTheme={toggleTheme} page={marketingPage} theme={theme} />
+  }
 
   const selectCourse = (id, questionId = null) => navigate(id, questionId)
   const goHome = () => navigate('interview')

@@ -44,7 +44,7 @@ export default function ActivityPage({ onNavigate }) {
     }
   }, [user])
 
-  const backHome = () => onNavigate(null)
+  const backHome = () => onNavigate('interview')
 
   const loadMore = () => {
     const next = page + 1

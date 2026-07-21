@@ -83,8 +83,8 @@ export default function PrepView({ onNavigate, jumpToId, courses, course, voices
           </>
         }
         icon={<CourseIcon courseId={course.id} emoji={course.emoji} />}
+        onBack={() => onNavigate('interview')}
         onSelect={(id) => onNavigate(id)}
-        onBack={() => onNavigate(null)}
         backLabel={t('tabCourses')}
         currentId={course.id}
         title={course.title}

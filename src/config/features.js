@@ -23,3 +23,20 @@ const local = readLocalOverride()
 const env = import.meta.env.VITE_STREAMING_CHAT
 
 export const STREAMING_CHAT = local === '0' || env === 'false' ? false : true
+
+// MARKETING_SITE turns on the public marketing website (Home / Vision / Features /
+// FAQ) as the root experience, with the app reachable at #interview. Default OFF so
+// production behavior is unchanged until we deliberately flip it. Enable at build time
+// with VITE_MARKETING=true, or per-browser with localStorage.setItem('marketingSite','1').
+function readMarketingOverride() {
+  try {
+    return localStorage.getItem('marketingSite') // '1' = force on, '0' = force off, null = default
+  } catch {
+    return null
+  }
+}
+
+const marketingLocal = readMarketingOverride()
+const marketingEnv = import.meta.env.VITE_MARKETING
+
+export const MARKETING_SITE = marketingLocal === '0' ? false : marketingLocal === '1' || marketingEnv === 'true'
