@@ -1,6 +1,6 @@
 # ADR-0005 — Documentation Portal Platform
 
-> **Status:** Proposed · **Date:** 2026-07-21 · **Deciders:** Backend Team Lead, Frontend, Product
+> **Status:** Accepted · **Date:** 2026-07-21 · **Deciders:** Backend Team Lead, Frontend, Product
 
 ## Context
 
@@ -174,8 +174,41 @@ ecosystem over out-of-the-box completeness.
 - **SaaS (GitBook/Mintlify), Sphinx/RTD, Docsify, Nextra** — excluded in §2 for conflicts
   with C1/C10 (source-of-truth, portability) or C4/C8 (search/scale).
 
-## 10. Status & next step
+## 10. Future migration strategy
 
-This ADR is **Proposed**. On approval it becomes **Accepted** and unblocks a separate,
-explicitly-approved implementation phase (build the portal per §8's deferred items).
-Nothing is configured or implemented by this document.
+The platform is chosen to be **replaceable**. The documentation must outlive any tooling
+(principle **P9** — the repository is the source of truth; artifacts are temporary). These
+rules keep the documentation architecture independent of MkDocs Material, or any successor:
+
+1. **Markdown remains the single source of truth.** Content lives as Markdown in this
+   repository. The generated site is a build output — never edited, never authoritative.
+2. **Front matter is platform-neutral.** Document metadata is YAML front matter, a format
+   every candidate (and most future tools) reads. Metadata is never expressed in a
+   tool-proprietary form.
+3. **Structure does not depend on any specific SSG.** The `docs/` tree, file names, and
+   cross-links use plain relative Markdown paths — not generator-specific routing,
+   sidebar-as-code, or path aliases baked into content. A different tool re-reads the same
+   tree unchanged.
+4. **Custom content is minimized.** Content stays within the portable subset — CommonMark,
+   tables, fenced code, fenced ```mermaid, images by relative path. No MDX/JSX or components
+   in content. Tool-specific callout/collapsible syntax is the single permitted coupling —
+   used sparingly, mechanically convertible, and preferably degrading to a plain blockquote
+   when unrendered.
+5. **Platform-specific configuration stays isolated.** All generator configuration (theme,
+   plugins, navigation config, build scripts) lives in a dedicated, clearly-labelled
+   location **separate from `docs/` content** — so swapping tools touches configuration,
+   not documents.
+6. **Replacement is low-cost by construction.** Because rules 1–5 hold, replacing the
+   generator requires **little or no change to the documentation itself**: point a new tool
+   at the same `docs/` tree and front matter, re-implement the isolated configuration, and
+   rebuild. The content does not move.
+
+This is the operational meaning of **C10** and of **P9**: the documentation is permanent;
+the generator is disposable.
+
+## 11. Status & next step
+
+This ADR is **Accepted**: MkDocs Material is the chosen Documentation Portal platform,
+governed by the migration strategy in §10. Acceptance unblocks a **separate,
+explicitly-approved implementation milestone** (build the portal per §8's deferred items).
+**This document configures and implements nothing** — implementation has not begun.
