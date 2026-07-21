@@ -7,3 +7,6 @@ How we build and ship — and how documentation itself works.
 - [`DOCUMENTATION_ARCHITECTURE.md`](DOCUMENTATION_ARCHITECTURE.md) — the authority:
   philosophy, principles, information architecture, ownership, status/versioning,
   the development lifecycle, and the Definition of Done.
+- [`documentation-portal-requirements.md`](documentation-portal-requirements.md) —
+  finalized, technology-agnostic requirements for publishing the docs as a website
+  (M3, requirements phase). Tool selection is deferred.
