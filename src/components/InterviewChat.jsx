@@ -132,7 +132,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   }
 
   // Release the mic + tear down the meter if the component unmounts mid-recording,
-  // and abort any in-flight answer stream (docs/ai-chat/009).
+  // and abort any in-flight answer stream (docs/product/ai-chat/009).
   useEffect(() => {
     return () => {
       recorderRef.current?.stream?.getTracks().forEach((track) => track.stop())
@@ -146,7 +146,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
     if (el) stickRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120
   }
 
-  // Submit routes to the streaming or blocking path by feature flag (docs/ai-chat/012
+  // Submit routes to the streaming or blocking path by feature flag (docs/product/ai-chat/012
   // Phase 3). With the flag off, submitBlocking is the original, unchanged behavior.
   const submit = (skipped) => (STREAMING_CHAT ? submitStreaming(skipped) : submitBlocking(skipped))
 
@@ -181,7 +181,7 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
 
   // Recover a dropped or errored stream by rebuilding the chat from the server —
   // the backend is the source of truth, and the transcript always re-derives from
-  // GET /interviews/:id (docs/ai-chat/009/011). Drops any partial streaming bubble
+  // GET /interviews/:id (docs/product/ai-chat/009/011). Drops any partial streaming bubble
   // and shows a brief "reconnecting" state instead of recovering silently.
   const recoverViaRefetch = (streamId) => {
     if (streamId) setMessages((prev) => prev.filter((m) => m.id !== streamId))
@@ -198,9 +198,9 @@ export default function InterviewChat({ onComplete, sessionId, initial, course }
   }
 
   // Streaming submit (SSE). The next question renders as it arrives — token deltas
-  // in Phase 4, a single done today (docs/ai-chat/010) — into a live bubble that is
+  // in Phase 4, a single done today (docs/product/ai-chat/010) — into a live bubble that is
   // reconciled to the canonical server text on completion. Any error recovers via a
-  // full re-fetch rather than surfacing a hard failure (docs/ai-chat/011).
+  // full re-fetch rather than surfacing a hard failure (docs/product/ai-chat/011).
   const submitStreaming = (skipped) => {
     if (!current || thinking) return
     const text = skipped ? '' : answer.trim()

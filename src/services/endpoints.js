@@ -33,7 +33,7 @@ export const badgesList = () => apiGet('/badges')
 
 // AI Interview Coach (per-user, auth required). A chat interview: start a
 // session, submit each answer (evaluated on submit), then complete to aggregate
-// the final report. See docs/interview in the backend repo.
+// the final report. See docs/product/interview in the backend repo.
 export const interviewGet = (id) => apiGet(`/interviews/${id}`)
 export const interviewReport = (id) => apiGet(`/interviews/${id}/report`)
 export const interviewComplete = (id) => apiPost(`/interviews/${id}/complete`)
@@ -50,7 +50,7 @@ export const interviewTranscribe = (audioBlob, language) => {
 export const interviewSubmitAnswer = (id, questionId, payload) =>
   apiPost(`/interviews/${id}/answers/${questionId}`, payload)
 
-// Streaming (SSE) variant of interviewSubmitAnswer (docs/ai-chat/007). Maps SSE
+// Streaming (SSE) variant of interviewSubmitAnswer (docs/product/ai-chat/007). Maps SSE
 // frames to callbacks: onDelta(text) per token chunk (none in Phase 2 — the next
 // question arrives whole in done), onDone({ next, finished }), onError({ message,
 // recoverable }). Returns the requestStream promise; pass a signal to cancel.
