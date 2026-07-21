@@ -1,4 +1,4 @@
-.PHONY: run build test lint fmt tidy docker-up docker-down deploy
+.PHONY: run build test lint fmt tidy docker-up docker-down deploy docs-serve docs-build
 
 run:            ## start the server (needs a reachable Postgres)
 	go run ./cmd/server
@@ -26,3 +26,9 @@ docker-down:    ## stop and remove local containers
 
 deploy:         ## build, push to ECR, redeploy App Runner
 	./scripts/deploy.sh
+
+docs-serve:     ## live-preview the docs portal (setup: pip install -r requirements-docs.txt)
+	mkdocs serve
+
+docs-build:     ## strict build of the docs portal (mirrors CI)
+	mkdocs build --strict
