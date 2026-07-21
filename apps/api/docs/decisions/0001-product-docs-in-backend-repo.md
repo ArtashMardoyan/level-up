@@ -1,6 +1,12 @@
-# ADR-0001 — Product documentation lives in the backend repository
+---
+status: "Accepted"
+date: "2026-07-21"
+deciders:
+  - "Backend Team Lead"
+  - "Product"
+---
 
-> **Status:** Accepted · **Date:** 2026-07-21 · **Deciders:** Backend Team Lead, Product
+# ADR-0001 — Product documentation lives in the backend repository
 
 ## Context
 

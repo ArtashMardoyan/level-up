@@ -1,6 +1,10 @@
-# Deployment — AWS (App Runner + RDS PostgreSQL)
+---
+status: "Approved"
+owner: "Backend"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Last updated:** 2026-07-21
+# Deployment — AWS (App Runner + RDS PostgreSQL)
 
 Region: **us-east-2** · AWS CLI profile: **vyb-dev**
 

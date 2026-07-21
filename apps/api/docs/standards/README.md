@@ -1,6 +1,10 @@
-# Standards
+---
+status: "Approved"
+owner: "Backend Team Lead"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead · **Last updated:** 2026-07-21
+# Standards
 
 How we write documentation.
 

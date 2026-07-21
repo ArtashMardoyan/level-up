@@ -1,6 +1,10 @@
-# Engineering Documentation
+---
+status: "Approved"
+owner: "Backend"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Last updated:** 2026-07-21
+# Engineering Documentation
 
 *How* the platform is built — per stack and per cross-cutting concern. Audience is
 that stack's engineers; product behavior lives in [`../product/`](../product/).

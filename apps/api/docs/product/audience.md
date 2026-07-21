@@ -1,6 +1,16 @@
+---
+status: "Approved"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+  - "Design"
+last_updated: "2026-07-21"
+---
+
 # Audience
 
-> **Status:** Approved · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile, Design · **Last updated:** 2026-07-21
 > **Derived from: Product Model §3 (Who is it for), §4 (What problems does it solve).**
 
 Who Level Up is for and the problems they bring. Organized from the

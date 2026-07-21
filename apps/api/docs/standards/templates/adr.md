@@ -1,6 +1,11 @@
-# ADR-NNNN — <short decision title>
+---
+status: "Proposed | Accepted | Superseded"
+date: "YYYY-MM-DD"
+deciders:
+  - "<who>"
+---
 
-> **Status:** Proposed | Accepted | Superseded · **Date:** YYYY-MM-DD · **Deciders:** <who>
+# ADR-NNNN — <short decision title>
 
 <!-- Template: one Architecture Decision Record. Answers WHY, not HOW. Immutable once
      Accepted — supersede with a new ADR rather than editing. Delete comments. -->

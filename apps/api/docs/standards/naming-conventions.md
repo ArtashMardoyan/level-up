@@ -1,6 +1,10 @@
-# Documentation Naming & Formatting Conventions
+---
+status: "Approved"
+owner: "Backend Team Lead"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead · **Last updated:** 2026-07-21
+# Documentation Naming & Formatting Conventions
 
 The mechanical rules for writing docs in this repository. The *why* behind the
 structure is in [`../process/DOCUMENTATION_ARCHITECTURE.md`](../process/DOCUMENTATION_ARCHITECTURE.md).
@@ -34,19 +38,29 @@ structure is in [`../process/DOCUMENTATION_ARCHITECTURE.md`](../process/DOCUMENT
 
 ## Every document header
 
-The first lines of every document, so a reader knows its trust level and who owns it:
+Metadata lives in **YAML front matter** at the very top of every document — machine-
+readable, so the documentation portal surfaces it consistently on each page (the reader
+never sees it duplicated in the body):
 
-```markdown
+```yaml
+---
+status: Draft | Review | Approved | Deprecated | Archived
+owner: <role/team>
+reviewers: [<role>, ...]     # optional
+last_updated: YYYY-MM-DD
+version: <string>            # optional
+---
 # Title
-
-> **Status:** Draft | Review | Approved | Deprecated | Archived
-> **Owner:** <role/team> · **Reviewers:** <roles/teams> · **Last updated:** YYYY-MM-DD
 ```
 
-- **Status** — see the lifecycle in the architecture doc §8. A `Deprecated` doc links
+- **status** — see the lifecycle in the architecture doc §8. A `Deprecated` doc links
   to its replacement; nothing is silently deleted.
-- **Owner** — the one role/team accountable for keeping it accurate.
-- **Last updated** — bump on every substantive change.
+- **owner** — the one role/team accountable for keeping it accurate.
+- **last_updated** — bump on every substantive change.
+- ADRs use `status`, `date`, and `deciders` instead of owner/reviewers/last_updated.
+
+The portal generates a small metadata banner from these fields; do not restate them in
+the body.
 
 ## Writing style
 

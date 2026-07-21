@@ -1,6 +1,10 @@
-# <Feature> — Roadmap
+---
+status: "Draft"
+owner: "<team/lead>"
+last_updated: "YYYY-MM-DD"
+---
 
-> **Status:** Draft · **Owner:** <team/lead> · **Last updated:** YYYY-MM-DD
+# <Feature> — Roadmap
 
 <!-- Template: a phased plan where each phase is independently shippable. Delete comments. -->
 

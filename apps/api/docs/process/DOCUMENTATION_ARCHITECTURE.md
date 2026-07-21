@@ -1,7 +1,14 @@
-# Documentation Architecture
+---
+status: "Approved"
+owner: "Backend Team Lead"
+reviewers:
+  - "Frontend"
+  - "Mobile"
+  - "Product"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead ·
-> **Reviewers:** Frontend, Mobile, Product · **Last updated:** 2026-07-21
+# Documentation Architecture
 
 This is the permanent reference for how Level Up's documentation is organized and
 maintained. A new engineer — Backend, Frontend, Mobile, or AI — should be able to
@@ -183,11 +190,16 @@ Each type has a template in `standards/templates/`. `STATUS.md` is a **snapshot*
 (TL;DR · done · open · how-to-continue), not an append-only log — history goes to an
 optional `CHANGELOG.md`.
 
-**Every document carries a header** that models P3/P7/P8:
+**Every document carries YAML front matter** that models P3/P7/P8 (machine-readable; the
+portal surfaces it on every page — see `standards/naming-conventions.md`):
 
-```
-> Status: Draft | Review | Approved | Deprecated | Archived
-> Owner: <role/team>   Reviewers: <roles/teams>   Last updated: YYYY-MM-DD
+```yaml
+---
+status: Draft | Review | Approved | Deprecated | Archived
+owner: <role/team>
+reviewers: [<role>, ...]     # optional
+last_updated: YYYY-MM-DD
+---
 ```
 
 ---

@@ -1,6 +1,16 @@
+---
+status: "Approved"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+  - "Design"
+last_updated: "2026-07-21"
+---
+
 # Feature Map
 
-> **Status:** Approved · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile, Design · **Last updated:** 2026-07-21
 > **Derived from: Product Model §1 (What is Level Up), §7 (How the modules relate).**
 
 The platform's modules and how they connect into one ecosystem. The canonical ecosystem

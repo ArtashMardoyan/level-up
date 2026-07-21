@@ -1,6 +1,10 @@
-# Process
+---
+status: "Approved"
+owner: "Backend Team Lead"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead · **Last updated:** 2026-07-21
+# Process
 
 How we build and ship — and how documentation itself works.
 

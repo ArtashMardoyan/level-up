@@ -1,6 +1,16 @@
+---
+status: "Approved"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+  - "Design"
+last_updated: "2026-07-21"
+---
+
 # User Journey
 
-> **Status:** Approved · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile, Design · **Last updated:** 2026-07-21
 > **Derived from: Product Model §6 (The complete user journey).**
 
 The stages a user moves through. The canonical journey diagram lives in the

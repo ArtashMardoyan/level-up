@@ -1,6 +1,12 @@
-# Notifications
+---
+status: "Approved"
+owner: "Backend"
+reviewers:
+  - "Frontend"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Reviewers:** Frontend · **Last updated:** 2026-07-21
+# Notifications
 
 Per-user notification feed. Each notification is owned by a user and carries a
 **type + JSON params** — the client maps the type to an icon/accent and renders a

@@ -1,6 +1,16 @@
+---
+status: "Approved"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+  - "Design"
+last_updated: "2026-07-21"
+---
+
 # Product Principles
 
-> **Status:** Approved · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile, Design · **Last updated:** 2026-07-21
 > **Derived from: Product Model §5 (Core principles) and the Framing section (what kind of product this is).**
 
 The principles that constrain every product decision. These are the ones defined in the

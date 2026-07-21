@@ -1,6 +1,10 @@
-# Backend Engineering
+---
+status: "Approved"
+owner: "Backend"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Last updated:** 2026-07-21
+# Backend Engineering
 
 The hub for backend (Go · Gin · GORM · PostgreSQL) engineering. This page **routes**;
 it deliberately does not restate the enforced conventions (that would duplicate

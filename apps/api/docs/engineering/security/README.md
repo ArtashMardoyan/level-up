@@ -1,6 +1,12 @@
-# Security — Auth, Users & CORS
+---
+status: "Approved"
+owner: "Backend"
+reviewers:
+  - "Frontend"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Reviewers:** Frontend · **Last updated:** 2026-07-21
+# Security — Auth, Users & CORS
 
 How authentication, the user account, and cross-origin access work — the security
 surface the web frontend logs in through. Small module, high risk: read this before

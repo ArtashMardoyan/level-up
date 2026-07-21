@@ -1,6 +1,14 @@
-# <Feature> — UX Spec
+---
+status: "Draft"
+owner: "<design/frontend>"
+reviewers:
+  - "Product"
+  - "Frontend"
+  - "Mobile"
+last_updated: "YYYY-MM-DD"
+---
 
-> **Status:** Draft · **Owner:** <design/frontend> · **Reviewers:** Product, Frontend, Mobile · **Last updated:** YYYY-MM-DD
+# <Feature> — UX Spec
 
 <!-- Template: screens, flows, and states for a user-facing feature. Platform-independent
      intent; stack specifics go in the technical design. Delete comments. -->

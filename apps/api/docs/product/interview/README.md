@@ -1,6 +1,14 @@
-# AI Interview Coach — documentation
+---
+status: "Approved"
+owner: "Product / Interview lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Product / Interview lead · **Reviewers:** Backend, Frontend, Mobile · **Last updated:** 2026-07-21
+# AI Interview Coach — documentation
 
 This folder specifies the **AI Interview Coach**: a **chat** mock interview where the AI asks one
 question at a time, scores each answer **0–100** (Correctness / Depth / Communication / Structure)

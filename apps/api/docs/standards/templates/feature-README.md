@@ -1,6 +1,12 @@
-# <Feature> — <one-line description>
+---
+status: "Draft"
+owner: "<team/lead>"
+reviewers:
+  - "<roles>"
+last_updated: "YYYY-MM-DD"
+---
 
-> **Status:** Draft · **Owner:** <team/lead> · **Reviewers:** <roles> · **Last updated:** YYYY-MM-DD
+# <Feature> — <one-line description>
 
 <!-- Template: the orientation page for a product feature or engineering area.
      Copy to product/<feature>/README.md or engineering/<area>/README.md. Delete these comments. -->

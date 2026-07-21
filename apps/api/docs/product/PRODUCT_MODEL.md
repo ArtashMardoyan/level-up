@@ -1,6 +1,15 @@
-# Level Up — Product Model
+---
+status: "Approved"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+  - "Design"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile, Design · **Last updated:** 2026-07-21
+# Level Up — Product Model
 
 This is the **single source of truth for what Level Up is and why it exists.** All
 product documentation — feature specs, PRDs, UX specs, roadmaps — is **derived from

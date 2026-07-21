@@ -1,6 +1,10 @@
-# Level Up — Documentation
+---
+status: "Approved"
+owner: "Backend Team Lead"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead · **Last updated:** 2026-07-21
+# Level Up — Documentation
 
 The single entry point for all Level Up documentation. Product, engineering, and
 architectural knowledge live here, in the backend repository — Web, Mobile, and

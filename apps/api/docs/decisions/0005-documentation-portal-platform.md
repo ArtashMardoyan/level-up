@@ -1,6 +1,13 @@
-# ADR-0005 — Documentation Portal Platform
+---
+status: "Accepted"
+date: "2026-07-21"
+deciders:
+  - "Backend Team Lead"
+  - "Frontend"
+  - "Product"
+---
 
-> **Status:** Accepted · **Date:** 2026-07-21 · **Deciders:** Backend Team Lead, Frontend, Product
+# ADR-0005 — Documentation Portal Platform
 
 ## Context
 

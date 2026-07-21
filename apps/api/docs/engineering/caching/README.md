@@ -1,6 +1,10 @@
-# Content caching (server side)
+---
+status: "Approved"
+owner: "Backend"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Last updated:** 2026-07-21
+# Content caching (server side)
 
 Course content (`courses` + `questions` + `question_translations`) is served
 read-only and changes only on a reseed. The API exposes a cheap **content

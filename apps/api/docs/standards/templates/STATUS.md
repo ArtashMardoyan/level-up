@@ -1,6 +1,10 @@
-# <Feature> — STATUS
+---
+status: "Draft"
+owner: "<team/lead>"
+last_updated: "YYYY-MM-DD"
+---
 
-> **Status:** Draft · **Owner:** <team/lead> · **Last updated:** YYYY-MM-DD
+# <Feature> — STATUS
 
 <!-- Template: the LIVE snapshot of a feature — not a changelog. Keep it short and
      current; move chronological history to a CHANGELOG.md if it grows. Delete comments. -->

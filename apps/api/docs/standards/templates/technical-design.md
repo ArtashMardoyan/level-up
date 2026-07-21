@@ -1,6 +1,12 @@
-# <Feature> — Technical Design
+---
+status: "Draft"
+owner: "<engineer/team>"
+reviewers:
+  - "<stacks affected>"
+last_updated: "YYYY-MM-DD"
+---
 
-> **Status:** Draft · **Owner:** <engineer/team> · **Reviewers:** <stacks affected> · **Last updated:** YYYY-MM-DD
+# <Feature> — Technical Design
 
 <!-- Template: how the feature is built. Pairs with the PRD (the why). Delete comments. -->
 

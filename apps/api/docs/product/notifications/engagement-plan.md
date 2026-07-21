@@ -1,6 +1,10 @@
-# Planning doc — engagement features (streak, activity screen, new_questions, daily)
+---
+status: "Review"
+owner: "Backend"
+last_updated: "2026-07-21"
+---
 
-> **Status:** Review · **Owner:** Backend · **Last updated:** 2026-07-21
+# Planning doc — engagement features (streak, activity screen, new_questions, daily)
 
 Cross-repo: `level-up-backend` (Go/Gin) + `level-up` (React).
 Builds on the notifications module (`docs/product/notifications/README.md`). Ship in phases; each phase is
