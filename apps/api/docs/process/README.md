@@ -10,3 +10,6 @@ How we build and ship — and how documentation itself works.
 - [`documentation-portal-requirements.md`](documentation-portal-requirements.md) —
   finalized, technology-agnostic requirements for publishing the docs as a website
   (M3, requirements phase). Tool selection is deferred.
+- [`documentation-portal-implementation-plan.md`](documentation-portal-implementation-plan.md) —
+  the implementation design for the portal on MkDocs Material (M4 plan). Design only;
+  implementation begins after this plan is approved.
