@@ -1,6 +1,11 @@
-# System Architecture
+---
+status: "Approved"
+owner: "Backend Team Lead"
+last_updated: "2026-07-21"
+visibility: "internal"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead · **Last updated:** 2026-07-21
+# System Architecture
 
 The shape of the Level Up backend: how the code is organized and how the pieces
 depend on each other. For the *enforced* coding rules (formatting, imports, error

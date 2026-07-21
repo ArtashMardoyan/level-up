@@ -1,6 +1,11 @@
-# Product Documentation
+---
+status: "Approved"
+owner: "Product / feature leads"
+last_updated: "2026-07-21"
+visibility: "internal"
+---
 
-> **Status:** Approved · **Owner:** Product / feature leads · **Last updated:** 2026-07-21
+# Product Documentation
 
 Full-stack, **platform-independent** specs for *what* we build and *why*. Web and
 Mobile read these; they carry no stack-specific detail (that lives in

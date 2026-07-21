@@ -1,6 +1,17 @@
+---
+status: "Approved"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+  - "Design"
+last_updated: "2026-07-21"
+visibility: "public"
+---
+
 # Vision
 
-> **Status:** Approved · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile, Design · **Last updated:** 2026-07-21
 > **Derived from: Product Model §1 (What is Level Up), §2 (Why does it exist), §10 (Long-term vision).**
 
 This document organizes the platform's mission and long-term direction. It introduces

@@ -1,6 +1,12 @@
-# ADR-0002 — English is the canonical documentation language
+---
+status: "Accepted"
+date: "2026-07-21"
+deciders:
+  - "Backend Team Lead"
+visibility: "internal"
+---
 
-> **Status:** Accepted · **Date:** 2026-07-21 · **Deciders:** Backend Team Lead
+# ADR-0002 — English is the canonical documentation language
 
 ## Context
 

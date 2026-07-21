@@ -1,10 +1,21 @@
+---
+status: "Approved"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+  - "Design"
+last_updated: "2026-07-21"
+visibility: "internal"
+---
+
 # Feature Map
 
-> **Status:** Approved · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile, Design · **Last updated:** 2026-07-21
 > **Derived from: Product Model §1 (What is Level Up), §7 (How the modules relate).**
 
 The platform's modules and how they connect into one ecosystem. The canonical ecosystem
-diagram lives in the [Product Model §7](PRODUCT_MODEL.md#7-how-the-modules-relate--one-ecosystem);
+diagram lives in the [Product Model §7](PRODUCT_MODEL.md#7-how-the-modules-relate-one-ecosystem);
 this document names each module and points to its spec. It introduces no module beyond §7.
 
 ## Modules

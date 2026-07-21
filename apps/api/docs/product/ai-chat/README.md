@@ -1,6 +1,13 @@
-# AI Chat — modernization documentation
+---
+status: "Approved"
+owner: "Backend"
+reviewers:
+  - "Frontend"
+last_updated: "2026-07-21"
+visibility: "internal"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Reviewers:** Frontend · **Last updated:** 2026-07-21
+# AI Chat — modernization documentation
 
 This folder specifies the **incremental migration of the existing AI Chat** (the AI Interview
 Coach's chat) from today's blocking **request/response HTTP** model to a modern **real-time,

@@ -1,4 +1,4 @@
-.PHONY: run build test lint fmt tidy docker-up docker-down deploy
+.PHONY: run build test lint fmt tidy docker-up docker-down deploy docs-serve docs-build docs-build-public docs-build-internal
 
 run:            ## start the server (needs a reachable Postgres)
 	go run ./cmd/server
@@ -26,3 +26,15 @@ docker-down:    ## stop and remove local containers
 
 deploy:         ## build, push to ECR, redeploy App Runner
 	./scripts/deploy.sh
+
+docs-serve:     ## live-preview the docs portal (setup: pip install -r requirements-docs.txt)
+	mkdocs serve
+
+docs-build:     ## strict build — full site (all visibility tiers; local/private)
+	mkdocs build --strict
+
+docs-build-public:   ## strict build — public docs only (the public site)
+	DOCS_AUDIENCE=public mkdocs build --strict --site-dir site-public
+
+docs-build-internal: ## strict build — public + internal docs (the auth-gated site)
+	DOCS_AUDIENCE=internal mkdocs build --strict --site-dir site-internal

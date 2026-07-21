@@ -1,6 +1,11 @@
-# Audio playback (MP3 with speech fallback)
+---
+status: "Approved"
+owner: "Backend"
+last_updated: "2026-07-21"
+visibility: "internal"
+---
 
-> **Status:** Approved · **Owner:** Backend · **Last updated:** 2026-07-21
+# Audio playback (MP3 with speech fallback)
 
 ## Why
 

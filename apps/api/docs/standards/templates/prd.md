@@ -1,6 +1,15 @@
-# <Feature> — PRD
+---
+status: "Draft"
+owner: "Product / feature lead"
+reviewers:
+  - "Backend"
+  - "Frontend"
+  - "Mobile"
+last_updated: "YYYY-MM-DD"
+visibility: "internal"
+---
 
-> **Status:** Draft · **Owner:** Product / feature lead · **Reviewers:** Backend, Frontend, Mobile · **Last updated:** YYYY-MM-DD
+# <Feature> — PRD
 
 <!-- Template: product requirements. Intent, not implementation. Platform-independent —
      no Go/React specifics (those belong in engineering/ or the technical design). Delete comments. -->

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+<!-- Documentation quality: surface each page's metadata consistently, generated from
+     the YAML front matter (never duplicated in content). -->
+
+{% block extrahead %}
+  {{ super() }}
+  <style>
+    .doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem 1rem;
+      margin: 0 0 1.4rem;
+      padding: 0.5rem 0.85rem;
+      border-radius: 0.4rem;
+      font-size: 0.72rem;
+      background: var(--md-code-bg-color);
+      color: var(--md-default-fg-color--light);
+    }
+    .doc-meta__status {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.05rem 0.5rem;
+      border-radius: 0.25rem;
+      background: var(--md-default-fg-color--lightest);
+      color: var(--md-default-fg-color);
+    }
+    .doc-meta b { color: var(--md-default-fg-color); font-weight: 600; }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% if page.meta and page.meta.status %}
+    <div class="doc-meta">
+      <span class="doc-meta__status">{{ page.meta.status }}</span>
+      {% if page.meta.owner %}<span>Owner: <b>{{ page.meta.owner }}</b></span>{% endif %}
+      {% if page.meta.reviewers %}<span>Reviewers: <b>{{ page.meta.reviewers | join(", ") }}</b></span>{% endif %}
+      {% if page.meta.deciders %}<span>Deciders: <b>{{ page.meta.deciders | join(", ") }}</b></span>{% endif %}
+      {% if page.meta.date %}<span>Date: <b>{{ page.meta.date }}</b></span>{% endif %}
+      {% if page.meta.last_updated %}<span>Updated: <b>{{ page.meta.last_updated }}</b></span>{% endif %}
+      {% if page.meta.version %}<span>Version: <b>{{ page.meta.version }}</b></span>{% endif %}
+    </div>
+  {% endif %}
+  {{ super() }}
+{% endblock %}

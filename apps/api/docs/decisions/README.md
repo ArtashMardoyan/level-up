@@ -1,6 +1,11 @@
-# Architecture Decision Records (ADRs)
+---
+status: "Approved"
+owner: "Backend Team Lead"
+last_updated: "2026-07-21"
+visibility: "internal"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead · **Last updated:** 2026-07-21
+# Architecture Decision Records (ADRs)
 
 An ADR records **why** a significant or hard-to-reverse decision was made — the
 context, the choice, the alternatives, and the consequences. It answers *Why?*, not

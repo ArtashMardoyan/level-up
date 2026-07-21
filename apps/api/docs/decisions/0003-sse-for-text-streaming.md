@@ -1,6 +1,12 @@
-# ADR-0003 — SSE for text streaming; WebSocket reserved for voice
+---
+status: "Accepted"
+date: "2026-07-21"
+deciders:
+  - "Backend Team Lead"
+visibility: "internal"
+---
 
-> **Status:** Accepted · **Date:** 2026-07-21 · **Deciders:** Backend Team Lead
+# ADR-0003 — SSE for text streaming; WebSocket reserved for voice
 
 ## Context
 

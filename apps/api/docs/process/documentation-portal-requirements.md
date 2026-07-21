@@ -1,6 +1,14 @@
-# Documentation Portal — Requirements
+---
+status: "Approved"
+owner: "Backend Team Lead"
+reviewers:
+  - "Frontend"
+  - "Product"
+last_updated: "2026-07-21"
+visibility: "internal"
+---
 
-> **Status:** Approved · **Owner:** Backend Team Lead · **Reviewers:** Frontend, Product · **Last updated:** 2026-07-21
+# Documentation Portal — Requirements
 
 The finalized, **technology-agnostic** requirements for publishing Level Up's
 documentation as a browsable website. This document defines *what the portal must do*,
