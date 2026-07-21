@@ -1,5 +1,5 @@
 ---
-status: "Review"
+status: "Approved"
 owner: "Backend Team Lead"
 reviewers:
   - "Product"
@@ -9,12 +9,14 @@ last_updated: "2026-07-21"
 visibility: "internal"
 ---
 
-# Documentation Visibility Classification — Proposal
+# Documentation Visibility Classification
 
-**Status: Review — not yet applied.** This proposes which documents are `public`,
-`internal`, or `private`. It is separate from the P3 mechanism (which is built and
-proven): today **everything defaults to `internal`**, so nothing is public until this
-classification is approved and the `visibility` fields are updated in a small follow-up.
+**Status: Approved — applied.** This records which documents are `public`, `internal`,
+or `private`. The classification below was approved and applied: `vision`, `principles`,
+`philosophy`, `audience`, and `user-journey` are `public`; everything else is `internal`
+by default; nothing is `private`. Changing a document's tier means updating its
+`visibility` front matter and re-checking the build (cross-tier links to filtered pages
+are neutralized automatically — see the hosting doc).
 
 Tiers (from the portal build filter):
 
@@ -86,9 +88,9 @@ Currently **unused** — nothing needs to be hidden from the authenticated team.
 for future material that is sensitive even internally (e.g. incident write-ups, security
 findings). No document is proposed `private` today.
 
-## If approved
+## Applied
 
-A small, scripted follow-up sets `visibility: public` on the approved public set (and
-`roadmap`/`PRODUCT_MODEL`/etc. per your decisions); everything else stays `internal` by
-default. That change is mechanical and reviewable — same discipline as P2/P3 — and only
-then would enabling the public deploy publish anything.
+`visibility: public` was set on the approved public set (`vision`, `principles`,
+`philosophy`, `audience`, `user-journey`); everything else remains `internal` by default;
+nothing is `private`. Publishing still requires enabling the guarded public deploy once
+hosting is provisioned (see the hosting doc).

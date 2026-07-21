@@ -265,16 +265,21 @@ same `docs/` + front matter — the documentation itself does not change.
 - Whether the front-matter schema (§4) graduates into a small standard under
   `docs/standards/` once settled.
 
-## Phasing (proposed for the M4 implementation milestone)
+## Phasing (M4 implementation milestone)
 
-1. **P1 — Local build:** `mkdocs.yml` + Material + Mermaid + search + README-index hook;
-   `mkdocs serve` renders the whole tree locally. No hosting.
-2. **P2 — Front matter + metadata surfacing:** migrate headers to front matter; add the
-   metadata banner; strict build green.
-3. **P3 — Visibility + dual build:** visibility field + build-time filter; Public/Internal
-   artifacts.
-4. **P4 — CI/CD + hosting:** workflow + Public host + gated Internal host; shareable links.
-5. **P5 — Cutover + docs:** document the workflow; announce URLs.
+1. **P1 — Local build ✅ DONE:** `mkdocs.yml` + Material + Mermaid + search + README-index
+   hook; `mkdocs serve` renders the whole tree locally. No hosting.
+2. **P2 — Front matter + metadata surfacing ✅ DONE:** migrate headers to front matter; add
+   the metadata banner; strict build green.
+3. **P3 — Visibility + dual build ✅ DONE:** visibility field + build-time filter;
+   Public/Internal artifacts (+ cross-tier link neutralization).
+4. **P4 — CI/CD + hosting scaffold ✅ DONE:** build/validate workflow + guarded deploy;
+   hosting documented. Visibility classification approved + applied.
+5. **P5 — Cutover + publish 🚧 BLOCKED:** document the workflow; announce URLs. **Blocked by
+   an external/manual dependency — hosting provisioning** (a public host, and an auth-gated
+   internal host + secrets; see [`documentation-portal-hosting.md`](documentation-portal-hosting.md)).
+   The portal is complete and correct locally and in CI (build + validate); only the deploy
+   step awaits provisioning. Resume P5 once hosting exists.
 
 Each phase is independently reviewable and leaves `docs/` as the source of truth
-throughout.
+throughout. **Milestone status: development complete (P1–P4); P5 blocked on hosting.**

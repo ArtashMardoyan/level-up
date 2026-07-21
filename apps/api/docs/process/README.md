@@ -22,5 +22,5 @@ How we build and ship — and how documentation itself works.
   is built and published (M4 · P4): the live CI build/validate pipeline and the guarded,
   yet-to-be-provisioned deployment for the public and gated-internal sites.
 - [`documentation-visibility-classification.md`](documentation-visibility-classification.md) —
-  **proposal (Review):** which docs are public / internal / private, with rationale.
-  Awaiting approval; nothing is public until then.
+  **approved:** which docs are public / internal / private, with rationale. Applied
+  (5 product-narrative docs public; everything else internal).
