@@ -3305,7 +3305,7 @@ footer {
   white-space: pre-wrap;
 }
 
-/* Blinking caret on the bubble while its text is still streaming in (docs/ai-chat) */
+/* Blinking caret on the bubble while its text is still streaming in (docs/product/ai-chat) */
 .aic-bubble.streaming .aic-bubble-text::after {
   content: '';
   display: inline-block;

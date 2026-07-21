@@ -82,7 +82,7 @@ function parseSSEFrame(frame) {
 // onEvent({ event, data }) per frame. Resolves when the stream ends. A pre-stream
 // failure — the backend returns a normal JSON { error } before streaming starts —
 // rejects with ApiError, so callers handle it exactly like a one-shot request
-// (docs/ai-chat/006/007). Pass an AbortSignal to cancel; an abort rejects with the
+// (docs/product/ai-chat/006/007). Pass an AbortSignal to cancel; an abort rejects with the
 // DOMException, which callers can detect via signal.aborted.
 export async function requestStream(path, { onEvent, signal, json } = {}) {
   const headers = { 'Content-Type': 'application/json' }
