@@ -26,6 +26,7 @@ func (h *Handler) RegisterRoutes(r *gin.Engine, auth gin.HandlerFunc) {
 	interviews.GET("/summary", h.Summary)
 	interviews.GET("/:id", h.Get)
 	interviews.POST("/:id/answers/:questionId", h.SubmitAnswer)
+	interviews.POST("/:id/answers/:questionId/stream", h.SubmitAnswerStream)
 	interviews.POST("/:id/complete", h.Complete)
 	interviews.GET("/:id/report", h.Report)
 }
@@ -88,6 +89,30 @@ func (h *Handler) SubmitAnswer(c *gin.Context) {
 	}
 
 	shared.OK(c, resp)
+}
+
+// SubmitAnswerStream is the SSE variant of SubmitAnswer (docs/ai-chat/006). The
+// service returns a non-nil error only for pre-stream failures (checks + the
+// synchronous answer/index writes), where the sink is still untouched and a normal
+// JSON error is valid; once streaming has begun it emits an SSE error frame and
+// returns nil.
+func (h *Handler) SubmitAnswerStream(c *gin.Context) {
+	caller, ok := contextUser(c)
+	if !ok {
+		shared.Error(c, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var req SubmitAnswerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		shared.Error(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	sink := newSSESink(c)
+	if err := h.service.SubmitAnswerStream(c.Request.Context(), caller.ID, c.Param("id"), c.Param("questionId"), req, sink); err != nil {
+		writeError(c, err)
+	}
 }
 
 func (h *Handler) Complete(c *gin.Context) {

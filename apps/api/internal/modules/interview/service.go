@@ -3,7 +3,9 @@ package interview
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"log"
 	"math"
 	"math/rand"
 	"strings"
@@ -187,6 +189,165 @@ func (s *Service) SubmitAnswer(ctx context.Context, userID, id, questionID strin
 	}
 
 	return resp, nil
+}
+
+// SubmitAnswerStream is the streaming sibling of SubmitAnswer (docs/ai-chat/006/010).
+// Same checks and same persisted rows, but the next question is delivered over a
+// StreamSink and answer evaluation is moved off the critical path:
+//
+//   - The answer is persisted immediately (a preliminary, un-scored row) and
+//     currentIndex advanced, so a reconnect via GET /interviews/:id already shows
+//     the turn as answered.
+//   - For a mid-interview turn the evaluation runs in a background goroutine on a
+//     detached context (it must finish even if the client disconnects — the score
+//     feeds the Results screen), concurrently with generating the next question.
+//   - For the final turn there is no next question to overlap with, so evaluation
+//     runs inline before Done — guaranteeing the score is persisted before the
+//     client can call complete (parity with the blocking path).
+//
+// Pre-stream failures (checks, and the synchronous answer/index writes) are returned
+// as errors with the sink untouched, so the handler can still emit a normal JSON
+// error. Once streaming begins, every outcome goes through the sink and the method
+// returns nil.
+func (s *Service) SubmitAnswerStream(ctx context.Context, userID, id, questionID string, req SubmitAnswerRequest, sink StreamSink) error {
+	session, err := s.load(ctx, userID, id)
+	if err != nil {
+		return err
+	}
+	if session.Status != StatusInProgress {
+		return ErrNotEditable
+	}
+
+	idx := indexOf(session.QuestionIDs, questionID)
+	if idx < 0 {
+		return ErrQuestionNotIn
+	}
+
+	q, err := s.content.FindQuestionByIDWithTranslations(ctx, questionID)
+	if err != nil {
+		return ErrQuestionNotIn
+	}
+
+	asked, err := s.ensureGenerated(ctx, &session, idx, &q, nil, "")
+	if err != nil {
+		return err
+	}
+
+	// Persist the answer immediately (un-scored for a real answer; complete for a
+	// skip/empty), then advance the chat position. Committed before any streaming so
+	// a reconnect sees the turn as answered.
+	prelim := preliminaryResult(&session, questionID, req)
+	if err := s.repo.UpsertResult(ctx, &prelim); err != nil {
+		return err
+	}
+
+	if idx+1 > session.CurrentIndex {
+		session.CurrentIndex = idx + 1
+		if err := s.repo.UpdateSession(ctx, &session); err != nil {
+			return err
+		}
+	}
+
+	realAnswer := !prelim.Skipped
+	finished := session.CurrentIndex >= len(session.QuestionIDs)
+
+	// Observe the stream from here on (all sink use flows through the wrapper), so
+	// one structured line records TTFT / delta count / outcome per turn (docs/ai-chat/011).
+	sink = newObservedSink(sink, fmt.Sprintf("session=%s idx=%d", session.ID, session.CurrentIndex))
+
+	if finished {
+		// No next question to overlap generation with — evaluate inline so the
+		// result is persisted before the client can call complete.
+		if realAnswer {
+			result := s.evaluateAnswer(ctx, &session, asked.Module, asked.Question, asked.ModelAnswer, questionID, req)
+			if err := s.repo.UpsertResult(ctx, &result); err != nil {
+				_ = sink.Fail(err, true)
+
+				return nil
+			}
+		}
+		_ = sink.Done(nil, true)
+
+		return nil
+	}
+
+	// Mid-interview: grade in the background while we generate the next question.
+	if realAnswer {
+		s.evaluateInBackground(&session, asked.Module, asked.Question, asked.ModelAnswer, questionID, req)
+	}
+
+	nextID := session.QuestionIDs[session.CurrentIndex]
+	nq, err := s.content.FindQuestionByIDWithTranslations(ctx, nextID)
+	if err != nil {
+		log.Printf("interview: stream next-question lookup failed (session %s): %v", session.ID, err)
+		_ = sink.Fail(err, true)
+
+		return nil
+	}
+
+	// PrevScore is -1: the real score is still being computed in the background, and
+	// -1 tells the generator to omit the tone-calibration signal rather than imply a
+	// 0 (a failed answer) — docs/ai-chat/008/010.
+	prev := &prevTurn{Question: asked.Question, Answer: req.Answer, Skipped: req.Skipped, Score: -1}
+	nv, err := s.ensureGeneratedStream(ctx, &session, session.CurrentIndex, &nq, prev, sink)
+	if err != nil {
+		log.Printf("interview: stream next-question generation failed (session %s): %v", session.ID, err)
+		_ = sink.Fail(err, true)
+
+		return nil
+	}
+
+	_ = sink.Done(&nv, false)
+
+	return nil
+}
+
+// preliminaryResult is the answer persisted at submit time, before the AI score is
+// known (docs/ai-chat/010). A skip/empty answer is fully resolved here (no AI).
+// A real answer is stored in the existing "failed" degrade state so that IF the
+// background evaluation never lands (e.g. process restart) the answer still counts
+// and reads sensibly; the background eval upserts the real score over it.
+func preliminaryResult(session *Session, questionID string, req SubmitAnswerRequest) QuestionResult {
+	result := QuestionResult{
+		InterviewID: session.ID,
+		QuestionID:  questionID,
+		UserAnswer:  req.Answer,
+		Skipped:     req.Skipped,
+		EvalVersion: SchemaVersion,
+		Strengths:   StringList{},
+		Weaknesses:  StringList{},
+	}
+
+	if req.Skipped || strings.TrimSpace(req.Answer) == "" {
+		result.Skipped = true
+		result.EvalStatus = EvalOK
+		result.Feedback = skippedFeedback(session.Language)
+
+		return result
+	}
+
+	return degraded(&result, session.Language)
+}
+
+// evaluateInBackground grades one answer off the request's critical path. It runs
+// on a detached context (context.Background, bounded by the AI client's own
+// per-call timeout) so grading completes even if the client disconnects mid-turn —
+// the score is needed for the Results screen regardless (docs/ai-chat/010). It
+// snapshots the session so the goroutine never races the caller's later mutations
+// of it. Best-effort: a failure leaves the preliminary degraded row in place.
+func (s *Service) evaluateInBackground(session *Session, topic, question, ideal, questionID string, req SubmitAnswerRequest) {
+	if s.ai == nil {
+		return
+	}
+
+	snapshot := *session
+
+	go func() {
+		result := s.evaluateAnswer(context.Background(), &snapshot, topic, question, ideal, questionID, req)
+		if err := s.repo.UpsertResult(context.Background(), &result); err != nil {
+			log.Printf("interview: background eval upsert failed (session %s, question %s): %v", snapshot.ID, questionID, err)
+		}
+	}()
 }
 
 // evaluateAnswer builds a QuestionResult, calling the AI unless the answer is
@@ -432,48 +593,101 @@ func (s *Service) ensureGenerated(ctx context.Context, session *Session, idx int
 
 	view := questionView(q, idx, session.Language)
 	if s.ai != nil {
-		refQ, refA, module := translate(q, session.Language)
-		in := &GenInput{
-			CourseTitle: module,
-			Difficulty:  session.Difficulty,
-			Language:    session.Language,
-			Module:      module,
-			RefQuestion: refQ,
-			RefAnswer:   refA,
-		}
-		if prev != nil {
-			in.PrevQuestion, in.PrevAnswer, in.PrevSkipped, in.PrevScore = prev.Question, prev.Answer, prev.Skipped, prev.Score
-		}
-
-		gen, err := s.ai.Generate(ctx, in)
+		gen, err := s.ai.Generate(ctx, buildGenInput(session, q, prev))
 		if err == nil {
 			view.Question, view.ModelAnswer = gen.Question, gen.ModelAnswer
-			switch {
-			case prev == nil:
-				// No previous turn to react to — a deterministic, personalized
-				// greeting instead of trusting the model's judgment (same reason
-				// as the skip case below: it invents a reaction anyway despite
-				// the prompt instruction saying to leave this empty).
-				view.Reaction = greeting(userName, session.Language)
-			case prev.Skipped:
-				// The model isn't reliable about honoring a skip either (it has
-				// reacted as if a real answer was given) — use a deterministic,
-				// judgment-free transition instead of trusting its output.
-				view.Reaction = skippedReaction(session.Language)
-			default:
-				view.Reaction = gen.Reaction
-			}
+			view.Reaction = resolveReaction(gen.Reaction, prev, userName, session.Language)
 		}
 	}
 
-	session.Generated = append(session.Generated, GeneratedQuestion{
-		Reaction: view.Reaction, Question: view.Question, ModelAnswer: view.ModelAnswer,
-	})
-	if err := s.repo.UpdateSession(ctx, session); err != nil {
+	if err := s.cacheGenerated(ctx, session, &view); err != nil {
 		return QuestionView{}, err
 	}
 
 	return view, nil
+}
+
+// ensureGeneratedStream is the streaming counterpart to ensureGenerated: for a
+// not-yet-generated slot it streams the visible prose (reaction + question) to the
+// sink as the model writes it, then caches and returns the canonical view. An
+// already-cached slot returns without streaming (the caller's done frame carries
+// it). A nil AI client or a generation failure degrades to the bank text and caches
+// it exactly like ensureGenerated (docs/ai-chat/008/011); when a failure happens
+// mid-stream the client's partial bubble is reconciled by the caller's done frame.
+// Only used mid-interview, so prev is never nil (no greeting branch).
+func (s *Service) ensureGeneratedStream(ctx context.Context, session *Session, idx int, q *course.Question, prev *prevTurn, sink StreamSink) (QuestionView, error) {
+	if idx < len(session.Generated) {
+		return generatedView(q, idx, session.Language, session.Generated[idx]), nil
+	}
+
+	view := questionView(q, idx, session.Language)
+	if s.ai != nil {
+		gen, err := s.ai.GenerateStream(ctx, buildGenInput(session, q, prev), func(delta string) {
+			_ = sink.Delta(delta)
+		})
+		switch {
+		case err == nil:
+			view.Question, view.ModelAnswer = gen.Question, gen.ModelAnswer
+			view.Reaction = resolveReaction(gen.Reaction, prev, "", session.Language)
+		case ctx.Err() != nil:
+			// Client disconnected / cancelled mid-generation — expected, not a fault.
+			log.Printf("interview: stream generation cancelled (session %s idx %d): %v", session.ID, idx, ctx.Err())
+		default:
+			// Real generation failure — degrade to the raw bank text (docs/ai-chat/011).
+			log.Printf("interview: stream generation degraded to bank text (session %s idx %d): %v", session.ID, idx, err)
+		}
+	}
+
+	if err := s.cacheGenerated(ctx, session, &view); err != nil {
+		return QuestionView{}, err
+	}
+
+	return view, nil
+}
+
+// buildGenInput assembles the AI generation input for a slot in the session's
+// language, carrying the previous turn's context when present (shared by the
+// blocking and streaming generation paths).
+func buildGenInput(session *Session, q *course.Question, prev *prevTurn) *GenInput {
+	refQ, refA, module := translate(q, session.Language)
+	in := &GenInput{
+		CourseTitle: module,
+		Difficulty:  session.Difficulty,
+		Language:    session.Language,
+		Module:      module,
+		RefQuestion: refQ,
+		RefAnswer:   refA,
+	}
+	if prev != nil {
+		in.PrevQuestion, in.PrevAnswer, in.PrevSkipped, in.PrevScore = prev.Question, prev.Answer, prev.Skipped, prev.Score
+	}
+
+	return in
+}
+
+// resolveReaction picks the reaction actually shown, overriding the model for the
+// two cases it isn't trusted on: the opening question (deterministic greeting) and a
+// skipped previous answer (deterministic, judgment-free transition). Otherwise the
+// model's reaction is used (docs/interview/004).
+func resolveReaction(modelReaction string, prev *prevTurn, userName, lang string) string {
+	switch {
+	case prev == nil:
+		return greeting(userName, lang)
+	case prev.Skipped:
+		return skippedReaction(lang)
+	default:
+		return modelReaction
+	}
+}
+
+// cacheGenerated appends the freshly generated view to the session's parallel cache
+// and persists it, so resume/review always show the exact text originally asked.
+func (s *Service) cacheGenerated(ctx context.Context, session *Session, view *QuestionView) error {
+	session.Generated = append(session.Generated, GeneratedQuestion{
+		Reaction: view.Reaction, Question: view.Question, ModelAnswer: view.ModelAnswer,
+	})
+
+	return s.repo.UpdateSession(ctx, session)
 }
 
 // cachedView is the read-only counterpart used on resume/review: never calls the

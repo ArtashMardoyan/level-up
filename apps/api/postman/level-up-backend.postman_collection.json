@@ -662,6 +662,36 @@
 					]
 				},
 				{
+					"name": "Submit Answer (stream, SSE)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/answers/{{questionId}}/stream",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"answers",
+								"{{questionId}}",
+								"stream"
+							]
+						},
+						"description": "Streaming (Server-Sent Events) variant of Submit Answer (docs/ai-chat). Same body as Submit Answer. Responds with `text/event-stream`, not JSON: an `event: done` frame carries `{ next, finished }` (the next question, or finished=true), or an `event: error` frame carries `{ message, recoverable }`. The next question streams as `delta` frames (token-by-token from OpenAI), then a `done` frame carries the canonical turn. The answer is persisted immediately and graded off the critical path (inline only on the final question). Pre-stream failures (auth/validation/not-found) still return a normal JSON `{ error }`. Use Postman's SSE view to read the frames; the questionId capture that the JSON Submit Answer does is not possible here because the body is an event stream.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"answer\": \"Dependency injection is a pattern where a component receives its dependencies from the outside instead of creating them, which improves testability and decoupling.\",\n    \"skipped\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
 					"name": "Complete Interview",
 					"request": {
 						"method": "POST",
