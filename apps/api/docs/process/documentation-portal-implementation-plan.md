@@ -1,6 +1,6 @@
 # Documentation Portal — Implementation Plan (M4)
 
-> **Status:** Draft · **Owner:** Backend Team Lead · **Reviewers:** Frontend, Product · **Last updated:** 2026-07-21
+> **Status:** Approved · **Owner:** Backend Team Lead · **Reviewers:** Frontend, Product · **Last updated:** 2026-07-21
 
 The implementation **design** for the Documentation Portal. It realizes
 [ADR-0005](../decisions/0005-documentation-portal-platform.md) (MkDocs Material) against
