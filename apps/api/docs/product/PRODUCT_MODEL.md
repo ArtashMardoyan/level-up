@@ -180,12 +180,38 @@ toward career growth.
 
 ---
 
-## Using this model
+## Governance — this model is the constitution
 
-- **Deriving documentation:** the product documentation hierarchy (vision, principles,
-  philosophy, audience, user journey, feature map, roadmap, and each feature's spec) is
-  derived from the sections above — each section is the seed of one or more documents.
-  Do not write a product document that is not traceable to this model.
-- **Keeping it true:** when the product changes, update this model first, then the
-  documents derived from it. This model is `Approved` and is the reference the rest of
-  `docs/product/` points back to.
+The Product Model is the **highest-level product document** and the permanent
+constitution of the Level Up platform. All product documentation is governed by these
+rules:
+
+1. **Highest authority.** The Product Model is the highest-level product document.
+   Every product document derives from it. The Product Model **never** derives from a
+   lower-level document.
+2. **Explicit derivation.** Every derived document references the relevant Product
+   Model section(s) in its header: `Derived from: Product Model §…`.
+3. **No new concepts.** Derived documents must **not** introduce new product concepts,
+   terminology, or philosophy. They may only **expand, organize, and clarify** what
+   already exists here.
+4. **Amend the constitution first.** If a future feature needs a new product concept,
+   the Product Model is updated and approved **first**; only then may derived documents
+   be updated to match. Product changes flow model → docs, never the reverse.
+5. **Stay focused; link, don't copy.** Derived documents stay narrow and avoid
+   duplicating large sections of this model — they **link back** to the relevant
+   section instead of copying it.
+
+### Documents derived from this model
+
+| Document | Derived from |
+|---|---|
+| [`vision.md`](vision.md) | §1, §2, §10 |
+| [`principles.md`](principles.md) | Framing, §5 |
+| [`philosophy.md`](philosophy.md) | Framing, §5, §8 |
+| [`audience.md`](audience.md) | §3, §4 |
+| [`user-journey.md`](user-journey.md) | §6 |
+| [`feature-map.md`](feature-map.md) | §1, §7 |
+| [`roadmap.md`](roadmap.md) | §6, §10 |
+
+Each feature's spec under `docs/product/<feature>/` likewise traces back to the module
+described in §7.
