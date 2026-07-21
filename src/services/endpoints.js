@@ -1,4 +1,4 @@
-import { apiDelete, apiUpload, apiPatch, apiPost, apiGet } from './api'
+import { requestStream, apiDelete, apiUpload, apiPatch, apiPost, apiGet } from './api'
 
 // One thin wrapper per backend route. The UI uses the auth subset today; the
 // rest are ready to wire up as features land.
@@ -49,6 +49,21 @@ export const interviewTranscribe = (audioBlob, language) => {
 }
 export const interviewSubmitAnswer = (id, questionId, payload) =>
   apiPost(`/interviews/${id}/answers/${questionId}`, payload)
+
+// Streaming (SSE) variant of interviewSubmitAnswer (docs/ai-chat/007). Maps SSE
+// frames to callbacks: onDelta(text) per token chunk (none in Phase 2 — the next
+// question arrives whole in done), onDone({ next, finished }), onError({ message,
+// recoverable }). Returns the requestStream promise; pass a signal to cancel.
+export const interviewSubmitAnswerStream = (id, questionId, payload, { onDelta, onError, onDone, signal } = {}) =>
+  requestStream(`/interviews/${id}/answers/${questionId}/stream`, {
+    onEvent: ({ event, data }) => {
+      if (event === 'delta') onDelta?.(data?.text || '')
+      else if (event === 'done') onDone?.(data || {})
+      else if (event === 'error') onError?.(data || {})
+    },
+    json: payload,
+    signal
+  })
 
 // Progress (per-user, auth required)
 export const progressSummary = () => apiGet('/progress/summary')

@@ -330,6 +330,7 @@ export const hy = {
   interviewSignedOutTitle: 'Մուտք գործեք',
   interviewCompleteTitle: 'Ավարտված է 🎉',
   interviewQuestionOf: 'Հարց {n}/{total}',
+  interviewReconnecting: 'Վերամիանում է…',
   interviewReviewTitle: 'Վերլուծություն',
   interviewTranscribing: 'Վերծանվում է…',
   interviewHowTitle: 'Ինչպես է աշխատում',
