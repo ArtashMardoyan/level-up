@@ -1,54 +1,79 @@
-# 002 — Auth, User и CORS
+# Security — Auth, Users & CORS
 
-Что добавлено поверх стартового скелета, чтобы фронт `level-up` мог логиниться через бэкенд.
+> **Status:** Approved · **Owner:** Backend · **Reviewers:** Frontend · **Last updated:** 2026-07-21
 
-## Модуль `user` (`internal/modules/user`)
+How authentication, the user account, and cross-origin access work — the security
+surface the web frontend logs in through. Small module, high risk: read this before
+touching auth.
 
-CRUD пользователя по паттерну go-first-api (entity / dto / status / repository (+gorm) / service / handler):
+## `user` module (`internal/modules/user`)
 
-| Метод | Путь | Auth | Описание |
+User CRUD, following the standard module layout (entity / dto / status / repository
+(+gorm) / service / handler):
+
+| Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/users` | — | регистрация (public) |
-| GET | `/users` | Bearer | список (пагинация `?page=&limit=`) |
-| GET | `/users/:id` | Bearer | по id |
-| PATCH | `/users` | Bearer | обновить себя (id из токена) |
-| DELETE | `/users` | Bearer | удалить себя |
+| POST | `/users` | — | register (public) |
+| GET | `/users` | Bearer | list (paginated `?page=&limit=`) |
+| GET | `/users/:id` | Bearer | by id |
+| PATCH | `/users` | Bearer | update self (id from token) |
+| DELETE | `/users` | Bearer | delete self |
 
-- Пароль хэшируется `bcrypt`, в JSON не отдаётся (`json:"-"`).
-- **`age` необязателен** (`binding:"omitempty,min=1"`) — форма регистрации на фронте содержит только имя/email/пароль. При отсутствии `age` в БД пишется дефолт `0`.
-- Валидация через gin binding: `name` min 2, `email`, `password` min 8.
+- Password is hashed with `bcrypt` and never serialized (`json:"-"`).
+- **`age` is optional** (`binding:"omitempty,min=1"`) — the sign-up form sends only
+  name/email/password; a missing `age` stores `0`.
+- Validation via gin binding: `name` min 2, `email`, `password` min 8.
 
-## Модуль `auth` (`internal/modules/auth`)
+## `auth` module (`internal/modules/auth`)
 
-JWT-аутентификация с **серверным logout** (denylist):
+JWT authentication with **server-side logout** (a denylist):
 
-| Метод | Путь | Auth | Описание |
+| Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/auth/login` | — | вход, возвращает `{ accessToken, user }` |
-| GET | `/auth/me` | Bearer | текущий пользователь |
-| POST | `/auth/logout` | Bearer | отзыв токена (204) |
+| POST | `/auth/login` | — | log in, returns `{ accessToken, user }` |
+| GET | `/auth/me` | Bearer | current user |
+| POST | `/auth/logout` | Bearer | revoke the token (204) |
 
-- Токен: HS256, TTL 24ч, `jti` (uuid) в claims. `JWT_SECRET` обязателен (сервер не стартует без него).
-- **Logout**: `jti` пишется в таблицу `revoked_tokens` (миграция `00002`). Middleware при каждом запросе проверяет denylist и отклоняет отозванный токен (`401 token has been revoked`).
-- Middleware `internal/infrastructure/middleware/auth.go` кладёт в контекст `shared.ContextUserKey` (user.User), `ContextJTIKey`, `ContextExpiryKey`.
+- Token: HS256, 24h TTL, `jti` (uuid) in the claims. `JWT_SECRET` is required — the
+  server refuses to start without it.
+- **Logout** writes the `jti` to `revoked_tokens` (migration `00002`). The middleware
+  checks the denylist on every request and rejects a revoked token
+  (`401 token has been revoked`).
+- Middleware `internal/infrastructure/middleware/auth.go` puts `shared.ContextUserKey`
+  (`user.User`), `ContextJTIKey`, and `ContextExpiryKey` on the gin context.
 
 ## CORS (`internal/config` + `cmd/server/main.go`)
 
-Браузерный фронт — это cross-origin запросы, поэтому подключён `github.com/gin-contrib/cors`:
+The browser frontend makes cross-origin requests, so `github.com/gin-contrib/cors`
+is wired in:
 
-- Origins берутся из env `CORS_ORIGINS` (через запятую); дефолт — `http://localhost:5173`, `http://localhost:4173`, `https://artashmardoyan.github.io`.
-- Методы `GET,POST,PATCH,DELETE,OPTIONS`, заголовки `Authorization, Content-Type`, `AllowCredentials`, preflight кэш 12ч.
-- Подключён первым middleware в `main.go` (до роутов).
+- Origins come from `CORS_ORIGINS` (comma-separated); the default is
+  `http://localhost:5173`, `http://localhost:4173`, `https://artashmardoyan.github.io`.
+- Methods `GET,POST,PATCH,DELETE,OPTIONS`; headers `Authorization, Content-Type`;
+  credentials allowed; 12h preflight cache.
+- Registered as the **first** middleware in `main.go` (before routes).
 
-## Формат ответов
+## Security notes
+
+- **Token storage:** the JWT lives in the browser's `localStorage` and is sent as a
+  Bearer header. Keep it out of URLs (never a query-string token) — any streaming or
+  WebSocket auth must preserve header-based auth or use a short-lived ticket. See
+  [ADR-0003](../../decisions/0003-sse-for-text-streaming.md).
+- **Credentialed CORS + wildcard origins** widen the origin surface; keep the allowed
+  list as tight as production requires.
+- **Deleting a user** cascades to their data (`ON DELETE CASCADE`) — sessions,
+  results, notifications, badges all go with the account.
+
+## Response format
 
 ```
 success → { "data": ... }        error → { "error": "..." }
-204 (DELETE / logout) — без тела
+204 (DELETE / logout) — no body
 ```
 
-## Проверка
+## Verified
 
-Локально (`docker compose up` или `go run ./cmd/server`) прогнан полный флоу и подтверждён:
-регистрация без `age` → 201, login → токен, `/auth/me` → 200, logout → 204,
-повторный `/auth/me` тем же токеном → `401 token has been revoked`, CORS-preflight → 204 c `Access-Control-Allow-Origin`.
+Locally (`docker compose up` or `go run ./cmd/server`) the full flow was confirmed:
+sign-up without `age` → 201, login → token, `/auth/me` → 200, logout → 204, re-`/auth/me`
+with the same token → `401 token has been revoked`, CORS preflight → 204 with
+`Access-Control-Allow-Origin`.
