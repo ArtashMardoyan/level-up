@@ -6,6 +6,7 @@ reviewers:
   - "Frontend"
   - "Mobile"
 last_updated: "YYYY-MM-DD"
+visibility: "internal"
 ---
 
 # <Feature> — UX Spec

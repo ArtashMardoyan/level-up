@@ -2,6 +2,7 @@
 status: "Review"
 owner: "Backend"
 last_updated: "2026-07-21"
+visibility: "internal"
 ---
 
 # Planning doc — engagement features (streak, activity screen, new_questions, daily)

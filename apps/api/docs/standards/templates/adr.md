@@ -3,6 +3,7 @@ status: "Proposed | Accepted | Superseded"
 date: "YYYY-MM-DD"
 deciders:
   - "<who>"
+visibility: "internal"
 ---
 
 # ADR-NNNN — <short decision title>

@@ -4,6 +4,7 @@ date: "2026-07-21"
 deciders:
   - "Backend Team Lead"
   - "Product"
+visibility: "internal"
 ---
 
 # ADR-0001 — Product documentation lives in the backend repository

@@ -4,6 +4,7 @@ owner: "<team/lead>"
 reviewers:
   - "<roles>"
 last_updated: "YYYY-MM-DD"
+visibility: "internal"
 ---
 
 # <Feature> — <one-line description>

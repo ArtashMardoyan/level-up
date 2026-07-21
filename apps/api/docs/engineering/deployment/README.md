@@ -2,6 +2,7 @@
 status: "Approved"
 owner: "Backend"
 last_updated: "2026-07-21"
+visibility: "internal"
 ---
 
 # Deployment — AWS (App Runner + RDS PostgreSQL)

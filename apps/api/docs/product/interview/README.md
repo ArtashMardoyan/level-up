@@ -6,6 +6,7 @@ reviewers:
   - "Frontend"
   - "Mobile"
 last_updated: "2026-07-21"
+visibility: "internal"
 ---
 
 # AI Interview Coach — documentation

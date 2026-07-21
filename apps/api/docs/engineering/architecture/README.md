@@ -2,6 +2,7 @@
 status: "Approved"
 owner: "Backend Team Lead"
 last_updated: "2026-07-21"
+visibility: "internal"
 ---
 
 # System Architecture

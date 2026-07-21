@@ -2,6 +2,7 @@
 status: "Approved"
 owner: "Backend Team Lead"
 last_updated: "2026-07-21"
+visibility: "internal"
 ---
 
 # Documentation Naming & Formatting Conventions
@@ -46,9 +47,10 @@ never sees it duplicated in the body):
 ---
 status: Draft | Review | Approved | Deprecated | Archived
 owner: <role/team>
-reviewers: [<role>, ...]     # optional
+reviewers: [<role>, ...]              # optional
 last_updated: YYYY-MM-DD
-version: <string>            # optional
+version: <string>                     # optional
+visibility: public | internal | private
 ---
 # Title
 ```
@@ -57,6 +59,9 @@ version: <string>            # optional
   to its replacement; nothing is silently deleted.
 - **owner** — the one role/team accountable for keeping it accurate.
 - **last_updated** — bump on every substantive change.
+- **visibility** — which audience the doc is published to (portal build filtering):
+  `public` (public site), `internal` (auth-gated site), or `private` (excluded from both
+  by default). **Defaults to `internal`** when omitted — nothing is public by accident.
 - ADRs use `status`, `date`, and `deciders` instead of owner/reviewers/last_updated.
 
 The portal generates a small metadata banner from these fields; do not restate them in

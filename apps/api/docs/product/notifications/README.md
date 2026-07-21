@@ -4,6 +4,7 @@ owner: "Backend"
 reviewers:
   - "Frontend"
 last_updated: "2026-07-21"
+visibility: "internal"
 ---
 
 # Notifications

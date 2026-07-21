@@ -4,6 +4,7 @@ owner: "<engineer/team>"
 reviewers:
   - "<stacks affected>"
 last_updated: "YYYY-MM-DD"
+visibility: "internal"
 ---
 
 # <Feature> — Technical Design

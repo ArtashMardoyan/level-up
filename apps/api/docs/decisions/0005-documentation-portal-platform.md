@@ -5,6 +5,7 @@ deciders:
   - "Backend Team Lead"
   - "Frontend"
   - "Product"
+visibility: "internal"
 ---
 
 # ADR-0005 — Documentation Portal Platform

@@ -3,6 +3,7 @@ status: "Accepted"
 date: "2026-07-21"
 deciders:
   - "Backend Team Lead"
+visibility: "internal"
 ---
 
 # ADR-0002 — English is the canonical documentation language

@@ -2,6 +2,7 @@
 status: "Draft"
 owner: "<team/lead>"
 last_updated: "YYYY-MM-DD"
+visibility: "internal"
 ---
 
 # <Feature> — Roadmap

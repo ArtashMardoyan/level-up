@@ -57,7 +57,10 @@ validation:
     unrecognized_links: ignore
     not_found: warn
 
-# Treat each folder's README.md as its section index, keeping README.md as the
-# source file (GitHub still renders it; the docs source is unchanged).
+# Build hooks. visibility_filter drops pages not permitted for the target audience
+# (DOCS_AUDIENCE env: public | internal | full); readme_index then treats each folder's
+# README.md as its section index (README.md stays the source file; GitHub still renders
+# it). Both read source paths only — the docs source is unchanged.
 hooks:
+  - mkdocs/hooks/visibility_filter.py
   - mkdocs/hooks/readme_index.py
