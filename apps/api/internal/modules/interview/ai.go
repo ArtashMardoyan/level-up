@@ -82,6 +82,14 @@ type GenResult struct {
 // returns an error or is nil (docs/interview/004).
 type Generator interface {
 	Generate(ctx context.Context, in *GenInput) (GenResult, error)
+	// GenerateStream is the streaming counterpart to Generate (docs/ai-chat/008).
+	// It streams the user-visible prose (reaction, then question) via onVisible as
+	// the model produces it, and returns the fully-assembled GenResult when done.
+	// The model answer is never streamed (it isn't shown live — it backs the
+	// Sample-answer button and anchors grading). Same one-retry + degrade policy as
+	// Generate, except a failure is not retried once any visible token has been
+	// emitted (docs/ai-chat/008/011).
+	GenerateStream(ctx context.Context, in *GenInput, onVisible func(string)) (GenResult, error)
 }
 
 // Transcriber converts a recorded answer into text (docs/interview/005). Backed
@@ -139,17 +147,9 @@ func (e *openAIClient) Evaluate(ctx context.Context, in *EvalInput) (EvalResult,
 	ctx, cancel := context.WithTimeout(ctx, e.timeout)
 	defer cancel()
 
-	langName := "English"
-	switch in.Language {
-	case LangRU:
-		langName = "Russian"
-	case LangHY:
-		langName = "Armenian"
-	}
-
 	userPrompt := fmt.Sprintf(
 		"Interview language: %s\nCourse: %s\nDifficulty: %s\n\nQuestion:\n%s\n\nIdeal answer (reference):\n%s\n\nCandidate's answer:\n%s",
-		langName, in.CourseTitle, in.Difficulty, in.Question, fallback(in.IdealAnswer, "(none provided)"), fallback(in.Answer, "(empty)"),
+		languageName(in.Language), in.CourseTitle, in.Difficulty, in.Question, fallback(in.IdealAnswer, "(none provided)"), fallback(in.Answer, "(empty)"),
 	)
 
 	params := openai.ChatCompletionNewParams{
@@ -216,7 +216,10 @@ func parseEval(content string) (EvalResult, error) {
 	return r, nil
 }
 
-const questionSystemPrompt = `You are a real, professional technical interviewer conducting a live mock interview.
+// questionGuidance is the shared interviewer instruction for both the blocking
+// (JSON) and streaming (sentinel) generation prompts, so the two paths stay in
+// sync — only the output-format instruction appended below differs (docs/ai-chat/008).
+const questionGuidance = `You are a real, professional technical interviewer conducting a live mock interview.
 You are given one topic from the interview's internal question bank: a module name, a reference
 question, and its reference answer. Do NOT quote the reference question verbatim and NEVER include
 any numbering or label like "Question 12." — a real interviewer never says that out loud.
@@ -242,28 +245,43 @@ only so you can calibrate tone. The reaction must NEVER state, imply, or hint at
 percentage, or the words "correct"/"incorrect"/"score"/"points" — a real interviewer doesn't grade out
 loud mid-chat.
 If the candidate skipped, react naturally to moving on, with no judgment. If there is no previous
-question (this is the interview's opening question), leave "reaction" as an empty string.
+question (this is the interview's opening question), leave "reaction" as an empty string.`
+
+// questionSystemPrompt is the blocking generation prompt: guidance + a single-JSON
+// output contract (unchanged from before the streaming work).
+const questionSystemPrompt = questionGuidance + `
 
 Respond with a SINGLE JSON object and nothing else, matching exactly:
 {"reaction":"<string, can be empty>","question":"<string>","modelAnswer":"<string>"}`
+
+// Sentinel markers delimiting the three sections of the streaming generation
+// response (docs/ai-chat/008). Chosen to be extremely unlikely in natural prose;
+// the prompt forbids their use anywhere but as the section separators.
+const (
+	genSepQuestion = "###QUESTION###"
+	genSepAnswer   = "###ANSWER###"
+)
+
+// questionStreamSystemPrompt is the streaming generation prompt: the same guidance
+// as the blocking path, but a plain-text, sentinel-delimited output contract so the
+// user-visible prose (reaction + question) can be streamed token-by-token while the
+// model answer is parsed off the tail (docs/ai-chat/008).
+const questionStreamSystemPrompt = questionGuidance + `
+
+Respond with EXACTLY three sections, in this order, each separated by a line containing only the
+marker shown, and NOTHING else (no JSON, no code fences, no extra commentary):
+<reaction, or empty if there is no previous question>
+` + genSepQuestion + `
+<the question>
+` + genSepAnswer + `
+<the model answer>
+Do NOT use the markers ` + genSepQuestion + ` or ` + genSepAnswer + ` anywhere except as the two separators.`
 
 func (e *openAIClient) Generate(ctx context.Context, in *GenInput) (GenResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, e.timeout)
 	defer cancel()
 
-	langName := "English"
-	switch in.Language {
-	case LangRU:
-		langName = "Russian"
-	case LangHY:
-		langName = "Armenian"
-	}
-
-	userPrompt := fmt.Sprintf(
-		"Interview language: %s\nCourse: %s\nDifficulty: %s\nModule: %s\n\nReference question:\n%s\n\nReference answer:\n%s%s",
-		langName, in.CourseTitle, in.Difficulty, in.Module, in.RefQuestion, fallback(in.RefAnswer, "(none provided)"),
-		prevTurnPrompt(in),
-	)
+	userPrompt := genUserPrompt(in)
 
 	params := openai.ChatCompletionNewParams{
 		Model:       openai.ChatModel(e.model),
@@ -315,6 +333,162 @@ func parseGen(content string) (GenResult, error) {
 	return r, nil
 }
 
+// GenerateStream streams the sentinel-delimited generation response (docs/ai-chat/008),
+// forwarding the visible prose (reaction + question) to onVisible as it arrives and
+// parsing the three sections when complete. Retries once only if the stream fails
+// before any visible token was emitted; after that a failure is returned (a partial
+// bubble can't be un-shown — the service degrades to the bank text and the client
+// reconciles on done, docs/ai-chat/011).
+func (e *openAIClient) GenerateStream(ctx context.Context, in *GenInput, onVisible func(string)) (GenResult, error) {
+	ctx, cancel := context.WithTimeout(ctx, e.timeout)
+	defer cancel()
+
+	// Plain-text streaming: no JSON ResponseFormat (we stream prose, not an object).
+	params := openai.ChatCompletionNewParams{
+		Model:       openai.ChatModel(e.model),
+		Temperature: openai.Float(0.7),
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage(questionStreamSystemPrompt),
+			openai.UserMessage(genUserPrompt(in)),
+		},
+	}
+
+	var lastErr error
+	for attempt := 0; attempt < 2; attempt++ {
+		result, emitted, err := e.runGenerateStream(ctx, &params, onVisible)
+		if err != nil {
+			lastErr = err
+			if emitted {
+				return GenResult{}, err // never retry once tokens are on the wire
+			}
+
+			continue
+		}
+
+		return result, nil
+	}
+
+	return GenResult{}, lastErr
+}
+
+// runGenerateStream performs one streaming attempt. It returns whether any visible
+// token was emitted so the caller can decide whether a retry is still safe.
+func (e *openAIClient) runGenerateStream(ctx context.Context, params *openai.ChatCompletionNewParams, onVisible func(string)) (GenResult, bool, error) {
+	stream := e.client.Chat.Completions.NewStreaming(ctx, *params)
+	defer func() { _ = stream.Close() }()
+
+	var full strings.Builder
+	emitted := 0
+
+	flush := func(final bool) {
+		vis := genVisible(full.String(), final)
+		if len(vis) > emitted {
+			onVisible(vis[emitted:])
+			emitted = len(vis)
+		}
+	}
+
+	for stream.Next() {
+		chunk := stream.Current()
+		if len(chunk.Choices) == 0 {
+			continue
+		}
+		full.WriteString(chunk.Choices[0].Delta.Content)
+		flush(false)
+	}
+
+	if err := stream.Err(); err != nil {
+		return GenResult{}, emitted > 0, err
+	}
+
+	parsed, err := parseGenStream(full.String())
+	if err != nil {
+		return GenResult{}, emitted > 0, err
+	}
+
+	// Flush any tail withheld by the mid-stream holdback now that parsing confirmed
+	// a well-formed response.
+	flush(true)
+
+	return parsed, emitted > 0, nil
+}
+
+// parseGenStream splits a completed sentinel-delimited generation response into its
+// three sections and validates them, mirroring parseGen's contract.
+func parseGenStream(content string) (GenResult, error) {
+	qi := strings.Index(content, genSepQuestion)
+	if qi < 0 {
+		return GenResult{}, fmt.Errorf("interview: streamed generation missing question separator")
+	}
+
+	rest := content[qi+len(genSepQuestion):]
+
+	ai := strings.Index(rest, genSepAnswer)
+	if ai < 0 {
+		return GenResult{}, fmt.Errorf("interview: streamed generation missing answer separator")
+	}
+
+	r := GenResult{
+		Reaction:    strings.TrimSpace(content[:qi]),
+		Question:    strings.TrimSpace(rest[:ai]),
+		ModelAnswer: strings.TrimSpace(rest[ai+len(genSepAnswer):]),
+	}
+	if r.Question == "" || r.ModelAnswer == "" {
+		return GenResult{}, fmt.Errorf("interview: AI question or model answer empty")
+	}
+
+	return r, nil
+}
+
+// genVisible returns the user-visible prose (reaction + question) that is safe to
+// have shown given the raw sentinel-delimited text accumulated so far. It is a
+// monotonically growing prefix: the caller emits only the part beyond what it has
+// already sent (docs/ai-chat/008/010).
+//
+// The reaction is withheld until the question separator is seen (so no partial
+// separator ever reaches the client and the reaction never needs re-trimming). The
+// question is then streamed, left-trimmed and, until final, right-held-back by
+// len(genSepAnswer)-1 bytes so a partial answer separator is never emitted. final
+// releases the withheld tail once the response is known complete + well-formed.
+func genVisible(raw string, final bool) string {
+	qi := strings.Index(raw, genSepQuestion)
+	if qi < 0 {
+		return "" // still buffering the reaction; nothing safe to show yet
+	}
+
+	reaction := strings.TrimSpace(raw[:qi])
+	rest := raw[qi+len(genSepQuestion):]
+
+	var question string
+	if ai := strings.Index(rest, genSepAnswer); ai >= 0 {
+		question = strings.TrimSpace(rest[:ai])
+	} else {
+		// No answer separator yet. Hold back the last len(genSepAnswer)-1 raw bytes
+		// so a partial separator is never shown, then trim: trailing whitespace here
+		// is the newline before the upcoming separator, not part of the question.
+		// (final releases the whole remainder.) Trimming both ends stays a
+		// monotonically growing prefix as more text arrives.
+		q := rest
+		if !final {
+			if hold := len(genSepAnswer) - 1; len(q) > hold {
+				q = q[:len(q)-hold]
+			} else {
+				q = ""
+			}
+		}
+		question = strings.TrimSpace(q)
+	}
+
+	if reaction == "" {
+		return question
+	}
+	if question == "" {
+		return reaction
+	}
+
+	return reaction + "\n\n" + question
+}
+
 // Transcribe converts a recorded voice answer to text via Whisper (docs/005).
 // Unlike Evaluate/Generate this never degrades silently — a caller with no
 // transcript to show has nothing useful to fall back to, so the error is
@@ -346,6 +520,29 @@ func (e *openAIClient) Transcribe(ctx context.Context, audio io.Reader, filename
 	return text, nil
 }
 
+// languageName maps a session language code to the English name used in prompts.
+func languageName(lang string) string {
+	switch lang {
+	case LangRU:
+		return "Russian"
+	case LangHY:
+		return "Armenian"
+	default:
+		return "English"
+	}
+}
+
+// genUserPrompt builds the generation user prompt shared by Generate and
+// GenerateStream, so the blocking and streaming paths ground the model on an
+// identical prompt (and therefore grade against the same reference).
+func genUserPrompt(in *GenInput) string {
+	return fmt.Sprintf(
+		"Interview language: %s\nCourse: %s\nDifficulty: %s\nModule: %s\n\nReference question:\n%s\n\nReference answer:\n%s%s",
+		languageName(in.Language), in.CourseTitle, in.Difficulty, in.Module, in.RefQuestion, fallback(in.RefAnswer, "(none provided)"),
+		prevTurnPrompt(in),
+	)
+}
+
 func fallback(s, alt string) string {
 	if strings.TrimSpace(s) == "" {
 		return alt
@@ -363,6 +560,18 @@ func prevTurnPrompt(in *GenInput) string {
 	}
 	if in.PrevSkipped {
 		return fmt.Sprintf("\n\nPrevious question:\n%s\n\nThe candidate skipped this one.", in.PrevQuestion)
+	}
+
+	// A negative PrevScore means "not scored yet" — the streaming path grades the
+	// answer in the background, so the score isn't available when the next question
+	// is generated. Omit the calibration signal rather than imply a 0, which would
+	// read as a failed answer (docs/ai-chat/008/010). The blocking path always passes
+	// a real 0–100 score and keeps the signal.
+	if in.PrevScore < 0 {
+		return fmt.Sprintf(
+			"\n\nPrevious question:\n%s\n\nCandidate's answer:\n%s",
+			in.PrevQuestion, fallback(in.PrevAnswer, "(empty)"),
+		)
 	}
 
 	return fmt.Sprintf(
