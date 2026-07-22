@@ -1,0 +1,6 @@
+# Documentation portal (MkDocs Material) — pinned for reproducible builds.
+# Isolated from the app; used only by the docs build/serve (see docs/process/
+# documentation-portal-implementation-plan.md).
+mkdocs==1.6.1
+mkdocs-material==9.7.7
+pymdown-extensions==11.0.1

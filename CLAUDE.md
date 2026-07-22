@@ -1,59 +1,89 @@
-# CLAUDE.md
+# CLAUDE.md — Level Up (monorepo router)
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This repository is the single source of truth for the Level Up platform. Your job is not merely to
+generate code: understand the task, choose the right workflow, load only the context you need,
+implement safely, validate with **stack-specific** checks, and keep documentation consistent.
 
-## Critical workflow rules
+This file is the **model-agnostic router** into the AI workspace. Per-app conventions live in
+`apps/*/CLAUDE.md`.
 
-**NEVER commit or push without explicit user instruction.** Wait for the user to say "commit" or "commit push" before running any `git commit` or `git push` command. No exceptions — not after fixing a bug, not after the build passes, not after any change. This matters double here: **every push to `master` auto-deploys to GitHub Pages.**
+---
 
-**Large tasks require a plan first.** For any large or cross-cutting task (new feature, redesign, refactor touching several components): create a branch off `master`, enter plan mode, and get the plan approved before writing code.
+## Technology stack (polyglot monorepo)
 
-**Run `npm run lint` before finishing any change** and fix what it reports (`npm run lint:fix` handles most of it). Prefer fixing code to satisfy a rule over disabling the rule.
+A TypeScript workspace and a Go service coexist in one repo, each with its own toolchain.
 
-**Keep the redesign docs in sync with the UI.** When you change any UI (layout, components, or `src/index.css`), update `docs/redesign/status.md` and `docs/redesign/handoff/README.md` in the **same commit**. These docs are the design source of truth the mockup/prototype is built from; a stale spec is exactly what caused the sticky-header confusion (docs said one thing, code did another).
+- **Frontend & shared libs (TypeScript/JS):** React + Vite in `apps/web` (pnpm + Turborepo).
+  *(JSX today; TS/Tailwind adoption is later work.)*
+- **Backend (Go):** Gin + GORM + PostgreSQL + Goose in `apps/api` — **stays Go**; its own toolchain
+  (`go.mod` module `level-up-backend`, Makefile, goose), **not** a pnpm/Turborepo member.
+  **Do NOT propose migrating the backend to NestJS/TypeScript.**
+- **API contract (target):** OpenAPI is the single source of truth; Go server types and the TS client
+  are generated from one spec (see `docs/decisions/0007-openapi-contract-workflow.md`). Go and TS
+  **never share runtime code** — only the generated contract.
 
-## Commands
+---
 
-```bash
-npm run dev       # start Vite dev server
-npm run build     # production build to dist/
-npm run preview   # preview the production build locally
-npm run lint      # ESLint (flat config, eslint.config.mjs)
-npm run lint:fix  # auto-fix lint + formatting
-```
+## AI workflow (every task)
 
-Course content and the audio/translation pipeline now live in the `level-up-backend` repo (JSON seed data + `scripts/*.mjs`). This app fetches content from the backend API.
+1. Understand the request.
+2. Select the correct harness (`.ai/harnesses/`).
+3. Load only the required knowledge (`.ai/knowledge/` + `docs/`).
+4. Choose the needed agent role(s).
+5. Implement.
+6. Run **stack-specific** validation.
+7. Update documentation if needed.
 
-There are no tests configured.
+Never skip validation. Never claim success without it.
 
-## Code style
+## Harness selection (`.ai/harnesses/`)
+- Backend endpoint (Go) → `backend-api` · Frontend UI (TS) → `frontend-ui` · Bug fix → `bug-fix`.
+- The harness **interface** is `docs/standards/harness-framework.md`.
+- ⚠️ The current harnesses are **legacy / pre-framework** (P1 pilot) — bring them to framework
+  conformance before running them as governed harnesses.
 
-Enforced by ESLint (flat config, `eslint.config.mjs`) — most violations auto-fix with `npm run lint:fix`:
+## Knowledge loading (keep context small)
+Never load the whole repo. Priority: (1) relevant ADR in `docs/decisions/` → (2) engineering docs in
+`docs/engineering/` → (3) knowledge pack in `.ai/knowledge/` → (4) target app (`apps/web` | `apps/api`)
+→ (5) the one sibling file you're changing. Prefer pointers over pasted content.
 
-- **Prettier as an ESLint rule**: no semicolons, single quotes, 2-space indent, print width 120, no trailing commas.
-- **Import sorting** (`perfectionist/sort-imports`, line-length ascending): two groups separated by a blank line — builtin+external first, then internal/parent/sibling. Named imports within a statement also sorted by length.
-- **Objects**: keys sorted by line length **descending** (`partitionByComment: true` — a comment inside the literal starts a new sort partition).
-- **JSX props, named exports, etc.**: line-length sorted via `perfectionist` `recommended-line-length` preset.
-- **React hooks**: `eslint-plugin-react-hooks` v7 with compiler-powered rules (`set-state-in-effect`, `refs`, `set-state-in-render`…). Don't sync state with props via `useEffect` — adjust state during render behind a `prev !== next` guard (see `QuestionCard.jsx`, `CoursePlayer.jsx`), and don't read `ref.current` during render.
+## Agents
+Planner · Architect · Backend (Go) · Frontend (TS) · Reviewer · Testing · Documentation · Security ·
+Performance. Use only what the task needs; advisory roles produce findings, they don't edit.
 
-## What this is
+---
 
-A React 18 + Vite SPA for practicing interview questions across multiple course tracks (Backend, Frontend, DevOps, QA, Node.js, Go, React, Next.js). Course content is fetched from the `level-up-backend` API (`GET /courses/full`). Per-user progress (reviewed/favorites) syncs to the backend when signed in; anonymous visitors fall back to `localStorage`. `VITE_API_URL` sets the API base (Pages build injects the App Runner URL).
+## Validation — STACK-SPECIFIC
 
-Deployed to GitHub Pages via `.github/workflows/deploy.yml` on every push to `master`. `vite.config.js` sets `base: '/level-up/'` to match the Pages URL — keep that in mind for any absolute asset paths.
+Implementation isn't done until the checks for the touched stack pass. "green is executed, not claimed."
 
-`docs/` has context per feature/ticket — a single markdown file for smaller ones, or a folder with a few files for larger ones (e.g. `docs/dictionary/overview.md` for why/decisions/status, `docs/dictionary/code.md` for the technical reference). Check it for context beyond what this file covers before starting work on a feature.
+- **Go (`apps/api`):** `make fmt` · `make lint` (golangci-lint) · `make test` (`go test ./...`) ·
+  `make build`; goose up/down on a scratch DB for migrations.
+- **TypeScript (`apps/web`):** `pnpm --filter ./apps/web lint` · `… build`; verify behavior via the
+  DOM in the running app (no test runner yet).
+- **Contract change:** regenerate from OpenAPI and confirm both generated sides compile.
 
-## Architecture
+## Documentation
+`docs/` is the source of truth (`product/ engineering/ decisions/ standards/ process/`). When
+behavior or architecture changes: update the relevant docs (and an ADR if a decision was made) in the
+same change. Docs-first; on conflict, fix the docs.
 
-**Routing** is hash-based (`useHashRoute`): `#<courseId>` or `#<courseId>/<questionId>`. `App.jsx` switches between the course picker (`CourseSelect`) and the course view (`PrepView`) based on the hash; the last-visited course is persisted and restored on fresh visits. Global search results navigate by setting a `#course/question` hash, and `PrepView` scrolls to and expands the `jumpToId` question.
+## Repository rules
+- `apps/` deployable apps (TS apps + the Go `api`); `packages/` reusable TS libs (as they appear);
+  `.ai/` the AI workspace; `docs/` the source of truth.
+- TS apps/packages form a pnpm + Turborepo workspace: dependencies flow **apps → packages**.
+- **`apps/api` (Go) is a toolchain island — it does NOT consume `packages/*`.** Go and TS share only
+  the OpenAPI-generated contract, never `workspace:*`.
+- Avoid circular dependencies.
 
-**Content pipeline**: `src/data/courses.js` (`fetchCourses`) calls the backend `GET /courses/full?lang=` and normalizes each course/question so the UI keeps using human ids — a course's `id` is its `slug` (`go`), a question's `id` is its `ref` (`q1`) — while the backend uuid rides along on `uuid` for progress API calls. `useCourses` wraps this with per-language stale-while-revalidate caching (localStorage, gated on `GET /courses/version`) + loading/error state — see `docs/caching/overview.md`. A course with zero questions renders as "Coming soon". Content itself (JSON + audio/translation scripts) is authored in the `level-up-backend` repo, not here.
+## Git
+**Never commit or push without explicit instruction.** Not after a fix, not after validation passes.
+Note: a push to `master` auto-deploys `apps/web` to GitHub Pages.
 
-Each question the app renders: `{ id: <ref "q1">, uuid, module, question, answer, bonus?, audio? }`. `audio` is a single S3 object key resolved to a URL by `src/data/audio.js` (`audioUrl` = `VITE_S3_BUCKET_URL` + key); present → a pre-generated MP3 plays, absent → browser speech.
+## Mission
+Evolve Level Up as a high-quality, maintainable platform. Optimize for correctness, maintainability,
+consistency, and long-term scalability — not merely for producing code quickly. Prefer simple over
+clever; reuse before creating; explain trade-offs when they matter.
 
-**State**: no state library. `useReviewState(courseId, questions)` is auth-aware — signed-in users read/write progress via the backend API (mapping `ref` ↔ `uuid` at the boundary), anonymous users use `localStorage` (keyed by course slug + question ref); on first sign-in `App.jsx` migrates any local progress to the backend once. Theme (`useTheme`) and TTS voice (`useSpeech`) are global and persisted. `PrepView` holds all in-course UI state (mode, search, collapsed modules, player).
-
-**Text-to-speech** is built on the browser `speechSynthesis` API (`useSpeech` for voice selection, `CoursePlayer` for the auto-playing course-wide player). Per-question read-aloud is routed through `CoursePlayer` rather than ad-hoc utterances.
-
-**Styling** is a single plain-CSS file (`src/index.css`); light/dark theme via a class/attribute toggled by `useTheme`, respecting system preference on first load.
+> Architecture is frozen as v1 (ADR-0006/0007/0008 + the Harness Framework). Architecture now follows
+> implementation: propose changes only when real work exposes a real problem, backed by evidence.

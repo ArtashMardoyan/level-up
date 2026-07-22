@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-levelup}
+      POSTGRES_USER: ${DB_USER:-levelup}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-levelup}
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-levelup}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-levelup}
+      DB_USER: ${DB_USER:-levelup}
+      DB_PASSWORD: ${DB_PASSWORD:-levelup}
+      DB_SSLMODE: disable
+    ports:
+      - '3000:3000'
+
+volumes:
+  pgdata:

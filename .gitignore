@@ -1,5 +1,8 @@
 node_modules
 dist
+bin/
+coverage/
+.turbo
 .DS_Store
 .idea
 .env
