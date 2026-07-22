@@ -1,0 +1,68 @@
+# AI workspace map for the level-up monorepo (polyglot: TS workspace + Go island).
+# Single source of truth — consolidated in Phase 5 (no more per-repo .ai/, no subtree).
+
+repo: https://github.com/ArtashMardoyan/level-up   # single private monorepo (target)
+
+apps:
+  web:                                   # TypeScript/JS workspace app (pnpm + turbo)
+    path: apps/web
+    stack: [react18, vite, javascript]   # JSX today; TS/Tailwind adoption is later work
+    conventions: apps/web/CLAUDE.md
+    knowledge: .ai/knowledge/frontend-architecture.md
+    commands:                            # run from repo root
+      dev: pnpm --filter ./apps/web dev
+      build: pnpm --filter ./apps/web build
+      lint: pnpm --filter ./apps/web lint
+      test: none                         # no runner yet — verify via DOM in the running app
+    deploy:
+      platform: github-pages
+      workflow: .github/workflows/deploy.yml
+      trigger: push to master (auto-deploys)   # do NOT push without explicit instruction
+      base: /level-up/                          # apps/web/vite.config.js base path
+      api_base_env: VITE_API_URL
+
+  api:                                   # Go toolchain island (NOT a pnpm/turbo member)
+    path: apps/api
+    stack: [go, gin, gorm, postgres]
+    go_version: "1.26"
+    module: level-up-backend             # go.mod module path (unchanged by migration)
+    conventions: apps/api/CLAUDE.md
+    knowledge: .ai/knowledge/backend-architecture.md
+    commands:                            # run inside apps/api (own toolchain)
+      run: make run
+      build: make build
+      test: make test                    # go test ./...
+      lint: make lint                    # golangci-lint run
+      fmt: make fmt
+      docker_up: make docker-up
+      deploy: make deploy                # build -> ECR -> App Runner (aws sso login --profile vyb-dev)
+    paths:
+      modules: apps/api/internal/modules
+      wiring: apps/api/cmd/server/main.go
+      migrations: apps/api/migrations
+      shared_go: apps/api/internal/shared
+      config: apps/api/internal/config/config.go
+      postman: apps/api/postman/level-up-backend.postman_collection.json
+    deploy_target:
+      platform: app-runner
+      region: us-east-2
+      aws_profile: vyb-dev
+      migrations: goose, run on container start
+
+docs: docs                               # single monorepo docs tree (Phase 4)
+
+harnesses:    # .ai/harnesses/ — PRE-FRAMEWORK (legacy) pending Harness-Framework conformance
+  - backend-api        # applies_to: api
+  - frontend-ui        # applies_to: web
+  - bug-fix            # applies_to: web, api
+checklists:   # .ai/checklists/
+  - naming
+  - security
+  - testing
+knowledge:    # .ai/knowledge/
+  - domain-glossary        # shared (cross-stack)
+  - frontend-architecture  # apps/web
+  - backend-architecture   # apps/api
+
+# Validation is STACK-SPECIFIC (ADR-0006): Go → make test/lint + goose;
+# TS → pnpm --filter ./apps/web lint|build. "green is executed, not claimed."
