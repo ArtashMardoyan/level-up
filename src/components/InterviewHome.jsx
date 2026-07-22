@@ -8,7 +8,7 @@ import { useLanguage } from '../hooks/useLanguage'
 import { interviewsList } from '../services/endpoints'
 
 // Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
-const LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }
+const LANG_FLAG = { en: '🇺🇸', ru: '🇷🇺', hy: '🇦🇲' }
 const LANG_LABEL = { en: 'ENG', ru: 'RUS', hy: 'ARM' }
 
 // The three "how it works" steps (guest + new-user states).

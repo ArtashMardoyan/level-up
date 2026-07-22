@@ -24,7 +24,7 @@ import {
 } from '../services/endpoints'
 
 // Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
-const IV_LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }
+const IV_LANG_FLAG = { en: '🇺🇸', ru: '🇷🇺', hy: '🇦🇲' }
 const IV_LANG_LABEL = { en: 'ENG', ru: 'RUS', hy: 'ARM' }
 
 function ivScoreColor(n) {

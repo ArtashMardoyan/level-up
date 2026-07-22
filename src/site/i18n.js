@@ -85,7 +85,7 @@ export const EN = {
   who: {
     lead: 'Whether it’s your first interview or your next senior loop — if you’re getting ready for a technical interview, Level Up is for you.',
     eslFlags: [
-      { flag: '🇬🇧', code: 'ENG' },
+      { flag: '🇺🇸', code: 'ENG' },
       { flag: '🇷🇺', code: 'RUS' },
       { flag: '🇦🇲', code: 'ARM' }
     ],
@@ -147,7 +147,7 @@ export const EN = {
   },
   language: {
     langs: [
-      { name: 'English', word: 'Hello', flag: '🇬🇧', code: 'ENG' },
+      { name: 'English', word: 'Hello', flag: '🇺🇸', code: 'ENG' },
       { name: 'Russian', word: 'Привет', flag: '🇷🇺', code: 'RUS' },
       { name: 'Armenian', flag: '🇦🇲', word: 'Բարև', code: 'ARM' }
     ],

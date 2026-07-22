@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const LANG_PILLS = [
-  { flag: '🇬🇧', active: true, code: 'ENG' },
+  { flag: '🇺🇸', active: true, code: 'ENG' },
   { flag: '🇷🇺', code: 'RUS' },
   { flag: '🇦🇲', code: 'ARM' }
 ]

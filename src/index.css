@@ -5460,9 +5460,12 @@ footer {
 }
 .mkt-loop-ring {
   position: relative;
-  width: min(440px, 88vw);
+  width: min(440px, 82vw);
   aspect-ratio: 1;
-  margin: 0 auto 44px;
+  /* Nodes protrude ~half their height past the ring edge, so the ring needs
+     vertical breathing room — otherwise the top node collides with the section
+     heading and the bottom node crowds the caption. */
+  margin: 72px auto 64px;
 }
 @keyframes mkt-spin {
   to { transform: rotate(360deg); }

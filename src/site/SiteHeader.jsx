@@ -13,10 +13,12 @@ function scrollToId(id) {
   el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
 }
 
+// Flag + short code, identical to the app's interview section (InterviewSetup /
+// InterviewHome): 🇺🇸 ENG · 🇷🇺 RUS · 🇦🇲 ARM.
 const LANGS = [
-  { label: 'EN', code: 'en' },
-  { label: 'RU', code: 'ru' },
-  { label: 'HY', code: 'hy' }
+  { flag: '🇺🇸', label: 'ENG', code: 'en' },
+  { flag: '🇷🇺', label: 'RUS', code: 'ru' },
+  { flag: '🇦🇲', label: 'ARM', code: 'hy' }
 ]
 
 // Marketing header: inline nav (desktop) + a menu button that opens a panel with
@@ -104,7 +106,7 @@ export default function SiteHeader({ setTheme, theme }) {
                       type="button"
                       key={l.code}
                     >
-                      {l.label}
+                      <span aria-hidden="true">{l.flag}</span> {l.label}
                     </button>
                   ))}
                 </div>

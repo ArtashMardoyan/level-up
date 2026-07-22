@@ -8,7 +8,7 @@ import { interviewsList } from '../services/endpoints'
 
 const PAGE_SIZE = 10
 // Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
-const LANG_FLAG = { en: '🇬🇧', ru: '🇷🇺', hy: '🇦🇲' }
+const LANG_FLAG = { en: '🇺🇸', ru: '🇷🇺', hy: '🇦🇲' }
 const LANG_LABEL = { en: 'ENG', ru: 'RUS', hy: 'ARM' }
 
 export default function InterviewHistory({ courses, onOpen, onBack, onNew }) {

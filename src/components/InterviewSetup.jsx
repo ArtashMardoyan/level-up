@@ -9,7 +9,7 @@ const DIFFICULTIES = ['easy', 'medium', 'hard']
 const COUNTS = [3, 5, 10]
 // Interview language (ENG/RUS/ARM). Codes match the app locales / backend `hy`.
 const LANGUAGES = [
-  { label: 'ENG', flag: '🇬🇧', code: 'en' },
+  { label: 'ENG', flag: '🇺🇸', code: 'en' },
   { label: 'RUS', flag: '🇷🇺', code: 'ru' },
   { label: 'ARM', flag: '🇦🇲', code: 'hy' }
 ]
