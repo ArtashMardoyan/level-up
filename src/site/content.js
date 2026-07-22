@@ -19,6 +19,52 @@ export const HOME = {
     eyebrow: 'How it works',
     cta: 'Start practicing'
   },
+  who: {
+    lead: 'Whether it’s your first interview or your next senior loop — if you’re getting ready for a technical interview, Level Up is for you.',
+    eslFlags: [
+      { flag: '🇬🇧', code: 'ENG' },
+      { flag: '🇷🇺', code: 'RUS' },
+      { flag: '🇦🇲', code: 'ARM' }
+    ],
+    esl: 'Practice in the language you’ll interview in — it builds how you communicate under pressure, not just what you know.',
+    tracks: {
+      role: ['Backend', 'Frontend', 'DevOps', 'QA'],
+      stack: ['Node.js', 'Go', 'React', 'Next.js']
+    },
+    title: 'For software engineers preparing to interview.',
+    tracksTitle: 'You’re preparing for one of our tracks',
+    eslTitle: 'You’re interviewing in a second language',
+    levels: 'You’re anywhere from junior to senior',
+    levelBars: ['Junior', 'Mid', 'Senior'],
+    tracksNote: 'More tracks coming.',
+    eyebrow: 'Who it’s for'
+  },
+  inside: {
+    cards: [
+      {
+        body: 'Practice full interviews for your track, the way they really run.',
+        title: 'Realistic mock interviews',
+        icon: 'calendar'
+      },
+      {
+        body: 'A clear score on what matters — correctness, depth, structure, and communication — plus a model answer to learn from.',
+        title: 'Feedback on every answer',
+        icon: 'star'
+      },
+      {
+        body: 'Study the questions that actually come up, organized by track.',
+        title: 'A focused question bank',
+        icon: 'message'
+      },
+      {
+        body: 'Track your scores over time, and keep your momentum with streaks and badges.',
+        title: 'Progress you can see',
+        icon: 'chart'
+      }
+    ],
+    title: 'Realistic mock interviews — scored, coached, and tracked.',
+    eyebrow: 'What’s inside'
+  },
   gap: {
     items: [
       {
@@ -37,34 +83,16 @@ export const HOME = {
     leadFade: 'Most preparation builds what you know — not how you perform when it counts.',
     lead: 'Knowing the material isn’t the same as being ready for the interview.'
   },
-  inside: {
-    cards: [
-      { body: 'Practice full interviews for your track, the way they really run.', title: 'Realistic mock interviews' },
-      {
-        body: 'A clear score on what matters — correctness, depth, structure, and communication — plus a model answer to learn from.',
-        title: 'Feedback on every answer'
-      },
-      { body: 'Study the questions that actually come up, organized by track.', title: 'A focused question bank' },
-      {
-        body: 'Track your scores over time, and keep your momentum with streaks and badges.',
-        title: 'Progress you can see'
-      }
+  language: {
+    langs: [
+      { name: 'English', word: 'Hello', flag: '🇬🇧', code: 'ENG' },
+      { name: 'Russian', word: 'Привет', flag: '🇷🇺', code: 'RUS' },
+      { name: 'Armenian', flag: '🇦🇲', word: 'Բարև', code: 'ARM' }
     ],
-    title: 'Realistic mock interviews — scored, coached, and tracked.',
-    eyebrow: 'What’s inside'
-  },
-  who: {
-    lead: 'Whether it’s your first interview or your next senior loop — if you’re getting ready for a technical interview, Level Up is for you.',
-    tracks: {
-      role: ['Backend', 'Frontend', 'DevOps', 'QA'],
-      stack: ['Node.js', 'Go', 'React', 'Next.js']
-    },
-    esl: 'The practice builds how you communicate under pressure — not just what you know.',
-    eslTitle: 'You’re interviewing in English as a second language',
-    title: 'For software engineers preparing to interview.',
-    tracksTitle: 'You’re preparing for one of our tracks',
-    levels: 'You’re anywhere from junior to senior',
-    eyebrow: 'Who it’s for'
+    lead: 'Run a full mock interview — questions, your answers, and AI feedback — in English, Russian, or Armenian.',
+    note: 'The app interface is available in all three, too.',
+    title: 'Interview in the language you’ll actually use.',
+    eyebrow: 'Speak your language'
   },
   visionTeaser: {
     body: [
@@ -184,7 +212,7 @@ export const FAQ = {
       q: 'Do I type my answers or speak them?'
     },
     {
-      a: 'You can practice interviews in English or Russian, and the app itself is in English, Russian, and Armenian. If you’re interviewing in English as a second language, the practice also helps you get used to explaining your answers clearly.',
+      a: 'You can run a full mock interview — questions, your answers, and AI feedback — in English, Russian, or Armenian, and the app interface is available in all three. If you’re interviewing in a second language, the practice also helps you get used to explaining your answers clearly.',
       q: 'What languages can I use?'
     },
     {

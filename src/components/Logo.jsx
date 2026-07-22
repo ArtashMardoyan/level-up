@@ -1,10 +1,10 @@
 import { useLanguage } from '../hooks/useLanguage'
 
-export default function Logo({ size = 30 }) {
+export default function Logo({ className = 'brand-logo', size = 30 }) {
   const { t } = useLanguage()
 
   return (
-    <svg aria-label={t('logoAria')} className="brand-logo" viewBox="0 0 30 30" height={size} width={size} role="img">
+    <svg aria-label={t('logoAria')} className={className} viewBox="0 0 30 30" height={size} width={size} role="img">
       <defs>
         <linearGradient id="logo-g" x1="0.1" x2="0.9" y1="0" y2="1">
           <stop stopColor="#818cf8" offset="0" />

@@ -2,9 +2,11 @@ import { HOME } from '../content'
 import Cta from '../components/Cta'
 import Hero from '../components/Hero'
 import Section from '../components/Section'
+import HeroCard from '../components/HeroCard'
 import CardGrid from '../components/CardGrid'
 import StepFlow from '../components/StepFlow'
-import TrackChips from '../components/TrackChips'
+import WhoCards from '../components/WhoCards'
+import LanguageSection from '../components/LanguageSection'
 
 // In-page scroll (not a hash link, since the hash is the router). Smooth unless the
 // user prefers reduced motion.
@@ -25,6 +27,7 @@ export default function HomePage() {
         primary={{ label: c.hero.primary, href: '#interview' }}
         eyebrow={c.hero.eyebrow}
         title={c.hero.title}
+        media={<HeroCard />}
         note={c.hero.note}
         sub={c.hero.sub}
       />
@@ -54,22 +57,11 @@ export default function HomePage() {
         <CardGrid cards={c.inside.cards} />
       </Section>
 
+      <LanguageSection language={c.language} />
+
       <Section eyebrow={c.who.eyebrow} title={c.who.title}>
         <p className="mkt-who-lead">{c.who.lead}</p>
-        <div className="mkt-who-list">
-          <div className="mkt-who-item">
-            <h3 className="mkt-who-title">{c.who.tracksTitle}</h3>
-            <TrackChips items={c.who.tracks.role} label="By role" />
-            <TrackChips items={c.who.tracks.stack} label="By stack" />
-          </div>
-          <div className="mkt-who-item">
-            <h3 className="mkt-who-title">{c.who.levels}</h3>
-          </div>
-          <div className="mkt-who-item">
-            <h3 className="mkt-who-title">{c.who.eslTitle}</h3>
-            <p className="mkt-who-body">{c.who.esl}</p>
-          </div>
-        </div>
+        <WhoCards who={c.who} />
       </Section>
 
       <Section eyebrow={c.visionTeaser.eyebrow} title={c.visionTeaser.title} tone="alt">
@@ -84,12 +76,15 @@ export default function HomePage() {
       </Section>
 
       <Section tone="center">
-        <h2 className="mkt-final-title">{c.finalCta.title}</h2>
-        <p className="mkt-final-sub">{c.finalCta.sub}</p>
-        <div className="mkt-center">
-          <Cta href="#interview">{c.finalCta.primary}</Cta>
+        <div className="mkt-final-glow" aria-hidden="true" />
+        <div className="mkt-final-inner">
+          <h2 className="mkt-final-title">{c.finalCta.title}</h2>
+          <p className="mkt-final-sub">{c.finalCta.sub}</p>
+          <div className="mkt-center">
+            <Cta href="#interview">{c.finalCta.primary}</Cta>
+          </div>
+          <p className="mkt-note mkt-note-center">{c.finalCta.note}</p>
         </div>
-        <p className="mkt-note mkt-note-center">{c.finalCta.note}</p>
       </Section>
     </>
   )

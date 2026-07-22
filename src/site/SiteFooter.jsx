@@ -9,7 +9,7 @@ export default function SiteFooter() {
       <div className="mkt-wrap mkt-footer-grid">
         <div className="mkt-footer-brand">
           <a aria-label="Level Up — home" className="mkt-brand" href="#">
-            <Logo size={26} />
+            <Logo className="mkt-brand-logo" size={26} />
             <span className="mkt-brand-name">Level Up</span>
           </a>
           <p className="mkt-footer-tag">Get interview-ready.</p>

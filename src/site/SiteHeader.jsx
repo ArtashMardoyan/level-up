@@ -10,7 +10,7 @@ export default function SiteHeader({ toggleTheme, theme }) {
     <header className="mkt-header">
       <div className="mkt-wrap mkt-header-inner">
         <a aria-label="Level Up — home" className="mkt-brand" href="#">
-          <Logo size={28} />
+          <Logo className="mkt-brand-logo" size={28} />
           <span className="mkt-brand-name">Level Up</span>
         </a>
         <nav aria-label="Primary" className="mkt-nav">
@@ -19,6 +19,9 @@ export default function SiteHeader({ toggleTheme, theme }) {
           </a>
           <a className="mkt-nav-link" href="#vision">
             Vision
+          </a>
+          <a className="mkt-nav-link" href="#faq">
+            FAQ
           </a>
         </nav>
         <div className="mkt-header-right">
