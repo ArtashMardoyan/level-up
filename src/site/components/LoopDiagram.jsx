@@ -1,3 +1,5 @@
+import Logo from '../../components/Logo'
+
 // The Features "payoff": the four parts as one loop turning around the user's goal.
 // A rotating arc runs the ring; the goal (logo + label) floats at the center; the
 // four stages sit N/E/S/W and pulse in sequence. Decorative — the sequence is
@@ -44,20 +46,7 @@ export default function LoopDiagram({ takeaway, caption, stages, center }) {
         <span className="mkt-loop-track" aria-hidden="true" />
         <span className="mkt-loop-arc" aria-hidden="true" />
         <span className="mkt-loop-center" aria-hidden="true">
-          <svg className="mkt-loop-logo" viewBox="0 0 30 30" aria-hidden="true" height="38" width="38">
-            <rect fill="url(#logo-g)" height="30" width="30" rx="9" />
-            <g
-              transform="translate(9 9) scale(0.5)"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              strokeWidth="2.4"
-              stroke="#fff"
-              fill="none"
-            >
-              <path d="m17 11-5-5-5 5" />
-              <path d="m17 18-5-5-5 5" />
-            </g>
-          </svg>
+          <Logo className="mkt-loop-logo" size={38} />
           <span className="mkt-loop-goal">{center}</span>
         </span>
         {stages.map((stage, index) => (
