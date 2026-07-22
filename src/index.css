@@ -5001,6 +5001,15 @@ footer {
   gap: 16px;
   align-items: center;
 }
+@property --mkt-p {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+@keyframes mkt-fill {
+  from { --mkt-p: 0; }
+  to { --mkt-p: 88; }
+}
 .mkt-score-ring {
   flex-shrink: 0;
   width: 62px;
@@ -5008,7 +5017,9 @@ footer {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: conic-gradient(var(--brand) 0 88%, var(--control) 88% 100%);
+  background: conic-gradient(var(--brand) calc(var(--mkt-p) * 1%), var(--control) 0);
+  filter: drop-shadow(0 0 10px var(--glow-1));
+  animation: mkt-fill 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
 .mkt-score-num {
   width: 50px;
@@ -5339,7 +5350,7 @@ footer {
   margin: 0;
 }
 
-/* Features loop — circular */
+/* Features loop — circular, with rotating arc + pulsing icon nodes */
 .mkt-loop {
   text-align: center;
   max-width: 820px;
@@ -5347,51 +5358,92 @@ footer {
 }
 .mkt-loop-ring {
   position: relative;
-  width: min(360px, 82vw);
+  width: min(440px, 88vw);
   aspect-ratio: 1;
-  margin: 0 auto 36px;
-}
-.mkt-loop-track {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1.5px dashed var(--border-strong);
-  animation: mkt-spin 30s linear infinite;
+  margin: 0 auto 44px;
 }
 @keyframes mkt-spin {
   to { transform: rotate(360deg); }
 }
-.mkt-loop-goal {
+.mkt-loop-track {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+}
+.mkt-loop-arc {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: conic-gradient(from -12deg, transparent 0 58%, var(--brand) 80%, transparent 90%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  animation: mkt-spin 6s linear infinite;
+}
+.mkt-loop-center {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: mkt-float 5s ease-in-out infinite;
+}
+@keyframes mkt-float {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.04); }
+}
+.mkt-loop-logo {
+  filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.4));
+}
+.mkt-loop-goal {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
-  padding: 14px 20px;
-  border-radius: 14px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  padding: 9px 16px;
+  border-radius: 999px;
   background: var(--brand);
   color: var(--mkt-on-brand);
   font-weight: 600;
-  box-shadow: 0 0 40px var(--glow-1);
+  box-shadow: 0 0 44px var(--glow-1);
   white-space: nowrap;
 }
 .mkt-loop-node {
   position: absolute;
-  font-family: var(--font-mono);
-  font-size: 0.86rem;
-  font-weight: 600;
-  padding: 11px 17px;
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: 104px;
+  padding: 14px 6px;
+  border-radius: 16px;
   background: var(--panel-solid);
   border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--text);
-  white-space: nowrap;
+  animation: mkt-node 6s ease-in-out infinite;
+  animation-delay: var(--mkt-node-delay, 0s);
 }
-.mkt-loop-node.pos-top { top: -2px; left: 50%; transform: translate(-50%, -50%); }
-.mkt-loop-node.pos-right { top: 50%; right: -2px; transform: translate(50%, -50%); }
-.mkt-loop-node.pos-bottom { bottom: -2px; left: 50%; transform: translate(-50%, 50%); }
-.mkt-loop-node.pos-left { top: 50%; left: -2px; transform: translate(-50%, -50%); }
+@keyframes mkt-node {
+  0%, 22%, 100% {
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    background: var(--panel-solid);
+  }
+  9% {
+    border-color: var(--brand);
+    box-shadow: 0 0 26px var(--glow-1);
+    background: var(--active-bg);
+  }
+}
+.mkt-loop-node.pos-top { top: 0; left: 50%; transform: translate(-50%, -50%); }
+.mkt-loop-node.pos-right { top: 50%; right: 0; transform: translate(50%, -50%); }
+.mkt-loop-node.pos-bottom { bottom: 0; left: 50%; transform: translate(-50%, 50%); }
+.mkt-loop-node.pos-left { top: 50%; left: 0; transform: translate(-50%, -50%); }
 .mkt-loop-caption {
   color: var(--text-2);
   font-size: 1.05rem;
@@ -5406,6 +5458,9 @@ footer {
   letter-spacing: -0.02em;
   color: var(--text);
   margin: 0;
+}
+@media (max-width: 460px) {
+  .mkt-loop-node { width: 84px; font-size: 0.74rem; padding: 11px 4px; }
 }
 
 /* FAQ accordion */
@@ -5511,6 +5566,276 @@ footer {
   text-decoration: none;
 }
 
+/* Logo climb — the chevrons gently bob */
+@keyframes mkt-climb {
+  0%, 100% { transform: translateY(0.6px); }
+  50% { transform: translateY(-0.9px); }
+}
+.mkt-brand-logo g,
+.mkt-loop-logo g {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mkt-climb 2.8s ease-in-out infinite;
+}
+
+/* Hero card — language pills */
+.mkt-herocard-langs {
+  display: flex;
+  gap: 6px;
+}
+.mkt-herocard-lang {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+}
+.mkt-herocard-lang.active {
+  background: var(--active-bg);
+  border-color: var(--border-strong);
+  color: var(--active-text);
+}
+
+/* Scroll reveal */
+.mkt-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mkt-reveal.mkt-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Who it's for — rich cards */
+.mkt-who-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.mkt-whocard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+}
+.mkt-whocard-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--brand);
+  background: var(--active-bg);
+  border: 1px solid var(--border-strong);
+  margin-bottom: 16px;
+}
+.mkt-whocard-title {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+.mkt-whocard-body {
+  color: var(--text-2);
+  font-size: 0.96rem;
+  line-height: 1.55;
+  margin: 0 0 20px;
+}
+.mkt-whocard-note {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: var(--text-3);
+  margin: 12px 0 0;
+}
+.mkt-whocard .mkt-chips {
+  gap: 7px;
+  margin-bottom: 14px;
+}
+.mkt-whocard .mkt-chip {
+  font-size: 0.8rem;
+  padding: 5px 11px;
+}
+.mkt-whocard .mkt-chip-label {
+  width: 100%;
+  margin: 0 0 2px;
+}
+/* Junior → Senior bars */
+.mkt-levelbars {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.mkt-levelbar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.mkt-levelbar-fill {
+  width: 100%;
+  border-radius: 9px;
+}
+.mkt-levelbar-fill.lvl-0 {
+  height: 52px;
+  background: var(--control);
+  border: 1px solid var(--border-strong);
+}
+.mkt-levelbar-fill.lvl-1 {
+  height: 84px;
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.45), var(--active-bg));
+  border: 1px solid rgba(129, 140, 248, 0.4);
+}
+.mkt-levelbar-fill.lvl-2 {
+  height: 120px;
+  background: var(--brand);
+  box-shadow: 0 0 26px var(--glow-1);
+}
+.mkt-levelbar-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-2);
+}
+.mkt-levelbar:last-child .mkt-levelbar-label {
+  color: var(--brand);
+  font-weight: 600;
+}
+/* Second-language flag tiles */
+.mkt-flagtiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: auto;
+}
+.mkt-flagtile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  border-radius: 13px;
+  background: var(--control);
+  border: 1px solid var(--border-strong);
+}
+.mkt-flagtile-flag {
+  font-size: 24px;
+  line-height: 1;
+}
+.mkt-flagtile-code {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-2);
+}
+
+/* Language section */
+.mkt-tone-center-glow {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.mkt-tone-center-glow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 760px;
+  max-width: 120vw;
+  height: 420px;
+  background: radial-gradient(ellipse at center, var(--glow-1), transparent 68%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+.mkt-tone-center-glow .mkt-wrap {
+  position: relative;
+}
+.mkt-tone-center .mkt-sec-head,
+.mkt-tone-center-glow .mkt-sec-head {
+  max-width: 640px;
+  margin: 0 auto 20px;
+  text-align: center;
+}
+.mkt-lang-lead {
+  color: var(--text-2);
+  font-size: 1.08rem;
+  line-height: 1.6;
+  max-width: 52ch;
+  margin: 0 auto 48px;
+}
+.mkt-langgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.mkt-langcard {
+  border-radius: 20px;
+  padding: 34px 20px;
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  transition: border-color 0.5s ease, box-shadow 0.5s ease, transform 0.5s ease;
+}
+.mkt-langcard.active {
+  border-color: var(--brand);
+  box-shadow: 0 0 44px var(--glow-1);
+  transform: translateY(-6px);
+}
+.mkt-langcard-flag {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.mkt-langcard-word {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.7rem;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.mkt-langcard.active .mkt-langcard-word {
+  color: var(--active-text);
+}
+.mkt-langcard-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.mkt-langcard-name {
+  font-size: 0.95rem;
+  color: var(--text-2);
+}
+.mkt-langcard-code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--control);
+  border: 1px solid var(--border);
+  color: var(--text-3);
+}
+.mkt-lang-note {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-3);
+  margin: 32px 0 0;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .mkt-hero-inner.has-media {
@@ -5522,7 +5847,7 @@ footer {
 }
 @media (max-width: 820px) {
   .mkt-gap-grid,
-  .mkt-who-list {
+  .mkt-who-cards {
     grid-template-columns: 1fr;
     gap: 24px;
   }
@@ -5537,6 +5862,9 @@ footer {
 @media (max-width: 600px) {
   .mkt-nav {
     display: none;
+  }
+  .mkt-langgrid {
+    grid-template-columns: 1fr;
   }
   .mkt-footer-grid {
     grid-template-columns: 1fr;
@@ -5562,8 +5890,21 @@ footer {
   .mkt-hero-inner,
   .mkt-herocard,
   .mkt-glow,
-  .mkt-loop-track,
+  .mkt-loop-arc,
+  .mkt-loop-center,
+  .mkt-loop-node,
+  .mkt-score-ring,
+  .mkt-brand-logo g,
+  .mkt-loop-logo g,
   .mkt-caret {
     animation: none;
+  }
+  .mkt-score-ring {
+    background: conic-gradient(var(--brand) 88%, var(--control) 0);
+  }
+  .mkt-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

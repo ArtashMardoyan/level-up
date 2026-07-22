@@ -19,6 +19,26 @@ export const HOME = {
     eyebrow: 'How it works',
     cta: 'Start practicing'
   },
+  who: {
+    lead: 'Whether it’s your first interview or your next senior loop — if you’re getting ready for a technical interview, Level Up is for you.',
+    eslFlags: [
+      { flag: '🇬🇧', code: 'ENG' },
+      { flag: '🇷🇺', code: 'RUS' },
+      { flag: '🇦🇲', code: 'ARM' }
+    ],
+    esl: 'Practice in the language you’ll interview in — it builds how you communicate under pressure, not just what you know.',
+    tracks: {
+      role: ['Backend', 'Frontend', 'DevOps', 'QA'],
+      stack: ['Node.js', 'Go', 'React', 'Next.js']
+    },
+    title: 'For software engineers preparing to interview.',
+    tracksTitle: 'You’re preparing for one of our tracks',
+    eslTitle: 'You’re interviewing in a second language',
+    levels: 'You’re anywhere from junior to senior',
+    levelBars: ['Junior', 'Mid', 'Senior'],
+    tracksNote: 'More tracks coming.',
+    eyebrow: 'Who it’s for'
+  },
   inside: {
     cards: [
       {
@@ -63,18 +83,16 @@ export const HOME = {
     leadFade: 'Most preparation builds what you know — not how you perform when it counts.',
     lead: 'Knowing the material isn’t the same as being ready for the interview.'
   },
-  who: {
-    lead: 'Whether it’s your first interview or your next senior loop — if you’re getting ready for a technical interview, Level Up is for you.',
-    tracks: {
-      role: ['Backend', 'Frontend', 'DevOps', 'QA'],
-      stack: ['Node.js', 'Go', 'React', 'Next.js']
-    },
-    esl: 'The practice builds how you communicate under pressure — not just what you know.',
-    eslTitle: 'You’re interviewing in English as a second language',
-    title: 'For software engineers preparing to interview.',
-    tracksTitle: 'You’re preparing for one of our tracks',
-    levels: 'You’re anywhere from junior to senior',
-    eyebrow: 'Who it’s for'
+  language: {
+    langs: [
+      { name: 'English', word: 'Hello', flag: '🇬🇧', code: 'ENG' },
+      { name: 'Russian', word: 'Привет', flag: '🇷🇺', code: 'RUS' },
+      { name: 'Armenian', flag: '🇦🇲', word: 'Բարև', code: 'ARM' }
+    ],
+    lead: 'Run a full mock interview — questions, your answers, and AI feedback — in English, Russian, or Armenian.',
+    note: 'The app interface is available in all three, too.',
+    title: 'Interview in the language you’ll actually use.',
+    eyebrow: 'Speak your language'
   },
   visionTeaser: {
     body: [
@@ -194,7 +212,7 @@ export const FAQ = {
       q: 'Do I type my answers or speak them?'
     },
     {
-      a: 'You can practice interviews in English or Russian, and the app itself is in English, Russian, and Armenian. If you’re interviewing in English as a second language, the practice also helps you get used to explaining your answers clearly.',
+      a: 'You can run a full mock interview — questions, your answers, and AI feedback — in English, Russian, or Armenian, and the app interface is available in all three. If you’re interviewing in a second language, the practice also helps you get used to explaining your answers clearly.',
       q: 'What languages can I use?'
     },
     {
