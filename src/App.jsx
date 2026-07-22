@@ -70,7 +70,7 @@ async function migrateLocalProgress(courses, userId) {
 
 function AppContent() {
   const { language, t } = useLanguage()
-  const { toggleTheme, theme } = useTheme()
+  const { toggleTheme, setTheme, theme } = useTheme()
   const { voices } = useSpeech()
   const { courseId, jumpToId, navigate } = useHashRoute()
   const { courses, status, reload } = useCourses(language)
@@ -107,7 +107,7 @@ function AppContent() {
   // hash (interview, courses, a course slug, …) falls through to the app below.
   const marketingPage = MARKETING_SITE ? marketingPageFor(courseId) : null
   if (marketingPage) {
-    return <SiteRouter toggleTheme={toggleTheme} page={marketingPage} theme={theme} />
+    return <SiteRouter toggleTheme={toggleTheme} section={marketingPage} setTheme={setTheme} theme={theme} />
   }
 
   const selectCourse = (id, questionId = null) => navigate(id, questionId)
