@@ -62,5 +62,13 @@
         "emoji": "▲",
         "accent": "#e2e8f0",
         "sortOrder": 8
+    },
+    {
+        "slug": "level-up",
+        "title": "Founder Interview",
+        "subtitle": "Pitch, product & founder questions for accelerator interviews",
+        "emoji": "🚀",
+        "accent": "#fb923c",
+        "sortOrder": 9
     }
 ]
