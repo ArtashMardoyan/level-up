@@ -1,0 +1,89 @@
+name: Docs Portal
+
+# Build, validate, and (optionally) publish the documentation portal (MkDocs Material).
+# See docs/process/documentation-portal-implementation-plan.md (M4).
+#
+# What runs unconditionally: strict builds of every audience as a quality gate, plus
+# artifact uploads. Deployment is GUARDED behind repo variables and stays inert until
+# hosting is provisioned — no secrets are fabricated, nothing is published by accident.
+
+on:
+  push:
+    branches: [master]
+    paths: ["docs/**", "mkdocs.yml", "mkdocs/**", "requirements-docs.txt", ".github/workflows/docs.yml"]
+  pull_request:
+    paths: ["docs/**", "mkdocs.yml", "mkdocs/**", "requirements-docs.txt", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Build + validate every audience on every push/PR. Fails on any broken link or
+  # warning (--strict), so docs breakage is caught before it reaches production.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -r requirements-docs.txt
+
+      - name: Build (full — all tiers)
+        run: mkdocs build --strict --site-dir site-full
+
+      - name: Build (internal — public + internal)
+        run: DOCS_AUDIENCE=internal mkdocs build --strict --site-dir site-internal
+
+      - name: Build (public — public only)
+        run: DOCS_AUDIENCE=public mkdocs build --strict --site-dir site-public
+
+      - name: Upload built sites (review artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-sites
+          path: |
+            site-internal
+            site-public
+          retention-days: 14
+
+  # ---- Deployment (guarded; inert until hosting is provisioned) ----------------------
+  #
+  # Enable per tier by setting the repo variables below, once the host + secrets exist.
+  # See the implementation plan §10 (Hosting) for what to provision.
+  #
+  #   PUBLIC  site  -> GitHub Pages (public by nature — only `public`-tagged docs).
+  #                    Enable with repo variable DOCS_PUBLISH_PUBLIC = "true".
+  #   INTERNAL site -> an AUTH-GATED host (e.g. Cloudflare Pages + Access). NOT GitHub
+  #                    Pages (that would expose internal docs). Wired outside this file
+  #                    against that host's action + secrets once chosen.
+
+  deploy-public:
+    needs: build
+    if: github.ref == 'refs/heads/master' && vars.DOCS_PUBLISH_PUBLIC == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements-docs.txt
+      - name: Build public site
+        run: DOCS_AUDIENCE=public mkdocs build --strict --site-dir site-public
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site-public
+      - id: deployment
+        uses: actions/deploy-pages@v4

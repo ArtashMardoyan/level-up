@@ -1,0 +1,182 @@
+[
+    {
+        "id": "q1",
+        "module": "Module 1 — About Me",
+        "question": "Question 1. Tell me about yourself.",
+        "answer": "My name is Artash, and I'm a backend engineer with eight years of experience. Most of my career I worked with Node.js and NestJS, building APIs and backend systems, and leading small teams as a team lead.\n\nOver time, two things really caught my attention: how people prepare for technical interviews, and how AI can help them learn faster. I saw many strong engineers fail interviews — not because they lacked knowledge, but because they had no place to practice and no real feedback.\n\nThat's the problem I decided to solve. I started building an AI platform that helps engineers prepare for real interviews. For this project I chose Go on the backend, even though my background is Node.js, because I wanted a language built for scalable, reliable systems.\n\nWhat keeps me going is honestly simple. I know how it feels to sit in that interview chair, and I love building something that gives people a real chance to walk in prepared and confident."
+    },
+    {
+        "id": "q2",
+        "module": "Module 1 — About Me",
+        "question": "Question 2. Tell me about Level Up.",
+        "answer": "The simplest way to describe it is this: it's an AI platform that helps engineers prepare for technical interviews by practicing, not just reading.\n\nWhen you use it, you're not memorizing answers from a list. You sit down with an AI Coach that behaves like a real interviewer. It asks you a question, you answer in your own words, and it gives you honest feedback — what was strong, what was missing, and how to say it better next time.\n\nAnd everything adapts to you. It notices your weak areas and focuses your practice there, so the time you spend actually moves you forward. For non-native English speakers, it also helps with the words and phrasing they need to sound clear and confident.\n\nThe outcome I really care about is this: when the real interview finally comes, it feels familiar — like something you've already done many times before."
+    },
+    {
+        "id": "q3",
+        "module": "Module 1 — About Me",
+        "question": "Question 3. Why did you build Level Up?",
+        "answer": "I built it because of my own experience.\n\nAs an engineer, I went through many interviews myself. And later, as a team lead, I sat on the other side and interviewed a lot of candidates. I kept noticing the same thing from both sides: strong engineers were failing — not because they didn't know the material, but because they weren't ready for the interview itself.\n\nThey had no place to practice out loud, no honest feedback, and for non-native English speakers it was even harder to explain their thinking under pressure.\n\nI looked for a tool that could really help, and I couldn't find one that felt like real practice. Most of them were just long lists of questions and answers to memorize.\n\nSo I decided to build it myself — a place where you practice like it's a real interview, get instant feedback, and actually improve step by step."
+    },
+    {
+        "id": "q4",
+        "module": "Module 1 — About Me",
+        "question": "Question 4. What problem are you solving?",
+        "answer": "For me, the key insight is that engineers usually don't fail interviews because of a lack of knowledge. They fail because of a lack of practice, feedback, and communication.\n\nMost people prepare by reading questions and answers. But an interview isn't a reading test — it's a conversation. You have to think, speak clearly, and explain your decisions in real time. Reading alone just doesn't prepare you for that.\n\nThere's also a second problem, and it's very common in our region. Many strong engineers are non-native English speakers. They know the answer, but they struggle to say it clearly and confidently in English.\n\nSo the real problem is the gap between knowing something and being able to show it in the moment. That gap is exactly what I'm closing — giving engineers a place to practice like a real interview, get honest feedback, and build the confidence to communicate well."
+    },
+    {
+        "id": "q5",
+        "module": "Module 1 — About Me",
+        "question": "Question 5. Why now?",
+        "answer": "I think the timing is right for two main reasons.\n\nThe first is the technology. Recent advances in AI have made this kind of personalized interview practice possible. The AI can ask natural questions, understand your answer, and give feedback that's genuinely useful. A few years ago, you simply couldn't do this at a good quality. Today you can, and that's what makes the whole thing work.\n\nThe second reason is how hiring has changed. More interviews are remote, the market is more competitive, and engineers are applying to companies all over the world. So performing well in an interview matters more than it ever has.\n\nSo we have strong demand on one side and the right technology on the other, at the same moment. That's why I don't want to wait — I really believe now is the time to build this."
+    },
+    {
+        "id": "q6",
+        "module": "Module 2 — Product",
+        "question": "Question 6. What makes Level Up different?",
+        "answer": "Most interview preparation today is passive. You read questions, you watch videos, maybe you memorize some answers. But when the real interview starts, none of that prepared you to actually speak and think under pressure.\n\nI take a different approach. It's built around active practice. You don't read an answer — you give one, out loud, in your own words. And you get feedback right away on what was strong and what was missing.\n\nThe second difference is that it's personal. It pays attention to where you struggle and points your practice there, instead of giving everyone the same generic list.\n\nAnd the third is communication. A lot of tools only check if your answer is technically correct. For non-native English speakers, that's only half the battle. I care just as much about whether you can explain your thinking clearly and confidently. That combination is what makes it different."
+    },
+    {
+        "id": "q7",
+        "module": "Module 2 — Product",
+        "question": "Question 7. Who are your users?",
+        "answer": "My main users are software engineers who are preparing for technical interviews. That's a wide range — from juniors trying to land their first job, to senior engineers moving to a bigger company or a better role.\n\nBut there's one group I understand especially well, and that's non-native English speakers. Here in our region, we have a lot of very strong engineers. They know their craft deeply. But in an interview, they have to prove it in English, under pressure, and that's where many of them lose points they shouldn't lose.\n\nThose are the people I'm building for first. I know their struggle firsthand, and I know it's a real one. Later, the same approach can extend to other roles and other fields that rely on interviews. But for now I want to stay focused and solve this one group's problem really well before expanding."
+    },
+    {
+        "id": "q8",
+        "module": "Module 2 — Product",
+        "question": "Question 8. How does AI improve learning?",
+        "answer": "The honest answer is that real learning needs feedback, and good feedback is expensive. If you want a human expert to sit with you, listen to every answer, and coach you, very few people can afford that or find the time.\n\nAI changes that. It can play the role of an interviewer and a coach at the same time. It asks you questions, listens to how you actually answer, and tells you what to fix — instantly, and as many times as you want. You can practice at midnight, repeat the same question ten times, and never feel judged.\n\nIt also adapts. It remembers where you're weak and brings you back to it, so your time goes to the things that actually matter for you.\n\nSo for me, AI isn't a gimmick here. It's the thing that finally makes personal, high-quality practice available to everyone, not just a few."
+    },
+    {
+        "id": "q9",
+        "module": "Module 2 — Product",
+        "question": "Question 9. What is your long-term vision?",
+        "answer": "Today the product is focused on interview practice. But the way I see it, that's the entry point, not the final destination.\n\nIn five to ten years, I want it to become a personal learning coach for engineers — something that doesn't just help you pass one interview, but grows with your whole career. It would know your strengths and your gaps, help you prepare for the next role, and keep coaching you as you level up over time.\n\nI'd also like it to reach beyond software. The core idea — practice, honest feedback, and clear communication — applies to many professions, not just engineering.\n\nBut I try to stay realistic about the path. Big visions are earned one step at a time. So the plan is to solve interview practice for engineers really well first, build real trust, and let the product grow naturally from there into that larger coaching role."
+    },
+    {
+        "id": "q10",
+        "module": "Module 2 — Product",
+        "question": "Question 10. Why will people use your product?",
+        "answer": "People will use it because the stakes are high and the current options don't really solve the problem.\n\nA good job is life-changing. It can double someone's income and open doors for years. When something matters that much, people are very willing to prepare — the question is just how. And right now their choices are weak: read static question lists, or pay a lot of money for a human coach who has limited time.\n\nWhat I offer sits in between. It gives you the feeling of practicing with a real coach — questions, answers out loud, honest feedback — but available whenever you need it, as often as you want, without depending on someone else's schedule.\n\nAnd there's a simple, human reason too: confidence. Walking into an interview knowing you've already practiced this many times is a huge advantage. People will come back for that feeling, not just for the questions."
+    },
+    {
+        "id": "q11",
+        "module": "Module 3 — Technology",
+        "question": "Question 11. Why did you choose Go?",
+        "answer": "This was actually a deliberate decision, because my own background is Node.js. I've spent eight years with Node and NestJS, so the easy choice would have been to just use what I already know.\n\nBut I chose Go on purpose. This product does a lot of work with live AI conversations — many requests, streaming responses, users practicing at the same time. Go is a great fit for that kind of concurrent, always-on workload. It's fast, it stays simple as the system grows, and it's easy to deploy and run reliably.\n\nThere was also a personal reason. I wanted to grow as an engineer and build this on a foundation I'd be comfortable with for years, not just for the first month.\n\nSo it cost me a little speed at the very beginning while I got comfortable, but I think it was the right long-term decision for a product meant to scale."
+    },
+    {
+        "id": "q12",
+        "module": "Module 3 — Technology",
+        "question": "Question 12. Tell us about your architecture.",
+        "answer": "I tried to keep it simple and clean, because simple systems are easier to trust and easier to grow.\n\nAt a high level there are three parts. There's the frontend, which is what the user sees. There's the backend, written in Go, which holds all the logic and talks to the AI. And there's a PostgreSQL database for storing user data, progress, and content. It all runs on AWS.\n\nInside the backend, I organized the code by feature. Interviews, courses, users — each one is its own module with clear boundaries. That way, when I add something new, I don't have to touch everything else, and the codebase stays understandable as it grows.\n\nOne important decision: all AI calls happen on the backend, never in the browser. That keeps the keys safe and lets me control quality and cost. So the design isn't fancy — it's intentionally boring and solid, which is what you want early on."
+    },
+    {
+        "id": "q13",
+        "module": "Module 3 — Technology",
+        "question": "Question 13. How do you use AI?",
+        "answer": "I use AI in a few focused roles, not as one big black box.\n\nThe first role is the interviewer. The AI takes a question and asks it in a natural, conversational way, like a real person would. The second role is the coach. When you answer, the AI reads your response and gives you feedback — what was good, what was missing, how to improve. And the third role is voice: when someone answers out loud, the AI turns their speech into text so it can be reviewed.\n\nThe key point is that I treat AI as a tool inside a controlled system, not the system itself. I decide what it's allowed to do, I check what it gives back, and if it ever fails or answers slowly, the app falls back gracefully so the user still gets a smooth experience. So it's powerful, but it works within clear limits I set."
+    },
+    {
+        "id": "q14",
+        "module": "Module 3 — Technology",
+        "question": "Question 14. How will the platform scale?",
+        "answer": "I designed it so that scaling is mostly about adding more capacity, not rewriting the system.\n\nThe backend is stateless, which is a simple but important choice. It means the server doesn't keep a user's session in its own memory — everything important lives in the database. So when more people arrive, I can just run more copies of the backend behind a load balancer, and it handles more users. It already runs on AWS with managed services that can scale up automatically.\n\nThere's also a nice detail: the heaviest work, the actual AI thinking, is done by the AI provider, not on my own servers. So my backend stays light and fast, mostly coordinating and storing results.\n\nI'll be honest — I'm not at huge scale yet, and I don't want to pretend I am. But the foundation is built the right way, so growth becomes a capacity question, not a redesign."
+    },
+    {
+        "id": "q15",
+        "module": "Module 3 — Technology",
+        "question": "Question 15. What is the biggest technical challenge?",
+        "answer": "The biggest challenge is making the AI reliable and consistent.\n\nAI is powerful, but it's not perfectly predictable. Sometimes it's slow, sometimes it returns the answer in the wrong shape, and once in a while it can be confidently wrong. For a casual chatbot that's fine. But this is interview practice — if the feedback is broken or misleading, I've damaged the user's trust and maybe their preparation.\n\nSo most of the real engineering isn't the AI call itself. It's everything I build around it: checking the response, retrying when it makes sense, and always having a safe fallback so the user never hits a dead end or a broken screen.\n\nThe other ongoing challenge is speed. When you're speaking with a coach, long pauses feel unnatural, so I work to stream responses quickly and keep the conversation flowing. Getting that balance of reliable and fast is the hard, never-finished part."
+    },
+    {
+        "id": "q16",
+        "module": "Module 4 — Business",
+        "question": "Question 16. Who are your competitors?",
+        "answer": "There are a few types of competitors. There are coding-practice sites like LeetCode, there are mock-interview platforms, and there's also just using a general AI tool directly or watching YouTube.\n\nI respect all of them, and I use some myself. But most of them solve a different part of the problem. Coding sites test whether you can solve a puzzle. They don't help you speak, explain your thinking, or handle the pressure of a real conversation.\n\nAnd general AI tools can answer questions, but they're not built as a structured coach. They won't guide your preparation, track your weak spots, or focus on communication for non-native speakers.\n\nSo my real competition isn't one company — it's the mix of tools people use today because nothing brings it together. My bet is that a focused product, built specifically for interview practice and communication, does that one job better than any general tool."
+    },
+    {
+        "id": "q17",
+        "module": "Module 4 — Business",
+        "question": "Question 17. What is your business model?",
+        "answer": "The plan is a subscription model, which fits this kind of product well.\n\nThe idea is simple. People can start for free and get real value right away, because I want them to feel the benefit before they pay anything. Then, for serious preparation — more practice, more courses, deeper feedback — they subscribe.\n\nIt makes sense from the user's side too. Compared to the cost of a private interview coach, or the cost of failing an interview and missing a great job, a monthly subscription is very affordable. The value is easy to understand.\n\nI want to be honest that I'm early here. My focus right now is making the product genuinely good and helping people succeed. A product that truly works, in a market where the outcome matters this much to people, has a clear and natural path to revenue. But I'd rather earn trust first and then charge for something people already rely on."
+    },
+    {
+        "id": "q18",
+        "module": "Module 4 — Business",
+        "question": "Question 18. How will you acquire users?",
+        "answer": "I think acquisition for this product starts with community, not with paid ads.\n\nEngineers preparing for interviews already gather in specific places — online communities, student and bootcamp groups, local tech meetups, and social platforms where people share their interview experiences. That's where I want to show up, by being genuinely useful, not just advertising.\n\nThere's also a natural word-of-mouth effect. When someone practices with the product and then does well in a real interview, that's a story they share with friends who are in the same situation. In this space, a trusted recommendation is worth far more than an ad.\n\nAnd because I'm focused first on non-native English speakers in regions like ours, I can start close to home, where I actually understand the community, and grow outward from there.\n\nSo the early plan is simple and honest: be useful, build trust, and let real results bring the next users."
+    },
+    {
+        "id": "q19",
+        "module": "Module 4 — Business",
+        "question": "Question 19. What are your milestones?",
+        "answer": "I think about milestones in simple, concrete stages.\n\nThe first milestone was building a real, working product — not a demo, but something people can use from start to finish. That part exists today.\n\nThe next milestone is depth and trust: improving the quality of the AI coaching, adding more courses and roles, and making the whole experience smooth and reliable. I want early users to genuinely feel that it helped them.\n\nAfter that, the milestone is growth — getting the product in front of the right communities and seeing people come back and recommend it to others.\n\nAnd further out, the bigger milestone is expanding toward voice and real-time practice, so it feels even closer to a real interview.\n\nI try not to skip steps. Each milestone earns the next one. Right now my focus is squarely on that second stage — making the coaching good enough that people truly trust it."
+    },
+    {
+        "id": "q20",
+        "module": "Module 4 — Business",
+        "question": "Question 20. What does success look like?",
+        "answer": "Success has a few layers for me.\n\nThe most important one is real: people using the product actually get jobs. If an engineer practices with it and then walks into an interview and succeeds, that's the whole point. That's the story I want to hear again and again.\n\nThe second layer is that it becomes the natural first choice. When an engineer has an interview coming up, I want the product to be the thing they open without thinking twice — a tool they trust and reach for automatically.\n\nAnd the third layer is that it becomes a healthy, sustainable business, so it can keep improving and keep helping people for years, not just for one season.\n\nBut if I had to pick a single measure, it's the first one. Real people getting real opportunities, partly because of something I built. Everything else follows from that."
+    },
+    {
+        "id": "q21",
+        "module": "Module 5 — Founder",
+        "question": "Question 21. Tell us about your team.",
+        "answer": "I'll be straightforward: today this is founder-led, and I've built the core of the product myself. My background is eight years as a backend engineer and a team lead, so I've been able to design the architecture, build the backend, integrate the AI, and ship a working product without needing a big team to start.\n\nThat's been a real advantage early on. I can move fast, make technical decisions quickly, and keep costs low while I prove the idea.\n\nBut I'm realistic. A product like this eventually needs more people — especially in content, design, and growth, which are not my strongest areas. So part of what I'm looking for now is the right moment and the right support to build a small, strong team around the product.\n\nSo the real answer is: a strong technical foundation today, and a clear, deliberate plan to grow the team as the product grows."
+    },
+    {
+        "id": "q22",
+        "module": "Module 5 — Founder",
+        "question": "Question 22. Why are you the right team?",
+        "answer": "Two reasons, and both of them are honest.\n\nThe first is that I understand this problem personally. I've been the candidate who prepared hard and still struggled in the interview, and I've been the team lead on the other side, interviewing people. I've felt this problem from both directions, so I'm not guessing about what users need — I've lived it.\n\nThe second is that I can actually build it. With eight years of backend experience, I didn't just have an idea and go looking for someone to make it real. I designed and built a working product myself. In an early startup, that combination — deeply understanding the user and being able to build the solution — is exactly what you want in a founder.\n\nAm I the finished team? No, and I won't pretend otherwise. But I believe I'm the right person to start this and to bring the right people around it."
+    },
+    {
+        "id": "q23",
+        "module": "Module 5 — Founder",
+        "question": "Question 23. What is your biggest risk?",
+        "answer": "I'd say my biggest risk isn't technical — it's staying different over time.\n\nAI is becoming available to everyone. That's great for building, but it also means other people can build similar tools. So the real risk is: what stops this from becoming just another generic AI question-and-answer app?\n\nMy answer to that risk is focus. I'm not trying to be a general AI tool. I'm building specifically for interview practice and communication, especially for non-native speakers. The value isn't the AI itself — it's the experience, the coaching quality, the trust, and understanding this user deeply. Those things are much harder to copy than a prompt.\n\nThere's also the normal early risk of getting people to change their habits and actually sit down to prepare. I take that seriously too.\n\nSo I don't pretend there's no risk. I focus on building the parts that are hard to copy, and staying closer to the user than a general tool ever could."
+    },
+    {
+        "id": "q24",
+        "module": "Module 5 — Founder",
+        "question": "Question 24. What have you learned while building Level Up?",
+        "answer": "A lot, honestly. But two lessons stand out.\n\nThe first is that building the technology is not the hard part. As an engineer, I can build features. The harder and more valuable work is deciding what not to build — staying focused on the real problem instead of adding everything I can imagine. Early on it's very tempting to keep adding, and I've learned to resist that.\n\nThe second lesson is about the AI itself. It's powerful, but it's not magic. Making it consistent, reliable, and actually useful takes real discipline in the engineering around it. The demo is easy; the trustworthy product is hard.\n\nAnd on a personal level, I've learned that choosing the harder path on purpose — like using Go instead of the language I already knew — pays off, even when it slows you down at first.\n\nMost of all, I've learned to move in honest, steady steps instead of chasing one big leap."
+    },
+    {
+        "id": "q25",
+        "module": "Module 5 — Founder",
+        "question": "Question 25. Why Yandex Accelerator?",
+        "answer": "A few real reasons.\n\nThe first is that I've mostly been building alone, and I've reached the point where the product is real, but the next steps — growth, business, building a team — are outside my core strengths. An accelerator gives me mentorship and honest feedback from people who've done this before, which is exactly what I'm missing right now.\n\nThe second is the environment. Being around other founders who are pushing just as hard changes how you work. It keeps you honest, ambitious, and accountable in a way you simply can't get building alone.\n\nAnd specifically for Yandex here in Armenia — I care about this region and these engineers. It's the community I understand best and the one I want to serve first. Being part of a strong local program that also connects to a wider network fits both my product and my starting point.\n\nSo for me it comes down to mentorship, community, and the right ground to start from."
+    },
+    {
+        "id": "q26",
+        "module": "Module 5 — Founder",
+        "question": "Question 26. What do you expect from the program?",
+        "answer": "I try to be realistic about this. I'm not expecting the program to build the company for me — that's my job.\n\nWhat I'm really hoping for is guidance in the areas where I'm weakest. As a technical founder, I'm confident about the product and the engineering. I have much more to learn about growth, positioning, and building a business around it, and honest mentorship there would be extremely valuable.\n\nI'm also hoping for sharper focus. It's easy as a solo founder to get pulled in many directions at once. Experienced mentors asking hard questions would help me spend my time on what actually matters.\n\nAnd finally, I value the network — other founders, mentors, and people who might become teammates, advisors, or early supporters.\n\nPut simply, I want the program to push me where I'm weakest and connect me with the right people. With that kind of support, I can turn a strong product into a real business much faster than I could alone."
+    },
+    {
+        "id": "q27",
+        "module": "Module 5 — Founder",
+        "question": "Question 27. Where do you see Level Up in 5 years?",
+        "answer": "In five years, I want it to be more than an interview practice tool. I want it to be the place engineers trust to prepare for the important moments in their career.\n\nThat means broader and deeper. More roles, more languages, and practice that feels closer to a real conversation — including voice, so it's almost like sitting across from a real interviewer.\n\nI'd also like it to grow with the user over time. Not just help you pass one interview, but understand your strengths and gaps and keep coaching you as your career moves forward.\n\nAnd I'd love for it to be known first in our region — the tool that helped a generation of local engineers compete confidently for global opportunities — and then grow outward from there.\n\nI'll stay realistic about how I get there — building it patiently rather than all at once. But that's the direction I'm heading."
+    },
+    {
+        "id": "q28",
+        "module": "Module 5 — Founder",
+        "question": "Question 28. Why should we believe in your idea?",
+        "answer": "I'd say don't believe in it just because I'm excited — believe in it for reasons you can actually check.\n\nFirst, the problem is real and it isn't going away. People will keep interviewing, and they'll keep needing to prepare and communicate well. That's a durable need, not a trend.\n\nSecond, the product already exists and works. This isn't a slide deck asking you to imagine something — I built it end to end, which shows I can execute, not just talk.\n\nThird, I've been the candidate and the interviewer myself, so I'm building from real experience, not assumptions.\n\nAnd finally, the timing is right, because recent advances in AI have only just made this kind of personal coaching possible.\n\nSo it's a real problem, a working product, a founder who lives the problem, and good timing. For me, that's a foundation worth believing in."
+    },
+    {
+        "id": "q29",
+        "module": "Module 5 — Founder",
+        "question": "Question 29. If you fail, what will be the reason?",
+        "answer": "That's a fair question, and I've thought about it honestly.\n\nIf I fail, I don't think it will be because the problem isn't real — it clearly is. The most likely reason would be distribution: building something good but not getting it in front of enough of the right people. A great product that nobody discovers still fails. That's exactly why I'm working to learn growth, and part of why I want to be in an accelerator.\n\nThe second possible reason is losing focus — trying to do too much, spreading thin, and becoming a generic tool instead of the best at one specific thing.\n\nAnd honestly, as a mostly solo founder, the third risk is me — moving too slowly, or not building the right team around me in time.\n\nSo I try to name these risks out loud instead of hiding them. Knowing where failure could come from is how I work to stay ahead of it."
+    },
+    {
+        "id": "q30",
+        "module": "Module 5 — Founder",
+        "question": "Question 30. Give us your final pitch.",
+        "answer": "So here's my pitch, simply.\n\nStrong engineers fail interviews every day — not because they lack knowledge, but because they never get to practice the real thing: speaking, explaining, and handling the pressure. And for non-native English speakers, that gap is even wider.\n\nI'm building an AI platform that finally makes real interview practice available to everyone. It acts like a personal interviewer and coach — it asks you questions, listens to your answers, and gives you honest feedback, any time, as often as you need. It's the kind of practice a human coach gives, without the cost or the limits.\n\nThe product already works. I built it myself, on a foundation made to scale, and I know this user's problem from the inside.\n\nWhat I need now is the right guidance and people to help it grow. Help me put real practice in the hands of engineers who deserve a fair shot. That's Level Up."
+    }
+]

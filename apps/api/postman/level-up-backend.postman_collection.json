@@ -1,0 +1,981 @@
+{
+	"info": {
+		"_postman_id": "b1a7c0de-1e2f-4a3b-9c4d-5e6f7a8b9c0d",
+		"name": "07.1 Level Up Backend",
+		"description": "Gin + GORM + PostgreSQL REST API for the Level Up project.\n\nRequests within each folder are ordered by method: GET → POST → PATCH → DELETE (matching the Go handlers).\n\nFirst-run setup (the chain populates env vars via test scripts):\n1. **Users > Create User** — random email/name (saved to `userEmail`), password `test1234`, captures `userId`.\n2. **Auth > Login** — logs in with `userEmail` / `test1234`, captures `accessToken` (+ `userId`).\n3. Everything else inherits the collection-level Bearer auth automatically.\n4. **Auth > Logout** — revokes the token server-side and clears `accessToken`.\n\nResponse format:\n```\n// success\n{ \"data\": {} }\n// error\n{ \"error\": \"...\" }\n```\nPaginated success: `{ \"data\": { \"items\": [], \"meta\": { \"page\": 1, \"limit\": 10, \"total\": 100 } } }`. DELETE / Logout return 204 with no body.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "API_URL",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "go",
+			"type": "string"
+		},
+		{
+			"key": "questionId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "interviewId",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Retrieve Me",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.id) {",
+									"    pm.environment.set('userId', res.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/auth/me",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						},
+						"description": "Return the currently authenticated user. `data` is the user object directly."
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"pm.test('login ok', () => pm.expect(pm.response.code).to.eql(200));",
+									"if (res.data && res.data.accessToken) {",
+									"    pm.environment.set('accessToken', res.data.accessToken);",
+									"    pm.environment.set('userId', res.data.user.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"test1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/auth/login",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticate and receive a JWT. Saves `accessToken` and `userId` to the environment."
+					}
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('logout ok', () => pm.expect(pm.response.code).to.eql(204));",
+									"pm.environment.set('accessToken', '');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/auth/logout",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Revoke the current token server-side (adds its jti to the denylist). Returns 204 and clears `accessToken`."
+					}
+				}
+			]
+		},
+		{
+			"name": "Badges",
+			"item": [
+				{
+					"name": "List Badges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/badges",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"badges"
+							]
+						},
+						"description": "Full achievement-badge catalog with the authenticated user's earn status: { \"data\": [ { \"id\", \"category\", \"tier\", \"threshold\", \"earned\", \"earnedAt\" } ] }. The catalog is code-defined; the client maps id -> localized name/description/icon."
+					}
+				}
+			]
+		},
+		{
+			"name": "Courses",
+			"item": [
+				{
+					"name": "List Courses",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses?lang=en",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en"
+								}
+							]
+						},
+						"description": "Public. List all courses with metadata and questionCount, ordered by sortOrder. `lang` is accepted for parity but does not change the list payload."
+					}
+				},
+				{
+					"name": "All Courses (full)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/full?lang=en",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"full"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en"
+								}
+							]
+						},
+						"description": "Public. All courses with their localized questions in one payload (used by the frontend for the grid + global search). Each course has id(uuid)+slug; each question id(uuid)+ref."
+					}
+				},
+				{
+					"name": "Content Version",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/version",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"version"
+							]
+						},
+						"description": "Public. Opaque content version (max updatedAt across courses/questions/translations). Clients gate their cached content on this; also exposed as the ETag on /courses/full."
+					}
+				},
+				{
+					"name": "Retrieve a Course",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.questions && res.data.questions.length) {",
+									"    pm.environment.set('questionId', res.data.questions[0].id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/{{courseId}}?lang=en",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en"
+								}
+							]
+						},
+						"description": "Public. Fetch a course with all its questions localized to `lang` (default en, falls back to English per field). Saves the first question id to `questionId`."
+					}
+				},
+				{
+					"name": "Course Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/courses/{{courseId}}/progress",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}",
+								"progress"
+							]
+						},
+						"description": "Auth required. The current user's reviewed and favorite question ids for this course."
+					}
+				},
+				{
+					"name": "Progress Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/progress/summary",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"progress",
+								"summary"
+							]
+						},
+						"description": "Auth required. Aggregate reviewed/favorite totals for the current user, plus per-course counts."
+					}
+				},
+				{
+					"name": "Bulk Progress",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewedIds\": [\"{{questionId}}\"],\n    \"favoriteIds\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/progress/bulk",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"progress",
+								"bulk"
+							]
+						},
+						"description": "Auth required. Idempotently mark many questions reviewed/favorite by id (used for \"expand all\" and the initial localStorage migration). Returns 204."
+					}
+				},
+				{
+					"name": "Upsert Question Progress",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewed\": true,\n    \"favorite\": true,\n    \"timezone\": \"Asia/Yerevan\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/questions/{{questionId}}/progress",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}",
+								"progress"
+							]
+						},
+						"description": "Auth required. Upsert the current user's progress for one question by id. Omitted fields are left unchanged, so reviewed and favorite toggle independently."
+					}
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Ping",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/ping",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"ping"
+							]
+						},
+						"description": "Liveness — returns { \"data\": \"pong\" } with HTTP 200 when the server is up. Public."
+					}
+				},
+				{
+					"name": "Ready",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/ready",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"ready"
+							]
+						},
+						"description": "Readiness — pings the database. 200 { \"data\": \"ready\" } when reachable, 503 otherwise. Public."
+					}
+				}
+			]
+		},
+		{
+			"name": "Interviews",
+			"description": "AI Interview Coach (docs/product/interview). Chat interview: start a session, submit each answer (evaluated on submit, 0-100 rubric), then complete to aggregate the final report. Bilingual (en|ru). All routes are JWT-protected and scoped to the caller.",
+			"item": [
+				{
+					"name": "List Interviews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews?page=1&limit=10",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Paginated interview history for the caller, newest first. Each item is an InterviewSession { id, courseId, difficulty, language, status, overallScore, ... }. Captures the first id into {{interviewId}}."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.items && res.data.items.length) {",
+									"    pm.environment.set('interviewId', res.data.items[0].id);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Interview Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/summary",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"summary"
+							]
+						},
+						"description": "Aggregates the caller's completed interviews for the profile page: totalCompleted, avgScore, bestScore, and lastSession (id, courseId, difficulty, language, overallScore, completedAt), or null lastSession if none completed yet."
+					}
+				},
+				{
+					"name": "Get Interview (resume)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}"
+							]
+						},
+						"description": "Resume payload: { session, history: [{question, result}], current, finished }. Rebuilds the chat from stored answers/feedback up to currentIndex. Captures the current question id into {{questionId}}."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.current) {",
+									"    pm.environment.set('questionId', res.data.current.questionId);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Interview Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/report",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"report"
+							]
+						},
+						"description": "Final report + per-question review for a completed interview: { report, session, review }. report has overallScore /100, the four rubric averages (correctness/depth/communication/structure), verdict, strengths, weaknesses, recommendations."
+					}
+				},
+				{
+					"name": "Start Interview",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews"
+							]
+						},
+						"description": "Start a session. Rejects with 409 if the caller already has one in progress. Returns { session, history, current } with the first question. Captures {{interviewId}} and the first {{questionId}}.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"courseSlug\": \"backend\",\n    \"difficulty\": \"medium\",\n    \"language\": \"en\",\n    \"questionCount\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data) {",
+									"    if (res.data.session) pm.environment.set('interviewId', res.data.session.id);",
+									"    if (res.data.current) pm.environment.set('questionId', res.data.current.questionId);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Transcribe Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/transcribe",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"transcribe"
+							]
+						},
+						"description": "Transcribe a recorded voice answer via Whisper. multipart/form-data: audio (file) + optional language (en|ru|hy). Body limit is 25 MB for this route (audio); returns { data: { transcript } }.",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "audio",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "language",
+									"value": "ru",
+									"type": "text",
+									"description": "Interview language (en|ru|hy) — pins Whisper to the spoken language; other values auto-detect."
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Submit Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/answers/{{questionId}}",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"answers",
+								"{{questionId}}"
+							]
+						},
+						"description": "Submit one answer. Evaluated on submit via the AI layer (unless skipped) and returns { result, next, finished }. result carries score + rubric + feedback (shown as the AI's chat reply). Captures the next {{questionId}}. Set \"skipped\": true to skip (scores 0, no AI call).",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"answer\": \"Dependency injection is a pattern where a component receives its dependencies from the outside instead of creating them, which improves testability and decoupling.\",\n    \"skipped\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.next) {",
+									"    pm.environment.set('questionId', res.data.next.questionId);",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Submit Answer (stream, SSE)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/answers/{{questionId}}/stream",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"answers",
+								"{{questionId}}",
+								"stream"
+							]
+						},
+						"description": "Streaming (Server-Sent Events) variant of Submit Answer (docs/product/ai-chat). Same body as Submit Answer. Responds with `text/event-stream`, not JSON: an `event: done` frame carries `{ next, finished }` (the next question, or finished=true), or an `event: error` frame carries `{ message, recoverable }`. The next question streams as `delta` frames (token-by-token from OpenAI), then a `done` frame carries the canonical turn. The answer is persisted immediately and graded off the critical path (inline only on the final question). Pre-stream failures (auth/validation/not-found) still return a normal JSON `{ error }`. Use Postman's SSE view to read the frames; the questionId capture that the JSON Submit Answer does is not possible here because the body is an event stream.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"answer\": \"Dependency injection is a pattern where a component receives its dependencies from the outside instead of creating them, which improves testability and decoupling.\",\n    \"skipped\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "Complete Interview",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/{{interviewId}}/complete",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"{{interviewId}}",
+								"complete"
+							]
+						},
+						"description": "Aggregate the per-answer results into the final report (no AI). Idempotent: re-completing returns the existing report. Returns { report, session, review }."
+					}
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "List Notifications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.items && res.data.items.length) {",
+									"    pm.environment.set('notificationId', res.data.items[0].id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications?page=1&limit=10",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Paginated notifications for the authenticated user, newest first. Each item: { id, userId, type, params, read, createdAt }. Captures the first id into {{notificationId}}."
+					}
+				},
+				{
+					"name": "Unseen Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/unseen-count",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"unseen-count"
+							]
+						},
+						"description": "Unseen notification count for the authenticated user (drives the badge): { \"data\": { \"count\": n } }."
+					}
+				},
+				{
+					"name": "Mark All Seen",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/seen",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"seen"
+							]
+						},
+						"description": "Mark every notification for the caller as seen (clears the badge; does not mark read). Called when the list is opened. 204, no body."
+					}
+				},
+				{
+					"name": "Mark All Read",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/read",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"read"
+							]
+						},
+						"description": "Mark every notification for the caller as read (also marks them seen). 204, no body."
+					}
+				},
+				{
+					"name": "Mark One Read",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/notifications/{{notificationId}}/read",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"notifications",
+								"{{notificationId}}",
+								"read"
+							]
+						},
+						"description": "Mark one notification read. 204 on success, 404 if it is missing or owned by another user."
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/users?page=1&limit=10",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Paginated list of users. limit max 100 (otherwise defaults to 10)."
+					}
+				},
+				{
+					"name": "Retrieve a User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/users/{{userId}}",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Fetch a single user by ID."
+					}
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set('userEmail', pm.variables.replaceIn('{{$randomEmail}}'));",
+									"pm.environment.set('userName', pm.variables.replaceIn('{{$randomFullName}}'));"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.data && res.data.id) {",
+									"    pm.environment.set('userId', res.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{userName}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"test1234\",\n    \"age\": 25\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Public registration. Fields: name (min 2), email, password (min 8), age (min 1). Saves `userId`."
+					}
+				},
+				{
+					"name": "Update User (self)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"email\": \"{{userEmail}}\",\n    \"age\": 31,\n    \"bio\": \"Backend engineer preparing for interviews.\",\n    \"track\": \"Backend\",\n    \"currentPassword\": \"\",\n    \"newPassword\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Update the authenticated user (id taken from the token, not the URL). Fields optional: name (min 2), age (min 1)."
+					}
+				},
+				{
+					"name": "Delete User (self)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/users",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Delete the authenticated user. Returns 204."
+					}
+				}
+			]
+		}
+	]
+}
