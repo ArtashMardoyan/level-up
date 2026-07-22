@@ -24,12 +24,14 @@ function StageIcon({ paths }) {
   )
 }
 
-const NODE_ICONS = {
-  Practice: ['M9 2h6v12a3 3 0 0 1-6 0z', 'M5 10a7 7 0 0 0 14 0', 'M12 17v4'],
-  Feedback: ['M12 2 15 8l6 .5-4.5 4 1.4 6L12 15l-5.9 3.5 1.4-6L3 8.5 9 8z'],
-  Progress: ['M3 3v18h18', 'm7 15 3-4 4 3 5-7'],
-  Study: ['M4 4h16v14H8l-4 3z', 'M8 9h8']
-}
+// Icons by stage POSITION (index), not by label — so translated stage names still
+// get the right icon. Order matches the stages array: Study, Practice, Feedback, Progress.
+const NODE_ICONS = [
+  ['M4 4h16v14H8l-4 3z', 'M8 9h8'],
+  ['M9 2h6v12a3 3 0 0 1-6 0z', 'M5 10a7 7 0 0 0 14 0', 'M12 17v4'],
+  ['M12 2 15 8l6 .5-4.5 4 1.4 6L12 15l-5.9 3.5 1.4-6L3 8.5 9 8z'],
+  ['M3 3v18h18', 'm7 15 3-4 4 3 5-7']
+]
 
 const POSITIONS = ['top', 'right', 'bottom', 'left']
 
@@ -64,7 +66,7 @@ export default function LoopDiagram({ takeaway, caption, stages, center }) {
             style={{ '--mkt-node-delay': index * 1.5 + 's' }}
             key={stage}
           >
-            <StageIcon paths={NODE_ICONS[stage] || []} />
+            <StageIcon paths={NODE_ICONS[index] || []} />
             {stage}
           </span>
         ))}
