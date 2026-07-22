@@ -2,6 +2,7 @@ import { HOME } from '../content'
 import Cta from '../components/Cta'
 import Hero from '../components/Hero'
 import Section from '../components/Section'
+import HeroCard from '../components/HeroCard'
 import CardGrid from '../components/CardGrid'
 import StepFlow from '../components/StepFlow'
 import TrackChips from '../components/TrackChips'
@@ -25,6 +26,7 @@ export default function HomePage() {
         primary={{ label: c.hero.primary, href: '#interview' }}
         eyebrow={c.hero.eyebrow}
         title={c.hero.title}
+        media={<HeroCard />}
         note={c.hero.note}
         sub={c.hero.sub}
       />
@@ -62,7 +64,7 @@ export default function HomePage() {
             <TrackChips items={c.who.tracks.role} label="By role" />
             <TrackChips items={c.who.tracks.stack} label="By stack" />
           </div>
-          <div className="mkt-who-item">
+          <div className="mkt-who-item plain">
             <h3 className="mkt-who-title">{c.who.levels}</h3>
           </div>
           <div className="mkt-who-item">
@@ -84,12 +86,15 @@ export default function HomePage() {
       </Section>
 
       <Section tone="center">
-        <h2 className="mkt-final-title">{c.finalCta.title}</h2>
-        <p className="mkt-final-sub">{c.finalCta.sub}</p>
-        <div className="mkt-center">
-          <Cta href="#interview">{c.finalCta.primary}</Cta>
+        <div className="mkt-final-glow" aria-hidden="true" />
+        <div className="mkt-final-inner">
+          <h2 className="mkt-final-title">{c.finalCta.title}</h2>
+          <p className="mkt-final-sub">{c.finalCta.sub}</p>
+          <div className="mkt-center">
+            <Cta href="#interview">{c.finalCta.primary}</Cta>
+          </div>
+          <p className="mkt-note mkt-note-center">{c.finalCta.note}</p>
         </div>
-        <p className="mkt-note mkt-note-center">{c.finalCta.note}</p>
       </Section>
     </>
   )

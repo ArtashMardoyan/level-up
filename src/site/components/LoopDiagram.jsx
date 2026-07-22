@@ -1,24 +1,21 @@
-// The Features "payoff": the four parts shown as one loop that turns around the
-// user's goal. Presentational and responsive; the sequence is announced to screen
-// readers via an aria-label on the ring.
+// The Features "payoff": the four parts as one loop turning around the user's
+// goal — a rotating ring with the goal at the center and the four stages placed
+// N/E/S/W. Decorative ring; the sequence is announced via aria-label.
 export default function LoopDiagram({ takeaway, caption, stages, center }) {
-  const ariaLabel = `A loop: ${stages.join(', then ')}, then back to the start — all around ${center}.`
+  const ariaLabel = `A loop: ${stages.join(', then ')}, then back to the start — all turning around ${center}.`
+  const positions = ['top', 'right', 'bottom', 'left']
 
   return (
     <div className="mkt-loop">
       <div className="mkt-loop-ring" aria-label={ariaLabel} role="img">
+        <span className="mkt-loop-track" aria-hidden="true" />
+        <span className="mkt-loop-goal">{center}</span>
         {stages.map((stage, index) => (
-          <div className="mkt-loop-stage" key={stage}>
-            <span className="mkt-loop-node">{stage}</span>
-            <span className="mkt-loop-arrow" aria-hidden="true">
-              {index === stages.length - 1 ? '↻' : '→'}
-            </span>
-          </div>
+          <span className={'mkt-loop-node pos-' + positions[index % 4]} key={stage}>
+            {stage}
+          </span>
         ))}
       </div>
-      <p className="mkt-loop-center" aria-hidden="true">
-        everything turns around <strong>{center}</strong>
-      </p>
       <p className="mkt-loop-caption">{caption}</p>
       <p className="mkt-loop-takeaway">{takeaway}</p>
     </div>

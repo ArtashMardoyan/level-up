@@ -19,6 +19,32 @@ export const HOME = {
     eyebrow: 'How it works',
     cta: 'Start practicing'
   },
+  inside: {
+    cards: [
+      {
+        body: 'Practice full interviews for your track, the way they really run.',
+        title: 'Realistic mock interviews',
+        icon: 'calendar'
+      },
+      {
+        body: 'A clear score on what matters — correctness, depth, structure, and communication — plus a model answer to learn from.',
+        title: 'Feedback on every answer',
+        icon: 'star'
+      },
+      {
+        body: 'Study the questions that actually come up, organized by track.',
+        title: 'A focused question bank',
+        icon: 'message'
+      },
+      {
+        body: 'Track your scores over time, and keep your momentum with streaks and badges.',
+        title: 'Progress you can see',
+        icon: 'chart'
+      }
+    ],
+    title: 'Realistic mock interviews — scored, coached, and tracked.',
+    eyebrow: 'What’s inside'
+  },
   gap: {
     items: [
       {
@@ -36,22 +62,6 @@ export const HOME = {
     ],
     leadFade: 'Most preparation builds what you know — not how you perform when it counts.',
     lead: 'Knowing the material isn’t the same as being ready for the interview.'
-  },
-  inside: {
-    cards: [
-      { body: 'Practice full interviews for your track, the way they really run.', title: 'Realistic mock interviews' },
-      {
-        body: 'A clear score on what matters — correctness, depth, structure, and communication — plus a model answer to learn from.',
-        title: 'Feedback on every answer'
-      },
-      { body: 'Study the questions that actually come up, organized by track.', title: 'A focused question bank' },
-      {
-        body: 'Track your scores over time, and keep your momentum with streaks and badges.',
-        title: 'Progress you can see'
-      }
-    ],
-    title: 'Realistic mock interviews — scored, coached, and tracked.',
-    eyebrow: 'What’s inside'
   },
   who: {
     lead: 'Whether it’s your first interview or your next senior loop — if you’re getting ready for a technical interview, Level Up is for you.',
