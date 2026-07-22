@@ -13,6 +13,13 @@ function scoreColor(n) {
   return '#fb7185'
 }
 
+// Flag + short code, consistent with the interview section and the public site.
+const LANGS = [
+  { flag: '🇺🇸', label: 'ENG', code: 'en' },
+  { flag: '🇷🇺', label: 'RUS', code: 'ru' },
+  { flag: '🇦🇲', label: 'ARM', code: 'hy' }
+]
+
 export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
   const { setLanguage, language, t } = useLanguage()
   const { logout, user } = useAuth()
@@ -154,24 +161,15 @@ export default function AccountMenu({ onViewProfile, toggleTheme, theme }) {
           <div className="settings-row">
             <span className="settings-label">{t('language')}</span>
             <div className="segmented">
-              <button
-                className={'segmented-btn' + (language === 'en' ? ' active' : '')}
-                onClick={() => setLanguage('en')}
-              >
-                English
-              </button>
-              <button
-                className={'segmented-btn' + (language === 'ru' ? ' active' : '')}
-                onClick={() => setLanguage('ru')}
-              >
-                Русский
-              </button>
-              <button
-                className={'segmented-btn' + (language === 'hy' ? ' active' : '')}
-                onClick={() => setLanguage('hy')}
-              >
-                Հայերեն
-              </button>
+              {LANGS.map((l) => (
+                <button
+                  className={'segmented-btn' + (language === l.code ? ' active' : '')}
+                  onClick={() => setLanguage(l.code)}
+                  key={l.code}
+                >
+                  <span aria-hidden="true">{l.flag}</span> {l.label}
+                </button>
+              ))}
             </div>
           </div>
 
