@@ -1,13 +1,18 @@
 ---
-status: "Accepted"
+status: "Deprecated"
 date: "2026-07-21"
 deciders:
   - "Backend Team Lead"
   - "Product"
 visibility: "internal"
+superseded_by: "0006-repository-and-platform-architecture"
 ---
 
 # ADR-0001 — Product documentation lives in the backend repository
+
+> **Deprecated → superseded by [ADR-0006](0006-repository-and-platform-architecture.md).** With the
+> move to a single polyglot monorepo, documentation now lives in the monorepo `docs/` rather than in
+> the backend repository. Retained for historical record.
 
 ## Context
 

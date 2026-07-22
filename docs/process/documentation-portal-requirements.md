@@ -1,11 +1,12 @@
 ---
-status: "Approved"
+status: "Deprecated"
 owner: "Backend Team Lead"
 reviewers:
   - "Frontend"
   - "Product"
-last_updated: "2026-07-21"
+last_updated: "2026-07-23"
 visibility: "internal"
+deprecation_note: "Design/requirements only; decision captured in decisions/0005-documentation-portal-platform, operational reality in process/documentation-portal-hosting. Retained for history."
 ---
 
 # Documentation Portal — Requirements

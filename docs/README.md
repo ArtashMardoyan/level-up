@@ -8,17 +8,17 @@ visibility: "internal"
 # Level Up — Documentation
 
 The single entry point for all Level Up documentation. Product, engineering, and
-architectural knowledge live here, in the backend repository — Web, Mobile, and
-future clients read from this tree rather than keeping their own copies. New here?
-This page is the map; the reasoning behind the shape is in
-[`process/DOCUMENTATION_ARCHITECTURE.md`](process/DOCUMENTATION_ARCHITECTURE.md).
+architectural knowledge live here, at the root of the **monorepo** (`level-up`) — the
+frontend (`apps/web`) and backend (`apps/api`) apps both read from this one tree rather
+than keeping their own copies. New here? This page is the map; the reasoning behind the
+shape is in [`process/DOCUMENTATION_ARCHITECTURE.md`](process/DOCUMENTATION_ARCHITECTURE.md).
 
 ## Start here by role
 
 | You are a… | Start with |
 |---|---|
 | **Backend** engineer | [`engineering/backend/`](engineering/backend/) · [`engineering/architecture/`](engineering/architecture/) · then the feature in [`product/`](product/) |
-| **Frontend** engineer | the feature's `ux-flow` in [`product/`](product/) · [`engineering/frontend/`](engineering/) *(planned)* |
+| **Frontend** engineer | the feature's `ux-flow` in [`product/`](product/) · [`engineering/frontend/`](engineering/frontend/) |
 | **Mobile** engineer | [`product/`](product/) (specs are platform-independent) · `engineering/mobile/` *(planned)* |
 | **AI** engineer | [`product/ai-chat/`](product/ai-chat/) · [`product/interview/`](product/interview/) · [`decisions/`](decisions/) |
 | **Anyone** | this page, then [`decisions/`](decisions/) for *why* things are the way they are |
@@ -48,21 +48,29 @@ docs/
     ai-chat/                      ← streaming migration (README + STATUS + 001–014)
     notifications/                ← feed + engagement plan
     content/                      ← course content & audio pipeline
+    dictionary/                   ← Interview Dictionary (from frontend)
+    profile/                      ← Profile screen (from frontend)
   engineering/
     architecture/                 ← system shape: modules, layering, dependency rules
     backend/                      ← Go/Gin/GORM engineering hub
-    security/                     ← auth, JWT, CORS
-    caching/                      ← content caching (ETag + version)
+    frontend/                     ← React/Vite engineering hub (from frontend)
+    security/                     ← auth, JWT, CORS (+ frontend-auth)
+    caching/                      ← content caching (ETag + version) (+ frontend-caching)
     deployment/                   ← AWS App Runner + RDS
+  standards/
+    harness-framework.md          ← AI harness interface spec
   decisions/
-    0001 … 0004                   ← seeded ADRs
+    0001 … 0005                   ← backend ADRs (0001 deprecated → 0006)
+    0006 … 0008                   ← platform ADRs (repo arch · contracts · AI workspace)
+    architecture-review.md · documentation-migration-map.md · archive/
 ```
 
 Folders are created **when their first real content lands** — never empty, to
-satisfy symmetry (see principle P5). Planned-but-not-yet-created areas include
-`engineering/{frontend,mobile,data,observability}` and `product/{dictionary,profile,
-learning}` (the first two live in the frontend repo today and consolidate here when
-migrated).
+satisfy symmetry (see principle P5). The frontend docs (`dictionary`, `profile`,
+`engineering/frontend`) consolidated here from the frontend during the monorepo
+migration; the app-specific redesign handoff lives with the app at
+`apps/web/docs/redesign/`. Still planned: `engineering/{mobile,data,observability}`
+and `product/learning`.
 
 ## Finding & adding documentation
 
