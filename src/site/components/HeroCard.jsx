@@ -41,7 +41,7 @@ function useCountUp(target, duration = 1500, delay = 350) {
 // A product-truthful mock of the interview experience for the Home hero: language
 // pills, a question, a typed answer with a blinking caret, and a live rubric score
 // whose ring fills and number counts up on load. Decorative — hidden from AT.
-export default function HeroCard() {
+export default function HeroCard({ card }) {
   const score = useCountUp(88)
 
   return (
@@ -50,7 +50,7 @@ export default function HeroCard() {
         <span className="mkt-dotr r" />
         <span className="mkt-dotr y" />
         <span className="mkt-dotr g" />
-        <span className="mkt-herocard-tab">mock interview · backend</span>
+        <span className="mkt-herocard-tab">{card.tab}</span>
       </div>
       <div className="mkt-herocard-body">
         <div className="mkt-herocard-langs">
@@ -61,14 +61,13 @@ export default function HeroCard() {
           ))}
         </div>
         <div>
-          <div className="mkt-herocard-qn">Question 3 / 8</div>
-          <div className="mkt-herocard-q">
-            Explain how you&rsquo;d prevent a race condition when two requests update the same row.
-          </div>
+          <div className="mkt-herocard-qn">{card.questionLabel}</div>
+          <div className="mkt-herocard-q">{card.question}</div>
         </div>
         <div className="mkt-herocard-answer">
-          I&rsquo;d use row-level locking with <code>SELECT … FOR UPDATE</code> inside a transaction, or an optimistic
-          version column…
+          {card.answerPre}
+          <code>{card.answerCode}</code>
+          {card.answerPost}
           <span className="mkt-caret" />
         </div>
         <div className="mkt-herocard-score">
@@ -77,12 +76,12 @@ export default function HeroCard() {
           </div>
           <div className="mkt-score-rows">
             <div className="mkt-score-row">
-              <span>Correctness</span>
-              <span className="mkt-score-val">Strong</span>
+              <span>{card.correctness}</span>
+              <span className="mkt-score-val">{card.correctnessValue}</span>
             </div>
             <div className="mkt-score-row">
-              <span>Communication</span>
-              <span className="mkt-score-val">Add a trade-off</span>
+              <span>{card.communication}</span>
+              <span className="mkt-score-val">{card.communicationValue}</span>
             </div>
           </div>
         </div>

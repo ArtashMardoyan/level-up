@@ -12,8 +12,8 @@ export default function WhoCards({ who }) {
           <Layers size={21} />
         </span>
         <h3 className="mkt-whocard-title">{who.tracksTitle}</h3>
-        <TrackChips items={who.tracks.role} label="By role" />
-        <TrackChips items={who.tracks.stack} label="By stack" />
+        <TrackChips items={who.tracks.role} label={who.byRole} />
+        <TrackChips items={who.tracks.stack} label={who.byStack} />
         <p className="mkt-whocard-note">{who.tracksNote}</p>
       </article>
 
