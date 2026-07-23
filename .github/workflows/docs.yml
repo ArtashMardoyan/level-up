@@ -21,7 +21,9 @@ permissions:
 jobs:
   # Build + validate every audience on every push/PR. Fails on any broken link or
   # warning (--strict), so docs breakage is caught before it reaches production.
-  build:
+  # Named docs-build (not "build") so it never collides with Backend CI's "build"
+  # status check when branch protection requires specific contexts.
+  docs-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +66,7 @@ jobs:
   #                    against that host's action + secrets once chosen.
 
   deploy-public:
-    needs: build
+    needs: docs-build
     if: github.ref == 'refs/heads/master' && vars.DOCS_PUBLISH_PUBLIC == 'true'
     runs-on: ubuntu-latest
     permissions:
