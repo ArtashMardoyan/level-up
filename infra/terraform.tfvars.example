@@ -1,0 +1,22 @@
+# Copy to terraform.tfvars (git-ignored) and fill in.
+# Secrets (JWT_SECRET, DB_PASSWORD) are NOT set here — they never go through
+# Terraform. Set them once with `aws ssm put-parameter --overwrite` (see
+# docs/devops/aws-setup.md).
+
+aws_region   = "us-east-2"
+github_owner = "ArtashMardoyan"
+github_repo  = "level-up"
+
+service_name  = "level-up-backend"
+ecr_repo_name = "level-up-backend"
+
+# RDS (non-secret parts)
+db_host    = "level-up-backend-db.xxxxxxxx.us-east-2.rds.amazonaws.com"
+db_name    = "levelup"
+db_user    = "postgres"
+db_sslmode = "require"
+
+# Behaviour
+seed_on_start          = true
+backend_deploy_enabled = false # flip to true when ready for auto-deploy on merge
+create_oidc_provider   = true  # set false if the account already has the GitHub OIDC provider

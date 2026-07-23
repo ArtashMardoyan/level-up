@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 	_ "time/tzdata" // embed the tz database so time.LoadLocation works in the container
 
@@ -17,12 +20,40 @@ import (
 	"level-up-backend/internal/modules/interview"
 	"level-up-backend/internal/modules/notification"
 	"level-up-backend/internal/modules/user"
+	"level-up-backend/internal/seed"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 )
+
+// migrationLockKey is an arbitrary, fixed 64-bit key shared by every instance so
+// they contend on the same Postgres advisory lock for migrations.
+const migrationLockKey int64 = 4927210398765
+
+// withMigrationLock runs fn while holding a Postgres session-level advisory lock,
+// so at most one process migrates at a time. The lock lives on its own connection
+// and is released when fn returns or the session ends (e.g. the process crashes),
+// so a dead instance can never wedge migrations.
+func withMigrationLock(db *sql.DB, fn func() error) error {
+	ctx := context.Background()
+
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		return fmt.Errorf("open lock connection: %w", err)
+	}
+	defer func() { _ = conn.Close() }()
+
+	if _, err := conn.ExecContext(ctx, "SELECT pg_advisory_lock($1)", migrationLockKey); err != nil {
+		return fmt.Errorf("acquire advisory lock: %w", err)
+	}
+	defer func() {
+		_, _ = conn.ExecContext(ctx, "SELECT pg_advisory_unlock($1)", migrationLockKey)
+	}()
+
+	return fn()
+}
 
 func main() {
 	cfg, err := config.Load()
@@ -35,13 +66,36 @@ func main() {
 		log.Fatal("failed to open database: ", err)
 	}
 
-	if err := goose.Up(sqlDB, "migrations"); err != nil {
+	// Serialize migrations across instances. When App Runner starts several
+	// instances of a new revision at once, each runs this on boot; a Postgres
+	// session-level advisory lock ensures only one migrates at a time while the
+	// others block, then find nothing pending and continue. Fully backward
+	// compatible — no schema or migration-file changes.
+	if err := withMigrationLock(sqlDB, func() error {
+		return goose.Up(sqlDB, "migrations")
+	}); err != nil {
 		log.Fatal("failed to run migrations: ", err)
 	}
 
 	db, err := database.Connect(&cfg.DB)
 	if err != nil {
 		log.Fatal("failed to connect to database: ", err)
+	}
+
+	// Optional automatic seed sync on boot. Off by default; enable per environment
+	// with SEED_ON_START=true (e.g. in App Runner) so deploys keep course content in
+	// sync. The seed is idempotent and only writes rows whose content changed.
+	//
+	// Defined failure behavior: a seed error is fatal. Content sync is part of the
+	// deploy, so if it fails the instance exits, its health check never passes, and
+	// App Runner keeps the previous healthy version rather than shipping a half-synced
+	// deploy. The error (with course/question context) is logged before exit.
+	if os.Getenv("SEED_ON_START") == "true" {
+		if err := seed.Run(db); err != nil {
+			log.Fatal("seed on start failed (deploy aborted, previous version kept): ", err)
+		}
+
+		log.Println("seed on start: completed")
 	}
 
 	userRepo := user.NewRepository(db)

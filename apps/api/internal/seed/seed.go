@@ -203,6 +203,9 @@ func upsertCourse(db *gorm.DB, id string, meta *courseMeta) error {
 	return db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"slug", "title", "subtitle", "emoji", "accent", "sortOrder", "updatedAt"}),
+		// Update only when content actually changed, so re-seeding unchanged data is
+		// a true no-op (no updatedAt churn). "excluded" is the row we tried to insert.
+		Where: clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: `courses.slug IS DISTINCT FROM excluded.slug OR courses.title IS DISTINCT FROM excluded.title OR courses.subtitle IS DISTINCT FROM excluded.subtitle OR courses.emoji IS DISTINCT FROM excluded.emoji OR courses.accent IS DISTINCT FROM excluded.accent OR courses."sortOrder" IS DISTINCT FROM excluded."sortOrder"`}}},
 	}).Create(&c).Error
 }
 
@@ -218,6 +221,7 @@ func upsertQuestion(db *gorm.DB, id, courseID string, raw *rawQuestion, order in
 	return db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"courseId", "ref", "module", "sortOrder", "updatedAt"}),
+		Where:     clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: `questions."courseId" IS DISTINCT FROM excluded."courseId" OR questions.ref IS DISTINCT FROM excluded.ref OR questions.module IS DISTINCT FROM excluded.module OR questions."sortOrder" IS DISTINCT FROM excluded."sortOrder"`}}},
 	}).Create(&q).Error
 }
 
@@ -235,6 +239,7 @@ func upsertTranslation(db *gorm.DB, questionID, lang string, raw *rawQuestion) e
 	return db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"question", "answer", "bonus", "audio", "updatedAt"}),
+		Where:     clause.Where{Exprs: []clause.Expression{clause.Expr{SQL: `question_translations.question IS DISTINCT FROM excluded.question OR question_translations.answer IS DISTINCT FROM excluded.answer OR question_translations.bonus IS DISTINCT FROM excluded.bonus OR question_translations.audio IS DISTINCT FROM excluded.audio`}}},
 	}).Create(&t).Error
 }
 

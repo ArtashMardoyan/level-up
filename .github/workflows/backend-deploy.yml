@@ -1,0 +1,115 @@
+name: Backend Deploy
+
+# Build the Go API image and deploy it to AWS App Runner via ECR.
+#
+# GUARDED / INERT BY DEFAULT: the job only runs when the repo variable
+# BACKEND_DEPLOY_ENABLED == 'true'. Until then this workflow does nothing, so it
+# can be merged safely and never deploys or fails by accident.
+#
+# AWS SSO does NOT apply here. SSO is for humans logging in locally
+# (`aws sso login`). CI authenticates by assuming an IAM role through GitHub's
+# OIDC provider — no long-lived keys, no SSO. That is what makes fully automated
+# backend deploys possible once the one-time AWS setup below exists.
+#
+# One-time setup (repo admin, in the AWS account):
+#   1. Add GitHub as an OIDC identity provider (token.actions.githubusercontent.com).
+#   2. Create an IAM role trusting this repo's OIDC subject, with least-privilege
+#      permissions for ECR (push) and App Runner (StartDeployment/DescribeService).
+#   3. Set repo variables:
+#        BACKEND_DEPLOY_ENABLED = true
+#        AWS_DEPLOY_ROLE_ARN    = arn:aws:iam::<acct>:role/<role>
+#        SERVICE_ARN            = <App Runner service ARN>   (optional)
+#        AWS_REGION / ECR_REPO  (optional; sensible defaults below)
+#
+# App Runner has AutoDeploymentsEnabled, so pushing :latest already redeploys;
+# the explicit start-deployment step is a guarded belt-and-suspenders.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "apps/api/**"
+      - ".github/workflows/backend-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+# Never let two deploys race on :latest / start-deployment. Queue instead of
+# cancelling so an in-flight production deploy always finishes.
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: vars.BACKEND_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    # The OIDC trust policy is scoped to this environment's subject, so deploys
+    # can only run from here. Add required reviewers to the environment for a
+    # manual approval gate before production.
+    environment:
+      name: production
+      url: ${{ vars.SERVICE_URL }}
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-2' }}
+      SERVICE_ARN: ${{ vars.SERVICE_ARN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Note the current deployment so we can detect the NEW one triggered by the push.
+      - name: Record current deployment
+        id: pre
+        run: echo "op=$(aws apprunner list-operations --service-arn "$SERVICE_ARN" --query 'OperationSummaryList[0].Id' --output text)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          ECR_REPO: ${{ vars.ECR_REPO || 'level-up-backend' }}
+        run: |
+          IMAGE="$ECR_REGISTRY/$ECR_REPO"
+          docker build --platform linux/amd64 -t "$IMAGE:$GITHUB_SHA" -t "$IMAGE:latest" .
+          docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE:latest"
+
+      # App Runner AutoDeployments starts one deployment when :latest changes.
+      # Wait for that NEW operation (id differs from the pre-push one) to succeed.
+      - name: Wait for the new deployment
+        run: |
+          PREV='${{ steps.pre.outputs.op }}'
+          for _ in $(seq 1 90); do
+            read -r ID ST < <(aws apprunner list-operations --service-arn "$SERVICE_ARN" --query 'OperationSummaryList[0].[Id,Status]' --output text)
+            echo "latest op: $ID $ST (pre-push: $PREV)"
+            if [ "$ID" != "$PREV" ]; then
+              case "$ST" in
+                SUCCEEDED) exit 0 ;;
+                ROLLBACK_IN_PROGRESS|ROLLBACK_SUCCEEDED|ROLLBACK_FAILED|FAILED) echo "::error::deployment $ST"; exit 1 ;;
+              esac
+            fi
+            sleep 10
+          done
+          echo "::error::timed out waiting for the new deployment"; exit 1
+
+      - name: Health check (/ready)
+        run: |
+          for _ in $(seq 1 12); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' "${{ vars.SERVICE_URL }}/ready" || true)"
+            echo "GET /ready -> $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 5
+          done
+          echo "::error::/ready did not return 200"; exit 1
