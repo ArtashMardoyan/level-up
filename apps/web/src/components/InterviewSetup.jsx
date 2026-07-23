@@ -14,11 +14,15 @@ const LANGUAGES = [
   { label: 'ARM', flag: '🇦🇲', code: 'hy' }
 ]
 
-export default function InterviewSetup({ onHistory, onStarted, courses, onBack }) {
+export default function InterviewSetup({ adaptive = false, initialCourseId, onHistory, onStarted, courses, onBack }) {
   const { language, t } = useLanguage()
 
   const available = courses.filter((c) => c.questions?.length > 0)
-  const [courseId, setCourseId] = useState(null)
+  // A "Practice weak areas" deep-link preselects the weakest course; otherwise the
+  // candidate picks one (docs/product/interview/009).
+  const [courseId, setCourseId] = useState(() =>
+    initialCourseId && available.some((c) => c.id === initialCourseId) ? initialCourseId : null
+  )
   const [difficulty, setDifficulty] = useState('medium')
   const [count, setCount] = useState(5)
   const [lang, setLang] = useState(['en', 'ru', 'hy'].includes(language) ? language : 'en')
@@ -33,7 +37,7 @@ export default function InterviewSetup({ onHistory, onStarted, courses, onBack }
     if (!selected || submitting) return
     setSubmitting(true)
     setError(null)
-    interviewsCreate({ courseSlug: selected.id, questionCount: count, language: lang, difficulty })
+    interviewsCreate({ courseSlug: selected.id, questionCount: count, language: lang, difficulty, adaptive })
       .then((view) => onStarted(view.session.id))
       .catch((e) => {
         setError(e?.status === 409 ? t('interviewActiveError') : t('interviewStartError'))
@@ -57,6 +61,7 @@ export default function InterviewSetup({ onHistory, onStarted, courses, onBack }
       </div>
       <h1 className="aic-title">{t('interviewSetupTitle')}</h1>
       <p className="aic-subtitle">{t('interviewSetupSubtitle')}</p>
+      {adaptive && <p className="aic-focus-body">{t('interviewAdaptiveNote')}</p>}
 
       <div className="aic-step-label">{t('interviewStepCourse')}</div>
       <div className="aic-course-grid">

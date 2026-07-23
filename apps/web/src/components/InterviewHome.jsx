@@ -49,6 +49,7 @@ function Hero({ children, body, t }) {
 
 export default function InterviewHome({
   onBrowseCourses,
+  onPracticeWeak,
   onRequireAuth,
   onOpenSession,
   onStartNew,
@@ -252,7 +253,7 @@ export default function InterviewHome({
               </div>
             ))}
           </div>
-          <button className="aic-ghost-btn" onClick={onStartNew} type="button">
+          <button onClick={() => onPracticeWeak(focusTopics[0].courseSlug)} className="aic-ghost-btn" type="button">
             {t('interviewFocusPractice')} <ArrowRight aria-hidden="true" size={15} />
           </button>
         </div>

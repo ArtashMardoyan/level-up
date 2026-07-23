@@ -293,6 +293,7 @@ export const en = {
   interviewHeroNewBody:
     'Answer questions out loud, one at a time, and get scored feedback with a model answer after every response.',
   interviewWelcomeBody: 'Keep the momentum going. Run a mock interview and get scored feedback on every answer.',
+  interviewAdaptiveNote: 'Focused on your weak areas — questions lean toward the topics you scored lowest on.',
   interviewHistoryEmptyBody: 'Run your first mock interview to start tracking scores and progress over time.',
   interviewCompleteBody: 'You answered all {total} questions. Review your feedback and overall score.',
   interviewContinueBody: 'Pick up where you left off, or focus a session on your weaker topics.',

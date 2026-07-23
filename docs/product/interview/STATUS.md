@@ -4,7 +4,27 @@
 > what's open, the git/deploy state, and how to continue. The full spec is the
 > other files in this folder (`001`–`016`); this file is the live status on top.
 
-_Last updated: 2026-07-20._
+_Last updated: 2026-07-23._
+
+## M2 — Adaptive interviews & trackable recommendations (2026-07-23)
+
+Shipped as three reviewable PRs (DB → Backend → Frontend), closing the
+practice → insight → targeted-practice loop:
+
+- **DB (#37):** `topic_progress` table (migration `00016`) — durable per-`(user, course)`
+  knowledge map (`level` 0-100, `confidence`, `samples`, `last{Practiced,Improved}At`).
+- **Backend (#38):** adaptive question picker (weighted sample toward weak modules, with
+  a floor for variety), gated by an optional `adaptive` flag on `POST /interviews`;
+  module weights are live-computed from `question_results`. Completion blends the overall
+  score into `topic_progress` via an EMA (α 0.4). Best-effort — never fails `Complete`.
+- **Frontend:** the "Practice weak areas" button now deep-links into a **pre-weighted**
+  interview — preselects the weakest course (from `/interviews/insights`) and sends
+  `adaptive: true`; the setup shows an adaptive note.
+
+**Scope / deferred as tech-debt:** topic = course (coarse MVP), no per-module rows;
+no `learning_profiles` aggregate (derivable from `SummaryByUser`/streak); trackable
+`Recommendation` rows (mark-complete) not yet built — the acceptance is met by the deep-link.
+Not deployed to prod yet (backend deploy still gated).
 
 ## Since the last update (2026-07-19 evening → 2026-07-20)
 
