@@ -36,6 +36,12 @@ permissions:
   id-token: write
   contents: read
 
+# Never let two deploys race on :latest / start-deployment. Queue instead of
+# cancelling so an in-flight production deploy always finishes.
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     if: vars.BACKEND_DEPLOY_ENABLED == 'true'

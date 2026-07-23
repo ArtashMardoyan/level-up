@@ -11,9 +11,8 @@ deploy role, and the GitHub repo configuration. Reproducible; no undocumented co
 ```bash
 cd infra
 cp terraform.tfvars.example terraform.tfvars   # edit db_host etc. (git-ignored)
-export TF_VAR_jwt_secret='<long-random-string>'
-export TF_VAR_db_password='<rds-password>'
 ```
+Secrets are **not** Terraform inputs (they must never enter state).
 
 ## 2. Plan & apply
 ```bash
@@ -23,7 +22,16 @@ terraform apply          # keep backend_deploy_enabled=false for the first apply
 ```
 Outputs: `deploy_role_arn`, `ecr_repository_url`, `apprunner_service_arn`, `apprunner_service_url`.
 
-## 3. First image + go live
+## 3. Set the real secrets (once, out-of-band — never in state)
+Terraform created the SSM parameters with placeholders and ignores their value. Set the real values:
+```bash
+aws ssm put-parameter --overwrite --type SecureString \
+  --name /level-up-backend/JWT_SECRET  --value '<long-random-string>'
+aws ssm put-parameter --overwrite --type SecureString \
+  --name /level-up-backend/DB_PASSWORD --value '<rds-password>'
+```
+
+## 4. First image + go live
 App Runner needs an image before it can run. Push once (locally or via `apps/api/scripts/deploy.sh`),
 confirm the service is `RUNNING` and `/ready` returns 200, then enable auto-deploy:
 ```bash

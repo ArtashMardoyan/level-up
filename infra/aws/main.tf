@@ -42,16 +42,6 @@ variable "seed_on_start" {
   default = true
 }
 
-# Secrets (marked sensitive; stored in SSM SecureString, not in the service def).
-variable "jwt_secret" {
-  type      = string
-  sensitive = true
-}
-variable "db_password" {
-  type      = string
-  sensitive = true
-}
-
 data "aws_caller_identity" "current" {}
 
 # --- ECR ---
@@ -76,16 +66,28 @@ resource "aws_ecr_lifecycle_policy" "backend" {
 }
 
 # --- Secrets in SSM (SecureString) ---
+# Real values are NEVER passed through Terraform (they would land in state).
+# Terraform creates the parameter with a placeholder and then ignores the value;
+# set the real secret out-of-band once with `aws ssm put-parameter --overwrite`
+# (see docs/devops/aws-setup.md). State therefore never contains a secret.
 resource "aws_ssm_parameter" "jwt_secret" {
   name  = "/${var.service_name}/JWT_SECRET"
   type  = "SecureString"
-  value = var.jwt_secret
+  value = "PLACEHOLDER_SET_VIA_CLI"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 resource "aws_ssm_parameter" "db_password" {
   name  = "/${var.service_name}/DB_PASSWORD"
   type  = "SecureString"
-  value = var.db_password
+  value = "PLACEHOLDER_SET_VIA_CLI"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 # --- IAM: access role (pull image from ECR) ---
@@ -144,6 +146,9 @@ resource "aws_iam_role_policy" "instance_secrets" {
 # --- App Runner service ---
 resource "aws_apprunner_service" "backend" {
   service_name = var.service_name
+
+  # Ensure the instance role can read the secrets before the service boots.
+  depends_on = [aws_iam_role_policy.instance_secrets]
 
   source_configuration {
     auto_deployments_enabled = true

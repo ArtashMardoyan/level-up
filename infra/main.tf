@@ -25,8 +25,6 @@ module "aws" {
   db_name       = var.db_name
   db_user       = var.db_user
   db_sslmode    = var.db_sslmode
-  jwt_secret    = var.jwt_secret
-  db_password   = var.db_password
   seed_on_start = var.seed_on_start
 }
 

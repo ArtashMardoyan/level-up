@@ -1,5 +1,7 @@
-# Copy to terraform.tfvars (git-ignored) and fill in. Secrets are better passed as
-# environment variables: export TF_VAR_jwt_secret=... TF_VAR_db_password=...
+# Copy to terraform.tfvars (git-ignored) and fill in.
+# Secrets (JWT_SECRET, DB_PASSWORD) are NOT set here — they never go through
+# Terraform. Set them once with `aws ssm put-parameter --overwrite` (see
+# docs/devops/aws-setup.md).
 
 aws_region   = "us-east-2"
 github_owner = "ArtashMardoyan"
@@ -18,7 +20,3 @@ db_sslmode = "require"
 seed_on_start          = true
 backend_deploy_enabled = false # flip to true when ready for auto-deploy on merge
 create_oidc_provider   = true  # set false if the account already has the GitHub OIDC provider
-
-# Secrets — DO NOT commit. Prefer: export TF_VAR_jwt_secret=... / TF_VAR_db_password=...
-# jwt_secret  = "..."
-# db_password = "..."

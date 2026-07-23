@@ -38,16 +38,9 @@ variable "db_sslmode" {
   default = "require"
 }
 
-# Secrets — pass via TF_VAR_jwt_secret / TF_VAR_db_password or a non-committed
-# *.auto.tfvars. Never commit real values.
-variable "jwt_secret" {
-  type      = string
-  sensitive = true
-}
-variable "db_password" {
-  type      = string
-  sensitive = true
-}
+# Note: JWT_SECRET / DB_PASSWORD are NOT Terraform variables — they never pass
+# through TF or its state. Set them once via `aws ssm put-parameter --overwrite`
+# (see docs/devops/aws-setup.md).
 
 # Run the idempotent seed on every deploy (server SEED_ON_START).
 variable "seed_on_start" {
