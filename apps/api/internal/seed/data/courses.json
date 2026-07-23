@@ -70,5 +70,13 @@
         "emoji": "🚀",
         "accent": "#fb923c",
         "sortOrder": 9
+    },
+    {
+        "slug": "ai-engineering",
+        "title": "AI Engineering with Claude Code",
+        "subtitle": "Agentic loops, harnesses, CLAUDE.md, MCP, hooks & AI leadership",
+        "emoji": "🤖",
+        "accent": "#a78bfa",
+        "sortOrder": 10
     }
 ]
