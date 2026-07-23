@@ -1,6 +1,6 @@
 # AWS setup — step by step (Terraform)
 
-Everything is in [`infra/`](../../infra). One `terraform apply` provisions the AWS runtime, the OIDC
+Everything is in [`infra/`](https://github.com/ArtashMardoyan/level-up/tree/master/infra). One `terraform apply` provisions the AWS runtime, the OIDC
 deploy role, and the GitHub repo configuration. Reproducible; no undocumented console clicks.
 
 ## Prerequisites

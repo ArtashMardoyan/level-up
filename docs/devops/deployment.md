@@ -1,6 +1,6 @@
 # Deployment pipeline
 
-Workflow: [`.github/workflows/backend-deploy.yml`](../../.github/workflows/backend-deploy.yml).
+Workflow: [`.github/workflows/backend-deploy.yml`](https://github.com/ArtashMardoyan/level-up/blob/master/.github/workflows/backend-deploy.yml).
 
 ## Trigger & gate
 - Runs on push to `master` touching `apps/api/**` (or the workflow file), and on manual dispatch.

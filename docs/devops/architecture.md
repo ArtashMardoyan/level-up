@@ -1,7 +1,7 @@
 # DevOps Architecture — OIDC backend deployment
 
 Production-grade, keyless deploy of the Go API (`apps/api`) to AWS App Runner, driven
-entirely by merging to `master`. All of it is Infrastructure as Code in [`infra/`](../../infra).
+entirely by merging to `master`. All of it is Infrastructure as Code in [`infra/`](https://github.com/ArtashMardoyan/level-up/tree/master/infra).
 
 ## Diagram
 
