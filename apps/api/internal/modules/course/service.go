@@ -296,6 +296,25 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProgressSummaryDT
 	return summary, nil
 }
 
+// SavedQuestions returns the user's favorited questions, localized to lang
+// (English fallback), for the profile "Saved questions" list.
+func (s *Service) SavedQuestions(ctx context.Context, userID, lang string) ([]SavedQuestionDTO, error) {
+	if lang == "" {
+		lang = defaultLang
+	}
+
+	saved, err := s.progress.SavedByUser(ctx, userID, lang)
+	if err != nil {
+		return nil, err
+	}
+
+	if saved == nil {
+		saved = []SavedQuestionDTO{}
+	}
+
+	return saved, nil
+}
+
 func toProgressResponse(rows []UserQuestionProgress) ProgressResponseDTO {
 	resp := ProgressResponseDTO{ReviewedIDs: []string{}, FavoriteIDs: []string{}}
 	for _, row := range rows {

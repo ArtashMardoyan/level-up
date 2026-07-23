@@ -145,6 +145,27 @@ func (r *gormProgressRepository) SummaryByUser(ctx context.Context, userID strin
 	return rows, err
 }
 
+// SavedByUser returns the user's favorited questions with the text localized to
+// lang (English fallback), ordered by course then question for a stable list.
+func (r *gormProgressRepository) SavedByUser(ctx context.Context, userID, lang string) ([]SavedQuestionDTO, error) {
+	var rows []SavedQuestionDTO
+
+	err := r.db.WithContext(ctx).
+		Model(&UserQuestionProgress{}).
+		Select(`courses."slug" AS "courseSlug", courses."title" AS "courseTitle", courses."accent" AS "accent", `+
+			`questions."ref" AS "ref", questions."module" AS "module", `+
+			`COALESCE(tl."question", te."question") AS "question"`).
+		Joins(`JOIN questions ON questions."id" = user_question_progress."questionId"`).
+		Joins(`JOIN courses ON courses."id" = questions."courseId"`).
+		Joins(`LEFT JOIN question_translations tl ON tl."questionId" = questions."id" AND tl."lang" = ?`, lang).
+		Joins(`LEFT JOIN question_translations te ON te."questionId" = questions."id" AND te."lang" = ?`, "en").
+		Where(`user_question_progress."userId" = ? AND user_question_progress."favorite"`, userID).
+		Order(`courses."sortOrder", questions."sortOrder"`).
+		Scan(&rows).Error
+
+	return rows, err
+}
+
 func (r *gormProgressRepository) FindOne(ctx context.Context, userID, questionID string) (UserQuestionProgress, error) {
 	var p UserQuestionProgress
 

@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"level-up-backend/internal/modules/course"
+	"level-up-backend/internal/modules/user"
+	"level-up-backend/internal/shared"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -50,7 +52,9 @@ func (*stubCourseRepo) FindQuestionByIDWithTranslations(context.Context, string)
 	return course.Question{}, gorm.ErrRecordNotFound
 }
 
-type stubProgressRepo struct{}
+type stubProgressRepo struct {
+	saved []course.SavedQuestionDTO
+}
 
 func (stubProgressRepo) FindByUser(context.Context, string) ([]course.UserQuestionProgress, error) {
 	return nil, nil
@@ -62,6 +66,10 @@ func (stubProgressRepo) FindByUserAndCourse(context.Context, string, string) ([]
 
 func (stubProgressRepo) SummaryByUser(context.Context, string) ([]course.CourseProgressStat, error) {
 	return nil, nil
+}
+
+func (s stubProgressRepo) SavedByUser(context.Context, string, string) ([]course.SavedQuestionDTO, error) {
+	return s.saved, nil
 }
 
 func (stubProgressRepo) FindOne(context.Context, string, string) (course.UserQuestionProgress, error) {
@@ -158,5 +166,39 @@ func TestGetCourseNotFound(t *testing.T) {
 
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("expected status 404, got %d", rec.Code)
+	}
+}
+
+// TestSavedQuestions checks GET /progress/saved returns the user's favorited
+// questions with the fields the profile list needs (course slug + ref + text).
+func TestSavedQuestions(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	r := gin.New()
+	prog := stubProgressRepo{saved: []course.SavedQuestionDTO{
+		{CourseSlug: "go", CourseTitle: "Go", Accent: "#22d3ee", Ref: "q1", Module: "Module 1", Question: "What is a goroutine?"},
+	}}
+	handler := course.NewHandler(course.NewService(&stubCourseRepo{}, prog, nil, nil))
+	handler.RegisterRoutes(r, func(c *gin.Context) {
+		c.Set(shared.ContextUserKey, user.User{ID: "u1"})
+	})
+
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/progress/saved?lang=en", http.NoBody)
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+
+	var body struct {
+		Data []course.SavedQuestionDTO `json:"data"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+
+	if len(body.Data) != 1 || body.Data[0].Ref != "q1" || body.Data[0].CourseSlug != "go" {
+		t.Fatalf("unexpected saved list: %+v", body.Data)
 	}
 }

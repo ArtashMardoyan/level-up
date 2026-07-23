@@ -33,6 +33,7 @@ func (h *Handler) RegisterRoutes(r *gin.Engine, auth gin.HandlerFunc) {
 	progress := r.Group("/progress", auth)
 	progress.POST("/bulk", h.BulkProgress)
 	progress.GET("/summary", h.Summary)
+	progress.GET("/saved", h.Saved)
 }
 
 func (h *Handler) ListCourses(c *gin.Context) {
@@ -182,6 +183,22 @@ func (h *Handler) Summary(c *gin.Context) {
 	}
 
 	shared.OK(c, summary)
+}
+
+func (h *Handler) Saved(c *gin.Context) {
+	caller, ok := contextUser(c)
+	if !ok {
+		shared.Error(c, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	saved, err := h.service.SavedQuestions(c.Request.Context(), caller.ID, c.DefaultQuery("lang", defaultLang))
+	if err != nil {
+		shared.Error(c, http.StatusInternalServerError, "failed to fetch saved questions")
+		return
+	}
+
+	shared.OK(c, saved)
 }
 
 func contextUser(c *gin.Context) (user.User, bool) {

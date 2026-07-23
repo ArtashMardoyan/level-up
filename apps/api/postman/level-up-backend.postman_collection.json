@@ -328,6 +328,30 @@
 					}
 				},
 				{
+					"name": "Saved Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/progress/saved?lang=en",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"progress",
+								"saved"
+							],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en"
+								}
+							]
+						},
+						"description": "Auth required. The current user's favorited questions (course slug/title/accent, question ref/module/text), localized to ?lang with English fallback. Powers the profile Saved Questions list."
+					}
+				},
+				{
 					"name": "Bulk Progress",
 					"request": {
 						"method": "POST",
