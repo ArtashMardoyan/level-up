@@ -23,8 +23,36 @@ variable "ecr_repo_name" {
   default = "level-up-backend"
 }
 
-# RDS connection (non-secret parts).
-variable "db_host" { type = string }
+# --- Runtime ownership ---------------------------------------------------------
+# false (default): control-plane only — don't manage the live App Runner/ECR;
+# reference the existing prod resources via the *_arn/_url vars below.
+# true: Terraform also creates/adopts the runtime (module.aws). See main.tf.
+variable "manage_runtime" {
+  type    = bool
+  default = false
+}
+
+# Existing prod runtime, used only when manage_runtime = false. The OIDC deploy
+# role scopes ECR-push to this repo ARN and App Runner-observe to this service
+# ARN; the workflow health-checks this URL.
+variable "ecr_repository_arn" {
+  type    = string
+  default = ""
+}
+variable "apprunner_service_arn" {
+  type    = string
+  default = ""
+}
+variable "apprunner_service_url" {
+  type    = string
+  default = ""
+}
+
+# RDS connection (non-secret parts). Required only when manage_runtime = true.
+variable "db_host" {
+  type    = string
+  default = ""
+}
 variable "db_name" {
   type    = string
   default = "levelup"

@@ -15,12 +15,17 @@ Quick start and the reuse/import path for the existing ECR repo + App Runner ser
 [`docs/devops/github-oidc.md`](../docs/devops/github-oidc.md). Pipeline in
 [`docs/devops/deployment.md`](../docs/devops/deployment.md).
 
+Two phases via `manage_runtime` (default `false`): **Phase 1** creates only the OIDC deploy role +
+GitHub repo config against the *existing* prod App Runner/ECR — it never touches the live service
+(plan: `9 to add, 0 to change, 0 to destroy`). **Phase 2** (later PR, `manage_runtime = true`) adopts
+the runtime via `terraform import`. Full steps in [`docs/devops/aws-setup.md`](../docs/devops/aws-setup.md).
+
 ```bash
 cd infra
-cp terraform.tfvars.example terraform.tfvars      # edit; git-ignored
-export TF_VAR_jwt_secret=... TF_VAR_db_password=...
-terraform init && terraform plan
-terraform apply                                    # first run: backend_deploy_enabled=false
+cp terraform.tfvars.example terraform.tfvars      # fill ARNs/URL; git-ignored
+terraform init && terraform plan                  # expect 9 to add, 0 to change, 0 to destroy
+terraform apply                                    # Phase 1: backend_deploy_enabled=false
+terraform apply -var backend_deploy_enabled=true   # flip on when ready → autodeploy on merge
 ```
 
 State: use a remote backend (S3 + DynamoDB lock) for team use before real applies.
