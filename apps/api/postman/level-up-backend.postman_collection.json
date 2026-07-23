@@ -599,10 +599,10 @@
 								"interviews"
 							]
 						},
-						"description": "Start a session. Rejects with 409 if the caller already has one in progress. Returns { session, history, current } with the first question. Captures {{interviewId}} and the first {{questionId}}.",
+						"description": "Start a session. Rejects with 409 if the caller already has one in progress. Returns { session, history, current } with the first question. Captures {{interviewId}} and the first {{questionId}}. Optional `adaptive` (default false) biases question selection toward the user's weak modules in this course.",
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"courseSlug\": \"backend\",\n    \"difficulty\": \"medium\",\n    \"language\": \"en\",\n    \"questionCount\": 3\n}",
+							"raw": "{\n    \"courseSlug\": \"backend\",\n    \"difficulty\": \"medium\",\n    \"language\": \"en\",\n    \"questionCount\": 3,\n    \"adaptive\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
