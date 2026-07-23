@@ -1,10 +1,13 @@
 # 007 - Learning Profile
 
-> **Status: DEFERRED — post-MVP.** The delivered design (`AI Interview Coach.dc.html`) is a pure
-> technical mock-interview (chat → per-answer feedback → Results/Review/History) with no long-term
-> profile surface. The Learning Profile ships with the **English-coaching** version (`014` v2), not
-> in the MVP. Spec kept below for that phase. The MVP does **not** create `LearningProfile` /
-> `TopicProgress` tables (`010`).
+> **Status: PARTIAL — M2 (in progress).** The full Learning Profile (English levels, vocabulary,
+> mistakes) still ships with the **English-coaching** version (`014` v2); spec kept below for that
+> phase. **M2 introduces the coarse knowledge map only:** a per-`(user, course)` `topic_progress`
+> table (migration `00016`) with an EMA-smoothed `level` 0-100, `confidence`, `samples`, and
+> `last{Practiced,Improved}At`, updated in the interview completion flow. No separate
+> `LearningProfile` aggregate row (its stats are derivable from `interview_sessions` /
+> `SummaryByUser`); module-level bias for adaptive question selection is computed live from
+> `question_results`, not persisted.
 
 ## Overview
 

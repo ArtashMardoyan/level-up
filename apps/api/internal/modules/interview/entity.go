@@ -208,3 +208,37 @@ func (r *FinalReport) BeforeCreate(_ *gorm.DB) error {
 
 	return nil
 }
+
+// Confidence is how much data backs a topic's level (docs/product/interview/007) —
+// it grows with the number of interviews that contributed, independent of the level.
+const (
+	ConfidenceLow    = "low"
+	ConfidenceMedium = "medium"
+	ConfidenceHigh   = "high"
+)
+
+// TopicProgress is the durable per-(user, course) knowledge map (docs/product/interview/007).
+// Level is an EMA-smoothed 0-100 score updated after every completed interview, so it
+// evolves gradually rather than jumping on one result; Samples counts the interviews
+// that fed it (drives Confidence). Coarse MVP: topic = course.
+type TopicProgress struct {
+	shared.Base
+	ID              string     `json:"id"              gorm:"primaryKey"`
+	UserID          string     `json:"userId"          gorm:"column:userId"`
+	CourseID        string     `json:"courseId"        gorm:"column:courseId"`
+	Level           int        `json:"level"`
+	Confidence      string     `json:"confidence"`
+	Samples         int        `json:"samples"`
+	LastPracticedAt *time.Time `json:"lastPracticedAt" gorm:"column:lastPracticedAt"`
+	LastImprovedAt  *time.Time `json:"lastImprovedAt"  gorm:"column:lastImprovedAt"`
+}
+
+func (TopicProgress) TableName() string { return "topic_progress" }
+
+func (p *TopicProgress) BeforeCreate(_ *gorm.DB) error {
+	if p.ID == "" {
+		p.ID = uuid.NewString()
+	}
+
+	return nil
+}
