@@ -79,8 +79,21 @@ function SessionRunner({ sessionId, goHistory, courses, goSetup }) {
 export default function InterviewCoach({ onRequireAuth, onNavigate, sessionId, courses }) {
   const { user } = useAuth()
 
+  // A "Practice weak areas" click preselects a course and asks the backend for an
+  // adaptive pick (docs/product/interview/007/009). It survives the hash change to
+  // #interview/new because this container stays mounted across it. A plain "New"
+  // click clears it back to a normal setup.
+  const [startIntent, setStartIntent] = useState(null)
+
   const goHome = () => onNavigate('interview')
-  const goSetup = () => onNavigate('interview', 'new')
+  const goSetup = () => {
+    setStartIntent(null)
+    onNavigate('interview', 'new')
+  }
+  const practiceWeak = (courseSlug) => {
+    setStartIntent({ adaptive: true, courseSlug })
+    onNavigate('interview', 'new')
+  }
   const goHistory = () => onNavigate('interview', 'history')
   const openSession = (id) => onNavigate('interview', id)
   const browseCourses = () => onNavigate('courses')
@@ -90,7 +103,16 @@ export default function InterviewCoach({ onRequireAuth, onNavigate, sessionId, c
   }
 
   if (sessionId === 'new') {
-    return <InterviewSetup onStarted={openSession} onHistory={goHistory} courses={courses} onBack={goHome} />
+    return (
+      <InterviewSetup
+        initialCourseId={startIntent?.courseSlug}
+        adaptive={startIntent?.adaptive || false}
+        onStarted={openSession}
+        onHistory={goHistory}
+        courses={courses}
+        onBack={goHome}
+      />
+    )
   }
 
   if (sessionId === 'history') {
@@ -106,6 +128,7 @@ export default function InterviewCoach({ onRequireAuth, onNavigate, sessionId, c
   return (
     <InterviewHome
       onBrowseCourses={browseCourses}
+      onPracticeWeak={practiceWeak}
       onOpenSession={openSession}
       onContinue={openSession}
       onHistory={goHistory}

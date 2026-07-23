@@ -1,11 +1,16 @@
 # 009 - Recommendation Engine
 
 > **M1 shipped (Progress & Insights).** A read-only aggregation of the per-question scores already
-> captured on every interview is now exposed at **`GET /interviews/insights`**: per-course averages
+> captured on every interview is exposed at **`GET /interviews/insights`**: per-course averages
 > (weakest first), the overall answer-count-weighted rubric, and the weakest rubric axis. The
-> interview home surfaces this as a **"Focus areas"** card. This is the *insight* layer; **acting** on
-> it — topic-weighted question selection and trackable, deep-linked recommendations — is M2
-> (`TopicProgress`, still deferred here). No new tables were added for M1.
+> interview home surfaces this as a **"Focus areas"** card.
+>
+> **M2 shipped (Adaptive interviews).** *Acting* on the insight: the **"Practice weak areas"** button
+> deep-links into a **pre-weighted** interview — it preselects the weakest course and sets an
+> `adaptive` flag on `POST /interviews`, and the Go picker then biases question selection toward the
+> user's weak modules (weighted sample, floor keeps variety). Completing an interview updates the
+> durable `topic_progress` knowledge map (EMA level per course). **Trackable** recommendation rows
+> (mark-complete) remain deferred — the M2 acceptance is met by the deep-link.
 
 ## Overview
 
