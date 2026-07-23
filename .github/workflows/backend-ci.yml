@@ -1,0 +1,55 @@
+name: Backend CI
+
+# Go service CI for apps/api. Lives at the repo root because GitHub only runs
+# workflows found in <repo-root>/.github/workflows. Runs on every pull request
+# (so lint/test/build can be REQUIRED status checks) and on pushes to the main
+# branches. The Go module lives in apps/api, so every step runs there.
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: apps/api
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: apps/api/go.sum
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.12.2
+          working-directory: apps/api
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: apps/api/go.sum
+      - run: go mod download
+      - run: go vet ./...
+      - run: go test ./...
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache-dependency-path: apps/api/go.sum
+      - run: go build ./...
