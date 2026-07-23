@@ -1,5 +1,12 @@
 # 009 - Recommendation Engine
 
+> **M1 shipped (Progress & Insights).** A read-only aggregation of the per-question scores already
+> captured on every interview is now exposed at **`GET /interviews/insights`**: per-course averages
+> (weakest first), the overall answer-count-weighted rubric, and the weakest rubric axis. The
+> interview home surfaces this as a **"Focus areas"** card. This is the *insight* layer; **acting** on
+> it — topic-weighted question selection and trackable, deep-linked recommendations — is M2
+> (`TopicProgress`, still deferred here). No new tables were added for M1.
+
 ## Overview
 
 Decides **what the user should do next** after an interview, turning results into a short, ranked
