@@ -4402,6 +4402,76 @@ footer {
   margin-top: 2px;
 }
 
+/* Progress & Insights — "Focus areas" (weakest topics from GET /interviews/insights) */
+.aic-focus {
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 22px 24px;
+  margin-bottom: 18px;
+}
+.aic-focus-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.aic-focus-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  color: var(--text);
+}
+.aic-focus-weakest {
+  font-size: 12px;
+  color: var(--text-2);
+}
+.aic-focus-body {
+  margin: 6px 0 14px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.aic-focus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.aic-focus-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.aic-focus-course {
+  flex: 0 0 34%;
+  font-size: 14px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.aic-focus-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2, rgba(129, 140, 248, 0.12));
+  overflow: hidden;
+}
+.aic-focus-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.aic-focus-score {
+  flex-shrink: 0;
+  min-width: 28px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
 .aic-recent {
   border-radius: 16px;
   background: var(--surface);

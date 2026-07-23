@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { MessageSquare, ChevronRight, ArrowRight, Sparkles, Check, Plus, Bot, Zap } from 'lucide-react'
+import { MessageSquare, ChevronRight, ArrowRight, Sparkles, Target, Check, Plus, Bot, Zap } from 'lucide-react'
 
 import CourseIcon from './CourseIcon'
 import { useAuth } from '../hooks/useAuth'
 import { scoreColor } from '../utils/interview'
 import { useLanguage } from '../hooks/useLanguage'
-import { interviewsList } from '../services/endpoints'
+import { interviewsInsights, interviewsList } from '../services/endpoints'
 
 // Language codes match the interview setup's ENG/RUS/ARM labels (InterviewSetup.jsx).
 const LANG_FLAG = { en: '🇺🇸', ru: '🇷🇺', hy: '🇦🇲' }
@@ -61,16 +61,18 @@ export default function InterviewHome({
 
   const [sessions, setSessions] = useState([])
   const [total, setTotal] = useState(0)
+  const [insights, setInsights] = useState(null)
   const [status, setStatus] = useState('loading')
 
   useEffect(() => {
     if (!user) return
     let active = true
-    interviewsList(1, 5)
-      .then((res) => {
+    Promise.all([interviewsList(1, 5), interviewsInsights().catch(() => null)])
+      .then(([res, ins]) => {
         if (!active) return
         setSessions(res?.items || [])
         setTotal(res?.meta?.total || 0)
+        setInsights(ins)
         setStatus('ready')
       })
       .catch(() => {
@@ -144,6 +146,8 @@ export default function InterviewHome({
     ? `${latestCourse.title} · ${t('difficulty_' + latest.difficulty)}`
     : t('difficulty_' + latest.difficulty)
   const recommended = courses.find((c) => c.questions?.length > 0) || null
+  const focusTopics = (insights?.topics || []).slice(0, 3)
+  const weakestSkill = insights?.rubric?.weakest
 
   return (
     <main className="aic">
@@ -216,6 +220,43 @@ export default function InterviewHome({
           </div>
         )}
       </div>
+
+      {focusTopics.length > 0 && (
+        <div className="aic-focus">
+          <div className="aic-focus-head">
+            <span className="aic-focus-title">
+              <Target aria-hidden="true" size={15} /> {t('interviewFocusTitle')}
+            </span>
+            {weakestSkill && (
+              <span className="aic-focus-weakest">
+                {t('interviewFocusWeakest', {
+                  skill: t('skill' + weakestSkill.charAt(0).toUpperCase() + weakestSkill.slice(1))
+                })}
+              </span>
+            )}
+          </div>
+          <p className="aic-focus-body">{t('interviewFocusBody')}</p>
+          <div className="aic-focus-list">
+            {focusTopics.map((tp) => (
+              <div className="aic-focus-row" key={tp.courseSlug}>
+                <span className="aic-focus-course">{tp.courseTitle}</span>
+                <span className="aic-focus-bar">
+                  <span
+                    style={{ background: scoreColor(tp.avgScore), width: tp.avgScore + '%' }}
+                    className="aic-focus-bar-fill"
+                  />
+                </span>
+                <span style={{ color: scoreColor(tp.avgScore) }} className="aic-focus-score">
+                  {tp.avgScore}
+                </span>
+              </div>
+            ))}
+          </div>
+          <button className="aic-ghost-btn" onClick={onStartNew} type="button">
+            {t('interviewFocusPractice')} <ArrowRight aria-hidden="true" size={15} />
+          </button>
+        </div>
+      )}
 
       <div className="aic-recent">
         <div className="aic-recent-head">
