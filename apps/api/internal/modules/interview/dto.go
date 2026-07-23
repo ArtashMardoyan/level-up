@@ -108,3 +108,27 @@ type SummaryView struct {
 	BestScore      int              `json:"bestScore"`
 	LastSession    *LastSessionView `json:"lastSession"`
 }
+
+// InsightsView is the Progress & Insights payload (docs/product/interview/009):
+// per-topic averages (weakest first) plus the overall rubric and its weakest axis.
+type InsightsView struct {
+	TotalAnswered int                `json:"totalAnswered"`
+	Rubric        RubricInsightView  `json:"rubric"`
+	Topics        []TopicInsightView `json:"topics"`
+}
+
+type RubricInsightView struct {
+	Correctness   int    `json:"correctness"`
+	Depth         int    `json:"depth"`
+	Communication int    `json:"communication"`
+	Structure     int    `json:"structure"`
+	Weakest       string `json:"weakest"`
+}
+
+type TopicInsightView struct {
+	CourseSlug  string `json:"courseSlug"`
+	CourseTitle string `json:"courseTitle"`
+	Accent      string `json:"accent"`
+	AvgScore    int    `json:"avgScore"`
+	Answered    int    `json:"answered"`
+}

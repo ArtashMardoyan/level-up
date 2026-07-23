@@ -24,6 +24,7 @@ func (h *Handler) RegisterRoutes(r *gin.Engine, auth gin.HandlerFunc) {
 	interviews.GET("", h.List)
 	interviews.POST("/transcribe", h.Transcribe)
 	interviews.GET("/summary", h.Summary)
+	interviews.GET("/insights", h.Insights)
 	interviews.GET("/:id", h.Get)
 	interviews.POST("/:id/answers/:questionId", h.SubmitAnswer)
 	interviews.POST("/:id/answers/:questionId/stream", h.SubmitAnswerStream)
@@ -196,6 +197,22 @@ func (h *Handler) Summary(c *gin.Context) {
 	}
 
 	shared.OK(c, summary)
+}
+
+func (h *Handler) Insights(c *gin.Context) {
+	caller, ok := contextUser(c)
+	if !ok {
+		shared.Error(c, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	insights, err := h.service.Insights(c.Request.Context(), caller.ID)
+	if err != nil {
+		shared.Error(c, http.StatusInternalServerError, "failed to load insights")
+		return
+	}
+
+	shared.OK(c, insights)
 }
 
 func (h *Handler) List(c *gin.Context) {

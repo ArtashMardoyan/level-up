@@ -17,6 +17,21 @@ type ContentReader interface {
 }
 
 // Repository persists interview sessions, per-answer results, and final reports.
+// TopicInsight aggregates a user's evaluated (non-skipped) answers for one course
+// (topic) — the read-side input to the Progress & Insights view
+// (docs/product/interview/009). Scores/rubric axes are 0–100 averages.
+type TopicInsight struct {
+	CourseSlug    string  `gorm:"column:courseSlug"`
+	CourseTitle   string  `gorm:"column:courseTitle"`
+	Accent        string  `gorm:"column:accent"`
+	AvgScore      float64 `gorm:"column:avgScore"`
+	Answered      int     `gorm:"column:answered"`
+	Correctness   float64 `gorm:"column:correctness"`
+	Depth         float64 `gorm:"column:depth"`
+	Communication float64 `gorm:"column:communication"`
+	Structure     float64 `gorm:"column:structure"`
+}
+
 type Repository interface {
 	CreateSession(ctx context.Context, s *Session) error
 	FindSession(ctx context.Context, id string) (Session, error)
@@ -35,4 +50,8 @@ type Repository interface {
 	// overallScore. lastCompleted is the most recently completed session, or
 	// nil if the user has none.
 	SummaryByUser(ctx context.Context, userID string) (total int, avgScore, bestScore float64, lastCompleted *Session, err error)
+
+	// InsightTopicsByUser aggregates the user's evaluated answers per course,
+	// weakest average first. Empty when the user has no evaluated answers.
+	InsightTopicsByUser(ctx context.Context, userID string) ([]TopicInsight, error)
 }

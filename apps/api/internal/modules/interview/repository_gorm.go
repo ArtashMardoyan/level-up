@@ -125,6 +125,26 @@ func (r *gormRepository) ListByUser(ctx context.Context, userID string, q shared
 	return shared.NewPaginatedResult(sessions, total, q), nil
 }
 
+func (r *gormRepository) InsightTopicsByUser(ctx context.Context, userID string) ([]TopicInsight, error) {
+	var rows []TopicInsight
+
+	err := r.db.WithContext(ctx).
+		Table("question_results AS qr").
+		Select(`c."slug" AS "courseSlug", c."title" AS "courseTitle", c."accent" AS "accent", `+
+			`COALESCE(AVG(qr."score"), 0) AS "avgScore", COUNT(*) AS "answered", `+
+			`COALESCE(AVG(qr."correctness"), 0) AS "correctness", COALESCE(AVG(qr."depth"), 0) AS "depth", `+
+			`COALESCE(AVG(qr."communication"), 0) AS "communication", COALESCE(AVG(qr."structure"), 0) AS "structure"`).
+		Joins(`JOIN interview_sessions s ON s."id" = qr."interviewId"`).
+		Joins(`JOIN questions q ON q."id" = qr."questionId"`).
+		Joins(`JOIN courses c ON c."id" = q."courseId"`).
+		Where(`s."userId" = ? AND qr."skipped" = false`, userID).
+		Group(`c."slug", c."title", c."accent"`).
+		Order(`"avgScore" ASC, "answered" DESC`).
+		Scan(&rows).Error
+
+	return rows, err
+}
+
 func (r *gormRepository) SummaryByUser(ctx context.Context, userID string) (total int, avgScore, bestScore float64, lastCompleted *Session, err error) {
 	var agg struct {
 		Total int
