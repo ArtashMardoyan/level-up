@@ -23,6 +23,7 @@ type ProgressRepository interface {
 	FindByUser(ctx context.Context, userID string) ([]UserQuestionProgress, error)
 	FindByUserAndCourse(ctx context.Context, userID, courseID string) ([]UserQuestionProgress, error)
 	SummaryByUser(ctx context.Context, userID string) ([]CourseProgressStat, error)
+	SavedByUser(ctx context.Context, userID, lang string) ([]SavedQuestionDTO, error)
 	FindOne(ctx context.Context, userID, questionID string) (UserQuestionProgress, error)
 	Create(ctx context.Context, p *UserQuestionProgress) error
 	Save(ctx context.Context, p *UserQuestionProgress) error

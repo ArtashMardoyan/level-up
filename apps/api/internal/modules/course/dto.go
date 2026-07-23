@@ -72,3 +72,15 @@ type ProgressSummaryDTO struct {
 	LongestStreak  int                               `json:"longestStreak"`
 	ByCourse       map[string]CourseProgressCountDTO `json:"byCourse"`
 }
+
+// SavedQuestionDTO is one favorited question for the profile "Saved questions"
+// list — enough to display it and to deep-link into the course (slug + ref).
+// The gorm column tags let the progress query scan straight into it.
+type SavedQuestionDTO struct {
+	CourseSlug  string `json:"courseSlug"  gorm:"column:courseSlug"`
+	CourseTitle string `json:"courseTitle" gorm:"column:courseTitle"`
+	Accent      string `json:"accent"      gorm:"column:accent"`
+	Ref         string `json:"ref"         gorm:"column:ref"`
+	Module      string `json:"module"      gorm:"column:module"`
+	Question    string `json:"question"    gorm:"column:question"`
+}

@@ -67,6 +67,7 @@ export const interviewSubmitAnswerStream = (id, questionId, payload, { onDelta, 
 
 // Progress (per-user, auth required)
 export const progressSummary = () => apiGet('/progress/summary')
+export const progressSaved = (lang = 'en') => apiGet(`/progress/saved?lang=${lang}`)
 export const progressBulk = (payload) => apiPost('/progress/bulk', payload)
 export const courseProgress = (courseId) => apiGet(`/courses/${courseId}/progress`)
 export const progressUpsert = (questionId, payload) => apiPatch(`/questions/${questionId}/progress`, payload)
