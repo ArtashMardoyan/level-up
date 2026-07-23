@@ -1,0 +1,74 @@
+name: Backend Deploy
+
+# Build the Go API image and deploy it to AWS App Runner via ECR.
+#
+# GUARDED / INERT BY DEFAULT: the job only runs when the repo variable
+# BACKEND_DEPLOY_ENABLED == 'true'. Until then this workflow does nothing, so it
+# can be merged safely and never deploys or fails by accident.
+#
+# AWS SSO does NOT apply here. SSO is for humans logging in locally
+# (`aws sso login`). CI authenticates by assuming an IAM role through GitHub's
+# OIDC provider — no long-lived keys, no SSO. That is what makes fully automated
+# backend deploys possible once the one-time AWS setup below exists.
+#
+# One-time setup (repo admin, in the AWS account):
+#   1. Add GitHub as an OIDC identity provider (token.actions.githubusercontent.com).
+#   2. Create an IAM role trusting this repo's OIDC subject, with least-privilege
+#      permissions for ECR (push) and App Runner (StartDeployment/DescribeService).
+#   3. Set repo variables:
+#        BACKEND_DEPLOY_ENABLED = true
+#        AWS_DEPLOY_ROLE_ARN    = arn:aws:iam::<acct>:role/<role>
+#        SERVICE_ARN            = <App Runner service ARN>   (optional)
+#        AWS_REGION / ECR_REPO  (optional; sensible defaults below)
+#
+# App Runner has AutoDeploymentsEnabled, so pushing :latest already redeploys;
+# the explicit start-deployment step is a guarded belt-and-suspenders.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "apps/api/**"
+      - ".github/workflows/backend-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    if: vars.BACKEND_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-2' }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          ECR_REPO: ${{ vars.ECR_REPO || 'level-up-backend' }}
+        run: |
+          IMAGE="$ECR_REGISTRY/$ECR_REPO"
+          docker build --platform linux/amd64 -t "$IMAGE:$GITHUB_SHA" -t "$IMAGE:latest" .
+          docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE:latest"
+
+      - name: Trigger App Runner deployment
+        if: vars.SERVICE_ARN != ''
+        run: |
+          aws apprunner start-deployment \
+            --service-arn "${{ vars.SERVICE_ARN }}" \
+            --region "${{ vars.AWS_REGION || 'us-east-2' }}"

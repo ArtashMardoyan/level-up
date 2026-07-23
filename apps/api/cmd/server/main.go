@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 	"time"
 	_ "time/tzdata" // embed the tz database so time.LoadLocation works in the container
 
@@ -17,6 +18,7 @@ import (
 	"level-up-backend/internal/modules/interview"
 	"level-up-backend/internal/modules/notification"
 	"level-up-backend/internal/modules/user"
+	"level-up-backend/internal/seed"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -42,6 +44,15 @@ func main() {
 	db, err := database.Connect(&cfg.DB)
 	if err != nil {
 		log.Fatal("failed to connect to database: ", err)
+	}
+
+	// Optional automatic seed sync on boot. Off by default; enable per environment
+	// with SEED_ON_START=true (e.g. in App Runner) so deploys keep course content in
+	// sync. The seed is idempotent and only writes rows whose content changed.
+	if os.Getenv("SEED_ON_START") == "true" {
+		if err := seed.Run(db); err != nil {
+			log.Fatal("failed to run seed on start: ", err)
+		}
 	}
 
 	userRepo := user.NewRepository(db)
