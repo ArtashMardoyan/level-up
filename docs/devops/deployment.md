@@ -23,9 +23,18 @@ A workflow-level `concurrency` group serializes deploys so two merges never race
 
 ## Migrations & seed (automatic, in the container)
 - **Migrations**: `goose.Up` runs on startup (`cmd/server/main.go`) before serving.
-- **Seed**: if `SEED_ON_START=true`, the idempotent seed runs after migrations. It **inserts** new
-  rows, **updates only changed** rows, is a **no-op when nothing changed**, and **never deletes**
-  (see `internal/seed`). Set `SEED_ON_START` on the App Runner service (Terraform `seed_on_start`).
+- **Seed**: if `SEED_ON_START=true`, the seed runs after migrations. It **inserts** new rows,
+  **updates only changed** rows, and **never deletes** (see `internal/seed`). Set `SEED_ON_START` on
+  the App Runner service (Terraform `seed_on_start`).
+  - **Hash-gated**: each course carries a content hash in `seed_state` (migration `00017`). A course
+    whose stored hash matches the freshly computed one is **skipped entirely — no queries** — so an
+    unchanged deploy does one `SELECT` and no row work; only new/edited courses touch the DB. The hash
+    covers the course meta + its `en.json` and translation overlays + a `seedLogicVersion` constant
+    (bump it to force a full re-seed when the seeding logic itself changes). Each seeded course runs in
+    a **transaction** so its rows and hash commit together.
+  - **Failure behavior**: on boot the seed **retries a few times** (transient DB blips) and is then
+    **fatal** — the instance exits, its health check never passes, and App Runner keeps the previous
+    healthy version rather than shipping a half-synced deploy.
 
 ## Repository variables (set by `infra/github`, no secrets)
 | Variable | Example | Meaning |

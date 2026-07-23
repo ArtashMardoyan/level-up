@@ -89,7 +89,7 @@ rejects any revoked jti. The middleware sets `shared.ContextUserKey` (user.User)
 
 ## Content & audio pipeline
 
-Course content is bundled JSON in `internal/seed/data/` (`courses.json` + `<course>/{en,ru}.json`) — the single source of truth. `cmd/seed [course-slug ...]` loads it into the DB with deterministic UUIDv5 ids (same content → same ids in every env); with no args it seeds every course, with slugs it seeds only those (much faster against a remote DB when just one course changed). Question `audio` is a single S3 object key; MP3s live in S3, not git.
+Course content is bundled JSON in `internal/seed/data/` (`courses.json` + `<course>/{en,ru}.json`) — the single source of truth. `cmd/seed [--force] [course-slug ...]` loads it into the DB with deterministic UUIDv5 ids (same content → same ids in every env); with no args it considers every course, with slugs only those. Seeding is **hash-gated**: each course's content hash is stored in `seed_state`, and an unchanged course is skipped with no queries — pass `--force` to re-seed anyway (e.g. after a partial DB wipe). Bump the `seedLogicVersion` constant in `internal/seed/seed.go` to force a full re-seed when the seeding logic changes. Question `audio` is a single S3 object key; MP3s live in S3, not git.
 
 Content read endpoints support version-based client caching (`GET /courses/version` + ETag/304 on `/courses/full`) — see `docs/engineering/caching/README.md`.
 
