@@ -2421,27 +2421,49 @@ footer {
   margin: 0;
   padding: 0;
 }
-.profile-saved-row {
+.profile-saved-item {
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 12px 0;
+  width: 100%;
+  padding: 12px 6px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
-.profile-saved-row + .profile-saved-row {
+.profile-saved-list li + li .profile-saved-item {
   border-top: 1px solid var(--hairline);
+}
+.profile-saved-item:hover {
+  background: var(--surface-2, rgba(129, 140, 248, 0.08));
 }
 .profile-saved-star {
   flex-shrink: 0;
   color: #fbbf24;
 }
-.profile-saved-title {
+.profile-saved-body {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.profile-saved-q {
   font-size: 14px;
   color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.profile-saved-count {
-  font-family: var(--font-mono);
+.profile-saved-meta {
   font-size: 12px;
+  color: var(--text-2);
+}
+.profile-saved-chevron {
+  flex-shrink: 0;
   color: var(--text-2);
 }
 

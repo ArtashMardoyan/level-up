@@ -19,6 +19,7 @@ import {
   interviewsSummary,
   progressSummary,
   interviewsList,
+  progressSaved,
   usersDelete,
   badgesList
 } from '../services/endpoints'
@@ -51,6 +52,7 @@ export default function ProfilePage({ onNavigate, courses }) {
   const [ivSummary, setIvSummary] = useState(null)
   const [ivRecent, setIvRecent] = useState([])
   const [badges, setBadges] = useState([])
+  const [saved, setSaved] = useState([])
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
 
@@ -64,15 +66,17 @@ export default function ProfilePage({ onNavigate, courses }) {
       notificationsList(1, 5).catch(() => null),
       interviewsSummary().catch(() => null),
       interviewsList(1, 3).catch(() => null),
-      badgesList().catch(() => null)
+      badgesList().catch(() => null),
+      progressSaved(language).catch(() => null)
     ])
-      .then(([summ, notifs, ivSumm, ivList, badgeList]) => {
+      .then(([summ, notifs, ivSumm, ivList, badgeList, savedList]) => {
         if (!active) return
         if (summ) setSummary(summ)
         if (notifs) setActivity(notifs.items || [])
         if (ivSumm) setIvSummary(ivSumm)
         if (ivList) setIvRecent(ivList.items || [])
         if (badgeList) setBadges(badgeList)
+        if (savedList) setSaved(savedList)
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -80,7 +84,7 @@ export default function ProfilePage({ onNavigate, courses }) {
     return () => {
       active = false
     }
-  }, [user])
+  }, [user, language])
 
   const backHome = () => onNavigate('interview')
 
@@ -108,11 +112,6 @@ export default function ProfilePage({ onNavigate, courses }) {
     .map((c) => ({ reviewed: byCourse[c.uuid]?.reviewed || 0, total: c.questions.length, course: c }))
     .filter((row) => row.reviewed > 0)
     .sort((a, b) => b.reviewed - a.reviewed)
-  const savedRows = withQuestions
-    .map((c) => ({ saved: byCourse[c.uuid]?.favorites || 0, course: c }))
-    .filter((row) => row.saved > 0)
-    .sort((a, b) => b.saved - a.saved)
-
   const badgeGroups = groupBadges(badges)
   const earnedCount = badges.filter((b) => b.earned).length
 
@@ -364,13 +363,20 @@ export default function ProfilePage({ onNavigate, courses }) {
               <span className="skeleton profile-progress-skel" key={i} />
             ))}
           </div>
-        ) : savedRows.length ? (
+        ) : saved.length ? (
           <ul className="profile-saved-list">
-            {savedRows.map(({ saved: count, course }) => (
-              <li className="profile-saved-row" key={course.id}>
-                <Star className="profile-saved-star" aria-hidden="true" size={16} />
-                <span className="profile-saved-title">{course.title}</span>
-                <span className="profile-saved-count">{t('profileSavedCount', { n: count })}</span>
+            {saved.map((q) => (
+              <li key={q.courseSlug + '/' + q.ref}>
+                <button onClick={() => onNavigate(q.courseSlug, q.ref)} className="profile-saved-item" type="button">
+                  <Star className="profile-saved-star" aria-hidden="true" size={16} />
+                  <span className="profile-saved-body">
+                    <span className="profile-saved-q">{q.question}</span>
+                    <span className="profile-saved-meta">
+                      {q.courseTitle} · {q.module}
+                    </span>
+                  </span>
+                  <ChevronRight className="profile-saved-chevron" aria-hidden="true" size={16} />
+                </button>
               </li>
             ))}
           </ul>
