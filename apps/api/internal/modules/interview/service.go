@@ -72,7 +72,18 @@ func (s *Service) Start(ctx context.Context, userID, userName string, req Create
 
 	// The bank isn't tagged by difficulty (docs/004) — difficulty is applied as a
 	// generation instruction to the AI instead of filtering the pool (ensureGenerated).
-	chosen := pickQuestions(all, req.QuestionCount)
+	//
+	// Adaptive interviews weight the pick toward the user's weak modules in this
+	// course (docs/product/interview/007); a nil map (non-adaptive, or no history)
+	// falls back to a uniform pick.
+	var moduleAvg map[string]float64
+	if req.Adaptive {
+		if moduleAvg, err = s.repo.ModuleScoresByUserCourse(ctx, userID, c.ID); err != nil {
+			return SessionView{}, err
+		}
+	}
+
+	chosen := pickQuestions(all, req.QuestionCount, moduleAvg)
 
 	session := &Session{
 		UserID:        userID,
@@ -433,6 +444,10 @@ func (s *Service) Complete(ctx context.Context, userID, id string) (ReportView, 
 		if err := s.repo.UpdateSession(ctx, &session); err != nil {
 			return ReportView{}, err
 		}
+
+		// Blend this result into the durable knowledge map (docs/product/interview/007).
+		// Best-effort: a failure is logged, never fails the report.
+		s.updateTopicProgress(ctx, &session, report.OverallScore)
 	}
 
 	review, err := s.buildReview(ctx, &session, results)
@@ -778,16 +793,122 @@ func generatedView(q *course.Question, idx int, lang string, g GeneratedQuestion
 	}
 }
 
-func pickQuestions(pool []course.Question, count int) []course.Question {
-	shuffled := make([]course.Question, len(pool))
-	copy(shuffled, pool)
-	rand.Shuffle(len(shuffled), func(i, j int) { shuffled[i], shuffled[j] = shuffled[j], shuffled[i] })
+// Adaptive-pick tuning (docs/product/interview/007). A question's weight is
+// pickWeightFloor + (100 - moduleAvg): the floor keeps even a mastered module in
+// play (variety), and the (100 - avg) term makes weaker modules proportionally more
+// likely. A module the user hasn't answered gets pickWeightNeutral — mid-scale, so
+// it's discoverable without dominating.
+const (
+	pickWeightFloor   = 30.0
+	pickWeightNeutral = 80.0
+)
 
-	if count > len(shuffled) {
-		count = len(shuffled)
+// pickQuestions selects `count` distinct questions. With a nil/empty moduleAvg every
+// question weighs the same, so it's a uniform random subset (the non-adaptive
+// default). With per-module averages it's a weighted sample without replacement that
+// leans toward weak modules while still mixing in the rest (docs/product/interview/007).
+func pickQuestions(pool []course.Question, count int, moduleAvg map[string]float64) []course.Question {
+	remaining := make([]course.Question, len(pool))
+	copy(remaining, pool)
+
+	if count > len(remaining) {
+		count = len(remaining)
 	}
 
-	return shuffled[:count]
+	chosen := make([]course.Question, 0, count)
+	for len(chosen) < count && len(remaining) > 0 {
+		var total float64
+		for i := range remaining {
+			total += moduleWeight(remaining[i].Module, moduleAvg)
+		}
+
+		target := rand.Float64() * total //nolint:gosec // G404: non-crypto question shuffling, not security-sensitive
+		pick := len(remaining) - 1
+		for i := range remaining {
+			target -= moduleWeight(remaining[i].Module, moduleAvg)
+			if target <= 0 {
+				pick = i
+				break
+			}
+		}
+
+		chosen = append(chosen, remaining[pick])
+		remaining = append(remaining[:pick], remaining[pick+1:]...)
+	}
+
+	return chosen
+}
+
+// moduleWeight is a question's selection weight from its module's average score.
+func moduleWeight(module string, moduleAvg map[string]float64) float64 {
+	avg, ok := moduleAvg[module]
+	if !ok {
+		return pickWeightNeutral
+	}
+
+	return pickWeightFloor + (100 - avg)
+}
+
+// topicEMAAlpha weights the newest interview when blending into a topic's level. At
+// 0.4 the level tracks recent results while still smoothing over history, so it
+// evolves gradually rather than jumping on one interview (docs/product/interview/007).
+const topicEMAAlpha = 0.4
+
+// updateTopicProgress blends this interview's overall score into the durable
+// per-(user, course) knowledge map with an exponential moving average
+// (docs/product/interview/007). The first interview seeds the level directly; later
+// ones move it toward the new score. Best-effort: a load/write error is logged and
+// swallowed so it never fails Complete.
+func (s *Service) updateTopicProgress(ctx context.Context, session *Session, score int) {
+	prev, found, err := s.repo.FindTopicProgress(ctx, session.UserID, session.CourseID)
+	if err != nil {
+		log.Printf("interview: load topic progress: %v", err)
+		return
+	}
+
+	now := time.Now()
+	tp := TopicProgress{
+		UserID:          session.UserID,
+		CourseID:        session.CourseID,
+		LastPracticedAt: &now,
+	}
+
+	if found {
+		tp.ID = prev.ID
+		tp.CreatedAt = prev.CreatedAt
+		tp.Samples = prev.Samples + 1
+		tp.Level = emaLevel(prev.Level, score)
+		tp.LastImprovedAt = prev.LastImprovedAt
+		if tp.Level > prev.Level {
+			tp.LastImprovedAt = &now
+		}
+	} else {
+		tp.Samples = 1
+		tp.Level = score
+		tp.LastImprovedAt = &now
+	}
+
+	tp.Confidence = confidenceFor(tp.Samples)
+
+	if err := s.repo.UpsertTopicProgress(ctx, &tp); err != nil {
+		log.Printf("interview: upsert topic progress: %v", err)
+	}
+}
+
+func emaLevel(prev, score int) int {
+	return int(math.Round(topicEMAAlpha*float64(score) + (1-topicEMAAlpha)*float64(prev)))
+}
+
+// confidenceFor grows with the number of interviews that fed a topic's level.
+func confidenceFor(samples int) string {
+	switch {
+	case samples >= 4:
+		return ConfidenceHigh
+	case samples >= 2:
+		return ConfidenceMedium
+	default:
+		return ConfidenceLow
+	}
 }
 
 func idsOf(qs []course.Question) StringList {

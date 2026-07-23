@@ -145,6 +145,63 @@ func (r *gormRepository) InsightTopicsByUser(ctx context.Context, userID string)
 	return rows, err
 }
 
+// ModuleScoresByUserCourse averages the user's non-skipped answer scores per
+// module within one course — the adaptive picker's weak-module signal
+// (docs/product/interview/007). Modules the user hasn't answered are simply absent.
+func (r *gormRepository) ModuleScoresByUserCourse(ctx context.Context, userID, courseID string) (map[string]float64, error) {
+	var rows []struct {
+		Module   string  `gorm:"column:module"`
+		AvgScore float64 `gorm:"column:avgScore"`
+	}
+
+	err := r.db.WithContext(ctx).
+		Table("question_results AS qr").
+		Select(`q."module" AS "module", AVG(qr."score") AS "avgScore"`).
+		Joins(`JOIN interview_sessions s ON s."id" = qr."interviewId"`).
+		Joins(`JOIN questions q ON q."id" = qr."questionId"`).
+		Where(`s."userId" = ? AND q."courseId" = ? AND qr."skipped" = false`, userID, courseID).
+		Group(`q."module"`).
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	scores := make(map[string]float64, len(rows))
+	for _, row := range rows {
+		scores[row.Module] = row.AvgScore
+	}
+
+	return scores, nil
+}
+
+func (r *gormRepository) FindTopicProgress(ctx context.Context, userID, courseID string) (TopicProgress, bool, error) {
+	var tp TopicProgress
+
+	err := r.db.WithContext(ctx).
+		Where(`"userId" = ? AND "courseId" = ?`, userID, courseID).
+		First(&tp).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return TopicProgress{}, false, nil
+	}
+	if err != nil {
+		return TopicProgress{}, false, err
+	}
+
+	return tp, true, nil
+}
+
+// UpsertTopicProgress inserts a new knowledge-map row or, on the (userId, courseId)
+// conflict, overwrites the mutable fields — the level/confidence the caller already
+// blended (docs/product/interview/007).
+func (r *gormRepository) UpsertTopicProgress(ctx context.Context, tp *TopicProgress) error {
+	return r.db.WithContext(ctx).Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "userId"}, {Name: "courseId"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"level", "confidence", "samples", "lastPracticedAt", "lastImprovedAt", "updatedAt",
+		}),
+	}).Create(tp).Error
+}
+
 func (r *gormRepository) SummaryByUser(ctx context.Context, userID string) (total int, avgScore, bestScore float64, lastCompleted *Session, err error) {
 	var agg struct {
 		Total int

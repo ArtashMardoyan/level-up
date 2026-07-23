@@ -242,6 +242,11 @@ type stubRepo struct {
 	upserts  []QuestionResult
 	upsertCh chan QuestionResult
 	insights []TopicInsight
+
+	// M2 adaptive picker + topic progress.
+	moduleScores map[string]float64
+	topic        *TopicProgress  // the stored knowledge-map row (nil = none yet)
+	topicUpserts []TopicProgress // every UpsertTopicProgress, in order
 }
 
 func (r *stubRepo) InsightTopicsByUser(context.Context, string) ([]TopicInsight, error) {
@@ -334,6 +339,31 @@ func (*stubRepo) ListByUser(context.Context, string, shared.PaginationQuery) (sh
 
 func (*stubRepo) SummaryByUser(context.Context, string) (total int, avgScore, bestScore float64, lastCompleted *Session, err error) {
 	return 0, 0, 0, nil, nil
+}
+
+func (r *stubRepo) ModuleScoresByUserCourse(context.Context, string, string) (map[string]float64, error) {
+	return r.moduleScores, nil
+}
+
+func (r *stubRepo) FindTopicProgress(_ context.Context, _, _ string) (TopicProgress, bool, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if r.topic == nil {
+		return TopicProgress{}, false, nil
+	}
+
+	return *r.topic, true, nil
+}
+
+func (r *stubRepo) UpsertTopicProgress(_ context.Context, tp *TopicProgress) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	cp := *tp
+	r.topic = &cp
+	r.topicUpserts = append(r.topicUpserts, cp)
+
+	return nil
 }
 
 // stubContent serves synthetic bank questions with an English translation.

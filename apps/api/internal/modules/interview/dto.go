@@ -9,6 +9,11 @@ type CreateInterviewRequest struct {
 	Difficulty    string `json:"difficulty"    binding:"required,oneof=easy medium hard"`
 	Language      string `json:"language"      binding:"required,oneof=en ru hy"`
 	QuestionCount int    `json:"questionCount" binding:"required,min=1,max=20"`
+	// Adaptive biases question selection toward the user's weak modules in this
+	// course, from their prior results (docs/product/interview/007/009). Optional;
+	// defaults to a uniform pick, so existing callers are unaffected. The "Practice
+	// weak areas" deep-link sets it.
+	Adaptive bool `json:"adaptive"`
 }
 
 // SubmitAnswerRequest saves + evaluates one answer. A skipped answer scores 0

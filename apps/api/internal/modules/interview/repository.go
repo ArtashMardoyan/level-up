@@ -54,4 +54,17 @@ type Repository interface {
 	// InsightTopicsByUser aggregates the user's evaluated answers per course,
 	// weakest average first. Empty when the user has no evaluated answers.
 	InsightTopicsByUser(ctx context.Context, userID string) ([]TopicInsight, error)
+
+	// ModuleScoresByUserCourse returns the user's average score per module within
+	// one course (evaluated, non-skipped answers only) — the input the adaptive
+	// picker weights weak modules by (docs/product/interview/007). Empty map when
+	// the user has no history in the course.
+	ModuleScoresByUserCourse(ctx context.Context, userID, courseID string) (map[string]float64, error)
+
+	// FindTopicProgress loads the durable knowledge-map row for one (user, course),
+	// with found=false (and no error) when the user hasn't practiced it yet.
+	FindTopicProgress(ctx context.Context, userID, courseID string) (TopicProgress, bool, error)
+
+	// UpsertTopicProgress inserts or updates the row keyed by (userId, courseId).
+	UpsertTopicProgress(ctx context.Context, tp *TopicProgress) error
 }
