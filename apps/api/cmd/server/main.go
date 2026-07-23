@@ -26,6 +26,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
+	"gorm.io/gorm"
 )
 
 // migrationLockKey is an arbitrary, fixed 64-bit key shared by every instance so
@@ -84,14 +85,15 @@ func main() {
 
 	// Optional automatic seed sync on boot. Off by default; enable per environment
 	// with SEED_ON_START=true (e.g. in App Runner) so deploys keep course content in
-	// sync. The seed is idempotent and only writes rows whose content changed.
+	// sync. The seed is idempotent and hash-gated: unchanged courses are skipped with
+	// no writes, so a no-change deploy does almost no work.
 	//
-	// Defined failure behavior: a seed error is fatal. Content sync is part of the
-	// deploy, so if it fails the instance exits, its health check never passes, and
-	// App Runner keeps the previous healthy version rather than shipping a half-synced
-	// deploy. The error (with course/question context) is logged before exit.
+	// Defined failure behavior: after a few retries (to ride out transient DB blips) a
+	// seed error is fatal. Content sync is part of the deploy, so if it truly fails the
+	// instance exits, its health check never passes, and App Runner keeps the previous
+	// healthy version rather than shipping a half-synced deploy.
 	if os.Getenv("SEED_ON_START") == "true" {
-		if err := seed.Run(db); err != nil {
+		if err := seedWithRetry(db, 3); err != nil {
 			log.Fatal("seed on start failed (deploy aborted, previous version kept): ", err)
 		}
 
@@ -151,4 +153,24 @@ func main() {
 	badgeHandler.RegisterRoutes(r, jwtMiddleware)
 
 	log.Fatal(r.Run(cfg.Server.Addr))
+}
+
+// seedWithRetry runs the boot-time seed, retrying a few times with a short backoff
+// so a transient DB hiccup doesn't fail an otherwise-fine deploy. It returns the
+// last error only after every attempt is exhausted.
+func seedWithRetry(db *gorm.DB, attempts int) error {
+	var err error
+
+	for attempt := 1; attempt <= attempts; attempt++ {
+		if err = seed.Run(db, seed.Options{}); err == nil {
+			return nil
+		}
+
+		if attempt < attempts {
+			log.Printf("seed on start: attempt %d/%d failed, retrying: %v", attempt, attempts, err)
+			time.Sleep(time.Duration(attempt) * 2 * time.Second)
+		}
+	}
+
+	return err
 }

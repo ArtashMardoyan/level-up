@@ -6,11 +6,14 @@
 package seed
 
 import (
+	"crypto/sha256"
 	"embed"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
+	"strconv"
 
 	"level-up-backend/internal/modules/course"
 	"level-up-backend/internal/modules/notification"
@@ -30,6 +33,20 @@ var seedNamespace = uuid.NewSHA1(uuid.NameSpaceURL, []byte("level-up-backend/cou
 // translationLanguages are optional overlays for the English source content.
 // A missing file simply keeps the English fallback active for that course.
 var translationLanguages = []string{"ru", "hy"}
+
+// seedLogicVersion is folded into every content hash. Bump it whenever the way
+// this package turns content into rows changes (id derivation, column mapping,
+// sort logic), so the hash gate forces a full re-seed even if the JSON is
+// untouched. Pure content edits don't need a bump — their bytes change the hash.
+const seedLogicVersion = 1
+
+// Options controls a seed run.
+type Options struct {
+	// Slugs seeds only these courses (empty = all). An unknown slug is an error.
+	Slugs []string
+	// Force re-seeds even when the content hash is unchanged (bypasses the gate).
+	Force bool
+}
 
 func courseID(slug string) string { return uuid.NewSHA1(seedNamespace, []byte(slug)).String() }
 
@@ -59,20 +76,30 @@ type rawQuestion struct {
 	Audio    string `json:"audio"`
 }
 
-// Run seeds every course, or only the given slugs when provided (e.g. after
-// changing a single course's content/audio, to avoid re-writing all 8 courses'
-// rows on a slow remote DB). An unknown slug is an error, to catch typos.
-func Run(db *gorm.DB, slugs ...string) error {
+// Run seeds every course, or only opts.Slugs when given (e.g. after changing a
+// single course's content/audio, to avoid touching all courses on a slow remote
+// DB). An unknown slug is an error, to catch typos.
+//
+// Each course is gated by a content hash (seed_state): a course whose stored hash
+// matches the freshly computed one is skipped entirely — no queries — unless
+// opts.Force is set. Seeded courses run in a transaction so the course's rows and
+// its hash commit together (a failed course never leaves a stale hash behind).
+func Run(db *gorm.DB, opts Options) error {
 	metas, err := loadCourses()
 	if err != nil {
 		return err
 	}
 
-	if len(slugs) > 0 {
-		metas, err = filterCourses(metas, slugs)
+	if len(opts.Slugs) > 0 {
+		metas, err = filterCourses(metas, opts.Slugs)
 		if err != nil {
 			return err
 		}
+	}
+
+	state, err := loadSeedState(db)
+	if err != nil {
+		return fmt.Errorf("load seed state: %w", err)
 	}
 
 	// Snapshot the question ids that already exist so we can tell which ones this
@@ -85,53 +112,23 @@ func Run(db *gorm.DB, slugs ...string) error {
 
 	for i := range metas {
 		meta := &metas[i]
-		cID := courseID(meta.Slug)
 
-		if err := upsertCourse(db, cID, meta); err != nil {
+		hash, err := courseContentHash(meta)
+		if err != nil {
+			return fmt.Errorf("course %s hash: %w", meta.Slug, err)
+		}
+
+		if !opts.Force && state[meta.Slug] == hash {
+			fmt.Printf("course %q: unchanged, skipped\n", meta.Slug)
+			continue
+		}
+
+		// One transaction per course: rows + hash commit together or not at all.
+		if err := db.Transaction(func(tx *gorm.DB) error {
+			return seedCourse(tx, meta, hash, existing, &newQuestions)
+		}); err != nil {
 			return fmt.Errorf("course %s: %w", meta.Slug, err)
 		}
-
-		enQuestions, err := loadQuestions(meta.Slug, "en")
-		if err != nil {
-			return fmt.Errorf("course %s en: %w", meta.Slug, err)
-		}
-
-		translationsByLang := make(map[string]map[string]rawQuestion, len(translationLanguages))
-		for _, lang := range translationLanguages {
-			translations, err := loadTranslationsByRef(meta.Slug, lang)
-			if err != nil {
-				return fmt.Errorf("course %s %s: %w", meta.Slug, lang, err)
-			}
-
-			translationsByLang[lang] = translations
-		}
-
-		for j := range enQuestions {
-			raw := &enQuestions[j]
-			qID := questionID(meta.Slug, raw.ID)
-
-			if !existing[qID] {
-				newQuestions++
-			}
-
-			if err := upsertQuestion(db, qID, cID, raw, j); err != nil {
-				return fmt.Errorf("question %s/%s: %w", meta.Slug, raw.ID, err)
-			}
-
-			if err := upsertTranslation(db, qID, "en", raw); err != nil {
-				return fmt.Errorf("translation %s/%s en: %w", meta.Slug, raw.ID, err)
-			}
-
-			for _, lang := range translationLanguages {
-				if translated, ok := translationsByLang[lang][raw.ID]; ok {
-					if err := upsertTranslation(db, qID, lang, &translated); err != nil {
-						return fmt.Errorf("translation %s/%s %s: %w", meta.Slug, raw.ID, lang, err)
-					}
-				}
-			}
-		}
-
-		fmt.Printf("seeded course %q: %d questions\n", meta.Slug, len(enQuestions))
 	}
 
 	// Only genuinely new questions (not a no-op reseed) notify users. On a fresh
@@ -143,6 +140,129 @@ func Run(db *gorm.DB, slugs ...string) error {
 	}
 
 	return nil
+}
+
+// seedCourse upserts one course, its questions and translations, then records the
+// course's content hash — all on tx. newQuestions is incremented for each question
+// id not already present (per the existing snapshot).
+func seedCourse(tx *gorm.DB, meta *courseMeta, hash string, existing map[string]bool, newQuestions *int) error {
+	cID := courseID(meta.Slug)
+
+	if err := upsertCourse(tx, cID, meta); err != nil {
+		return err
+	}
+
+	enQuestions, err := loadQuestions(meta.Slug, "en")
+	if err != nil {
+		return fmt.Errorf("en: %w", err)
+	}
+
+	translationsByLang := make(map[string]map[string]rawQuestion, len(translationLanguages))
+	for _, lang := range translationLanguages {
+		translations, err := loadTranslationsByRef(meta.Slug, lang)
+		if err != nil {
+			return fmt.Errorf("%s: %w", lang, err)
+		}
+
+		translationsByLang[lang] = translations
+	}
+
+	for j := range enQuestions {
+		raw := &enQuestions[j]
+		qID := questionID(meta.Slug, raw.ID)
+
+		if !existing[qID] {
+			*newQuestions++
+		}
+
+		if err := upsertQuestion(tx, qID, cID, raw, j); err != nil {
+			return fmt.Errorf("question %s: %w", raw.ID, err)
+		}
+
+		if err := upsertTranslation(tx, qID, "en", raw); err != nil {
+			return fmt.Errorf("translation %s en: %w", raw.ID, err)
+		}
+
+		for _, lang := range translationLanguages {
+			if translated, ok := translationsByLang[lang][raw.ID]; ok {
+				if err := upsertTranslation(tx, qID, lang, &translated); err != nil {
+					return fmt.Errorf("translation %s %s: %w", raw.ID, lang, err)
+				}
+			}
+		}
+	}
+
+	if err := upsertSeedState(tx, meta.Slug, hash); err != nil {
+		return fmt.Errorf("seed state: %w", err)
+	}
+
+	fmt.Printf("seeded course %q: %d questions\n", meta.Slug, len(enQuestions))
+
+	return nil
+}
+
+// courseContentHash is a stable fingerprint of everything that feeds a course's
+// rows: the seed logic version, the course meta, and the raw bytes of its English
+// source plus each translation overlay (a missing overlay is recorded as such).
+// Any content edit or logic bump changes the hash; identical content is identical.
+func courseContentHash(meta *courseMeta) (string, error) {
+	h := sha256.New()
+
+	h.Write([]byte("v" + strconv.Itoa(seedLogicVersion) + "\x00"))
+
+	metaBytes, err := json.Marshal(meta)
+	if err != nil {
+		return "", err
+	}
+	h.Write(metaBytes)
+	h.Write([]byte{0})
+
+	for _, lang := range append([]string{"en"}, translationLanguages...) {
+		bytes, err := dataFS.ReadFile(fmt.Sprintf("data/%s/%s.json", meta.Slug, lang))
+		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				h.Write([]byte("\x00missing\x00"))
+
+				continue
+			}
+
+			return "", err
+		}
+
+		h.Write(bytes)
+		h.Write([]byte{0})
+	}
+
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// loadSeedState returns the stored content hash per course slug.
+func loadSeedState(db *gorm.DB) (map[string]string, error) {
+	type row struct {
+		CourseSlug  string `gorm:"column:courseSlug"`
+		ContentHash string `gorm:"column:contentHash"`
+	}
+
+	var rows []row
+	if err := db.Table("seed_state").Find(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	state := make(map[string]string, len(rows))
+	for _, r := range rows {
+		state[r.CourseSlug] = r.ContentHash
+	}
+
+	return state, nil
+}
+
+// upsertSeedState records (or refreshes) a course's content hash on tx.
+func upsertSeedState(tx *gorm.DB, slug, hash string) error {
+	return tx.Exec(
+		`INSERT INTO seed_state ("courseSlug", "contentHash", "seededAt") VALUES (?, ?, NOW())
+		 ON CONFLICT ("courseSlug") DO UPDATE SET "contentHash" = excluded."contentHash", "seededAt" = NOW()`,
+		slug, hash,
+	).Error
 }
 
 // existingQuestionIDs returns the set of question ids currently in the database.
