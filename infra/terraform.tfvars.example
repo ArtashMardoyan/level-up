@@ -1,0 +1,24 @@
+# Copy to terraform.tfvars (git-ignored) and fill in. Secrets are better passed as
+# environment variables: export TF_VAR_jwt_secret=... TF_VAR_db_password=...
+
+aws_region   = "us-east-2"
+github_owner = "ArtashMardoyan"
+github_repo  = "level-up"
+
+service_name  = "level-up-backend"
+ecr_repo_name = "level-up-backend"
+
+# RDS (non-secret parts)
+db_host    = "level-up-backend-db.xxxxxxxx.us-east-2.rds.amazonaws.com"
+db_name    = "levelup"
+db_user    = "postgres"
+db_sslmode = "require"
+
+# Behaviour
+seed_on_start          = true
+backend_deploy_enabled = false # flip to true when ready for auto-deploy on merge
+create_oidc_provider   = true  # set false if the account already has the GitHub OIDC provider
+
+# Secrets — DO NOT commit. Prefer: export TF_VAR_jwt_secret=... / TF_VAR_db_password=...
+# jwt_secret  = "..."
+# db_password = "..."

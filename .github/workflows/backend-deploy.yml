@@ -40,9 +40,17 @@ jobs:
   deploy:
     if: vars.BACKEND_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
+    # The OIDC trust policy is scoped to this environment's subject, so deploys
+    # can only run from here. Add required reviewers to the environment for a
+    # manual approval gate before production.
+    environment:
+      name: production
+      url: ${{ vars.SERVICE_URL }}
     defaults:
       run:
         working-directory: apps/api
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-2' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +58,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-2' }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: ecr
@@ -66,9 +74,30 @@ jobs:
           docker push "$IMAGE:$GITHUB_SHA"
           docker push "$IMAGE:latest"
 
+      # App Runner auto-deploys on the new :latest; start-deployment makes it
+      # explicit and gives us an operation to wait on.
       - name: Trigger App Runner deployment
-        if: vars.SERVICE_ARN != ''
+        run: aws apprunner start-deployment --service-arn "${{ vars.SERVICE_ARN }}"
+
+      - name: Wait for App Runner to reach RUNNING
         run: |
-          aws apprunner start-deployment \
-            --service-arn "${{ vars.SERVICE_ARN }}" \
-            --region "${{ vars.AWS_REGION || 'us-east-2' }}"
+          for _ in $(seq 1 60); do
+            status="$(aws apprunner describe-service --service-arn "${{ vars.SERVICE_ARN }}" --query 'Service.Status' --output text)"
+            echo "status: $status"
+            case "$status" in
+              RUNNING) exit 0 ;;
+              CREATE_FAILED|DELETE_FAILED|PAUSED) echo "::error::App Runner in $status"; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::timed out waiting for RUNNING"; exit 1
+
+      - name: Health check (/ready)
+        run: |
+          for _ in $(seq 1 12); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' "${{ vars.SERVICE_URL }}/ready" || true)"
+            echo "GET /ready -> $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 5
+          done
+          echo "::error::/ready did not return 200"; exit 1
