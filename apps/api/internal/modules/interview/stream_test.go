@@ -241,6 +241,11 @@ type stubRepo struct {
 	sess     Session
 	upserts  []QuestionResult
 	upsertCh chan QuestionResult
+	insights []TopicInsight
+}
+
+func (r *stubRepo) InsightTopicsByUser(context.Context, string) ([]TopicInsight, error) {
+	return r.insights, nil
 }
 
 func newStubRepo(s *Session) *stubRepo {

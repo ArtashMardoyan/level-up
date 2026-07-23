@@ -40,6 +40,7 @@ export const interviewComplete = (id) => apiPost(`/interviews/${id}/complete`)
 export const interviewsCreate = (payload) => apiPost('/interviews', payload)
 export const interviewsList = (page = 1, limit = 10) => apiGet(`/interviews?page=${page}&limit=${limit}`)
 export const interviewsSummary = () => apiGet('/interviews/summary')
+export const interviewsInsights = () => apiGet('/interviews/insights')
 export const interviewTranscribe = (audioBlob, language) => {
   const form = new FormData()
   form.append('audio', audioBlob, 'answer.webm')

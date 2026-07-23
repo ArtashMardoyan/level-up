@@ -511,6 +511,76 @@ func (s *Service) Summary(ctx context.Context, userID string) (SummaryView, erro
 	return view, nil
 }
 
+// Insights aggregates the user's evaluated answers into per-topic averages
+// (weakest first) and an overall rubric with its weakest axis. Read-only over the
+// per-question scores already captured on every interview (docs/product/interview/009).
+func (s *Service) Insights(ctx context.Context, userID string) (InsightsView, error) {
+	rows, err := s.repo.InsightTopicsByUser(ctx, userID)
+	if err != nil {
+		return InsightsView{}, err
+	}
+
+	view := InsightsView{Topics: make([]TopicInsightView, 0, len(rows))}
+
+	var total int
+	var sumC, sumD, sumComm, sumS float64
+	for _, row := range rows {
+		view.Topics = append(view.Topics, TopicInsightView{
+			CourseSlug:  row.CourseSlug,
+			CourseTitle: row.CourseTitle,
+			Accent:      row.Accent,
+			AvgScore:    int(math.Round(row.AvgScore)),
+			Answered:    row.Answered,
+		})
+
+		// Weight each axis average by the topic's answer count so the overall
+		// rubric is a true per-answer mean, not a mean of per-topic means.
+		n := float64(row.Answered)
+		total += row.Answered
+		sumC += row.Correctness * n
+		sumD += row.Depth * n
+		sumComm += row.Communication * n
+		sumS += row.Structure * n
+	}
+
+	view.TotalAnswered = total
+	if total > 0 {
+		f := float64(total)
+		view.Rubric = RubricInsightView{
+			Correctness:   int(math.Round(sumC / f)),
+			Depth:         int(math.Round(sumD / f)),
+			Communication: int(math.Round(sumComm / f)),
+			Structure:     int(math.Round(sumS / f)),
+		}
+		view.Rubric.Weakest = weakestAxis(view.Rubric)
+	}
+
+	return view, nil
+}
+
+// weakestAxis returns the name of the lowest-scoring rubric axis (ties resolve to
+// the earlier axis in the canonical order).
+func weakestAxis(r RubricInsightView) string {
+	axes := []struct {
+		name  string
+		value int
+	}{
+		{"correctness", r.Correctness},
+		{"depth", r.Depth},
+		{"communication", r.Communication},
+		{"structure", r.Structure},
+	}
+
+	weakest := axes[0]
+	for _, a := range axes[1:] {
+		if a.value < weakest.value {
+			weakest = a
+		}
+	}
+
+	return weakest.name
+}
+
 // Transcribe converts a recorded voice answer to text, so the candidate can
 // review/edit it in the composer before submitting like any typed answer
 // (docs/product/interview/005). The transcript never touches grading directly — it's

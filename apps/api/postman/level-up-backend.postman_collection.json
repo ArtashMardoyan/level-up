@@ -517,6 +517,24 @@
 					}
 				},
 				{
+					"name": "Interview Insights",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_URL}}/interviews/insights",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"interviews",
+								"insights"
+							]
+						},
+						"description": "Auth required. Per-topic strengths/weaknesses aggregated from the user's evaluated interview answers (weakest course first) plus overall rubric + weakest axis. Read-only over existing per-question scores."
+					}
+				},
+				{
 					"name": "Get Interview (resume)",
 					"request": {
 						"method": "GET",
