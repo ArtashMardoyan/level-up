@@ -19,8 +19,8 @@ flowchart TD
   role -->|temporary creds| gha
 
   gha -->|docker push :SHA + :latest| ecr[(ECR: level-up-backend)]
-  gha -->|StartDeployment| ar[App Runner: level-up-backend]
-  ecr -->|pull image via access role| ar
+  ecr -->|AutoDeployments on :latest → pull via access role| ar[App Runner: level-up-backend]
+  gha -.->|observe: list-operations| ar
   ar -->|goose migrations on boot| rds[(RDS PostgreSQL)]
   ar -->|SEED_ON_START idempotent seed| rds
   ar -->|read JWT_SECRET / DB_PASSWORD| ssm[(SSM SecureString)]
@@ -36,9 +36,10 @@ flowchart TD
 4. The job runs in the `production` GitHub environment and requests a short-lived OIDC token.
 5. It assumes the IAM role via `AssumeRoleWithWebIdentity` → temporary AWS credentials (no stored keys).
 6. Build image → push `:<sha>` and `:latest` to ECR.
-7. `StartDeployment` on App Runner; App Runner pulls the new image using its access role.
-8. On boot the container runs **goose migrations**, then (if `SEED_ON_START=true`) the **idempotent seed**.
-9. The workflow waits for App Runner `RUNNING`, then health-checks `GET /ready` → 200.
+7. App Runner **AutoDeployments** detects the new `:latest` and pulls the image via its access role.
+8. On boot the container runs **goose migrations under a Postgres advisory lock** (only one instance
+   migrates at a time), then (if `SEED_ON_START=true`) the **idempotent seed**.
+9. The workflow waits for the new deployment operation to `SUCCEED`, then health-checks `GET /ready` → 200.
 10. Production ready.
 
 ## AWS resources (all in `infra/`)

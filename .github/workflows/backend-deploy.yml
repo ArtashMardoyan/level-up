@@ -57,6 +57,7 @@ jobs:
         working-directory: apps/api
     env:
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-2' }}
+      SERVICE_ARN: ${{ vars.SERVICE_ARN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -70,6 +71,11 @@ jobs:
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # Note the current deployment so we can detect the NEW one triggered by the push.
+      - name: Record current deployment
+        id: pre
+        run: echo "op=$(aws apprunner list-operations --service-arn "$SERVICE_ARN" --query 'OperationSummaryList[0].Id' --output text)" >> "$GITHUB_OUTPUT"
+
       - name: Build and push image
         env:
           ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
@@ -80,23 +86,23 @@ jobs:
           docker push "$IMAGE:$GITHUB_SHA"
           docker push "$IMAGE:latest"
 
-      # App Runner auto-deploys on the new :latest; start-deployment makes it
-      # explicit and gives us an operation to wait on.
-      - name: Trigger App Runner deployment
-        run: aws apprunner start-deployment --service-arn "${{ vars.SERVICE_ARN }}"
-
-      - name: Wait for App Runner to reach RUNNING
+      # App Runner AutoDeployments starts one deployment when :latest changes.
+      # Wait for that NEW operation (id differs from the pre-push one) to succeed.
+      - name: Wait for the new deployment
         run: |
-          for _ in $(seq 1 60); do
-            status="$(aws apprunner describe-service --service-arn "${{ vars.SERVICE_ARN }}" --query 'Service.Status' --output text)"
-            echo "status: $status"
-            case "$status" in
-              RUNNING) exit 0 ;;
-              CREATE_FAILED|DELETE_FAILED|PAUSED) echo "::error::App Runner in $status"; exit 1 ;;
-            esac
+          PREV='${{ steps.pre.outputs.op }}'
+          for _ in $(seq 1 90); do
+            read -r ID ST < <(aws apprunner list-operations --service-arn "$SERVICE_ARN" --query 'OperationSummaryList[0].[Id,Status]' --output text)
+            echo "latest op: $ID $ST (pre-push: $PREV)"
+            if [ "$ID" != "$PREV" ]; then
+              case "$ST" in
+                SUCCEEDED) exit 0 ;;
+                ROLLBACK_IN_PROGRESS|ROLLBACK_SUCCEEDED|ROLLBACK_FAILED|FAILED) echo "::error::deployment $ST"; exit 1 ;;
+              esac
+            fi
             sleep 10
           done
-          echo "::error::timed out waiting for RUNNING"; exit 1
+          echo "::error::timed out waiting for the new deployment"; exit 1
 
       - name: Health check (/ready)
         run: |

@@ -103,12 +103,13 @@ data "aws_iam_policy_document" "deploy" {
     resources = [var.ecr_repository_arn]
   }
 
-  # Trigger + observe deployments of only the backend service.
+  # Observe the auto-triggered deployment of only the backend service. No write
+  # actions: AutoDeployments starts the deploy when the new :latest is pushed, so
+  # CI never needs apprunner:StartDeployment.
   statement {
-    sid    = "AppRunnerDeploy"
+    sid    = "AppRunnerObserve"
     effect = "Allow"
     actions = [
-      "apprunner:StartDeployment",
       "apprunner:DescribeService",
       "apprunner:ListOperations",
     ]

@@ -46,9 +46,11 @@ The role can do only what a deploy needs (`infra/oidc/main.tf`):
 - ECR push/pull (`PutImage`, `InitiateLayerUpload`, `UploadLayerPart`, `CompleteLayerUpload`,
   `BatchCheckLayerAvailability`, `BatchGetImage`, `GetDownloadUrlForLayer`) **only** on the
   `level-up-backend` repository ARN.
-- `apprunner:StartDeployment`, `DescribeService`, `ListOperations` **only** on the backend service ARN.
+- `apprunner:DescribeService`, `ListOperations` (read-only) **only** on the backend service ARN.
+  No `StartDeployment` — App Runner AutoDeployments starts the deploy on the `:latest` push, so CI
+  only observes it.
 
-No IAM write, no S3, no broad `apprunner:*`, no access to other services.
+No IAM write, no S3, no broad `apprunner:*`, no deploy-write action, no access to other services.
 
 ## Runtime secrets (separate from deploy)
 

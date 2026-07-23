@@ -8,7 +8,7 @@ SHA=<good-sha>
 aws ecr batch-get-image --repository-name level-up-backend \
   --image-ids imageTag=$SHA --query 'images[0].imageManifest' --output text > m.json
 aws ecr put-image --repository-name level-up-backend --image-tag latest --image-manifest "$(cat m.json)"
-aws apprunner start-deployment --service-arn <service-arn>
+# App Runner AutoDeployments redeploys automatically on the moved :latest tag.
 ```
 Or simply `git revert` the offending commit on `master`; the pipeline builds and deploys the revert.
 App Runner keeps the previous running version until the new one passes its health check.

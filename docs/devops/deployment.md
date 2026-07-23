@@ -11,10 +11,15 @@ Workflow: [`.github/workflows/backend-deploy.yml`](https://github.com/ArtashMard
 
 ## Steps (what the job does)
 1. `configure-aws-credentials` assumes `AWS_DEPLOY_ROLE_ARN` via OIDC (temporary creds).
-2. ECR login → `docker build` → push `:<sha>` and `:latest`.
-3. `apprunner start-deployment` on `SERVICE_ARN`.
-4. Poll `describe-service` until `RUNNING` (fails on `*_FAILED`/`PAUSED` or timeout).
-5. Health check: `GET $SERVICE_URL/ready` until `200` (fails otherwise).
+2. Record the current App Runner operation id (to detect the new one).
+3. ECR login → `docker build` → push `:<sha>` and `:latest`.
+4. App Runner **AutoDeployments** starts one deployment on the new `:latest` (single trigger —
+   the workflow does **not** call `start-deployment`, avoiding a double-trigger).
+5. Wait for that **new** operation (`list-operations`) to reach `SUCCEEDED` (fails on
+   `ROLLBACK_*`/`FAILED` or timeout).
+6. Health check: `GET $SERVICE_URL/ready` until `200` (fails otherwise).
+
+A workflow-level `concurrency` group serializes deploys so two merges never race.
 
 ## Migrations & seed (automatic, in the container)
 - **Migrations**: `goose.Up` runs on startup (`cmd/server/main.go`) before serving.
