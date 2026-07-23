@@ -10,13 +10,30 @@ github_repo  = "level-up"
 service_name  = "level-up-backend"
 ecr_repo_name = "level-up-backend"
 
-# RDS (non-secret parts)
-db_host    = "level-up-backend-db.xxxxxxxx.us-east-2.rds.amazonaws.com"
-db_name    = "levelup"
-db_user    = "postgres"
-db_sslmode = "require"
+# --- Phase 1: control-plane only (recommended first apply) --------------------
+# Leave manage_runtime = false so Terraform does NOT touch the already-running
+# App Runner service / ECR repo. It only creates the OIDC deploy role + GitHub
+# repo config, pointed at the EXISTING runtime below. That alone enables
+# merge-to-master autodeploy (the service already has AutoDeployments on).
+manage_runtime = false
 
-# Behaviour
-seed_on_start          = true
-backend_deploy_enabled = false # flip to true when ready for auto-deploy on merge
-create_oidc_provider   = true  # set false if the account already has the GitHub OIDC provider
+# Existing prod runtime (needed when manage_runtime = false). Get these from the
+# live service: `aws apprunner list-services` / `aws ecr describe-repositories`.
+ecr_repository_arn    = "arn:aws:ecr:us-east-2:<acct>:repository/level-up-backend"
+apprunner_service_arn = "arn:aws:apprunner:us-east-2:<acct>:service/level-up-backend/<id>"
+apprunner_service_url = "https://xxxxxxxxxx.us-east-2.awsapprunner.com"
+
+# The GitHub account already has the OIDC provider → don't recreate it.
+create_oidc_provider = false
+
+# Flip to true (a second apply) once you've confirmed the deploy role + vars.
+backend_deploy_enabled = false
+
+# --- Phase 2: full IaC (later, separate PR) -----------------------------------
+# Set manage_runtime = true AFTER `terraform import`ing the live ECR + App
+# Runner (see docs/devops/aws-setup.md). Only then are db_* / seed_on_start used.
+# db_host    = "level-up-backend-db.xxxxxxxx.us-east-2.rds.amazonaws.com"
+# db_name    = "levelup"
+# db_user    = "postgres"
+# db_sslmode = "require"
+# seed_on_start = true
