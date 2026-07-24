@@ -282,6 +282,8 @@ export const hy = {
   dictionaryBack: 'Բառարան',
   dictionaryColWord: 'Բառ',
   // InterviewCoach
+  interviewPlacementNote:
+    'Արագ տեղաբաշխման թեստ՝ 6 հարցից — դասընթացի լայն ընդգրկում, որ անմիջապես լրացնի ձեր աճի ուղղությունները։ Կարող եք բաց թողնել։',
   interviewSetupSubtitle:
     'Ընտրեք դասընթացը, բարդությունն ու հարցերի քանակը։ AI-ն կտա մեկ հարց և կգնահատի յուրաքանչյուր պատասխանը։',
   interviewSignedOutBody:
@@ -304,6 +306,7 @@ export const hy = {
   interviewRecordingHint: 'Ձայնագրվում է… ավարտին սեղմեք կանգ',
   interviewSetupSummary: '{course} · {difficulty} · {n} հարց',
   interviewActiveError: 'Դուք արդեն ունեք ակտիվ հարցազրույց։',
+  interviewPlacementCta: 'Անցնել տեղաբաշխման թեստը (6 հարց)',
   interviewCompleteError: 'Չհաջողվեց ավարտել հարցազրույցը։',
   interviewFocusWeakest: 'Ամենաթույլ հմտությունը՝ {skill}',
   interviewCoachTagline: 'Պատրաստվեք AI հարցազրույցների։',
@@ -340,6 +343,7 @@ export const hy = {
   interviewTranscribing: 'Վերծանվում է…',
   interviewHowTitle: 'Ինչպես է աշխատում',
   interviewRubricStructure: 'Կառուցվածք',
+  interviewAssessmentLabel: 'Գնահատում',
   interviewBrowseCourses: 'Դասընթացներ',
   interviewFocusTitle: 'Թույլ կողմերը',
   interviewSessionComplete: 'Ավարտված',

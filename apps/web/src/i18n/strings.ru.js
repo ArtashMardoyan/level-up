@@ -285,6 +285,8 @@ export const ru = {
     'Выберите направление, уровень сложности и количество вопросов. AI-интервьюер задаёт по одному вопросу и даёт фидбэк после каждого ответа.',
   interviewHeroGuestBody:
     'Отвечайте на вопросы вслух, получайте оценку с фидбэком и образцовым ответом и отслеживайте прогресс. Войдите, чтобы начать.',
+  interviewPlacementNote:
+    'Быстрый ассессмент из 6 вопросов — широкий срез по курсу, чтобы сразу заполнить ваши «Зоны роста». Можно пропустить.',
   interviewConfirmBody:
     'Вам зададут {n} вопросов уровня «{difficulty}» по курсу {course}. Отвечайте своими словами — AI даёт фидбэк по ходу.',
   interviewSignedOutBody:
@@ -316,6 +318,7 @@ export const ru = {
   interviewConfirmScore: 'Общий балл и следующие шаги в конце',
   interviewSignedOutTitle: 'Войдите, чтобы начать интервью',
   interviewActiveError: 'У вас уже есть активное интервью.',
+  interviewPlacementCta: 'Пройти ассессмент (6 вопросов)',
   interviewPickCourseHint: 'Выберите курс, чтобы начать.',
   interviewHowStep3: '3 · Получите оценку с фидбэком',
   interviewConfirmNoTimer: 'Не спешите — таймера нет',
@@ -357,6 +360,7 @@ export const ru = {
   interviewConfirmTitle: 'Готовы начать?',
   interviewReviewTitle: 'Разбор вопросов',
   interviewQuestionsTotal: '{n} вопросов',
+  interviewAssessmentLabel: 'Ассессмент',
   interviewHowStep1: '1 · Выберите трек',
   interviewRubricCorrectness: 'Точность',
   interviewReviewAll: 'Разобрать ответы',

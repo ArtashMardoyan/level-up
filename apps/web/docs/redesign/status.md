@@ -136,3 +136,14 @@ The `List / Quiz / Interview` mode inside `PrepView` (per-course shuffled Q&A fl
 now `List / Quiz` only. This is unrelated to AI Interview Coach, which is untouched — see that
 section above. Line 18's "interview mode" mention above is a historical record of the original
 dark-redesign restyle and no longer reflects current UI.
+
+## M3 — Onboarding placement (2026-07-24)
+Presentation-only additions, no new CSS (reuses existing `.aic-*` classes):
+- New-user interview home leads with a "Take a 6-question placement" primary button
+  (`.aic-primary-btn`), with "Start your first interview" demoted to a `.aic-ghost-btn`
+  (skippable). `InterviewHome` gains an `onStartPlacement` prop.
+- `InterviewSetup` gains a `placement` mode: hides the question-count segment, shows a
+  `.aic-focus-body` note, and sends `kind: 'placement'` to `POST /interviews`.
+- `InterviewHistory` appends an "Assessment" label to a row when `session.kind === 'placement'`.
+- Strings `interviewPlacementNote` / `interviewPlacementCta` / `interviewAssessmentLabel`
+  added in en/ru/hy (hy machine-translated — flag for a native review).

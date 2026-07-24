@@ -14,6 +14,10 @@ type CreateInterviewRequest struct {
 	// defaults to a uniform pick, so existing callers are unaffected. The "Practice
 	// weak areas" deep-link sets it.
 	Adaptive bool `json:"adaptive"`
+	// Kind is "interview" (default) or "placement" (M3 onboarding assessment). For a
+	// placement the server fixes the length and disables adaptive/weighting, so
+	// questionCount/adaptive here are ignored; difficulty/language still apply.
+	Kind string `json:"kind" binding:"omitempty,oneof=interview placement"`
 }
 
 // SubmitAnswerRequest saves + evaluates one answer. A skipped answer scores 0

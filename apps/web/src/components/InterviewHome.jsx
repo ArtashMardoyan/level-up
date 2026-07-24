@@ -48,6 +48,7 @@ function Hero({ children, body, t }) {
 }
 
 export default function InterviewHome({
+  onStartPlacement,
   onBrowseCourses,
   onPracticeWeak,
   onRequireAuth,
@@ -123,14 +124,18 @@ export default function InterviewHome({
     )
   }
 
-  // NEW USER (no sessions)
+  // NEW USER (no sessions) — lead with the placement (M3): a short assessment that
+  // seeds Focus areas from interview #1. Starting a full interview stays available.
   if (total === 0) {
     return (
       <main className="aic">
         <Hero body={t('interviewHeroNewBody')} t={t}>
-          <button className="aic-primary-btn" onClick={onStartNew} type="button">
-            <Sparkles aria-hidden="true" size={16} /> {t('interviewHeroStartFirst')}
+          <button className="aic-primary-btn" onClick={onStartPlacement} type="button">
+            <Sparkles aria-hidden="true" size={16} /> {t('interviewPlacementCta')}
             <ArrowRight aria-hidden="true" size={15} />
+          </button>
+          <button className="aic-ghost-btn" onClick={onStartNew} type="button">
+            {t('interviewHeroStartFirst')}
           </button>
         </Hero>
         <HowItWorks t={t} />

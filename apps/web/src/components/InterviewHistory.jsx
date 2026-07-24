@@ -122,6 +122,7 @@ export default function InterviewHistory({ courses, onOpen, onBack, onNew }) {
                     <span>
                       {fmtDate(s)} · {t('difficulty_' + s.difficulty)} ·{' '}
                       {t('interviewQuestionsTotal', { n: s.questionCount })}
+                      {s.kind === 'placement' ? ' · ' + t('interviewAssessmentLabel') : ''}
                       {s.status !== 'completed' ? ' · ' + t('interviewInProgress') : ''}
                     </span>
                     <span className="aic-recent-lang">

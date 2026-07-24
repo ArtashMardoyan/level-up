@@ -45,7 +45,7 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	view, err := h.service.Start(c.Request.Context(), caller.ID, caller.Name, req)
+	view, err := h.service.Start(c.Request.Context(), caller.ID, caller.Name, &req)
 	if err != nil {
 		writeError(c, err)
 		return

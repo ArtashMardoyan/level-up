@@ -4,7 +4,25 @@
 > what's open, the git/deploy state, and how to continue. The full spec is the
 > other files in this folder (`001`–`016`); this file is the live status on top.
 
-_Last updated: 2026-07-23._
+_Last updated: 2026-07-24._
+
+## M3 — Onboarding placement assessment (2026-07-24, in progress)
+
+Spec: [`017-onboarding-placement.md`](017-onboarding-placement.md). A short, optional
+placement on signup seeds a new user's `topic_progress` so Insights populate from
+interview #1 — the interview engine reused, marked `kind = "placement"`.
+
+- **DB:** migration `00018` — `interview_sessions.kind TEXT NOT NULL DEFAULT 'interview'`.
+- **Backend:** `Session.Kind`; `POST /interviews` accepts optional `kind`; `resolveKind`
+  fixes a placement to 6 questions + uniform (non-adaptive) pick; `SummaryByUser` excludes
+  placements (calibration, not performance). Completion seeds `topic_progress` unchanged.
+  Placements stay visible in History (labeled "Assessment") and feed Insights/adaptive.
+- **Frontend:** new-user home leads with a "Take a 6-question placement" CTA (full interview
+  stays available → skippable); `InterviewSetup` gains a `placement` mode (hides the count
+  picker, shows a note, sends `kind: 'placement'`); History labels placements "Assessment".
+  Strings added in en/ru/hy (hy machine-translated — flag for a native review).
+
+**Scope (MVP):** one course per placement; multi-course broad placement deferred.
 
 ## M2 — Adaptive interviews & trackable recommendations (2026-07-23)
 

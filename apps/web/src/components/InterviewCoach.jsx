@@ -94,6 +94,12 @@ export default function InterviewCoach({ onRequireAuth, onNavigate, sessionId, c
     setStartIntent({ adaptive: true, courseSlug })
     onNavigate('interview', 'new')
   }
+  // Onboarding placement (M3): a short, server-fixed assessment that seeds the new
+  // user's Focus areas. Course chosen on the setup screen (no preselect).
+  const startPlacement = () => {
+    setStartIntent({ placement: true })
+    onNavigate('interview', 'new')
+  }
   const goHistory = () => onNavigate('interview', 'history')
   const openSession = (id) => onNavigate('interview', id)
   const browseCourses = () => onNavigate('courses')
@@ -105,6 +111,7 @@ export default function InterviewCoach({ onRequireAuth, onNavigate, sessionId, c
   if (sessionId === 'new') {
     return (
       <InterviewSetup
+        placement={startIntent?.placement || false}
         initialCourseId={startIntent?.courseSlug}
         adaptive={startIntent?.adaptive || false}
         onStarted={openSession}
@@ -127,6 +134,7 @@ export default function InterviewCoach({ onRequireAuth, onNavigate, sessionId, c
 
   return (
     <InterviewHome
+      onStartPlacement={startPlacement}
       onBrowseCourses={browseCourses}
       onPracticeWeak={practiceWeak}
       onOpenSession={openSession}
