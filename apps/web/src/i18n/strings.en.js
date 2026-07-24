@@ -292,6 +292,8 @@ export const en = {
     'The AI Interview Coach tracks your sessions and scores, so you need an account. Sign in from the menu to begin.',
   interviewHeroNewBody:
     'Answer questions out loud, one at a time, and get scored feedback with a model answer after every response.',
+  interviewPlacementNote:
+    'A quick 6-question placement — a broad read across the course to seed your Focus areas. You can skip it.',
   interviewWelcomeBody: 'Keep the momentum going. Run a mock interview and get scored feedback on every answer.',
   interviewAdaptiveNote: 'Focused on your weak areas — questions lean toward the topics you scored lowest on.',
   interviewHistoryEmptyBody: 'Run your first mock interview to start tracking scores and progress over time.',
@@ -319,6 +321,7 @@ export const en = {
   interviewRecordingHint: 'Recording… tap stop when done',
   interviewHistoryEmptyCta: 'Start your first interview',
   interviewHeroStartFirst: 'Start your first interview',
+  interviewPlacementCta: 'Take a 6-question placement',
   interviewConfirmNoTimer: 'Take your time — no timer',
   interviewContinuePracticing: 'Continue practicing',
   interviewPickCourseHint: 'Pick a course to begin.',
@@ -354,6 +357,7 @@ export const en = {
   interviewContinue: 'Continue · {track}',
   interviewBackResults: 'Back to results',
   interviewReviewTitle: 'Question review',
+  interviewAssessmentLabel: 'Assessment',
   interviewTranscribing: 'Transcribing…',
   interviewReconnecting: 'Reconnecting…',
   interviewHowStep1: '1 · Pick a track',

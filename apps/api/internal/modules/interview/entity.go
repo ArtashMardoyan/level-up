@@ -29,6 +29,21 @@ const (
 	EvalFailed EvalStatus = "failed"
 )
 
+// Kind separates a regular interview from an onboarding placement assessment
+// (M3, docs/product/interview). A placement reuses the whole interview engine but
+// is short and server-configured; its completion seeds topic_progress. Stats
+// exclude placements while history shows them, labeled.
+type Kind string
+
+const (
+	KindInterview Kind = "interview"
+	KindPlacement Kind = "placement"
+)
+
+// PlacementQuestionCount is the fixed length of an onboarding placement (~8 min,
+// broad first read of the course). Non-adaptive: a uniform spread, not weighted.
+const PlacementQuestionCount = 6
+
 // Difficulty and Language are stored as free TEXT; validated at the DTO layer.
 const (
 	LangEN = "en"
@@ -128,6 +143,7 @@ type Session struct {
 	ID            string             `json:"id"            gorm:"primaryKey"`
 	UserID        string             `json:"userId"        gorm:"column:userId"`
 	CourseID      string             `json:"courseId"      gorm:"column:courseId"`
+	Kind          Kind               `json:"kind"          gorm:"column:kind"`
 	Difficulty    string             `json:"difficulty"`
 	Language      string             `json:"language"`
 	Status        Status             `json:"status"`

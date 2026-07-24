@@ -209,8 +209,10 @@ func (r *gormRepository) SummaryByUser(ctx context.Context, userID string) (tota
 		Best  float64
 	}
 
+	// Placements (M3) are calibration, not performance — keep them out of the
+	// "Interview performance" count/average/best and the "last completed" card.
 	err = r.db.WithContext(ctx).Model(&Session{}).
-		Where(`"userId" = ? AND "status" = ?`, userID, StatusCompleted).
+		Where(`"userId" = ? AND "status" = ? AND "kind" = ?`, userID, StatusCompleted, KindInterview).
 		Select(`COUNT(*) AS total, COALESCE(AVG("overallScore"), 0) AS avg, COALESCE(MAX("overallScore"), 0) AS best`).
 		Scan(&agg).Error
 	if err != nil {
@@ -224,7 +226,7 @@ func (r *gormRepository) SummaryByUser(ctx context.Context, userID string) (tota
 	var last Session
 
 	err = r.db.WithContext(ctx).
-		Where(`"userId" = ? AND "status" = ?`, userID, StatusCompleted).
+		Where(`"userId" = ? AND "status" = ? AND "kind" = ?`, userID, StatusCompleted, KindInterview).
 		Order(`"completedAt" DESC`).
 		First(&last).Error
 	if err != nil {

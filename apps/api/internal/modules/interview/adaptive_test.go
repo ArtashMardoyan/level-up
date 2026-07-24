@@ -101,6 +101,19 @@ func TestPickQuestionsBiasesWeakModule(t *testing.T) {
 	}
 }
 
+func TestResolveKind(t *testing.T) {
+	// A placement is server-fixed: short, non-adaptive, regardless of the request's
+	// questionCount/adaptive.
+	if k, n, a := resolveKind(&CreateInterviewRequest{Kind: "placement", QuestionCount: 20, Adaptive: true}); k != KindPlacement || n != PlacementQuestionCount || a {
+		t.Fatalf("placement resolve = %v/%d/%v, want %v/%d/false", k, n, a, KindPlacement, PlacementQuestionCount)
+	}
+
+	// A regular interview (empty kind) honors the request.
+	if k, n, a := resolveKind(&CreateInterviewRequest{QuestionCount: 8, Adaptive: true}); k != KindInterview || n != 8 || !a {
+		t.Fatalf("interview resolve = %v/%d/%v, want %v/8/true", k, n, a, KindInterview)
+	}
+}
+
 func TestUpdateTopicProgressSeedsThenBlends(t *testing.T) {
 	repo := &stubRepo{}
 	svc := &Service{repo: repo}

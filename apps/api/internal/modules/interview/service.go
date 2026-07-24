@@ -50,7 +50,19 @@ func NewService(repo Repository, content ContentReader, ai AI, badges BadgeAward
 
 // Start creates a session, snapshots the chosen questions, and returns the first
 // question (docs/product/interview/004).
-func (s *Service) Start(ctx context.Context, userID, userName string, req CreateInterviewRequest) (SessionView, error) {
+// resolveKind maps a request to its session kind and question-pick parameters. A
+// placement (M3) is server-fixed — short and uniform (non-adaptive) for a broad
+// first read — so the client can't tune its length or weighting; a regular
+// interview honors the request's questionCount/adaptive.
+func resolveKind(req *CreateInterviewRequest) (kind Kind, count int, adaptive bool) {
+	if req.Kind == string(KindPlacement) {
+		return KindPlacement, PlacementQuestionCount, false
+	}
+
+	return KindInterview, req.QuestionCount, req.Adaptive
+}
+
+func (s *Service) Start(ctx context.Context, userID, userName string, req *CreateInterviewRequest) (SessionView, error) {
 	if _, active, err := s.repo.FindActiveByUser(ctx, userID); err != nil {
 		return SessionView{}, err
 	} else if active {
@@ -70,6 +82,8 @@ func (s *Service) Start(ctx context.Context, userID, userName string, req Create
 		return SessionView{}, ErrNoQuestions
 	}
 
+	kind, count, adaptive := resolveKind(req)
+
 	// The bank isn't tagged by difficulty (docs/004) — difficulty is applied as a
 	// generation instruction to the AI instead of filtering the pool (ensureGenerated).
 	//
@@ -77,17 +91,18 @@ func (s *Service) Start(ctx context.Context, userID, userName string, req Create
 	// course (docs/product/interview/007); a nil map (non-adaptive, or no history)
 	// falls back to a uniform pick.
 	var moduleAvg map[string]float64
-	if req.Adaptive {
+	if adaptive {
 		if moduleAvg, err = s.repo.ModuleScoresByUserCourse(ctx, userID, c.ID); err != nil {
 			return SessionView{}, err
 		}
 	}
 
-	chosen := pickQuestions(all, req.QuestionCount, moduleAvg)
+	chosen := pickQuestions(all, count, moduleAvg)
 
 	session := &Session{
 		UserID:        userID,
 		CourseID:      c.ID,
+		Kind:          kind,
 		Difficulty:    req.Difficulty,
 		Language:      req.Language,
 		Status:        StatusInProgress,

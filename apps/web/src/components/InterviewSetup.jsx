@@ -14,7 +14,20 @@ const LANGUAGES = [
   { label: 'ARM', flag: '🇦🇲', code: 'hy' }
 ]
 
-export default function InterviewSetup({ adaptive = false, initialCourseId, onHistory, onStarted, courses, onBack }) {
+// PLACEMENT_COUNT mirrors the backend's server-fixed placement length (M3,
+// docs/product/interview/017); the picker is hidden and this is sent for the
+// summary text only — the server ignores questionCount for a placement.
+const PLACEMENT_COUNT = 6
+
+export default function InterviewSetup({
+  placement = false,
+  adaptive = false,
+  initialCourseId,
+  onHistory,
+  onStarted,
+  courses,
+  onBack
+}) {
   const { language, t } = useLanguage()
 
   const available = courses.filter((c) => c.questions?.length > 0)
@@ -32,12 +45,21 @@ export default function InterviewSetup({ adaptive = false, initialCourseId, onHi
 
   const selected = available.find((c) => c.id === courseId) || null
   const accent = selected?.accent || '#818cf8'
+  // A placement fixes its own length server-side; the count picker is hidden.
+  const effectiveCount = placement ? PLACEMENT_COUNT : count
 
   const start = () => {
     if (!selected || submitting) return
     setSubmitting(true)
     setError(null)
-    interviewsCreate({ courseSlug: selected.id, questionCount: count, language: lang, difficulty, adaptive })
+    interviewsCreate({
+      kind: placement ? 'placement' : 'interview',
+      questionCount: effectiveCount,
+      courseSlug: selected.id,
+      language: lang,
+      difficulty,
+      adaptive
+    })
       .then((view) => onStarted(view.session.id))
       .catch((e) => {
         setError(e?.status === 409 ? t('interviewActiveError') : t('interviewStartError'))
@@ -62,6 +84,7 @@ export default function InterviewSetup({ adaptive = false, initialCourseId, onHi
       <h1 className="aic-title">{t('interviewSetupTitle')}</h1>
       <p className="aic-subtitle">{t('interviewSetupSubtitle')}</p>
       {adaptive && <p className="aic-focus-body">{t('interviewAdaptiveNote')}</p>}
+      {placement && <p className="aic-focus-body">{t('interviewPlacementNote')}</p>}
 
       <div className="aic-step-label">{t('interviewStepCourse')}</div>
       <div className="aic-course-grid">
@@ -98,21 +121,23 @@ export default function InterviewSetup({ adaptive = false, initialCourseId, onHi
             ))}
           </div>
         </div>
-        <div>
-          <div className="aic-step-label">{t('interviewStepCount')}</div>
-          <div className="aic-seg">
-            {COUNTS.map((n) => (
-              <button
-                className={'aic-seg-btn' + (n === count ? ' active' : '')}
-                onClick={() => setCount(n)}
-                type="button"
-                key={n}
-              >
-                {n}
-              </button>
-            ))}
+        {!placement && (
+          <div>
+            <div className="aic-step-label">{t('interviewStepCount')}</div>
+            <div className="aic-seg">
+              {COUNTS.map((n) => (
+                <button
+                  className={'aic-seg-btn' + (n === count ? ' active' : '')}
+                  onClick={() => setCount(n)}
+                  type="button"
+                  key={n}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
         <div>
           <div className="aic-step-label">{t('interviewStepLanguage')}</div>
           <div className="aic-seg">
@@ -145,7 +170,7 @@ export default function InterviewSetup({ adaptive = false, initialCourseId, onHi
                 difficulty: t('difficulty_' + difficulty).toLowerCase(),
                 lang: LANGUAGES.find((l) => l.code === lang)?.label,
                 course: selected.title,
-                n: count
+                n: effectiveCount
               })
             : t('interviewPickCourseHint')}
         </span>
@@ -162,7 +187,7 @@ export default function InterviewSetup({ adaptive = false, initialCourseId, onHi
               {t('interviewConfirmBody', {
                 difficulty: t('difficulty_' + difficulty),
                 course: selected.title,
-                n: count
+                n: effectiveCount
               })}
             </p>
             <ul className="aic-modal-list">
